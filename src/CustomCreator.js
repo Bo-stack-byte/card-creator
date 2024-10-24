@@ -334,9 +334,17 @@ function CustomCreator() {
         ctx.font = `bold 100px Arial`;
         ctx.fillText(id, 2780, 3400 + delta_y);
 
-        // traits: form, attribute, type
+          // traits: form, attribute, type
+	  let form = json.form || '';
+	  let attribute = json.attribute || '';
+	  let type = json.type || '';
+	  // todo don't show when all blank
         const traits = ` ${json.form}      |     ${json.attribute}      |      ${json.type}      `;
-        ctx.fillStyle = whiteColor(colors[1]);
+          ctx.fillStyle = whiteColor(colors[1]);
+	  if (t.match(/tamer/i)) {
+	      ctx.fillStyle = 'black';
+	      delta_y += 50;
+	  }
         ctx.font = `60px Roboto`;
         ctx.fillText(traits, 2780, 3500 + delta_y * 0.9);
 
@@ -364,12 +372,14 @@ function CustomCreator() {
         ctx.textAlign = 'start';
         ctx.textBaseline = 'bottom'; // Align text to the bottom
 
+	  
         const evo_effect = json.evolveEffect;
-        const sec_effect = (evo_effect != "-") ? evo_effect : json.securityEffect;
+        const sec_effect = (evo_effect && evo_effect != "-") ? evo_effect : json.securityEffect;
         ctx.fillStyle = 'black';
-        if (sec_effect) {
+          if (sec_effect) {
+	      console.log(23323);
+	      console.log(sec_effect);
           drawBracketedText(ctx, sec_effect,
-            //wrapText(ctx, effect, // + effect, 
             900 + delta_y * 2, 3800 + delta_y * 2,
             1600, 90);
         }

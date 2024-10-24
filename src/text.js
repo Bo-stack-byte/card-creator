@@ -54,12 +54,14 @@ function splitTextIntoParts(text) {
 }
 
 //x,y is upper left
-function drawBlueRectangle(ctx, x, y, width, height) {
-
+function drawBlueRectangle(ctx, x, y, width, height, purple=false) {
+//#922969 darker ois lower
+    let color0 = purple ? '#720949' : 'darkblue';
+    let color1 = purple ? '#b24999' : 'lightblue';
   // Draw the background rectangle with gradient
   const gradient = ctx.createLinearGradient(x, y - 90, x, y);
-  gradient.addColorStop(0, 'darkblue');
-  gradient.addColorStop(1, 'lightblue');
+    gradient.addColorStop(0, color0);
+  gradient.addColorStop(1, color1);
   ctx.fillStyle = gradient;
   ctx.fillRect(x, y - 90 - 10, width + 10, height);
 
@@ -145,8 +147,11 @@ function wrapAndDrawText(ctx, text, x, y, bracketedWords) {
     if (bracketedWords.includes(cleanPhrase)) {
       // Calculate the width of the bracketed text
       ctx.font = `bold 90px ${font}`;
-      const phraseWidth = ctx.measureText(cleanPhrase).width;
-      drawBlueRectangle(ctx, lastX, y, phraseWidth + 10, 100);
+	const phraseWidth = ctx.measureText(cleanPhrase).width;
+	console.log("xxx is " + cleanPhrase);
+	let purple = (['Hand', 'Trash', 'Breeding', 'Security'].includes(cleanPhrase));
+	console.log("xxx is " + purple);
+	drawBlueRectangle(ctx, lastX, y, phraseWidth + 10, 100, purple);
       // Draw the text in white
       ctx.fillStyle = 'white';
       ctx.fillText(cleanPhrase, lastX + 5, y);

@@ -1,6 +1,7 @@
 {
   "name": "my-app",
-  "version": "0.1.0",
+  "homepage": "/card-creator",
+    "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@fontsource/roboto": "^5.1.0",

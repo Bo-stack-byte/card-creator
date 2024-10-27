@@ -41,10 +41,10 @@ const starter_text_1a = `  {
     "dnaEvolve": "-",
 
     "aceEffect": "-",
-    "block": ["00", "01"],
     "burstEvolve": "-",
     "rarity": "Rare"
   }`;
+//     "block": ["00", "01"], just remove this entirely, no one cares
 
 const starter_text_1b = `  {
     "cardType": "Monster",
@@ -69,7 +69,6 @@ const starter_text_1b = `  {
     "digiXros": "-",
 
     "aceEffect": "-",
-    "block": ["00", "01"],
     "burstEvolve": "-",
     "rarity": "Secret Rare"
   }
@@ -85,7 +84,6 @@ const starter_text_2 = `  {
   "effect": "[Main] Suspend 2 of your opponent's Monsters. Then, return 1 of your opponent's suspended Monster to its owner's hand.",
   "securityEffect": "[Security] Activate this card's [Main] effect.",
 
-  "block": ["01"],
   "rarity": "Rare"
   }`;
 
@@ -99,17 +97,20 @@ const starter_text_3 = `   {
     "securityEffect": "[Security] Play this card without paying the cost.",
     "attribute": "Data",
 
-    "rarity": "Rare",
-    "block": ["01"]
+    "rarity": "Rare"
     }`;
 
 const starter_text = starter_text_1a;
 
 
 const decodeAndDecompress = (encodedString) => {
+  try {
   const decoded = Base64.toUint8Array(encodedString);
   const decompressed = pako.inflate(decoded, { to: 'string' });
   return decompressed;
+  } catch {
+    return "";
+  }
 //  return JSON.parse(decompressed);
 };
 
@@ -118,7 +119,8 @@ function CustomCreator() {
   const params = new URLSearchParams(window.location.search);
   let share = params.get("share");
   console.log("share", share);
-  let start = share ? decodeAndDecompress(share) : starter_text;
+  let start = share ? decodeAndDecompress(share) : "";
+  start ||= starter_text;
   console.log("start", start);
   const canvasRef = useRef(null);
   const [userImg, setUserImg] = useState(null);
@@ -637,10 +639,9 @@ function CustomCreator() {
           <hr />
           <button onClick={getShare}>Share!</button>
           <br />
-          <a href={shareURL}>{shareURL}</a>
+          <a class={{fontSize:"8px;"}} href={shareURL}>{shareURL}</a>
           <hr />
-          <span> Unimplemented: ace, block, <br />
-           burst, rarity  <br />
+          <span> Unimplemented: ace, burst, rarity <br />
           </span>
         </td>
       </tr>

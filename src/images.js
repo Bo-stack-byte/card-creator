@@ -25,6 +25,14 @@ import tamer_black from './frames/tamer-black1.png';
 import tamer_white from './frames/tamer-white1.png';
 
 
+import evo_red from './frames/evo-red_out.png';
+import evo_blue from './frames/evo-blue_out.png';
+import evo_yellow from './frames/evo-yellow_out.png';
+import evo_green from './frames/evo-green_out.png';
+import evo_purple from './frames/evo-purple_out.png';
+import evo_black from './frames/evo-black_out.png';
+import evo_white from './frames/evo-white_out.png';
+
 
 
 export const basics = {
@@ -55,4 +63,28 @@ export const tamers = {
   'purple': tamer_purple,
   'black': tamer_black,
   'white': tamer_white,
+}
+
+
+export const evos = {
+  'red': evo_red,
+  'blue': evo_blue,
+  'yellow': evo_yellow,
+  'green': evo_green,
+  'purple': evo_purple,
+  'black': evo_black,
+  'white': evo_white,
+}
+
+export function colorReplace(str) {
+  str = str.replaceAll(/Red/ig, "🔴");
+  str = str.replaceAll(/Blue/ig, "🔵");
+  str = str.replaceAll(/Yellow/ig, "🟡");
+  str = str.replaceAll(/Green/ig, "🟢");
+  str = str.replaceAll(/Purple/ig, "🟣");
+  str = str.replaceAll(/Black/ig, "⚫"); // that's black, really
+  str = str.replaceAll(/White/ig, "⚪");
+  return str;
+// ⬤  ⬤ 🔴 🔶 🟡
+  
 }

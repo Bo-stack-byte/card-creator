@@ -1,13 +1,20 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { basics, options, tamers, evos, colorReplace } from './images';
+import { eggs, basics, options, tamers, evos, colorReplace } from './images';
 import { fitTextToWidth, drawBracketedText } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
+import shieldsmasher from './shieldsmasher.png';
+import rampager from './rampager.png'
+import doublebind from './double-bind.png'
+import amy from './amy.png';
+
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-// version 0.4. At least as good as the prior one.
+// version 0.4.3. more-than-2 color, eggs, default images
+// version 0.4.2. Better error handling, re-orient custom image
+
 
 function contrastColor(color) {
   if (["red", "blue", "green", "purple", "black"].includes(color)) return "white";
@@ -18,6 +25,25 @@ function whiteColor(color) {
   if (color.toLowerCase() === "black") return "black";
   return "white";
 }
+
+const starter_text_0 = `  {
+   "cardType": "Egg",
+    "cardLv": "Lv.2",
+    "cardNumber": "CS2-01",
+    "color": "Green",
+    "evolveCondition": [],
+    "evolveEffect": "[Your Turn] While you have a red Monster or Tamer in play, all your Monsters gain +1000 DP.",
+    "dp": "-",
+    "effect": "-",
+    "id": "CS2-01",
+    "name": {  "english": "Doggie Dagger"  },
+    "playCost": "-",
+    "form": "In-Training",
+    "attribute": "Data",
+    "type": "Sword",
+    "rarity": "C"
+  }
+`
 
 const starter_text_1a = `  {
     "cardType": "Monster",
@@ -105,31 +131,37 @@ const starter_text = starter_text_1a;
 
 const decodeAndDecompress = (encodedString) => {
   try {
-  const decoded = Base64.toUint8Array(encodedString);
-  const decompressed = pako.inflate(decoded, { to: 'string' });
-  return decompressed;
+    const decoded = Base64.toUint8Array(encodedString);
+    const decompressed = pako.inflate(decoded, { to: 'string' });
+    return decompressed;
   } catch {
     return "";
   }
-//  return JSON.parse(decompressed);
+  //  return JSON.parse(decompressed);
 };
 
 function CustomCreator() {
-  
+
+
+  useEffect(() => {
+    // first time init
+  }, []);
+
   const params = new URLSearchParams(window.location.search);
   let share = params.get("share");
-  console.log("share", share);
   let start = share ? decodeAndDecompress(share) : "";
   start ||= starter_text;
-  console.log("start", start);
   const canvasRef = useRef(null);
   const [userImg, setUserImg] = useState(null);
   const [jsonText, setJsonText] = useState(start);
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageOptions, setImageOptions] = useState({
+    url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95
+  }
+  );
+
   const [showJson, setShowJson] = useState(false);
   const [formData, setFormData] = useState({}); // redundant
   const [shareURL, setShareURL] = useState("");
-
 
   const toggleView = () => {
     setShowJson(!showJson);
@@ -153,15 +185,19 @@ function CustomCreator() {
     return result;
   };
 
-  let jsonerror = "none";
-  const handleTextareaChange = (event) => {
-    // update the form data
-    console.log("event", event);
-    console.log("json", event.target.value);
-    let jsonTxt = event.target.value;
-    setJsonText(jsonTxt);
+  const updateImg = (e) => {
+    const { name, value } = e.target;
+    setImageOptions(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+    draw();
+  };
+
+  const jsonToFields = (text) => {
     try {
-      parsedJson = JSON.parse(event.target.value);
+      parsedJson = JSON.parse(text);
+      console.log("tofields", parsedJson);
       flattenedJson = flattenJson(parsedJson);
       console.log(flattenedJson);
     } catch (e) {
@@ -173,6 +209,29 @@ function CustomCreator() {
       formData[key] = value;
     }
     )
+  }
+
+  let jsonerror = "none";
+  const handleTextareaChange = (event) => {
+    // update the form data
+    console.log("event", event);
+    console.log("json", event.target.value);
+    let jsonTxt = event.target.value;
+    setJsonText(jsonTxt);
+    jsonToFields(jsonTxt);
+    /*  try {
+        parsedJson = JSON.parse(event.target.value);
+        flattenedJson = flattenJson(parsedJson);
+        console.log(flattenedJson);
+      } catch (e) {
+        jsonerror = e;
+        console.error("json error");
+        return;
+      }
+      Object.entries(flattenedJson).map(([key, value]) => {
+        formData[key] = value;
+      }
+      ) */
   }
 
   const handleInputChange = (key, value) => {
@@ -204,15 +263,22 @@ function CustomCreator() {
     parsedJson = JSON.parse(jsonText);
     flattenedJson = flattenJson(parsedJson);
     console.log(flattenedJson);
-} catch (e) {
+  } catch (e) {
     jsonerror = e.toString();
-  //  console.error("json error");
+    //  console.error("json error");
   }
 
   useEffect(() => {
     console.log("in use, before draw");
     console.log(jsonText.substring(0, 200));
-    draw();
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (canvas.width != 2977) {
+      canvas.width = 2977;
+      canvas.height = 4158;
+    }
+
+    draw(canvas, ctx);
     console.log("in use, after draw");
 
   }, [userImg, jsonText]); // Redraw on image or text change
@@ -233,7 +299,7 @@ function CustomCreator() {
   const loadImageFromUrl = () => {
     const img = new Image();
     img.crossOrigin = "Anonymous"; // of CORS
-    img.src = imageUrl;
+    img.src = imageOptions.url;
     img.onload = () => {
       setUserImg(img);
     };
@@ -241,26 +307,37 @@ function CustomCreator() {
 
   const sample = (number) => {
     console.log("UPDATING TO " + number);
+    let text = '';
     switch (number) {
-      case 1: setJsonText(starter_text_1a); break;
-      case 2: setJsonText(starter_text_1b); break;
-      case 3: setJsonText(starter_text_2); break;
-      case 4: setJsonText(starter_text_3); break;
-      default: // nothing
+      case 0: text = starter_text_0; break;
+      case 1: text = starter_text_1a; break;
+      case 2: text = starter_text_1b; break;
+      case 3: text = starter_text_2; break;
+      case 4: text = starter_text_3; break;
+      default: return;
     }
+
+    setJsonText(text);
+    console.log("SETTING JSON TEXT", text);
+    jsonToFields(text);
+
   }
 
-  const getShare = () => { 
+  const getShare = () => {
     console.log("jsonText", jsonText);
     const compressed = pako.deflate(jsonText);
     const encoded = Base64.fromUint8Array(compressed, true); // URL-safe
     console.log("encoded", encoded);
-    let url = window.location.href  + "?share=" + encoded;
+    let url = window.location.href + "?share=" + encoded;
     setShareURL(url);
     navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
   }
 
+  //  const draw = (canvas, ctx) => {
   const draw = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
     let json;
     try {
       json = JSON.parse(jsonText);
@@ -270,55 +347,65 @@ function CustomCreator() {
     }
     console.log("parsing", json);
 
+    if (document.fred === 72) return;
+
     const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["white", "black"]; // todo: better default
     // default to 2 colors
     if (colors.length === 1) colors.push(colors[0]);
 
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+
     const leftImg = new Image();
     const rightImg = new Image();
-    const eggImg = new Image();
+    const baseImg = new Image();
 
     let t;
     let array = basics;
+    let type = "MONSTER";
     if (t = json.cardType) {
-      if (t.match(/option/i)) array = options;
-      if (t.match(/tamer/i)) array = tamers;
+      if (t.match(/option/i)) type = "OPTION";
+      if (t.match(/tamer/i)) type = "TAMER";
+      if (t.match(/egg/i) || t.match(/tama/i)) type = "EGG";
     }
 
-    eggImg.src = egg;
 
     console.log(1233);
     const _evos = json.evolveCondition;
 
     const afterLoad = () => {
+      console.log(document.fred);
       console.log("LOADING");
       // Set the canvas dimensions
-      canvas.width = 2977;
-      canvas.height = 4158;
 
-      if (userImg) {
-        ctx.drawImage(userImg, 0, 0, canvas.width, canvas.height);
-      } else {
-        ctx.drawImage(eggImg, 0, 0, canvas.width, canvas.height);
-      }
-
+      let back_img = userImg || baseImg;
+      console.log(back_img);
+      console.log("imageOptions", imageOptions);
+      let i_width = canvas.width * Number(imageOptions.x_scale) / 100;
+      let i_height = canvas.height * Number(imageOptions.y_scale) / 100;
+      let i_x_pct = (100 - Number(imageOptions.x_scale)) / 2 + Number(imageOptions.x_pos);
+      let i_y_pct = (100 - Number(imageOptions.y_scale)) / 2 + Number(imageOptions.y_pos);
+      //    let i_x_pct = ((100 - imageOptions.x_scale) / 100 / 2 + Number(imageOptions.x_pos) + 100) / 100;
+      //  let i_y_pct = ((100 - imageOptions.y_scale) / 100 / 2 + Number(imageOptions.y_pos) + 100) / 100;
+      ctx.drawImage(back_img, i_x_pct * canvas.width / 100, i_y_pct * canvas.height / 100, i_width, i_height);
+      //   console.log(i_width, i_height, i_x_pct, i_y_pct);
       // Draw the left half of the left image scaled down
-
-      try {
-        ctx.drawImage(leftImg,
-          0, 0, leftImg.width / 2, leftImg.height,
-          0, 0, canvas.width / 2, canvas.height);
-      } catch { };
-
+      //    console.log(leftImg, leftImg.src);
+      if (!leftImg.src.match(/undefined/)) {
+        try {
+          ctx.drawImage(leftImg,
+            0, 0, leftImg.width / 2, leftImg.height,
+            0, 0, canvas.width / 2, canvas.height);
+        } catch { console.log("leftimg broken", leftImg) };
+      }
       // Draw the right half of the right image scaled down
-      try {
-        ctx.drawImage(rightImg,
-          rightImg.width / 2, 0, rightImg.width / 2, rightImg.height,
-          canvas.width / 2, 0, canvas.width / 2, canvas.height);
-      } catch { };
+      //   console.log(rightImg, rightImg.src);
 
+      if (!rightImg.src.match(/undefined/)) {
+        try {
+          ctx.drawImage(rightImg,
+            rightImg.width / 2, 0, rightImg.width / 2, rightImg.height,
+            canvas.width / 2, 0, canvas.width / 2, canvas.height);
+        } catch { console.log("rightimg broken", rightImg) };
+      }
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
@@ -366,7 +453,7 @@ function CustomCreator() {
         ctx.fillText(playcost, x, 395);
       }
 
-      if (t.match(/mon/i)) {
+      if (type === "MONSTER") {
 
 
         // dp
@@ -388,11 +475,12 @@ function CustomCreator() {
       }
 
       let delta_y = 0;
-      if (t.match(/option/i)) {
-        delta_y -= 100;
-      }
-      if (t.match(/tamer/i)) {
-        delta_y -= 150;
+      switch (type) {
+        case "OPTION": delta_y -= 100; break;
+        case "TAMER": delta_y -= 150; break;
+        case "EGG": delta_y -= 150; break;
+        case "MONSTER": break;
+        default: alert(1);
       }
 
       // name
@@ -425,11 +513,11 @@ function CustomCreator() {
       // traits: form, attribute, type
       let form = json.form || '';
       let attribute = json.attribute || '';
-      let type = json.type || '';
+      let c_type = json.type || '';
       // todo don't show when all blank
-      const traits = ` ${form}      |     ${attribute}      |      ${type}      `;
+      const traits = ` ${form}      |     ${attribute}      |      ${c_type}      `;
       ctx.fillStyle = whiteColor(colors[1]);
-      if (t.match(/tamer/i)) {
+      if (type === "TAMER") {
         ctx.fillStyle = 'black';
         delta_y += 50;
       }
@@ -497,24 +585,32 @@ function CustomCreator() {
     }
     console.log(`srcs are ${array[colors[0]]} and ${array[colors[1]]}...`);
 
-    let imagesToLoad = 2 + (_evos ? _evos.length : 0);
+    let imagesToLoad = 3 + (_evos ? _evos.length : 0);
     let imagesLoaded = 0;
     const checkAllImagesLoaded = () => {
       imagesLoaded++;
-      console.log("now", imagesLoaded);
       if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
-        console.log("LOADING");
         // Set the canvas dimensions  
         afterLoad();
       }
     };
 
     // have all images loaded before we draw
-    leftImg.onload = checkAllImagesLoaded;
-    rightImg.onload = checkAllImagesLoaded;
+    leftImg.onload = rightImg.onload = baseImg.onload = checkAllImagesLoaded;
     // if we get an error, still increment and continue
-    leftImg.onerror = rightImg.onerror = eggImg.onerror = checkAllImagesLoaded;
+    leftImg.onerror = rightImg.onerror = baseImg.onerror = checkAllImagesLoaded;
 
+    switch (type) {
+      case "OPTION": array = options; baseImg.src = doublebind; break;
+      case "TAMER": array = tamers; baseImg.src = amy; break
+      case "EGG": array = eggs; baseImg.src = egg; break;
+      case "MONSTER": baseImg.src = shieldsmasher; break;
+      default: alert(4);
+    }
+    // can i lock this in?
+    if (json && json.name && json.name.english == "Rampager") {
+      baseImg.src = rampager;
+    }
     leftImg.src = array[colors[0]];
     rightImg.src = array[colors[1]];
 
@@ -539,11 +635,11 @@ function CustomCreator() {
   }
 
   const handleExport = () => {
-    const canvas = canvasRef.current;
-    const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
-    link.download = 'exported-image.png';
-    link.click();
+    /*  const canvas = canvasRef.current;
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = 'exported-image.png';
+      link.click();*/
   };
 
   console.log("a", flattenedJson);
@@ -553,6 +649,7 @@ function CustomCreator() {
         <td>
           Ask support or request features over on <a href="https://discord.gg/MWEZYxG2">Discord</a>.
           <br />
+          <button onClick={() => sample(0)}> Sample Egg </button><br />
           <button onClick={() => sample(1)}> Sample Monster A </button><br />
           <button onClick={() => sample(2)}> Sample Monster B </button><br />
           <button onClick={() => sample(3)}> Sample Option </button><br />
@@ -581,7 +678,7 @@ function CustomCreator() {
             />
           ) : (
             <div>
-              <table style={{maxWidth: "300px"}}>
+              <table style={{ maxWidth: "300px" }}>
                 {!flattenedJson ? (<tr><td>Error in JSON, try again <br /> ${jsonerror} </td></tr>
                 ) :
                   Object.entries(flattenedJson).map(([key, value]) =>
@@ -618,7 +715,7 @@ function CustomCreator() {
           </div>
         </td>
         <td valign={"top"}>
-
+          Choose image:
           <input type="file" onChange={loadUserImage} />
           <br />
           --- OR ---
@@ -626,20 +723,30 @@ function CustomCreator() {
           <input
             type="text"
             placeholder="Enter image URL"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
+            value={imageOptions.url}
+            // onChange={(e) => setImageUrl(e.target.value)}
+            onChange={updateImg}
           />
           <br />
           <button onClick={loadImageFromUrl}>Load Image from that URL</button>
           <br />
+          Offset (in percent):
+          X: <input type="number" style={{ width: "50px" }} name="x_pos" value={imageOptions.x_pos} onChange={updateImg} />
+          Y: <input type="number" style={{ width: "50px" }} name="y_pos" value={imageOptions.y_pos} onChange={updateImg} />
+          <br />
+          Fill size (in percent):
+          X: <input type="number" style={{ width: "50px" }} name="x_scale" value={imageOptions.x_scale} onChange={updateImg} />
+          Y: <input type="number" style={{ width: "50px" }} name="y_scale" value={imageOptions.y_scale} onChange={updateImg} />
           <hr />
           <button onClick={draw}>Force Draw</button>
+
           <hr />
+
           <button onClick={handleExport}>Save Image Locally</button>
           <hr />
           <button onClick={getShare}>Share!</button>
           <br />
-          <a class={{fontSize:"8px;"}} href={shareURL}>{shareURL}</a>
+          <a class={{ fontSize: "8px;" }} href={shareURL}>{shareURL}</a>
           <hr />
           <span> Unimplemented: ace, burst, rarity <br />
           </span>

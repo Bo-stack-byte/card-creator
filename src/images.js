@@ -6,6 +6,14 @@ import basic_purple from './frames/basic-purple.png';
 import basic_black from './frames/basic-black.png';
 import basic_white from './frames/basic-white.png';
 
+import egg_red from './frames/egg-red.png';
+import egg_blue from './frames/egg-blue.png';
+import egg_yellow from './frames/egg-yellow.png';
+import egg_green from './frames/egg-green.png';
+import egg_purple from './frames/egg-purple.png';
+import egg_black from './frames/egg-black.png';
+import egg_white from './frames/egg-white.png';
+
 
 import option_red from './frames/option-red.png';
 import option_blue from './frames/option-blue.png';
@@ -43,6 +51,16 @@ export const basics = {
   'purple': basic_purple,
   'black': basic_black,
   'white': basic_white,
+}
+
+export const eggs = {
+  'red': egg_red,
+  'blue': egg_blue,
+  'yellow': egg_yellow,
+  'green': egg_green,
+  'purple': egg_purple,
+  'black': egg_black,
+  'white': egg_white,
 }
 
 export const options = {

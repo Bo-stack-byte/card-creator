@@ -11,8 +11,9 @@ import amy from './amy.png';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-
-// version 0.4.3. more-than-2 color, eggs, default images
+// version 0.4.5  3+ colors and others
+// version 0.4.4  less errors, fix egg text
+// version 0.4.3  multi color, egg.
 // version 0.4.2. Better error handling, re-orient custom image
 
 
@@ -22,7 +23,7 @@ function contrastColor(color) {
 }
 // draw in white text on the black stripe -- unless we're a black card with a white stripe, in which case draw black
 function whiteColor(color) {
-  if (color.toLowerCase() === "black") return "black";
+  if (color?.toLowerCase() === "black") return "black";
   return "white";
 }
 
@@ -197,9 +198,7 @@ function CustomCreator() {
   const jsonToFields = (text) => {
     try {
       parsedJson = JSON.parse(text);
-      console.log("tofields", parsedJson);
       flattenedJson = flattenJson(parsedJson);
-      console.log(flattenedJson);
     } catch (e) {
       jsonerror = e;
       console.error("json error");
@@ -214,8 +213,6 @@ function CustomCreator() {
   let jsonerror = "none";
   const handleTextareaChange = (event) => {
     // update the form data
-    console.log("event", event);
-    console.log("json", event.target.value);
     let jsonTxt = event.target.value;
     setJsonText(jsonTxt);
     jsonToFields(jsonTxt);
@@ -269,17 +266,13 @@ function CustomCreator() {
   }
 
   useEffect(() => {
-    console.log("in use, before draw");
-    console.log(jsonText.substring(0, 200));
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (canvas.width != 2977) {
       canvas.width = 2977;
       canvas.height = 4158;
     }
-
     draw(canvas, ctx);
-    console.log("in use, after draw");
 
   }, [userImg, jsonText]); // Redraw on image or text change
 
@@ -345,17 +338,12 @@ function CustomCreator() {
       console.log("json error");
       return;
     }
-    console.log("parsing", json);
 
     if (document.fred === 72) return;
 
-    const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["white", "black"]; // todo: better default
-    // default to 2 colors
-    if (colors.length === 1) colors.push(colors[0]);
+    const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
 
-
-    const leftImg = new Image();
-    const rightImg = new Image();
+    const frameImages = Array.from({ length: colors.length }, () => new Image());
     const baseImg = new Image();
 
     let t;
@@ -367,15 +355,13 @@ function CustomCreator() {
       if (t.match(/egg/i) || t.match(/tama/i)) type = "EGG";
     }
 
-
-    console.log(1233);
     const _evos = json.evolveCondition;
-
     const afterLoad = () => {
       console.log(document.fred);
       console.log("LOADING");
       // Set the canvas dimensions
 
+      // background image
       let back_img = userImg || baseImg;
       console.log(back_img);
       console.log("imageOptions", imageOptions);
@@ -383,29 +369,24 @@ function CustomCreator() {
       let i_height = canvas.height * Number(imageOptions.y_scale) / 100;
       let i_x_pct = (100 - Number(imageOptions.x_scale)) / 2 + Number(imageOptions.x_pos);
       let i_y_pct = (100 - Number(imageOptions.y_scale)) / 2 + Number(imageOptions.y_pos);
-      //    let i_x_pct = ((100 - imageOptions.x_scale) / 100 / 2 + Number(imageOptions.x_pos) + 100) / 100;
-      //  let i_y_pct = ((100 - imageOptions.y_scale) / 100 / 2 + Number(imageOptions.y_pos) + 100) / 100;
       ctx.drawImage(back_img, i_x_pct * canvas.width / 100, i_y_pct * canvas.height / 100, i_width, i_height);
-      //   console.log(i_width, i_height, i_x_pct, i_y_pct);
-      // Draw the left half of the left image scaled down
-      //    console.log(leftImg, leftImg.src);
-      if (!leftImg.src.match(/undefined/)) {
-        try {
-          ctx.drawImage(leftImg,
-            0, 0, leftImg.width / 2, leftImg.height,
-            0, 0, canvas.width / 2, canvas.height);
-        } catch { console.log("leftimg broken", leftImg) };
+     
+      // multicolor
+      let w = canvas.width;
+      let h = canvas.height;
+      let len = frameImages.length;
+      let fw = w / len; // frame width
+      for (let i = 0; i < len; i++) {
+        let frame = frameImages[i];
+        if (!frame.src.match(/undefined/)){
+          try {
+            ctx.drawImage(frame,
+              i * fw, 0, fw, h,
+              i * fw, 0, fw, h);
+          } catch { console.log(`img ${i} broken`, frame) };
+        }
       }
-      // Draw the right half of the right image scaled down
-      //   console.log(rightImg, rightImg.src);
 
-      if (!rightImg.src.match(/undefined/)) {
-        try {
-          ctx.drawImage(rightImg,
-            rightImg.width / 2, 0, rightImg.width / 2, rightImg.height,
-            canvas.width / 2, 0, canvas.width / 2, canvas.height);
-        } catch { console.log("rightimg broken", rightImg) };
-      }
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
@@ -477,8 +458,8 @@ function CustomCreator() {
       let delta_y = 0;
       switch (type) {
         case "OPTION": delta_y -= 100; break;
-        case "TAMER": delta_y -= 150; break;
-        case "EGG": delta_y -= 150; break;
+        case "TAMER":  delta_y -= 150; break;
+        case "EGG":    delta_y -= 150; break;
         case "MONSTER": break;
         default: alert(1);
       }
@@ -506,7 +487,7 @@ function CustomCreator() {
       // card number
       const id = json.cardNumber;
       ctx.textAlign = 'right';
-      ctx.fillStyle = contrastColor(colors[1]);
+      ctx.fillStyle = contrastColor(colors[colors.length-1]);
       ctx.font = `bold 100px Arial`;
       ctx.fillText(id, 2780, 3400 + delta_y);
 
@@ -516,11 +497,17 @@ function CustomCreator() {
       let c_type = json.type || '';
       // todo don't show when all blank
       const traits = ` ${form}      |     ${attribute}      |      ${c_type}      `;
-      ctx.fillStyle = whiteColor(colors[1]);
+      console.log("Traits", traits)
+      ctx.fillStyle = whiteColor(colors[colors.length-1]);
+      console.log("fill", ctx.fillStyle, colors[colors.length-1] );
       if (type === "TAMER") {
         ctx.fillStyle = 'black';
         delta_y += 50;
       }
+      if (type === "EGG") {
+        delta_y += 40;
+      }
+
       ctx.font = `60px Roboto`;
       ctx.fillText(traits, 2780, 3500 + delta_y * 0.9);
 
@@ -577,15 +564,17 @@ function CustomCreator() {
       const evo_effect = json.evolveEffect;
       const sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
       ctx.fillStyle = 'black';
+      console.log("55555 " + delta_y);
+      if (type === "EGG") delta_y += 40
       if (sec_effect) {
         drawBracketedText(ctx, sec_effect,
           900 + delta_y * 2, 3800 + delta_y * 2,
           1600, 90);
       }
     }
-    console.log(`srcs are ${array[colors[0]]} and ${array[colors[1]]}...`);
 
-    let imagesToLoad = 3 + (_evos ? _evos.length : 0);
+    // 1 for base, 1 per color, 1 per evo circle
+    let imagesToLoad = 1 + colors.length + (_evos ? _evos.length : 0);
     let imagesLoaded = 0;
     const checkAllImagesLoaded = () => {
       imagesLoaded++;
@@ -595,10 +584,12 @@ function CustomCreator() {
       }
     };
 
+    for (let f of frameImages) {
+        f.onload = f.onerror = checkAllImagesLoaded
+    }
+    baseImg.onload = baseImg.onerror = checkAllImagesLoaded
+
     // have all images loaded before we draw
-    leftImg.onload = rightImg.onload = baseImg.onload = checkAllImagesLoaded;
-    // if we get an error, still increment and continue
-    leftImg.onerror = rightImg.onerror = baseImg.onerror = checkAllImagesLoaded;
 
     switch (type) {
       case "OPTION": array = options; baseImg.src = doublebind; break;
@@ -611,8 +602,9 @@ function CustomCreator() {
     if (json && json.name && json.name.english == "Rampager") {
       baseImg.src = rampager;
     }
-    leftImg.src = array[colors[0]];
-    rightImg.src = array[colors[1]];
+    for (let i = 0; i < frameImages.length; i++) {
+      frameImages[i].src = array[colors[i]]
+    }
 
     if (_evos) {
       for (let n = _evos.length; n--; n >= 0) {
@@ -642,7 +634,6 @@ function CustomCreator() {
       link.click();*/
   };
 
-  console.log("a", flattenedJson);
   return (
     <table>
       <tr>

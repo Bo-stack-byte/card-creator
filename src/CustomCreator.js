@@ -11,6 +11,7 @@ import amy from './amy.png';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
+// version 0.4.6  updated link, force draw
 // version 0.4.5  3+ colors and others
 // version 0.4.4  less errors, fix egg text
 // version 0.4.3  multi color, egg.
@@ -326,11 +327,17 @@ function CustomCreator() {
     navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
   }
 
+  const draw2 = () => draw(true);
+
   //  const draw = (canvas, ctx) => {
-  const draw = () => {
+  const draw = (clear) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
+    if (clear) {
+      canvas.width = 2977;
+      canvas.height = 4158;
+    }
     let json;
     try {
       json = JSON.parse(jsonText);
@@ -370,7 +377,7 @@ function CustomCreator() {
       let i_x_pct = (100 - Number(imageOptions.x_scale)) / 2 + Number(imageOptions.x_pos);
       let i_y_pct = (100 - Number(imageOptions.y_scale)) / 2 + Number(imageOptions.y_pos);
       ctx.drawImage(back_img, i_x_pct * canvas.width / 100, i_y_pct * canvas.height / 100, i_width, i_height);
-     
+
       // multicolor
       let w = canvas.width;
       let h = canvas.height;
@@ -378,7 +385,7 @@ function CustomCreator() {
       let fw = w / len; // frame width
       for (let i = 0; i < len; i++) {
         let frame = frameImages[i];
-        if (!frame.src.match(/undefined/)){
+        if (!frame.src.match(/undefined/)) {
           try {
             ctx.drawImage(frame,
               i * fw, 0, fw, h,
@@ -458,8 +465,8 @@ function CustomCreator() {
       let delta_y = 0;
       switch (type) {
         case "OPTION": delta_y -= 100; break;
-        case "TAMER":  delta_y -= 150; break;
-        case "EGG":    delta_y -= 150; break;
+        case "TAMER": delta_y -= 150; break;
+        case "EGG": delta_y -= 150; break;
         case "MONSTER": break;
         default: alert(1);
       }
@@ -487,7 +494,7 @@ function CustomCreator() {
       // card number
       const id = json.cardNumber;
       ctx.textAlign = 'right';
-      ctx.fillStyle = contrastColor(colors[colors.length-1]);
+      ctx.fillStyle = contrastColor(colors[colors.length - 1]);
       ctx.font = `bold 100px Arial`;
       ctx.fillText(id, 2780, 3400 + delta_y);
 
@@ -498,8 +505,8 @@ function CustomCreator() {
       // todo don't show when all blank
       const traits = ` ${form}      |     ${attribute}      |      ${c_type}      `;
       console.log("Traits", traits)
-      ctx.fillStyle = whiteColor(colors[colors.length-1]);
-      console.log("fill", ctx.fillStyle, colors[colors.length-1] );
+      ctx.fillStyle = whiteColor(colors[colors.length - 1]);
+      console.log("fill", ctx.fillStyle, colors[colors.length - 1]);
       if (type === "TAMER") {
         ctx.fillStyle = 'black';
         delta_y += 50;
@@ -585,7 +592,7 @@ function CustomCreator() {
     };
 
     for (let f of frameImages) {
-        f.onload = f.onerror = checkAllImagesLoaded
+      f.onload = f.onerror = checkAllImagesLoaded
     }
     baseImg.onload = baseImg.onerror = checkAllImagesLoaded
 
@@ -634,11 +641,12 @@ function CustomCreator() {
       link.click();*/
   };
 
+  let invite = "https://discord.gg/NcQZhRDq"
   return (
     <table>
       <tr>
         <td>
-          Ask support or request features over on <a href="https://discord.gg/MWEZYxG2">Discord</a>.
+          Ask support or request features over on <a href={invite}>Discord</a>.
           <br />
           <button onClick={() => sample(0)}> Sample Egg </button><br />
           <button onClick={() => sample(1)}> Sample Monster A </button><br />
@@ -729,7 +737,7 @@ function CustomCreator() {
           X: <input type="number" style={{ width: "50px" }} name="x_scale" value={imageOptions.x_scale} onChange={updateImg} />
           Y: <input type="number" style={{ width: "50px" }} name="y_scale" value={imageOptions.y_scale} onChange={updateImg} />
           <hr />
-          <button onClick={draw}>Force Draw</button>
+          <button onClick={draw2}>Force Draw</button>
 
           <hr />
 

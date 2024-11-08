@@ -9,25 +9,21 @@ export function fitTextToWidth(ctx, text, maxWidth, initialFontSize) {
   return fontSize;
 }
 
-function matchBrackets(array, phrase) {
-//  let bob = ["f", "f"];
-// can precalc all these regexps
-  let match = array.find( str => { let regexp = new RegExp(`^${str}$`, "i"); return phrase.match(regexp) });
+function matchMagic(array, phrase) {
+  // can precalc all these regexps
+  let match = array.find(str => { let regexp = new RegExp(`^${str}$`, "i"); return phrase.match(regexp) });
   return !!match;
 }
 
-const bracketedWords = [
+const magicWords = [
   "Breeding",
   "Hand",
   "Trash",
-  "Security", // this should be security as a location...  
+  "Security",
 
   "Digixros.{1,6}",
 
-  "Digivolve",
-  "Evolve",
-  "DNA Digivolve",
-  "DNA Evolve",
+  "(DNA )?(Digi|E)volve",
 
   "All Turns",
   "Your Turn",
@@ -48,7 +44,7 @@ const bracketedWords = [
   "Main",
   "Once Per Turn",
   "Twice Per Turn",
-];
+]
 
 function splitTextIntoParts(text) {
   //  const words = text.split(/((\[＜).*?(\]＞))/);
@@ -68,7 +64,7 @@ function splitTextIntoParts(text) {
 }
 
 //x,y is upper left
-function drawBlueRectangle(ctx, x, y, width, height, color) {
+function drawColoredRectangle(ctx, x, y, width, height, color) {
   //#922969 darker ois lower
   let color0, color1;
   switch (color) {
@@ -88,16 +84,16 @@ function drawBlueRectangle(ctx, x, y, width, height, color) {
   gradient.addColorStop(1, color1);
   let d = 0;
   if (color === 'bubble') {
-      ctx.globalAlpha = 0.4;
-      d = 10;
-  }  
+    ctx.globalAlpha = 0.4;
+    d = 10;
+  }
   ctx.fillStyle = gradient;
   ctx.fillRect(x - d, y - 90 - 10 - d, width + 10 + 2 * d, height + 2 * d);
   ctx.globalAlpha = 1;
   if (color === 'bubble') {
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 8;
-    ctx.strokeRect(x - d, y - 90 - 10 - d, width + 10 + d * 2, height + d * 2 );
+    ctx.strokeRect(x - d, y - 90 - 10 - d, width + 10 + d * 2, height + d * 2);
   }
   ctx.strokeStyle = '';
   ctx.lineWidth = 0;
@@ -136,81 +132,120 @@ function drawDiamondRectangle(ctx, x, y, width, height) {
   ctx.stroke();
 }
 
+function replaceBracketsAtStart(line) {
+  // Tokenize the input string to handle both types of brackets
+  const tokens = line.match(/(\[[^\]]+\]|＜[^＞]+＞|\S+)/g);
+  if (!tokens) return line;
 
-function prepareKeywords(str) {
-  return str.replace(/(＜[^＞]*?＞)/g, (match) => {
+
+  let replacing = true;
+
+  for (let i = 0; i < tokens.length; i++) {
+    // Check for brackets at the start of the line
+    if (replacing && tokens[i].startsWith('[') && tokens[i].endsWith(']')) {
+      tokens[i] = tokens[i].replace('[', '⟦').replace(']', '⟧');
+    } else if (replacing && tokens[i].startsWith('＜') && tokens[i].endsWith('＞')) {
+      // don't replace <＞ yet
+    } else {
+      // Stop replacing when a token is not in brackets
+      replacing = false;
+    }
+  }
+
+  return tokens.join(' ');
+}
+
+
+function prepareKeywords(str, replaceBrackets) {
+  const output = (replaceBrackets ?
+    replaceBracketsAtStart(str) :
+    str);
+
+  return output.replace(/(＜[^＞]*?＞)/g, (match) => {
     return match.replace(/ /g, '_');
   });
 }
 
+// ⟦ ⟧
+// MAIN ENTRY POINT
 // drawbracketedtext calls splittextintoparts
+
+// if "extra" is "bubble", put text in black bubble
+// if "extra" is "effect", then put all [bracketed text] at start of line in blue
 export function drawBracketedText(ctx, text, x, y, maxWidth, lineHeight, extra) {
   //console.log("calling with " + text);
-  text = prepareKeywords(text);
-  const words = splitTextIntoParts(text);
-
-  let line = '';
   let yOffset = y;
-
   let lines = [];
 
-  for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + ' ';
-    const metrics = ctx.measureText(testLine);
-    const testWidth = metrics.width;
-    //console.log(`is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
+  const paragraphs = text.split("\n");
+  for (let p = 0; p < paragraphs.length; p++) {
+    let graf = prepareKeywords(paragraphs[p], extra == "effect");
 
-    if (testWidth > maxWidth && n > 0) {
-   //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
-      lines.push( { ctx, line, x, yOffset, bracketedWords } );
-      line = words[n] + ' ';
-      yOffset += lineHeight;
-    } else {
-      line = testLine;
+    const words = splitTextIntoParts(graf);
+
+    let line = '';
+
+
+    for (let n = 0; n < words.length; n++) {
+      const testLine = line + words[n] + ' ';
+      const metrics = ctx.measureText(testLine);
+      const testWidth = metrics.width;
+      //console.log(`is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
+
+      if (testWidth > maxWidth && n > 0) {
+        //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
+        lines.push({ ctx, line, x, yOffset });
+        line = words[n] + ' ';
+        yOffset += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+
+    // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
+    lines.push({ ctx, line, x, yOffset });
+    yOffset += lineHeight;
+
+
+    if (extra === 'bubble') {
+      let width = Math.max.apply(Math, lines.map(l => ctx.measureText(l.line).width));
+      drawColoredRectangle(ctx, x - 10, y, width, yOffset - y, 'bubble');
     }
   }
-
- // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
-  lines.push( { ctx, line, x, yOffset, bracketedWords } );
-  yOffset += lineHeight;
-
-
-  if (extra === 'bubble') {
-    let width =  Math.max.apply(Math, lines.map( l => ctx.measureText(l.line).width ));
-    drawBlueRectangle(ctx, x - 10, y, width, yOffset - y, 'bubble');
-
-  }
   for (let line of lines) {
-    wrapAndDrawText(line.ctx, line.line, line.x, line.yOffset, line.bracketedWords);
+    wrapAndDrawText(line.ctx, line.line, line.x, line.yOffset);
   }
 
 
 
   return yOffset + lineHeight;
+
 }
 
 function getColor(phrase) {
   if (phrase.match(/DigiXros/i)) return 'green';
   if (['Hand', 'Trash', 'Breeding', 'Security'].includes(phrase)) return 'purple';
-  if (phrase.match(/(Digi|E)volve/i))  return 'darkblue';
+  if (phrase.match(/(Digi|E)volve/i)) return 'darkblue';
   return 'blue';
 }
 
 const font = 'Arial'
 
-function wrapAndDrawText(ctx, text, x, y, bracketedWords) {
+function wrapAndDrawText(ctx, text, x, y) {
   let lastX = x;
-  text.split(/(\[.*?\])/).forEach(phrase => {
-    const cleanPhrase = phrase.replace(/[[\]]/g, '');
-    //console.log("clean is " + cleanPhrase);
-    if (matchBrackets(bracketedWords, cleanPhrase)) {
-//    if (bracketedWords.includes(cleanPhrase)) {
+  // ⟦⟧ 
+  text.split(/([[⟦].*?[\]⟧])/).forEach(phrase => {
+    const cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
+
+    if (
+      (phrase.startsWith("⟦") && phrase.endsWith("⟧")) ||
+      (phrase.startsWith("[") && phrase.endsWith("]") && matchMagic(magicWords, cleanPhrase))
+    ) {
       // Calculate the width of the bracketed text
       ctx.font = `bold 90px ${font}`;
       const phraseWidth = ctx.measureText(cleanPhrase).width;
-      //console.log("xxx is " + cleanPhrase);
       let color = getColor(cleanPhrase);
-      drawBlueRectangle(ctx, lastX, y, phraseWidth + 10, 100, color);
+      drawColoredRectangle(ctx, lastX, y, phraseWidth + 10, 100, color);
       // Draw the text in white
       ctx.fillStyle = 'white';
       ctx.fillText(cleanPhrase, lastX + 5, y);

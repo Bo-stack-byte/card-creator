@@ -11,6 +11,7 @@ import amy from './amy.png';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
+// version 0.4.7  line feeds, more permissive of blue block text
 // version 0.4.6  updated link, force draw
 // version 0.4.5  3+ colors and others
 // version 0.4.4  less errors, fix egg text
@@ -89,7 +90,7 @@ const starter_text_1b = `  {
     "dp": "14000",
     "dnaEvolve": "[DNA Digivolve] Yellow Lv.6 + Blue Lv.6\u00a0: Cost 0",
     "evolveEffect": "-",
-    "effect": "＜Resurrect＞ ＜Piercing＞ [When Evolving] Delete all of your opponent's Monsters with the biggest level. Then delete all of your opponent's Monsters with the smallest DP.",
+    "effect": "＜Resurrect＞ ＜Piercing＞ \\n [When Thinking] Delete all of your opponent's Monsters with the biggest level. Then delete all of your opponent's Monsters with the smallest DP.",
     "securityEffect": "-",
     "attribute": "Virus",
     "form": "Ultimate",
@@ -205,7 +206,7 @@ function CustomCreator() {
       console.error("json error");
       return;
     }
-    Object.entries(flattenedJson).map(([key, value]) => {
+    Object.entries(flattenedJson).forEach(([key, value]) => {
       formData[key] = value;
     }
     )
@@ -269,7 +270,8 @@ function CustomCreator() {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    if (canvas.width != 2977) {
+
+    if (canvas.width !== 2977) {
       canvas.width = 2977;
       canvas.height = 4158;
     }
@@ -330,11 +332,29 @@ function CustomCreator() {
   const draw2 = () => draw(true);
 
   //  const draw = (canvas, ctx) => {
-  const draw = (clear) => {
+  const draw = async (clear) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
     if (clear) {
+      canvas.width = 2977;
+    }
+    if (document.fonts.check('bold 60px Roboto')) {
+      //      console.error("roboto pass1");
+    } else {
+      //      console.error("roboto fail1");
+    }
+
+    await document.fonts.ready;
+
+    if (document.fonts.check('bold 60px Roboto')) {
+      //    console.error("roboto pass2");
+    } else {
+      //   console.error("roboto fail2");
+    }
+
+
+    if (clear === true) {
       canvas.width = 2977;
       canvas.height = 4158;
     }
@@ -356,16 +376,32 @@ function CustomCreator() {
     let t;
     let array = basics;
     let type = "MONSTER";
-    if (t = json.cardType) {
+    if ((t = json.cardType)) {
       if (t.match(/option/i)) type = "OPTION";
       if (t.match(/tamer/i)) type = "TAMER";
       if (t.match(/egg/i) || t.match(/tama/i)) type = "EGG";
     }
 
     const _evos = json.evolveCondition;
-    const afterLoad = () => {
+    const afterLoad = async () => {
       console.log(document.fred);
-      console.log("LOADING");
+      console.log("LOADING2");
+
+
+      if (document.fonts.check('bold 60px Roboto')) {
+   //     console.error("roboto pass3");
+      } else {
+   //     console.error("roboto fail3");
+      }
+
+      await document.fonts.ready;
+
+      if (document.fonts.check('bold 60px Roboto')) {
+ //       console.error("roboto pass4");
+      } else {
+ //       console.error("roboto fail4");
+      }
+
       // Set the canvas dimensions
 
       // background image
@@ -550,7 +586,7 @@ function CustomCreator() {
         y_line = drawBracketedText(ctx, effect,
           //wrapText(ctx, effect, // + effect, 
           300, y_line,
-          2400, 90);
+          2400, 90, "effect");
       }
 
       // digixros, put right after effect for now
@@ -569,6 +605,7 @@ function CustomCreator() {
 
 
       const evo_effect = json.evolveEffect;
+      console.log("a", evo_effect);
       const sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
       ctx.fillStyle = 'black';
       console.log("55555 " + delta_y);
@@ -576,7 +613,7 @@ function CustomCreator() {
       if (sec_effect) {
         drawBracketedText(ctx, sec_effect,
           900 + delta_y * 2, 3800 + delta_y * 2,
-          1600, 90);
+          1600, 90, "effect");
       }
     }
 
@@ -605,8 +642,8 @@ function CustomCreator() {
       case "MONSTER": baseImg.src = shieldsmasher; break;
       default: alert(4);
     }
-    // can i lock this in?
-    if (json && json.name && json.name.english == "Rampager") {
+    // can i load this someplace else please?
+    if (json && json.name && json.name.english === "Rampager") {
       baseImg.src = rampager;
     }
     for (let i = 0; i < frameImages.length; i++) {
@@ -656,7 +693,7 @@ function CustomCreator() {
 
         </td>
         <td colSpan={2}>
-          <img src={banner} style={{ width: "792px", height: "224px", transform: "rotate(10deg)" }} />
+          <img src={banner} alt={"Digi Viz Card Creator"} style={{ width: "792px", height: "224px", transform: "rotate(10deg)" }} />
         </td></tr>
       <tr>
         <td><br /><br /><br /></td>
@@ -678,7 +715,7 @@ function CustomCreator() {
           ) : (
             <div>
               <table style={{ maxWidth: "300px" }}>
-                {!flattenedJson ? (<tr><td>Error in JSON, try again <br /> ${jsonerror} </td></tr>
+                {!flattenedJson ? (<tr><td>Error in JSON, try again <br /> {jsonerror} </td></tr>
                 ) :
                   Object.entries(flattenedJson).map(([key, value]) =>
                     <tr>
@@ -704,7 +741,7 @@ function CustomCreator() {
         </td>
         <td valign={"top"}>
           <div>
-            <canvas ref={canvasRef}
+            <canvas id="cardImage" ref={canvasRef}
               style={{
                 width: '296px',  // Visually scale the canvas down for easier editing
                 height: '416px'  // Visually scale the canvas down for easier editing

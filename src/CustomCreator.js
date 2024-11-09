@@ -11,6 +11,7 @@ import amy from './amy.png';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
+// version 0.4.8  fix "force clear"
 // version 0.4.7  line feeds, more permissive of blue block text
 // version 0.4.6  updated link, force draw
 // version 0.4.5  3+ colors and others
@@ -329,15 +330,17 @@ function CustomCreator() {
     navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
   }
 
-  const draw2 = () => draw(true);
+  const draw2 = (x, y) => draw(x, y, true);
 
   //  const draw = (canvas, ctx) => {
-  const draw = async (clear) => {
+  const draw = async (x, y, clear) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
+    console.log("===");
     if (clear) {
-      canvas.width = 2977;
+      console.log("clear is ", clear);
+      //canvas.width = 2977;
     }
     if (document.fonts.check('bold 60px Roboto')) {
       //      console.error("roboto pass1");
@@ -437,7 +440,7 @@ function CustomCreator() {
       // evo circles
       if (_evos) {
         for (let n = _evos.length; n--; n >= 0) {
-          console.log(`n is ${n} and height is ${height * n}`);
+          //console.log(`n is ${n} and height is ${height * n}`);
           const evo = _evos[n];
           const evo_level = `Lv.${evo.level}`;
           const evo_cost = evo.cost;
@@ -540,9 +543,8 @@ function CustomCreator() {
       let c_type = json.type || '';
       // todo don't show when all blank
       const traits = ` ${form}      |     ${attribute}      |      ${c_type}      `;
-      console.log("Traits", traits)
+      //console.log("Traits", traits)
       ctx.fillStyle = whiteColor(colors[colors.length - 1]);
-      console.log("fill", ctx.fillStyle, colors[colors.length - 1]);
       if (type === "TAMER") {
         ctx.fillStyle = 'black';
         delta_y += 50;

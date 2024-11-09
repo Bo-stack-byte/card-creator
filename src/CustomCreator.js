@@ -11,6 +11,7 @@ import amy from './amy.png';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
+// version 0.4.9  "Save image locally" was broken
 // version 0.4.8  fix "force clear"
 // version 0.4.7  line feeds, more permissive of blue block text
 // version 0.4.6  updated link, force draw
@@ -673,11 +674,11 @@ function CustomCreator() {
   }
 
   const handleExport = () => {
-    /*  const canvas = canvasRef.current;
+      const canvas = canvasRef.current;
       const link = document.createElement('a');
       link.href = canvas.toDataURL('image/png');
       link.download = 'exported-image.png';
-      link.click();*/
+      link.click();
   };
 
   let invite = "https://discord.gg/NcQZhRDq"

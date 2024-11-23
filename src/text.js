@@ -76,7 +76,7 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
 
     case 'blue':
     default:
-      color0 = 'darkblue'; color1 = 'lightblue';
+      color0 = 'darkblue'; color1 = '#8080ff';
   }
   // Draw the background rectangle with gradient
   const gradient = ctx.createLinearGradient(x, y - 90, x, y);
@@ -179,7 +179,7 @@ export function drawBracketedText(ctx, text, x, y, maxWidth, lineHeight, extra) 
 
   const paragraphs = text.split("\n");
   for (let p = 0; p < paragraphs.length; p++) {
-    let graf = prepareKeywords(paragraphs[p], extra == "effect");
+    let graf = prepareKeywords(paragraphs[p], extra === "effect");
 
     const words = splitTextIntoParts(graf);
 
@@ -224,7 +224,7 @@ export function drawBracketedText(ctx, text, x, y, maxWidth, lineHeight, extra) 
 
 function getColor(phrase) {
   if (phrase.match(/DigiXros/i)) return 'green';
-  if (['Hand', 'Trash', 'Breeding', 'Security'].includes(phrase)) return 'purple';
+  if (['Hand', 'Trash', 'Breeding', 'Security', 'Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'purple';
   if (phrase.match(/(Digi|E)volve/i)) return 'darkblue';
   return 'blue';
 }
@@ -253,7 +253,7 @@ function wrapAndDrawText(ctx, text, x, y) {
     } else {
       phrase.split(/(＜.*?＞)/).forEach(word => {
         if (word.includes("＜")) {
-          const cleanWord = word.replace(/[＜＞]/g, '  ');
+          const cleanWord = word.replace(/[＜＞_]/g, '  ');
           const wordWidth = ctx.measureText(cleanWord).width;
           drawDiamondRectangle(ctx, lastX, y, wordWidth + 10, 100);
           ctx.font = `bold 90px ${font}`;

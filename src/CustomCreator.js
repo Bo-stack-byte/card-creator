@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { eggs, basics, options, tamers, evos, colorReplace } from './images';
+import { eggs, basics, classics, options, tamers, evos, colorReplace } from './images';
 import { fitTextToWidth, drawBracketedText } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
@@ -11,6 +11,7 @@ import amy from './amy.png';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
+// version 0.5.0  Updated many small and some big things that weren't looking right; moving towards modern
 // version 0.4.9  "Save image locally" was broken
 // version 0.4.8  fix "force clear"
 // version 0.4.7  line feeds, more permissive of blue block text
@@ -20,6 +21,42 @@ import pako from 'pako';
 // version 0.4.3  multi color, egg.
 // version 0.4.2. Better error handling, re-orient custom image
 
+function colorMap(color) {
+  switch (color.toLowerCase()) {
+    case "blue": return "#5C8FC7";
+    case "green": return "#459A70";
+    case "purple":  return "#58569d"
+    default: return color;
+  }
+}
+
+function coloredCircle(canvas, centerX, centerY, color) {
+  try {
+  const ctx = canvas.getContext('2d');
+  const radius = 140;
+
+  const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+
+  // Add color stops to the gradient
+  gradient.addColorStop(0, 'white');  // Center of the circle
+  gradient.addColorStop(0.6, colorMap(color));    // Edge of the circle
+
+  // Use the gradient to fill the circle
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+  ctx.fill();
+  } catch (e)  {
+  } 
+
+}
+
+function borderColor(colors) {
+  for (let color of colors) {
+    if (color === "white" || color === "yellow") return "black";
+  }
+  return "";
+}
 
 function contrastColor(color) {
   if (["red", "blue", "green", "purple", "black"].includes(color)) return "white";
@@ -326,7 +363,10 @@ function CustomCreator() {
     const compressed = pako.deflate(jsonText);
     const encoded = Base64.fromUint8Array(compressed, true); // URL-safe
     console.log("encoded", encoded);
-    let url = window.location.href + "?share=" + encoded;
+    const here = new URL(window.location.href);
+    const baseUrl = here.origin + here.pathname;
+
+    let url = baseUrl + "?share=" + encoded;
     setShareURL(url);
     navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
   }
@@ -379,6 +419,7 @@ function CustomCreator() {
 
     let t;
     let array = basics;
+    if (document.getElementById("classic").checked) array = classics;
     let type = "MONSTER";
     if ((t = json.cardType)) {
       if (t.match(/option/i)) type = "OPTION";
@@ -393,17 +434,17 @@ function CustomCreator() {
 
 
       if (document.fonts.check('bold 60px Roboto')) {
-   //     console.error("roboto pass3");
+        //     console.error("roboto pass3");
       } else {
-   //     console.error("roboto fail3");
+        //     console.error("roboto fail3");
       }
 
       await document.fonts.ready;
 
       if (document.fonts.check('bold 60px Roboto')) {
- //       console.error("roboto pass4");
+        //       console.error("roboto pass4");
       } else {
- //       console.error("roboto fail4");
+        //       console.error("roboto fail4");
       }
 
       // Set the canvas dimensions
@@ -443,6 +484,8 @@ function CustomCreator() {
         for (let n = _evos.length; n--; n >= 0) {
           //console.log(`n is ${n} and height is ${height * n}`);
           const evo = _evos[n];
+          if (!evo.level) continue;
+
           const evo_level = `Lv.${evo.level}`;
           const evo_cost = evo.cost;
           const evo_color = evo.color.toLowerCase();
@@ -450,6 +493,8 @@ function CustomCreator() {
           circle.src = evos[evo_color];
 
           ctx.drawImage(circle, 60, 640 + height * n);
+
+          coloredCircle(canvas, 370, 920 + height * n, evo_color);
           // TODO: contrasting colors
           ctx.font = `bold 60px Roboto`;
           ctx.fillStyle = contrastColor(evo_color);
@@ -476,9 +521,9 @@ function CustomCreator() {
       //playcost
       const playcost = json.playCost;
       if (playcost && playcost !== "-") {
-        ctx.font = 'bold 220px Roboto';
+        ctx.font = 'bold 250px Helvetica';
         ctx.fillStyle = 'white';
-        ctx.fillText(playcost, x, 395);
+        ctx.fillText(playcost, x + 15, 380);
       }
 
       if (type === "MONSTER") {
@@ -487,26 +532,28 @@ function CustomCreator() {
         // dp
         ctx.fillStyle = 'black';
         x = 2450;
-        ctx.font = 'bold 300px Roboto';
+        ctx.font = 'bold 300px Helvetica';
         if (dp_k)
-          ctx.fillText(dp_k, x, 380 - 60);
-        ctx.font = 'bold 150px Roboto';
+          ctx.fillText(dp_k, x, 380 - 100);
+        ctx.font = 'bold 150px Helvetica';
         if (dp_k > 9) x += 100;
         if (dp_m)
-          ctx.fillText(dp_m, x + 200, 380 - 30);
+          ctx.fillText(dp_m, x + 200, 380 - 60);
+        ctx.font = '100px Helvetica';
+        ctx.fillText("DP", x + 240, 380 - 180);
 
         // level
         const level = (json.cardLv === "-") ? "Lv.-" : json.cardLv;
         ctx.font = '900 200px "Big Shoulders Text"'
         ctx.fillStyle = whiteColor(colors[0]);
-        ctx.fillText(level, 410, 3400);
+        ctx.fillText(level, 390, 3400);
       }
 
       let delta_y = 0;
       switch (type) {
         case "OPTION": delta_y -= 100; break;
         case "TAMER": delta_y -= 150; break;
-        case "EGG": delta_y -= 150; break;
+        case "EGG": delta_y -= 130; break;
         case "MONSTER": break;
         default: alert(1);
       }
@@ -515,19 +562,23 @@ function CustomCreator() {
       try {
         const name = json.name.english;
         const maxWidth = 1400;
-        const initialFontSize = 240;
+        const initialFontSize = 200;
         const fontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize);
+        // PF Das Grotesk Pro Bold is the actual font but $$
         ctx.font = `bold ${fontSize}px Roboto`;
+        ctx.font = `700 ${fontSize}px Schibsted Grotesk`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = 'white'; // Text color
+        ctx.fillStyle = 'white';
 
         ctx.lineWidth = 30; // Border width
-        ctx.strokeStyle = 'black'; // Border color       
-        ctx.strokeText(name, 1480, 3380 + delta_y);
-
+        let bc = borderColor(colors);
+        ctx.strokeStyle = bc;
+        if (bc !== "") {
+          ctx.strokeText(name, 1480, 3370 + delta_y);
+        }
         ctx.lineWidth = 10; // Border width
-        ctx.fillText(name, 1480, 3380 + delta_y);
+        ctx.fillText(name, 1480, 3370 + delta_y);
       } catch { };
 
 
@@ -535,7 +586,7 @@ function CustomCreator() {
       const id = json.cardNumber;
       ctx.textAlign = 'right';
       ctx.fillStyle = contrastColor(colors[colors.length - 1]);
-      ctx.font = `bold 100px Arial`;
+      ctx.font = `bold 90px Arial`;
       ctx.fillText(id, 2780, 3400 + delta_y);
 
       // traits: form, attribute, type
@@ -554,7 +605,7 @@ function CustomCreator() {
         delta_y += 40;
       }
 
-      ctx.font = `60px Roboto`;
+      ctx.font = `bold 60px Roboto`;
       ctx.fillText(traits, 2780, 3500 + delta_y * 0.9);
 
       ///// MAIN TEXT 
@@ -612,10 +663,14 @@ function CustomCreator() {
       const sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
       ctx.fillStyle = 'black';
       console.log("55555 " + delta_y);
-      if (type === "EGG") delta_y += 40
+      let delta_x = delta_y;
+      if (type === "EGG") { delta_x += 40; delta_y += 20; }
+      if (type === "OPTION") { delta_x += 20; delta_y += 40; }
+      if (type === "TAMER") { delta_x += 20; delta_y += 40; }
+
       if (sec_effect) {
         drawBracketedText(ctx, sec_effect,
-          900 + delta_y * 2, 3800 + delta_y * 2,
+          880 + delta_x * 2, 3740 + delta_y * 2,
           1600, 90, "effect");
       }
     }
@@ -674,11 +729,11 @@ function CustomCreator() {
   }
 
   const handleExport = () => {
-      const canvas = canvasRef.current;
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = 'exported-image.png';
-      link.click();
+    const canvas = canvasRef.current;
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = 'exported-image.png';
+    link.click();
   };
 
   let invite = "https://discord.gg/NcQZhRDq"
@@ -761,6 +816,7 @@ function CustomCreator() {
           <br />
           <input
             type="text"
+            name="url"
             placeholder="Enter image URL"
             value={imageOptions.url}
             // onChange={(e) => setImageUrl(e.target.value)}
@@ -787,7 +843,7 @@ function CustomCreator() {
           <br />
           <a class={{ fontSize: "8px;" }} href={shareURL}>{shareURL}</a>
           <hr />
-          <span> Unimplemented: ace, burst, rarity <br />
+          <span> <label><input name="classic" id="classic" type="checkbox" value="1" /> Use Classic Card Style</label> <br/> Unimplemented: ace logo, burst, rarity <br />
           </span>
         </td>
       </tr>

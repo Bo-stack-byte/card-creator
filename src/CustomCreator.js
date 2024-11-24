@@ -1,5 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { eggs, basics, classics, options, tamers, evos, colorReplace } from './images';
+import {
+  mon_background, egg_background, option_background, tamer_background,
+  outlines, outlines_egg, outline_option,
+  cost, cost_egg, cost_option, cost_evo, costs,
+  new_evo_circles, new_evo2_circles,
+  bottom_evos, bottoms, bottoms_plain, borders
+} from './images';
 import { fitTextToWidth, drawBracketedText } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
@@ -7,10 +14,13 @@ import shieldsmasher from './shieldsmasher.png';
 import rampager from './rampager.png'
 import doublebind from './double-bind.png'
 import amy from './amy.png';
+//import './styles.css';
+import './local-styles.css';
 
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
+// version 0.5.1  Prototype for new modern cards; old functionality may still be around but not tested
 // version 0.5.0  Updated many small and some big things that weren't looking right; moving towards modern
 // version 0.4.9  "Save image locally" was broken
 // version 0.4.8  fix "force clear"
@@ -25,29 +35,29 @@ function colorMap(color) {
   switch (color.toLowerCase()) {
     case "blue": return "#5C8FC7";
     case "green": return "#459A70";
-    case "purple":  return "#58569d"
+    case "purple": return "#58569d"
     default: return color;
   }
 }
 
 function coloredCircle(canvas, centerX, centerY, color) {
   try {
-  const ctx = canvas.getContext('2d');
-  const radius = 140;
+    const ctx = canvas.getContext('2d');
+    const radius = 140;
 
-  const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
 
-  // Add color stops to the gradient
-  gradient.addColorStop(0, 'white');  // Center of the circle
-  gradient.addColorStop(0.6, colorMap(color));    // Edge of the circle
+    // Add color stops to the gradient
+    gradient.addColorStop(0, 'white');  // Center of the circle
+    gradient.addColorStop(0.6, colorMap(color));    // Edge of the circle
 
-  // Use the gradient to fill the circle
-  ctx.fillStyle = gradient;
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-  ctx.fill();
-  } catch (e)  {
-  } 
+    // Use the gradient to fill the circle
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fill();
+  } catch (e) {
+  }
 
 }
 
@@ -182,9 +192,25 @@ const decodeAndDecompress = (encodedString) => {
   //  return JSON.parse(decompressed);
 };
 
+// show i of len piece, scaled by scale, start at x,y
+function scalePartialImage(ctx, img, i, len, scale, start_x, start_y) {
+
+  let www = img.width;
+  let y = scale; let x = y * (img.width / img.height);
+  let fw = x / len; // smaller frame length here
+  let ww = www / len;
+  ctx.drawImage(img,
+    i * ww, 0, // crop x,y
+    img.width, img.height, // crop w,h
+    start_x + i * fw, start_y, // place x,y
+    x, y // place w,h
+  );
+
+}
+
+
+
 function CustomCreator() {
-
-
   useEffect(() => {
     // first time init
   }, []);
@@ -412,20 +438,26 @@ function CustomCreator() {
 
     if (document.fred === 72) return;
 
-    const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
+    let modern = 1;
 
-    const frameImages = Array.from({ length: colors.length }, () => new Image());
-    const baseImg = new Image();
 
     let t;
     let array = basics;
+    let background = mon_background;
+    if (modern) array = outlines;
     if (document.getElementById("classic").checked) array = classics;
     let type = "MONSTER";
     if ((t = json.cardType)) {
-      if (t.match(/option/i)) type = "OPTION";
-      if (t.match(/tamer/i)) type = "TAMER";
-      if (t.match(/egg/i) || t.match(/tama/i)) type = "EGG";
+      if (t.match(/option/i)) { type = "OPTION"; background = option_background; }
+      if (t.match(/tamer/i)) { type = "TAMER"; background = tamer_background; }
+      if (t.match(/egg/i) || t.match(/tama/i)) { type = "EGG"; background = egg_background; }
     }
+
+    const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
+    const len = (type === "OPTION") ? 1 : colors.length;
+    const frameImages = Array.from({ length: len }, () => new Image());
+    const baseImg = new Image();
+
 
     const _evos = json.evolveCondition;
     const afterLoad = async () => {
@@ -449,60 +481,121 @@ function CustomCreator() {
 
       // Set the canvas dimensions
 
+
       // background image
       let back_img = userImg || baseImg;
-      console.log(back_img);
-      console.log("imageOptions", imageOptions);
+      //      console.log("imageOptions", imageOptions);
       let i_width = canvas.width * Number(imageOptions.x_scale) / 100;
       let i_height = canvas.height * Number(imageOptions.y_scale) / 100;
       let i_x_pct = (100 - Number(imageOptions.x_scale)) / 2 + Number(imageOptions.x_pos);
       let i_y_pct = (100 - Number(imageOptions.y_scale)) / 2 + Number(imageOptions.y_pos);
       ctx.drawImage(back_img, i_x_pct * canvas.width / 100, i_y_pct * canvas.height / 100, i_width, i_height);
 
+      if (modern) {
+        // new style background
+        let bg = new Image();
+
+        bg.src = background;
+        console.log(bg);
+        ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = (type === "OPTION") ? 'white' : 'black'; // ?
+
+        ctx.font = `bold 80px Roboto`;
+        ctx.fillText(json.cardType.toUpperCase(), 1480, 180);
+      }
+
       // multicolor
       let w = canvas.width;
       let h = canvas.height;
-      let len = frameImages.length;
+      let len = colors.length;
       let fw = w / len; // frame width
+      let offset_x = 90, offset_y = 72;
+      if (!modern) { offset_x = 0; offset_y = 0; }
       for (let i = 0; i < len; i++) {
         let frame = frameImages[i];
-        if (!frame.src.match(/undefined/)) {
-          try {
-            ctx.drawImage(frame,
-              i * fw, 0, fw, h,
-              i * fw, 0, fw, h);
-          } catch { console.log(`img ${i} broken`, frame) };
+        if (modern) {
+          let name_field = bottoms;
+          if (type === "OPTION" || type == "TAMER") name_field = bottoms_plain;
+          let col = colors[i];
+          if (outlines[col]) {
+            // why bother doing "top" differently?
+            //              let top = new Image(); top.src = outlines[col];
+            // left/top/right of outline, sometimes bottom
+            if (frame)
+              scalePartialImage(ctx, frame, i, len, 3950, offset_x, offset_y);
+
+            // very bottom, evo conditions
+            let img = bottom_evos[col];
+            scalePartialImage(ctx, img, i, len, 606, 164, 3550);
+
+            if (type === "MONSTER") {
+              // bottom of frame
+              let border = borders[col];
+              scalePartialImage(ctx, border, i, len, 67.3, 166, 3550 - 440);
+              // todo: play with these numbers some more. scale is 67.2-67.5,
+              // and left is 166
+            }
+            // name block
+            let y = 3550 - 365;
+            if (type === "EGG" || type === "OPTION" || type == "TAMER") y -= 90;
+            if (type === "OPTION" || type == "TAMER") y += 40;
+            let img_name = name_field[col];
+            let scale = 364.2;
+            if (type === "OPTION" || type == "TAMER") scale = 305;
+            scalePartialImage(ctx, img_name, i, len, scale, 164, y);
+
+          }
+          //i * fw - offset_x, 0 - offset_y, fw, h, // start x,y  then size x,y
+          //i * fw, 0, fw, h);
         }
       }
+
 
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
       const height = 390;
       // evo circles
-      if (_evos) {
-        for (let n = _evos.length; n--; n >= 0) {
-          //console.log(`n is ${n} and height is ${height * n}`);
-          const evo = _evos[n];
-          if (!evo.level) continue;
+      if (_evos && _evos.length > 0) {
 
-          const evo_level = `Lv.${evo.level}`;
-          const evo_cost = evo.cost;
-          const evo_color = evo.color.toLowerCase();
-          const circle = new Image();
-          circle.src = evos[evo_color];
+        // only two handled for now
+        {
 
-          ctx.drawImage(circle, 60, 640 + height * n);
+          if (modern) ctx.drawImage(cost_evo, offset_x, offset_y + 600, 500, 500);
 
-          coloredCircle(canvas, 370, 920 + height * n, evo_color);
-          // TODO: contrasting colors
-          ctx.font = `bold 60px Roboto`;
-          ctx.fillStyle = contrastColor(evo_color);
-          ctx.fillText(evo_level, 355, 850 + height * n);
-          ctx.font = `bold 170px Roboto`;
-          ctx.fillStyle = contrastColor(evo_color);
-          ctx.fillText(evo_cost, 355, 970 + height * n);
-          ctx.strokeText(evo_cost, 355, 970 + height * n);
+
+          for (let n = 0; n < _evos.length; n++) {
+            //console.log(`n is ${n} and height is ${height * n}`);
+            const evo = _evos[n];
+            if (!evo.level) continue;
+
+            const evo_level = `Lv.${evo.level}`;
+            const evo_cost = evo.cost;
+            const evo_color = evo.color.toLowerCase();
+            console.log(575, evo_color);
+            const circle = new Image();
+            // only handling 2 colors for now
+            if (modern) {
+              let circles = n ? new_evo2_circles : new_evo_circles;
+              circle.src = circles[evo_color];
+              ctx.drawImage(circle, 0, 0, 291, 291, offset_x + 130, offset_y + 125 + 600, 310, 310);
+            } else {
+              circle.src = evos[evo_color];
+              ctx.drawImage(circle, 60, 640 + height * n);
+              coloredCircle(canvas, 370, 920 + height * n, evo_color);
+            }
+            // TODO: contrasting colors
+            ctx.font = `bold 60px Roboto`;
+            ctx.fillStyle = contrastColor(evo_color);
+            let index = modern ? 0 : n;
+            ctx.fillText(evo_level, 355, 850 + height * index);
+            ctx.font = `bold 170px Roboto`;
+            ctx.fillStyle = contrastColor(evo_color);
+            ctx.fillText(evo_cost, 355, 970 + height * index);
+            ctx.strokeText(evo_cost, 355, 970 + height * index);
+          }
         }
       }
 
@@ -519,12 +612,24 @@ function CustomCreator() {
 
       let x = 355;
       //playcost
-      const playcost = json.playCost;
-      if (playcost && playcost !== "-") {
-        ctx.font = 'bold 250px Helvetica';
-        ctx.fillStyle = 'white';
-        ctx.fillText(playcost, x + 15, 380);
+      const playcost = json.playCost !== "-" ? json.playCost : undefined;
+      if (type === "MONSTER" || type === "EGG" || true) {
+        if (modern) {
+          let img = playcost ? cost : cost_egg;
+          if (type === "OPTION") img = cost_option;
+          ctx.drawImage(img, offset_x, offset_y, 500, 500);
+          for (let color of colors) {
+            let i = costs[color];
+            if (i) ctx.drawImage(i, offset_x, offset_y, 500, 500);
+          }
+        }
+        if (playcost) {
+          ctx.font = 'bold 250px Helvetica';
+          ctx.fillStyle = 'white';
+          ctx.fillText(playcost, x + 15, 380 - 20);
+        }
       }
+
 
       if (type === "MONSTER") {
 
@@ -533,27 +638,44 @@ function CustomCreator() {
         ctx.fillStyle = 'black';
         x = 2450;
         ctx.font = 'bold 300px Helvetica';
-        if (dp_k)
+        if (dp_k) {
+          ctx.lineWidth = 15;
+          ctx.strokeStyle = 'white';
+          ctx.strokeText(dp_k, x, 380 - 100);
           ctx.fillText(dp_k, x, 380 - 100);
+        }
         ctx.font = 'bold 150px Helvetica';
         if (dp_k > 9) x += 100;
-        if (dp_m)
+        if (dp_m) {
+          ctx.lineWidth = 15;
+          ctx.strokeStyle = 'white';
+          ctx.strokeText(dp_m, x + 200, 380 - 60);
           ctx.fillText(dp_m, x + 200, 380 - 60);
+        }
         ctx.font = '100px Helvetica';
+        ctx.lineWidth = 15;
+        ctx.strokeStyle = 'white';
+        ctx.strokeText("DP", x + 240, 380 - 180);
         ctx.fillText("DP", x + 240, 380 - 180);
-
+      }
+      if (type === "EGG" || type === "MONSTER") {
         // level
         const level = (json.cardLv === "-") ? "Lv.-" : json.cardLv;
         ctx.font = '900 200px "Big Shoulders Text"'
+        // roboto preferred
+        //        ctx.font = '900 200px "Roboto"'
+
         ctx.fillStyle = whiteColor(colors[0]);
-        ctx.fillText(level, 390, 3400);
+        let y = 3400;
+        if (type === "EGG") y -= 100;
+        ctx.fillText(level, 390, y);
       }
 
       let delta_y = 0;
       switch (type) {
-        case "OPTION": delta_y -= 100; break;
-        case "TAMER": delta_y -= 150; break;
-        case "EGG": delta_y -= 130; break;
+        case "OPTION": delta_y -= 60; break;
+        case "TAMER": delta_y -= 60; break;
+        case "EGG": delta_y -= 125; break;
         case "MONSTER": break;
         default: alert(1);
       }
@@ -575,10 +697,10 @@ function CustomCreator() {
         let bc = borderColor(colors);
         ctx.strokeStyle = bc;
         if (bc !== "") {
-          ctx.strokeText(name, 1480, 3370 + delta_y);
+          ctx.strokeText(name, 1480, 3360 + delta_y);
         }
         ctx.lineWidth = 10; // Border width
-        ctx.fillText(name, 1480, 3370 + delta_y);
+        ctx.fillText(name, 1480, 3360 + delta_y);
       } catch { };
 
 
@@ -601,8 +723,12 @@ function CustomCreator() {
         ctx.fillStyle = 'black';
         delta_y += 50;
       }
+      if (type === "OPTION") {
+        delta_y += 50;
+      }
+
       if (type === "EGG") {
-        delta_y += 40;
+        delta_y += 20;
       }
 
       ctx.font = `bold 60px Roboto`;
@@ -640,7 +766,7 @@ function CustomCreator() {
         y_line = drawBracketedText(ctx, effect,
           //wrapText(ctx, effect, // + effect, 
           300, y_line,
-          2400, 90, "effect");
+          2400, 90, type === "OPTION" ? "effect-option" : "effect");
       }
 
       // digixros, put right after effect for now
@@ -662,11 +788,11 @@ function CustomCreator() {
       console.log("a", evo_effect);
       const sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
       ctx.fillStyle = 'black';
-      console.log("55555 " + delta_y);
       let delta_x = delta_y;
-      if (type === "EGG") { delta_x += 40; delta_y += 20; }
-      if (type === "OPTION") { delta_x += 20; delta_y += 40; }
+      if (type === "EGG") { delta_x = 0; delta_y = 0 }; // original is fine
+      if (type === "OPTION") { delta_x = 0; delta_y = 0 }; // original is fine
       if (type === "TAMER") { delta_x += 20; delta_y += 40; }
+
 
       if (sec_effect) {
         drawBracketedText(ctx, sec_effect,
@@ -676,9 +802,10 @@ function CustomCreator() {
     }
 
     // 1 for base, 1 per color, 1 per evo circle
-    let imagesToLoad = 1 + colors.length + (_evos ? _evos.length : 0);
+    let imagesToLoad = 1 + frameImages.length + (_evos ? _evos.length : 0);
     let imagesLoaded = 0;
     const checkAllImagesLoaded = () => {
+      console.log(771, "image loaded", imagesLoaded, imagesToLoad);
       imagesLoaded++;
       if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
         // Set the canvas dimensions  
@@ -692,11 +819,10 @@ function CustomCreator() {
     baseImg.onload = baseImg.onerror = checkAllImagesLoaded
 
     // have all images loaded before we draw
-
     switch (type) {
       case "OPTION": array = options; baseImg.src = doublebind; break;
-      case "TAMER": array = tamers; baseImg.src = amy; break
-      case "EGG": array = eggs; baseImg.src = egg; break;
+      case "TAMER": array = modern ? outlines_egg : tamers; baseImg.src = amy; break
+      case "EGG": array = modern ? outlines_egg : eggs; baseImg.src = egg; break;
       case "MONSTER": baseImg.src = shieldsmasher; break;
       default: alert(4);
     }
@@ -704,10 +830,15 @@ function CustomCreator() {
     if (json && json.name && json.name.english === "Rampager") {
       baseImg.src = rampager;
     }
-    for (let i = 0; i < frameImages.length; i++) {
-      frameImages[i].src = array[colors[i]]
-    }
 
+    if (type === "OPTION") {
+      frameImages[0].src = outline_option;
+    } else {
+      for (let i = 0; i < frameImages.length; i++) {
+        frameImages[i].src = array[colors[i]];
+      }
+    }
+    console.log(803, frameImages);
     if (_evos) {
       for (let n = _evos.length; n--; n >= 0) {
         const evo_color = _evos[n].color.toLowerCase();
@@ -740,8 +871,20 @@ function CustomCreator() {
   return (
     <table>
       <tr>
-        <td>
+        <td width={"30%"} style={{ fontSize: "smaller" }}>
+          <br />
           Ask support or request features over on <a href={invite}>Discord</a>.
+          <br />
+          Classic templates originally came from Quietype on WithTheWill.
+          <br />
+          Shout out to pinima and Zaffy who kept this dream alive in previous years.
+          <br />
+          Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.
+          <br />
+          Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
+          <br />
+          <br />
+          <br />
           <br />
           <button onClick={() => sample(0)}> Sample Egg </button><br />
           <button onClick={() => sample(1)}> Sample Monster A </button><br />
@@ -757,7 +900,9 @@ function CustomCreator() {
         <td><br /><br /><br /></td>
       </tr>
       <tr>
-        <td valign={"top"}>
+        <td
+          width={"30%"}
+          valign={"top"}>
           <button onClick={toggleView}>
             {showJson ? 'Show Key:Value Pairs' : 'Show JSON'}
           </button>
@@ -843,7 +988,7 @@ function CustomCreator() {
           <br />
           <a class={{ fontSize: "8px;" }} href={shareURL}>{shareURL}</a>
           <hr />
-          <span> <label><input name="classic" id="classic" type="checkbox" value="1" /> Use Classic Card Style</label> <br/> Unimplemented: ace logo, burst, rarity <br />
+          <span> <label><input name="classic" id="classic" type="checkbox" value="1" /> Use Classic Card Style</label> <br /> Unimplemented: ace logo, burst, rarity <br />
           </span>
         </td>
       </tr>

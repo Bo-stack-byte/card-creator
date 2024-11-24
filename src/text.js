@@ -179,7 +179,7 @@ export function drawBracketedText(ctx, text, x, y, maxWidth, lineHeight, extra) 
 
   const paragraphs = text.split("\n");
   for (let p = 0; p < paragraphs.length; p++) {
-    let graf = prepareKeywords(paragraphs[p], extra === "effect");
+    let graf = prepareKeywords(paragraphs[p], extra.startsWith("effect"));
 
     const words = splitTextIntoParts(graf);
 
@@ -213,7 +213,7 @@ export function drawBracketedText(ctx, text, x, y, maxWidth, lineHeight, extra) 
     }
   }
   for (let line of lines) {
-    wrapAndDrawText(line.ctx, line.line, line.x, line.yOffset);
+    wrapAndDrawText(line.ctx, line.line, line.x, line.yOffset, extra);
   }
 
 
@@ -231,7 +231,7 @@ function getColor(phrase) {
 
 const font = 'Arial'
 
-function wrapAndDrawText(ctx, text, x, y) {
+function wrapAndDrawText(ctx, text, x, y, style) {
   let lastX = x;
   // ⟦⟧ 
   text.split(/([[⟦].*?[\]⟧])/).forEach(phrase => {
@@ -246,7 +246,7 @@ function wrapAndDrawText(ctx, text, x, y) {
       const phraseWidth = ctx.measureText(cleanPhrase).width;
       let color = getColor(cleanPhrase);
       drawColoredRectangle(ctx, lastX, y, phraseWidth + 10, 100, color);
-      // Draw the text in white
+      // Draw the text in white on special background
       ctx.fillStyle = 'white';
       ctx.fillText(cleanPhrase, lastX + 5, y);
       lastX += phraseWidth + 15;
@@ -257,7 +257,7 @@ function wrapAndDrawText(ctx, text, x, y) {
           const wordWidth = ctx.measureText(cleanWord).width;
           drawDiamondRectangle(ctx, lastX, y, wordWidth + 10, 100);
           ctx.font = `bold 90px ${font}`;
-          ctx.fillStyle = 'white';
+          ctx.fillStyle = 'white'; // white on colored background
           ctx.fillText(cleanWord, lastX + 5, y);
           lastX += wordWidth + 15;
         } else {
@@ -287,16 +287,25 @@ ctx.strokeText(word, lastX, y);
 lastX += ctx.measureText(word).width + ctx.measureText(' ').width;
 */
 
-          // First, draw the black stroke
-          ctx.lineWidth = 14; // Thicker stroke
-          ctx.strokeStyle = 'black';
+          let width = 12;
+          let stroke = 'black';
+          let fill = 'white';
+          if (style.includes("option")) {
+            width = 3;
+            stroke = 'white';
+            fill = 'black';
+          }
+
+         // First, draw the black stroke
+         ctx.lineWidth = width; // Thicker stroke
+          ctx.strokeStyle = stroke;
           ctx.strokeText(word, lastX, y);
 
-          // Then, draw the white fill with a smaller stroke
+
           ctx.lineWidth = 2; // Smaller stroke to define the edges
-          ctx.fillStyle = 'white';
+          ctx.fillStyle = fill;
           ctx.fillText(word, lastX, y);
-          ctx.strokeText(word, lastX, y);
+     //     ctx.strokeText(word, lastX, y);
           lastX += ctx.measureText(word).width + ctx.measureText(' ').width;
 
 

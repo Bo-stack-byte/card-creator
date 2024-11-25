@@ -1,10 +1,20 @@
+
+const font = 'Asimov'
+let px = 80;  const g_width = 2800
+const size = `${px}px`; 
+
+
+
+
 export function fitTextToWidth(ctx, text, maxWidth, initialFontSize) {
+  const font = 'Asimov'
+
   let fontSize = initialFontSize;
-  ctx.font = `${fontSize}px Arial`;
+  ctx.font = `${fontSize}px ${font}`;
 
   while (ctx.measureText(text).width > maxWidth && fontSize > 0) {
     fontSize -= 1;
-    ctx.font = `${fontSize}px Arial`;
+    ctx.font = `${fontSize}px ${font}`;
   }
   return fontSize;
 }
@@ -126,7 +136,6 @@ function drawDiamondRectangle(ctx, x, y, width, height) {
   ctx.fillStyle = gradient;
   ctx.fill();
 
-  // Optionally, you can add a border/stroke around the shape
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'black';
   ctx.stroke();
@@ -229,10 +238,10 @@ function getColor(phrase) {
   return 'blue';
 }
 
-const font = 'Arial'
-
 function wrapAndDrawText(ctx, text, x, y, style) {
+  let cardWidth = 4400; // shouldn't be hard-coded
   let lastX = x;
+  let scale;
   // ⟦⟧ 
   text.split(/([[⟦].*?[\]⟧])/).forEach(phrase => {
     const cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
@@ -242,10 +251,10 @@ function wrapAndDrawText(ctx, text, x, y, style) {
       (phrase.startsWith("[") && phrase.endsWith("]") && matchMagic(magicWords, cleanPhrase))
     ) {
       // Calculate the width of the bracketed text
-      ctx.font = `bold 90px ${font}`;
+      ctx.font = ` ${size} ${font}`;
       const phraseWidth = ctx.measureText(cleanPhrase).width;
       let color = getColor(cleanPhrase);
-      drawColoredRectangle(ctx, lastX, y, phraseWidth + 10, 100, color);
+      drawColoredRectangle(ctx, lastX, y + 20, phraseWidth + 10, 80, color);
       // Draw the text in white on special background
       ctx.fillStyle = 'white';
       ctx.fillText(cleanPhrase, lastX + 5, y);
@@ -254,12 +263,19 @@ function wrapAndDrawText(ctx, text, x, y, style) {
       phrase.split(/(＜.*?＞)/).forEach(word => {
         if (word.includes("＜")) {
           const cleanWord = word.replace(/[＜＞_]/g, '  ');
+          ctx.font = ` ${size} ${font}`;
           const wordWidth = ctx.measureText(cleanWord).width;
-          drawDiamondRectangle(ctx, lastX, y, wordWidth + 10, 100);
-          ctx.font = `bold 90px ${font}`;
+          scale = (cardWidth - lastX) / wordWidth; 
+          if (scale > 1) scale = 1; 
+          drawDiamondRectangle(ctx, lastX, y, scale * wordWidth + 10, px + 10);
+          ctx.save();
+          ctx.scale(scale, 1);
+          ctx.font = ` ${size} ${font}`;
           ctx.fillStyle = 'white'; // white on colored background
-          ctx.fillText(cleanWord, lastX + 5, y);
-          lastX += wordWidth + 15;
+          
+          ctx.fillText(cleanWord, lastX  / scale + 5, y);
+          lastX += scale * wordWidth + 15;
+          ctx.restore();
         } else {
 
           /*

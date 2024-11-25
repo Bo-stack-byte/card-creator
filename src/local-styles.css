@@ -19,3 +19,11 @@ br {
     white-space: nowrap;
     display: inline-block; margin-right: 2px; /* Optional: add some space between spans */
 }
+
+
+
+
+@font-face {
+  font-family: 'Asimov';
+  src: local('Asimov'), url(./fonts/Asimov-Print-C.ttf.woff) format('woff');
+}

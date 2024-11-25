@@ -3,9 +3,9 @@ import { eggs, basics, classics, options, tamers, evos, colorReplace } from './i
 import {
   mon_background, mega_background, egg_background, option_background, tamer_background,
   outlines, outlines_egg, outlines_tamer, outline_option,
-  cost, cost_egg, cost_option, cost_evo, costs,
+  cost, cost_egg, cost_option, cost_evo, costs, ace_logo,
   new_evo_circles, new_evo2_circles,
-  bottom_evos, bottoms, bottoms_plain, borders
+  bottom_evos, bottoms, bottoms_plain, bottom_aces, borders, effectboxes
 } from './images';
 import { enterPlainText } from './plaintext';
 import { fitTextToWidth, drawBracketedText } from './text';
@@ -23,7 +23,8 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-// version 0.5.2  megas done, freeform input
+// version 0.5.3  aces
+// version 0.5.2  megas done, freeform input                                                                                      
 // version 0.5.1  Prototype for new modern cards; old functionality may still be around but not tested
 // version 0.5.0  Updated many small and some big things that weren't looking right; moving towards modern
 // version 0.4.9  "Save image locally" was broken
@@ -130,8 +131,6 @@ const starter_text_1a = `  {
     "type": "Sword",
     "digiXros": "[DigiXros -3] [Axe Raider] x [Pikachu]",
     "dnaEvolve": "-",
-
-    "aceEffect": "-",
     "burstEvolve": "-",
     "rarity": "Rare"
   }`;
@@ -152,14 +151,13 @@ const starter_text_1b = `  {
     "dp": "14000",
     "dnaEvolve": "[DNA Digivolve] Yellow Lv.6 + Blue Lv.6\u00a0: Cost 0",
     "evolveEffect": "-",
-    "effect": "＜Resurrect＞ ＜Piercing＞ \\n [When Thinking] Delete all of your opponent's Monsters with the biggest level. Then delete all of your opponent's Monsters with the smallest DP.",
+    "effect": "\uff1cBlast DNA Digivolve (Colossal Sword + Onyx Shield)\uff1e\\n＜Resurrect＞ ＜Piercing＞ \\n [When Thinking] Delete all of your opponent's Monsters with the biggest level. Then delete all of your opponent's Monsters with the smallest DP.",
     "securityEffect": "-",
     "attribute": "Virus",
     "form": "Ultimate",
     "type": "Sword/Shield",
     "digiXros": "-",
-
-    "aceEffect": "-",
+    "aceEffect": "Overflow \uff1c-5\uff1e (As this card would move from the field or from under a card to another area, lose 4 memory.)",
     "burstEvolve": "-",
     "rarity": "Secret Rare"
   }
@@ -209,15 +207,17 @@ const decodeAndDecompress = (encodedString) => {
 function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top = 0) {
 
   if (!img) return;
-  let www = img.width;
   let y = scale; let x = y * (img.width / img.height);
   let fw = x / len; // smaller frame length here
-  let ww = www / len;
+  let ww = img.width / len;
+  let top = 0; let bottom = 0;
+  if (crop_top > 0) top = crop_top;
+  if (crop_top < 0) bottom = crop_top;
   ctx.drawImage(img,
-    i * ww, crop_top, // crop x,y
-    img.width, img.height, // crop w,h
+    i * ww, top, // crop x,y
+    ww, img.height + bottom, // crop w,h
     start_x + i * fw, start_y, // place x,y
-    x, y // place w,h
+    x / len, y // place w,h
   );
 
 }
@@ -252,7 +252,7 @@ function CustomCreator() {
   const [freeform, setFreeForm] = useState("");
 
   const toggleView = () => {
-    setShowJson((showJson + 1)%3);
+    setShowJson((showJson + 1) % 3);
   };
 
   const flattenJson = (obj, parentKey = '', result = {}) => {
@@ -309,7 +309,7 @@ function CustomCreator() {
     setJsonText(jsonTxt);
     jsonToFields(jsonTxt);
 
-  } 
+  }
 
   const handleTextareaChange = (event) => {
     // update the form data
@@ -414,8 +414,8 @@ function CustomCreator() {
     }
 
     setSelectedOption("AUTO");
-    if (number === 5) { 
-      setShowJson(2); 
+    if (number === 5) {
+      setShowJson(2);
       setFreeForm(text);
       text = enterPlainText(text.split("\n"));
       setJsonText(text);
@@ -505,9 +505,12 @@ function CustomCreator() {
       if (json.cardLv === "Lv.6" || json.cardLv === "Lv.7") {
         type = "MEGA";
       }
+      if (json.aceEffect && json.aceEffect.length > 5) {
+        type = "ACE";
+      }
       if ((t = json.cardType)) {
         if (t.match(/option/i)) { type = "OPTION"; }
-        if (t.match(/tamer/i)) { type = "TAMER";; }
+        if (t.match(/tamer/i)) { type = "TAMER"; }
         if (t.match(/egg/i) || t.match(/tama/i)) { type = "EGG"; }
       }
     }
@@ -516,6 +519,7 @@ function CustomCreator() {
       case "OPTION": background = option_background; break;
       case "TAMER": background = tamer_background; break;
       case "EGG": background = egg_background; break;
+      case "MONSTER": case "ACE":
       default:
     }
 
@@ -565,7 +569,7 @@ function CustomCreator() {
       if (modern) {
         // new style background
         // we know shellimg is loaded because of pre-flight
-//        shellImg.src = background;
+        //        shellImg.src = background;
         ctx.drawImage(shellImg, 0, 0, canvas.width, canvas.height);
 
         ctx.textAlign = 'center';
@@ -575,19 +579,39 @@ function CustomCreator() {
         ctx.fillText(json.cardType.toUpperCase(), 1480, 180);
       }
 
-      // multicolor
       let w = canvas.width;
       let h = canvas.height;
       let len = colors.length;
+      // multicolor
       let fw = w / len; // frame width
       let offset_x = 90, offset_y = 72;
       if (!modern) { offset_x = 0; offset_y = 0; }
-      if (type === "MEGA") {
-        // draw the left and right line all the way down. crop off the top 1000 pixels
-        scalePartialImage(ctx, frameImages[0], 0, len, 3950, offset_x, offset_y + 1100, 600);
-        let last = len - 1;
-        scalePartialImage(ctx, frameImages[last], last, len, 3950, offset_x, offset_y + 1100, 600);
 
+
+      // effect greybox overlay
+      for (let i = 0; i < 2; i++) {
+        if (modern) {
+          let col = colors[i];
+          if (type === "MEGA" && document.getElementById("effectbox").checked) {
+            let xxx = new Image(); xxx.src = effectboxes[col];
+            if (xxx.src)
+              scalePartialImage(ctx, xxx, i, len, 825, offset_x + 80, offset_y + 2760);
+          }
+        }
+      }
+
+      if (type === "MEGA") {
+        console.log(602, frameImages.length);
+        // draw the left and right line all the way down. crop off the top 1000 pixels
+        try {
+          if (frameImages[0].complete)
+            scalePartialImage(ctx, frameImages[0], 0, len, 3950, offset_x, offset_y + 1100, 600);
+          let last = len - 1;
+          if (frameImages[last].complete)
+            scalePartialImage(ctx, frameImages[last], last, len, 3950, offset_x, offset_y + 1100, 600);
+        } catch (e) { // couldn't sufficiently check this w/o a try/catch
+          console.log(611, e);
+        }
       }
       for (let i = 0; i < len; i++) {
         let frame = frameImages[i];
@@ -595,17 +619,23 @@ function CustomCreator() {
           let name_field = bottoms; // i'm so sorry this is named 'bottom'
           if (type === "OPTION" || type === "TAMER") name_field = bottoms_plain;
           let col = colors[i];
+
           if (outlines[col]) {
+
             // why bother doing "top" differently?
             //              let top = new Image(); top.src = outlines[col];
             // left/top/right of outline, sometimes bottom
-            if (frame)
-              scalePartialImage(ctx, frame, i, len, 3950, offset_x, offset_y);
-
+            if (frame) {
+              let l = (type === "OPTION") ? 1 : len; // just 1 option "outline"
+              scalePartialImage(ctx, frame, i, l, 3950, offset_x, offset_y);
+            }
             // very bottom, evo conditions
 
             if (type !== "MEGA") {
               let img = bottom_evos[col];
+              if (type === "ACE") {
+                img = bottom_aces[col];
+              }
               scalePartialImage(ctx, img, i, len, 606, 164, 3550);
             }
             if (type === "MONSTER" || type === "MEGA") {
@@ -614,6 +644,7 @@ function CustomCreator() {
               let y = 3550 - 440;
               if (type === "MEGA") y += 500;
               scalePartialImage(ctx, border, i, len, 67.3, 166, y);
+
               // todo: play with these numbers some more. scale is 67.2-67.5,
               // and left is 166
             }
@@ -626,12 +657,40 @@ function CustomCreator() {
             let scale = 364.2;
             if (type === "OPTION" || type === "TAMER") scale = 305;
             scalePartialImage(ctx, img_name, i, len, scale, 164, y);
+            if (i === len - 1) {
+              let left_img = name_field[colors[0]];
+              if (left_img) {
+                //              ctx.drawImage(0,
+                let yyy = 365;
+                let xxx = yyy * (left_img.width / left_img.height);
+                let crop_top = 70.5;
+                ctx.drawImage(left_img,
+                  0, crop_top,
+                  left_img.width, left_img.height,
+                  164, y + crop_top + 201,
+                  xxx, yyy * 1.2,
+
+                  //  400,y/2,2000,2000
+
+                  //                 164, y, 
+                  //               3000, 100
+                );
+              }
+            }
+            // overwrite black/white bar
 
           }
           //i * fw - offset_x, 0 - offset_y, fw, h, // start x,y  then size x,y
           //i * fw, 0, fw, h);
         }
       }
+
+      //   if (type !== "OPTION" && type !== "TAMER") {
+      /*  ctx.fillStyle = "black";
+        ctx.beginPath(); 
+        ctx.rect(600, 3960, 2740 - 600, 4023 - 3961);
+        ctx.fill();*/
+      //   }
 
 
       ctx.textAlign = 'center';
@@ -642,40 +701,40 @@ function CustomCreator() {
       if (_evos && _evos.length > 0) {
 
         // only two handled for now
-          offset_y -= 20;
-          if (modern) ctx.drawImage(cost_evo, offset_x, offset_y + 600, 500, 500);
+        offset_y -= 20;
+        if (modern) ctx.drawImage(cost_evo, offset_x, offset_y + 600, 500, 500);
 
 
-          for (let n = 0; n < _evos.length; n++) {
-            //console.log(`n is ${n} and height is ${height * n}`);
-            const evo = _evos[n];
-            if (!evo.level) continue;
+        for (let n = 0; n < _evos.length; n++) {
+          //console.log(`n is ${n} and height is ${height * n}`);
+          const evo = _evos[n];
+          if (!evo.level) continue;
 
-            const evo_level = `Lv.${evo.level}`;
-            const evo_cost = evo.cost;
-            const evo_color = evo.color.toLowerCase();
-            console.log(575, evo_color);
-            const circle = new Image();
-            // only handling 2 colors for now
-            if (modern) {
-              let circles = n ? new_evo2_circles : new_evo_circles;
-              circle.src = circles[evo_color];
-              ctx.drawImage(circle, 0, 0, 291, 291, offset_x + 130, offset_y + 125 + 600, 310, 310);
-            } else {
-              circle.src = evos[evo_color];
-              ctx.drawImage(circle, 60, 640 + height * n);
-              coloredCircle(canvas, 370, 920 + height * n, evo_color);
-            }
-            // TODO: contrasting colors
-            ctx.font = `bold 60px Roboto`;
-            ctx.fillStyle = contrastColor(evo_color);
-            let index = modern ? 0 : n;
-            ctx.fillText(evo_level, 355, 850 + height * index);
-            ctx.font = `bold 170px Roboto`;
-            ctx.fillStyle = contrastColor(evo_color);
-            ctx.fillText(evo_cost, 355, 970 + height * index);
-            ctx.strokeText(evo_cost, 355, 970 + height * index);
+          const evo_level = `Lv.${evo.level}`;
+          const evo_cost = evo.cost;
+          const evo_color = evo.color.toLowerCase();
+          console.log(575, evo_color);
+          const circle = new Image();
+          // only handling 2 colors for now
+          if (modern) {
+            let circles = n ? new_evo2_circles : new_evo_circles;
+            circle.src = circles[evo_color];
+            ctx.drawImage(circle, 0, 0, 291, 291, offset_x + 130, offset_y + 125 + 600, 310, 310);
+          } else {
+            circle.src = evos[evo_color];
+            ctx.drawImage(circle, 60, 640 + height * n);
+            coloredCircle(canvas, 370, 920 + height * n, evo_color);
           }
+          // TODO: contrasting colors
+          ctx.font = `bold 60px Roboto`;
+          ctx.fillStyle = contrastColor(evo_color);
+          let index = modern ? 0 : n;
+          ctx.fillText(evo_level, 355, 850 + height * index);
+          ctx.font = `bold 170px Roboto`;
+          ctx.fillStyle = contrastColor(evo_color);
+          ctx.fillText(evo_cost, 355, 970 + height * index);
+          ctx.strokeText(evo_cost, 355, 970 + height * index);
+        }
       }
 
 
@@ -710,7 +769,7 @@ function CustomCreator() {
       }
 
 
-      if (type === "MONSTER") {
+      if (type === "MONSTER" || type === "MEGA" || type === "ACE") {
 
 
         // dp
@@ -737,7 +796,7 @@ function CustomCreator() {
         ctx.strokeText("DP", x + 240, 380 - 180);
         ctx.fillText("DP", x + 240, 380 - 180);
       }
-      if (type === "EGG" || type === "MONSTER" || type === "MEGA") {
+      if (type === "EGG" || type === "MONSTER" || type === "MEGA" || type === "ACE") {
         // level
         const level = (json.cardLv === "-" || json.cardLv === undefined) ? "Lv.-" : json.cardLv;
         ctx.font = '900 200px "Big Shoulders Text"'
@@ -757,7 +816,7 @@ function CustomCreator() {
         case "TAMER": delta_y -= 60; break;
         case "EGG": delta_y -= 125; break;
         case "MEGA": delta_y += 500; break;
-        case "MONSTER": break;
+        case "MONSTER": case "ACE": break;
         default: alert(1);
       }
 
@@ -777,11 +836,19 @@ function CustomCreator() {
         ctx.lineWidth = 30; // Border width
         let bc = borderColor(colors);
         ctx.strokeStyle = bc;
+        // if we scale the ACE word this will need to scale, too
+        let ace_offset = (type === "ACE") ? -ace_logo.width / 2 : 0;
+
         if (bc !== "") {
-          ctx.strokeText(name, 1480, 3360 + delta_y);
+          ctx.strokeText(name, 1480 + ace_offset, 3360 + delta_y);
         }
         ctx.lineWidth = 10; // Border width
-        ctx.fillText(name, 1480, 3360 + delta_y);
+        ctx.fillText(name, 1480 + ace_offset, 3360 + delta_y);
+
+        if (type === "ACE") {
+          let end = ctx.measureText(name).width / 2;
+          ctx.drawImage(ace_logo, 1480 + ace_offset + end + 10, 3360 + delta_y - 100);
+        }
       } catch { };
 
 
@@ -799,7 +866,7 @@ function CustomCreator() {
       // todo don't show when all blank
       const traits = ` ${form}      |     ${attribute}      |      ${c_type}      `;
       //console.log("Traits", traits)
-      ctx.fillStyle = whiteColor(colors[colors.length - 1]);
+      ctx.fillStyle = whiteColor(colors[0]);
       if (type === "TAMER") {
         ctx.fillStyle = 'black';
         delta_y += 50;
@@ -821,7 +888,7 @@ function CustomCreator() {
       ///// MAIN TEXT 
       let y_line = 2800 - 400;
       // effect
-      if (type === "MEGA") y_line += 500;
+      if (type === "MEGA") y_line += 500 + 100;
       ctx.font = `bold 90px Arial`;
       ctx.textAlign = 'start';
       ctx.textBaseline = 'bottom'; // Align text to the bottom
@@ -852,7 +919,8 @@ function CustomCreator() {
         y_line = drawBracketedText(ctx, effect,
           //wrapText(ctx, effect, // + effect, 
           300, y_line,
-          2400, 90, type === "OPTION" ? "effect-option" : "effect");
+          2400,
+          90, type === "OPTION" ? "effect-option" : "effect");
       }
 
       // digixros, put right after effect for now
@@ -886,6 +954,8 @@ function CustomCreator() {
       }
     }
 
+
+
     // 1 for basic style frame, 1 for custom image, 1 per color, 1 per evo circle
     let imagesToLoad = 2 + frameImages.length + (_evos ? _evos.length : 0);
     console.log(817, frameImages.length, _evos && _evos.length);
@@ -902,15 +972,15 @@ function CustomCreator() {
     };
 
     for (let f of frameImages) {
-      f.onload = f.onerror = function() { checkAllImagesLoaded(f); }
+      f.onload = f.onerror = function () { checkAllImagesLoaded(f); }
     }
     // this has a race condition    
-    baseImg.onload = baseImg.onerror = function() { checkAllImagesLoaded(baseImg); }
+    baseImg.onload = baseImg.onerror = function () { checkAllImagesLoaded(baseImg); }
     if (baseImg.complete) {
-  //    baseImg.src = baseImg.src; // reload
+      //    baseImg.src = baseImg.src; // reload
     }
     shellImg.src = background;
-    shellImg.onload = shellImg.onerror = function() { checkAllImagesLoaded(shellImg); }
+    shellImg.onload = shellImg.onerror = function () { checkAllImagesLoaded(shellImg); }
     switch (type) {
       case "OPTION": array = options; break;
       // how is outlines_tamer different from outlines_egg??
@@ -918,6 +988,7 @@ function CustomCreator() {
       case "EGG": array = modern ? outlines_egg : eggs; break;
       case "MONSTER": break;
       case "MEGA": break;
+      case "ACE": break;
       default: alert(4);
     }
 
@@ -958,13 +1029,12 @@ function CustomCreator() {
   };
 
   let json_modes = ["Fields", "JSON", "Freeform"];
-  let button_text = `Showing ${json_modes[showJson]}, click to toggle to ${json_modes[(showJson+1)%3]}`;
+  let button_text = `Showing ${json_modes[showJson]}, click to toggle to ${json_modes[(showJson + 1) % 3]}`;
   let invite = "https://discord.gg/PRXgdCwp";
   return (
     <table>
       <tr>
         <td width={"30%"} style={{ fontSize: "smaller" }}>
-          <br />
           Ask support or request features over on <a href={invite}>Discord</a>.
           <br />
           Classic templates originally came from Quietype on WithTheWill.
@@ -980,8 +1050,8 @@ function CustomCreator() {
           <br />
           <button onClick={() => sample(0)}> Sample Egg </button><br />
           <button onClick={() => sample(5)}> Sample Monster </button><br />
-          <button onClick={() => sample(1)}> Sample Mega A </button><br />
-          <button onClick={() => sample(2)}> Sample Mega B </button><br />
+          <button onClick={() => sample(1)}> Sample Mega </button><br />
+          <button onClick={() => sample(2)}> Sample ACE </button><br />
           <button onClick={() => sample(3)}> Sample Option </button><br />
           <button onClick={() => sample(4)}> Sample Tamer </button><br />
 
@@ -1009,7 +1079,7 @@ function CustomCreator() {
 
             //           onChange={(e) => handleTextAreaChange(e.target.value)}
             />
-          )  : (showJson === 0) ? (
+          ) : (showJson === 0) ? (
             <div>
               <table style={{ maxWidth: "300px" }}>
                 {!flattenedJson ? (<tr><td>Error in JSON, try again <br /> {jsonerror} </td></tr>
@@ -1033,10 +1103,10 @@ function CustomCreator() {
                   )}
               </table>
             </div>
-          ): (<form>  
-                      <textarea defaultValue={freeform} name="free" cols={40} rows={10} /><br />
+          ) : (<form>
+            <textarea defaultValue={freeform} name="free" cols={40} rows={10} /><br />
             <input type="button" value={"go"} onClick={handleFreeformChange} />
-          </form>  ) }
+          </form>)}
         </td>
         <td valign={"top"}>
           <div>
@@ -1085,7 +1155,13 @@ function CustomCreator() {
           <br />
           <a class={{ fontSize: "8px;" }} href={shareURL}>{shareURL}</a>
           <hr />
-          <span> <label><input name="classic" id="classic" type="checkbox" value="1" /> Try Classic Card Style (barely supported, probably broken, might be easier to load an old version)</label> <br /> Unimplemented: ace logo, burst, rarity <br />
+          <span>
+            <label><input name="classic" id="classic" type="checkbox" value="1" /> Try Classic Card Style (barely supported, probably broken, might be easier to load an old version)</label>
+            <br />
+            <label><input name="effectbox" id="effectbox" type="checkbox" value="1" /> Put effect box onto mega (this hasn't been used since BT14 but could help with contrast on light backgrounds)</label>
+
+            <br />
+            <br /> Unimplemented: ace logo, burst, rarity <br />
           </span>
         </td>
       </tr>

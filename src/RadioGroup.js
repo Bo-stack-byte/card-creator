@@ -52,6 +52,15 @@ const RadioGroup = ({ selectedOption, handleOptionChange }) => {
             <span className="radio-label"><label>
                 <input
                     type="radio"
+                    value="ACE"
+                    checked={selectedOption === 'ACE'}
+                    onChange={handleOptionChange}
+                />
+                ACE
+            </label> </span>
+            <span className="radio-label"><label>
+                <input
+                    type="radio"
                     value="OPTION"
                     checked={selectedOption === 'OPTION'}
                     onChange={handleOptionChange}

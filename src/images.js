@@ -19,6 +19,7 @@ import _cost_color_black from './frames/cost_color_black.png';
 import _cost_color_white from './frames/cost_color_white.png';
 
 
+
 import _bottom_evo_red from './frames/bottom_evo_red.png';
 import _bottom_evo_blue from './frames/bottom_evo_blue.png';
 import _bottom_evo_yellow from './frames/bottom_evo_yellow.png';
@@ -34,6 +35,17 @@ import _bottom_green from './frames/bottom_green.png';
 import _bottom_purple from './frames/bottom_purple.png';
 import _bottom_black from './frames/bottom_black.png';
 import _bottom_white from './frames/bottom_white.png';
+
+import _bottom_ace_red from './frames/bottom_red_evo_ace.png';
+import _bottom_ace_blue from './frames/bottom_blue_evo_ace.png';
+import _bottom_ace_yellow from './frames/bottom_yellow_evo_ace.png';
+import _bottom_ace_green from './frames/bottom_green_evo_ace.png';
+import _bottom_ace_purple from './frames/bottom_purple_evo_ace.png';
+import _bottom_ace_black from './frames/bottom_black_evo_ace.png';
+import _bottom_ace_white from './frames/bottom_white_evo_ace.png';
+
+import _ace_logo from './frames/ACE.png';
+
 
 import _bottom_plain_red from './frames/bottom_plain_red.png';
 import _bottom_plain_blue from './frames/bottom_plain_blue.png';
@@ -118,6 +130,14 @@ import option_green from './frames/option-green.png';
 import option_purple from './frames/option-purple.png';
 import option_black from './frames/option-black.png';
 import option_white from './frames/option-white.png';
+
+import effectbox_red from './frames/effects/effectbox_red.png';
+import effectbox_blue from './frames/effects/effectbox_blue.png';
+import effectbox_yellow from './frames/effects/effectbox_yellow.png';
+import effectbox_green from './frames/effects/effectbox_green.png';
+import effectbox_purple from './frames/effects/effectbox_purple.png';
+import effectbox_black from './frames/effects/effectbox_black.png';
+import effectbox_white from './frames/effects/effectbox_white.png';
 
 
 import tamer_red from './frames/tamer-red1.png';
@@ -206,7 +226,7 @@ export const costs = {
 // these backgrounds are used all the time and should be pre-loaded
 export { mon_background, mega_background, egg_background, option_background, tamer_background,
     cost, cost_egg, cost_option, cost_evo,
-    outline_option
+    outline_option, ace_logo
   };
 
 export const basics = {
@@ -250,6 +270,16 @@ export const outlines_tamer = {
   'white': outline_tamer_white,
 }
 
+export const effectboxes = {
+  'red': effectbox_red,
+  'blue': effectbox_blue,
+  'yellow': effectbox_yellow,
+  'green': effectbox_green,
+  'purple': effectbox_purple,
+  'black': effectbox_black,
+  'white': effectbox_white,
+}
+
 let bottom_evo_red = new Image(); bottom_evo_red.src = _bottom_evo_red;
 let bottom_evo_blue = new Image(); bottom_evo_blue.src = _bottom_evo_blue;
 let bottom_evo_yellow = new Image(); bottom_evo_yellow.src = _bottom_evo_yellow;
@@ -265,6 +295,16 @@ let bottom_green = new Image(); bottom_green.src = _bottom_green;
 let bottom_purple = new Image(); bottom_purple.src = _bottom_purple;
 let bottom_black = new Image(); bottom_black.src = _bottom_black;
 let bottom_white = new Image(); bottom_white.src = _bottom_white;
+
+let bottom_ace_red = new Image(); bottom_ace_red.src = _bottom_ace_red;
+let bottom_ace_blue = new Image(); bottom_ace_blue.src = _bottom_ace_blue;
+let bottom_ace_yellow = new Image(); bottom_ace_yellow.src = _bottom_ace_yellow;
+let bottom_ace_green = new Image(); bottom_ace_green.src = _bottom_ace_green;
+let bottom_ace_purple = new Image(); bottom_ace_purple.src = _bottom_ace_purple;
+let bottom_ace_black = new Image(); bottom_ace_black.src = _bottom_ace_black;
+let bottom_ace_white = new Image(); bottom_ace_white.src = _bottom_ace_white;
+
+let ace_logo = new Image(); ace_logo.src = _ace_logo;
 
 let bottom_plain_red = new Image(); bottom_plain_red.src = _bottom_plain_red;
 let bottom_plain_blue = new Image(); bottom_plain_blue.src = _bottom_plain_blue;
@@ -302,6 +342,16 @@ export const bottoms = {
   'purple': bottom_purple,
   'black': bottom_black,
   'white': bottom_white,
+}
+
+export const bottom_aces = {
+  'red': bottom_ace_red,
+  'blue': bottom_ace_blue,
+  'yellow': bottom_ace_yellow,
+  'green': bottom_ace_green,
+  'purple': bottom_ace_purple,
+  'black': bottom_ace_black,
+  'white': bottom_ace_white
 }
 
 export const bottoms_plain = {

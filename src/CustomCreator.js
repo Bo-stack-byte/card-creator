@@ -1,12 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { eggs, basics, classics, options, tamers, evos, colorReplace } from './images';
 import {
-  mon_background, egg_background, option_background, tamer_background,
-  outlines, outlines_egg, outline_option,
+  mon_background, mega_background, egg_background, option_background, tamer_background,
+  outlines, outlines_egg, outlines_tamer, outline_option,
   cost, cost_egg, cost_option, cost_evo, costs,
   new_evo_circles, new_evo2_circles,
   bottom_evos, bottoms, bottoms_plain, borders
 } from './images';
+import { enterPlainText } from './plaintext';
 import { fitTextToWidth, drawBracketedText } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
@@ -14,12 +15,15 @@ import shieldsmasher from './shieldsmasher.png';
 import rampager from './rampager.png'
 import doublebind from './double-bind.png'
 import amy from './amy.png';
+import armor_cat from './armorcat.png';
 //import './styles.css';
 import './local-styles.css';
 
+import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
+// version 0.5.2  megas done, freeform input
 // version 0.5.1  Prototype for new modern cards; old functionality may still be around but not tested
 // version 0.5.0  Updated many small and some big things that weren't looking right; moving towards modern
 // version 0.4.9  "Save image locally" was broken
@@ -87,7 +91,6 @@ const starter_text_0 = `  {
     "evolveEffect": "[Your Turn] While you have a red Monster or Tamer in play, all your Monsters gain +1000 DP.",
     "dp": "-",
     "effect": "-",
-    "id": "CS2-01",
     "name": {  "english": "Doggie Dagger"  },
     "playCost": "-",
     "form": "In-Training",
@@ -95,6 +98,16 @@ const starter_text_0 = `  {
     "type": "Sword",
     "rarity": "C"
   }
+`
+
+const starter_text_1 = `
+     ʟᴠ.4 — Armored Cat — CS1-18
+[Champion | Data | Shield] [Yel.]
+Play cost: 6 | Evolution: 3 from Lv.3 [Yel.]
+     6000 DP
+
+＜Armor Purge＞
+     · Inherited Effect:
 `
 
 const starter_text_1a = `  {
@@ -193,14 +206,15 @@ const decodeAndDecompress = (encodedString) => {
 };
 
 // show i of len piece, scaled by scale, start at x,y
-function scalePartialImage(ctx, img, i, len, scale, start_x, start_y) {
+function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top = 0) {
 
+  if (!img) return;
   let www = img.width;
   let y = scale; let x = y * (img.width / img.height);
   let fw = x / len; // smaller frame length here
   let ww = www / len;
   ctx.drawImage(img,
-    i * ww, 0, // crop x,y
+    i * ww, crop_top, // crop x,y
     img.width, img.height, // crop w,h
     start_x + i * fw, start_y, // place x,y
     x, y // place w,h
@@ -222,17 +236,23 @@ function CustomCreator() {
   const canvasRef = useRef(null);
   const [userImg, setUserImg] = useState(null);
   const [jsonText, setJsonText] = useState(start);
+  const [selectedOption, setSelectedOption] = useState('AUTO'); // radio buttons 
   const [imageOptions, setImageOptions] = useState({
     url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95
   }
   );
 
-  const [showJson, setShowJson] = useState(false);
+  const handleOptionChange = (event) => {
+    setSelectedOption(event.target.value);
+  };
+
+  const [showJson, setShowJson] = useState(0);
   const [formData, setFormData] = useState({}); // redundant
   const [shareURL, setShareURL] = useState("");
+  const [freeform, setFreeForm] = useState("");
 
   const toggleView = () => {
-    setShowJson(!showJson);
+    setShowJson((showJson + 1)%3);
   };
 
   const flattenJson = (obj, parentKey = '', result = {}) => {
@@ -259,7 +279,7 @@ function CustomCreator() {
       ...prevState,
       [name]: value
     }));
-    draw();
+    //    draw(); handled by useEffect()
   };
 
   const jsonToFields = (text) => {
@@ -278,6 +298,19 @@ function CustomCreator() {
   }
 
   let jsonerror = "none";
+
+  const handleFreeformChange = (event) => {
+    console.log(302, event.target.form.free.value);
+    let input = event.target.form.free.value;
+    if (input.length < 5) return;
+    console.log(304, input);
+    let jsonTxt = enterPlainText(input.split("\n"));
+    console.log(307, jsonTxt);
+    setJsonText(jsonTxt);
+    jsonToFields(jsonTxt);
+
+  } 
+
   const handleTextareaChange = (event) => {
     // update the form data
     let jsonTxt = event.target.value;
@@ -338,11 +371,11 @@ function CustomCreator() {
 
     if (canvas.width !== 2977) {
       canvas.width = 2977;
-      canvas.height = 4158;
+      canvas.height = 4158 - 17;
     }
     draw(canvas, ctx);
 
-  }, [userImg, jsonText]); // Redraw on image or text change
+  }, [userImg, jsonText, imageOptions, selectedOption]); // Redraw on image or text change
 
   const loadUserImage = (event) => {
     const file = event.target.files[0];
@@ -369,18 +402,37 @@ function CustomCreator() {
   const sample = (number) => {
     console.log("UPDATING TO " + number);
     let text = '';
+    let img_src = '';
     switch (number) {
-      case 0: text = starter_text_0; break;
-      case 1: text = starter_text_1a; break;
-      case 2: text = starter_text_1b; break;
-      case 3: text = starter_text_2; break;
-      case 4: text = starter_text_3; break;
-      default: return;
+      case 0: text = starter_text_0;; img_src = egg; break;
+      case 1: text = starter_text_1a; img_src = shieldsmasher; break;
+      case 2: text = starter_text_1b; img_src = rampager; break;
+      case 3: text = starter_text_2; img_src = doublebind; break;
+      case 4: text = starter_text_3; img_src = amy; break;
+      case 5: text = starter_text_1; img_src = armor_cat; break;
+      default: alert(3); return;
     }
 
-    setJsonText(text);
+    setSelectedOption("AUTO");
+    if (number === 5) { 
+      setShowJson(2); 
+      setFreeForm(text);
+      text = enterPlainText(text.split("\n"));
+      setJsonText(text);
+    } else {
+      setFreeForm("");
+      if (showJson === 2) setShowJson(0);
+      setJsonText(text);
+    }
     console.log("SETTING JSON TEXT", text);
     jsonToFields(text);
+    if (img_src) {
+      const img = new Image();
+      img.src = img_src;
+      img.onload = () => {
+        setUserImg(img);
+      };
+    }
 
   }
 
@@ -426,7 +478,7 @@ function CustomCreator() {
 
     if (clear === true) {
       canvas.width = 2977;
-      canvas.height = 4158;
+      canvas.height = 4158 - 17;
     }
     let json;
     try {
@@ -446,23 +498,42 @@ function CustomCreator() {
     let background = mon_background;
     if (modern) array = outlines;
     if (document.getElementById("classic").checked) array = classics;
-    let type = "MONSTER";
-    if ((t = json.cardType)) {
-      if (t.match(/option/i)) { type = "OPTION"; background = option_background; }
-      if (t.match(/tamer/i)) { type = "TAMER"; background = tamer_background; }
-      if (t.match(/egg/i) || t.match(/tama/i)) { type = "EGG"; background = egg_background; }
+    console.log(456, selectedOption);
+    let type = selectedOption;
+    if (type === "AUTO") {
+      type = "MONSTER";
+      if (json.cardLv === "Lv.6" || json.cardLv === "Lv.7") {
+        type = "MEGA";
+      }
+      if ((t = json.cardType)) {
+        if (t.match(/option/i)) { type = "OPTION"; }
+        if (t.match(/tamer/i)) { type = "TAMER";; }
+        if (t.match(/egg/i) || t.match(/tama/i)) { type = "EGG"; }
+      }
+    }
+    switch (type) {
+      case "MEGA": background = mega_background; break;
+      case "OPTION": background = option_background; break;
+      case "TAMER": background = tamer_background; break;
+      case "EGG": background = egg_background; break;
+      default:
     }
 
+    console.log(467, type, background);
     const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
+    // options don't need to load frames
     const len = (type === "OPTION") ? 1 : colors.length;
     const frameImages = Array.from({ length: len }, () => new Image());
     const baseImg = new Image();
-
+    // baseImg.loaded = false;
+    baseImg.src = shieldsmasher; // default to get started
+    const shellImg = new Image();
 
     const _evos = json.evolveCondition;
     const afterLoad = async () => {
       console.log(document.fred);
       console.log("LOADING2");
+      console.log(json);
 
 
       if (document.fonts.check('bold 60px Roboto')) {
@@ -474,9 +545,9 @@ function CustomCreator() {
       await document.fonts.ready;
 
       if (document.fonts.check('bold 60px Roboto')) {
-        //       console.error("roboto pass4");
+        //console.error("roboto pass4");
       } else {
-        //       console.error("roboto fail4");
+        //  console.error("roboto fail4");
       }
 
       // Set the canvas dimensions
@@ -493,11 +564,9 @@ function CustomCreator() {
 
       if (modern) {
         // new style background
-        let bg = new Image();
-
-        bg.src = background;
-        console.log(bg);
-        ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+        // we know shellimg is loaded because of pre-flight
+//        shellImg.src = background;
+        ctx.drawImage(shellImg, 0, 0, canvas.width, canvas.height);
 
         ctx.textAlign = 'center';
         ctx.fillStyle = (type === "OPTION") ? 'white' : 'black'; // ?
@@ -513,11 +582,18 @@ function CustomCreator() {
       let fw = w / len; // frame width
       let offset_x = 90, offset_y = 72;
       if (!modern) { offset_x = 0; offset_y = 0; }
+      if (type === "MEGA") {
+        // draw the left and right line all the way down. crop off the top 1000 pixels
+        scalePartialImage(ctx, frameImages[0], 0, len, 3950, offset_x, offset_y + 1100, 600);
+        let last = len - 1;
+        scalePartialImage(ctx, frameImages[last], last, len, 3950, offset_x, offset_y + 1100, 600);
+
+      }
       for (let i = 0; i < len; i++) {
         let frame = frameImages[i];
         if (modern) {
-          let name_field = bottoms;
-          if (type === "OPTION" || type == "TAMER") name_field = bottoms_plain;
+          let name_field = bottoms; // i'm so sorry this is named 'bottom'
+          if (type === "OPTION" || type === "TAMER") name_field = bottoms_plain;
           let col = colors[i];
           if (outlines[col]) {
             // why bother doing "top" differently?
@@ -527,23 +603,28 @@ function CustomCreator() {
               scalePartialImage(ctx, frame, i, len, 3950, offset_x, offset_y);
 
             // very bottom, evo conditions
-            let img = bottom_evos[col];
-            scalePartialImage(ctx, img, i, len, 606, 164, 3550);
 
-            if (type === "MONSTER") {
+            if (type !== "MEGA") {
+              let img = bottom_evos[col];
+              scalePartialImage(ctx, img, i, len, 606, 164, 3550);
+            }
+            if (type === "MONSTER" || type === "MEGA") {
               // bottom of frame
               let border = borders[col];
-              scalePartialImage(ctx, border, i, len, 67.3, 166, 3550 - 440);
+              let y = 3550 - 440;
+              if (type === "MEGA") y += 500;
+              scalePartialImage(ctx, border, i, len, 67.3, 166, y);
               // todo: play with these numbers some more. scale is 67.2-67.5,
               // and left is 166
             }
             // name block
             let y = 3550 - 365;
-            if (type === "EGG" || type === "OPTION" || type == "TAMER") y -= 90;
-            if (type === "OPTION" || type == "TAMER") y += 40;
+            if (type === "EGG" || type === "OPTION" || type === "TAMER") y -= 90;
+            if (type === "OPTION" || type === "TAMER") y += 40;
+            if (type === "MEGA") y += 500;
             let img_name = name_field[col];
             let scale = 364.2;
-            if (type === "OPTION" || type == "TAMER") scale = 305;
+            if (type === "OPTION" || type === "TAMER") scale = 305;
             scalePartialImage(ctx, img_name, i, len, scale, 164, y);
 
           }
@@ -561,8 +642,7 @@ function CustomCreator() {
       if (_evos && _evos.length > 0) {
 
         // only two handled for now
-        {
-
+          offset_y -= 20;
           if (modern) ctx.drawImage(cost_evo, offset_x, offset_y + 600, 500, 500);
 
 
@@ -596,7 +676,6 @@ function CustomCreator() {
             ctx.fillText(evo_cost, 355, 970 + height * index);
             ctx.strokeText(evo_cost, 355, 970 + height * index);
           }
-        }
       }
 
 
@@ -658,9 +737,9 @@ function CustomCreator() {
         ctx.strokeText("DP", x + 240, 380 - 180);
         ctx.fillText("DP", x + 240, 380 - 180);
       }
-      if (type === "EGG" || type === "MONSTER") {
+      if (type === "EGG" || type === "MONSTER" || type === "MEGA") {
         // level
-        const level = (json.cardLv === "-") ? "Lv.-" : json.cardLv;
+        const level = (json.cardLv === "-" || json.cardLv === undefined) ? "Lv.-" : json.cardLv;
         ctx.font = '900 200px "Big Shoulders Text"'
         // roboto preferred
         //        ctx.font = '900 200px "Roboto"'
@@ -668,6 +747,7 @@ function CustomCreator() {
         ctx.fillStyle = whiteColor(colors[0]);
         let y = 3400;
         if (type === "EGG") y -= 100;
+        if (type === "MEGA") y += 500;
         ctx.fillText(level, 390, y);
       }
 
@@ -676,6 +756,7 @@ function CustomCreator() {
         case "OPTION": delta_y -= 60; break;
         case "TAMER": delta_y -= 60; break;
         case "EGG": delta_y -= 125; break;
+        case "MEGA": delta_y += 500; break;
         case "MONSTER": break;
         default: alert(1);
       }
@@ -726,6 +807,9 @@ function CustomCreator() {
       if (type === "OPTION") {
         delta_y += 50;
       }
+      if (type === "MEGA") {
+        delta_y += 50;
+      }
 
       if (type === "EGG") {
         delta_y += 20;
@@ -737,6 +821,7 @@ function CustomCreator() {
       ///// MAIN TEXT 
       let y_line = 2800 - 400;
       // effect
+      if (type === "MEGA") y_line += 500;
       ctx.font = `bold 90px Arial`;
       ctx.textAlign = 'start';
       ctx.textBaseline = 'bottom'; // Align text to the bottom
@@ -761,6 +846,7 @@ function CustomCreator() {
 
       const effect = json.effect;
       ctx.fillStyle = 'black';
+
 
       if (effect) {
         y_line = drawBracketedText(ctx, effect,
@@ -793,20 +879,22 @@ function CustomCreator() {
       if (type === "OPTION") { delta_x = 0; delta_y = 0 }; // original is fine
       if (type === "TAMER") { delta_x += 20; delta_y += 40; }
 
-
-      if (sec_effect) {
+      if (sec_effect && type !== "MEGA") {
         drawBracketedText(ctx, sec_effect,
           880 + delta_x * 2, 3740 + delta_y * 2,
           1600, 90, "effect");
       }
     }
 
-    // 1 for base, 1 per color, 1 per evo circle
-    let imagesToLoad = 1 + frameImages.length + (_evos ? _evos.length : 0);
+    // 1 for basic style frame, 1 for custom image, 1 per color, 1 per evo circle
+    let imagesToLoad = 2 + frameImages.length + (_evos ? _evos.length : 0);
+    console.log(817, frameImages.length, _evos && _evos.length);
     let imagesLoaded = 0;
-    const checkAllImagesLoaded = () => {
-      console.log(771, "image loaded", imagesLoaded, imagesToLoad);
+    console.log(818, frameImages);
+    const checkAllImagesLoaded = (e) => {
+      console.log(770, e);
       imagesLoaded++;
+      console.log(771, "image loaded", imagesLoaded, imagesToLoad);
       if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
         // Set the canvas dimensions  
         afterLoad();
@@ -814,21 +902,23 @@ function CustomCreator() {
     };
 
     for (let f of frameImages) {
-      f.onload = f.onerror = checkAllImagesLoaded
+      f.onload = f.onerror = function() { checkAllImagesLoaded(f); }
     }
-    baseImg.onload = baseImg.onerror = checkAllImagesLoaded
-
-    // have all images loaded before we draw
+    // this has a race condition    
+    baseImg.onload = baseImg.onerror = function() { checkAllImagesLoaded(baseImg); }
+    if (baseImg.complete) {
+  //    baseImg.src = baseImg.src; // reload
+    }
+    shellImg.src = background;
+    shellImg.onload = shellImg.onerror = function() { checkAllImagesLoaded(shellImg); }
     switch (type) {
-      case "OPTION": array = options; baseImg.src = doublebind; break;
-      case "TAMER": array = modern ? outlines_egg : tamers; baseImg.src = amy; break
-      case "EGG": array = modern ? outlines_egg : eggs; baseImg.src = egg; break;
-      case "MONSTER": baseImg.src = shieldsmasher; break;
+      case "OPTION": array = options; break;
+      // how is outlines_tamer different from outlines_egg??
+      case "TAMER": array = modern ? outlines_tamer : tamers; break;
+      case "EGG": array = modern ? outlines_egg : eggs; break;
+      case "MONSTER": break;
+      case "MEGA": break;
       default: alert(4);
-    }
-    // can i load this someplace else please?
-    if (json && json.name && json.name.english === "Rampager") {
-      baseImg.src = rampager;
     }
 
     if (type === "OPTION") {
@@ -844,12 +934,12 @@ function CustomCreator() {
         const evo_color = _evos[n].color.toLowerCase();
         // will declaring the same image still have it loaded?
         const circle = new Image();
-        circle.onerror = circle.onload = checkAllImagesLoaded;
+        circle.onerror = circle.onload = () => checkAllImagesLoaded(circle);
         circle.src = evos[evo_color];
       }
     }
 
-    console.log(`sources set ${imagesToLoad}`);
+    console.log(906, `sources set ${imagesToLoad} loaded ${imagesLoaded} base: ${!!baseImg.complete}`);
 
     //  setTimeout(() => afterLoad(), 100); // bad wat to sycnrhoncoursly load 
     //leftImg.onload = () => {
@@ -867,7 +957,9 @@ function CustomCreator() {
     link.click();
   };
 
-  let invite = "https://discord.gg/NcQZhRDq"
+  let json_modes = ["Fields", "JSON", "Freeform"];
+  let button_text = `Showing ${json_modes[showJson]}, click to toggle to ${json_modes[(showJson+1)%3]}`;
+  let invite = "https://discord.gg/PRXgdCwp";
   return (
     <table>
       <tr>
@@ -887,8 +979,9 @@ function CustomCreator() {
           <br />
           <br />
           <button onClick={() => sample(0)}> Sample Egg </button><br />
-          <button onClick={() => sample(1)}> Sample Monster A </button><br />
-          <button onClick={() => sample(2)}> Sample Monster B </button><br />
+          <button onClick={() => sample(5)}> Sample Monster </button><br />
+          <button onClick={() => sample(1)}> Sample Mega A </button><br />
+          <button onClick={() => sample(2)}> Sample Mega B </button><br />
           <button onClick={() => sample(3)}> Sample Option </button><br />
           <button onClick={() => sample(4)}> Sample Tamer </button><br />
 
@@ -903,11 +996,12 @@ function CustomCreator() {
         <td
           width={"30%"}
           valign={"top"}>
+          <RadioGroup selectedOption={selectedOption} handleOptionChange={handleOptionChange} />
           <button onClick={toggleView}>
-            {showJson ? 'Show Key:Value Pairs' : 'Show JSON'}
+            {button_text}
           </button>
           <br />
-          {showJson ? (
+          {(showJson === 1) ? (
 
             <textarea cols={40} rows={20}
               value={jsonText}
@@ -915,7 +1009,7 @@ function CustomCreator() {
 
             //           onChange={(e) => handleTextAreaChange(e.target.value)}
             />
-          ) : (
+          )  : (showJson === 0) ? (
             <div>
               <table style={{ maxWidth: "300px" }}>
                 {!flattenedJson ? (<tr><td>Error in JSON, try again <br /> {jsonerror} </td></tr>
@@ -939,15 +1033,18 @@ function CustomCreator() {
                   )}
               </table>
             </div>
-          )}
-
+          ): (<form>  
+                      <textarea defaultValue={freeform} name="free" cols={40} rows={10} /><br />
+            <input type="button" value={"go"} onClick={handleFreeformChange} />
+          </form>  ) }
         </td>
         <td valign={"top"}>
           <div>
             <canvas id="cardImage" ref={canvasRef}
               style={{
-                width: '296px',  // Visually scale the canvas down for easier editing
-                height: '416px'  // Visually scale the canvas down for easier editing
+                width: '296px',  // Visually scale the canvas down for editing
+                height: '416px',
+                backgroundColor: '#eef'
               }}>
 
             </canvas>
@@ -988,7 +1085,7 @@ function CustomCreator() {
           <br />
           <a class={{ fontSize: "8px;" }} href={shareURL}>{shareURL}</a>
           <hr />
-          <span> <label><input name="classic" id="classic" type="checkbox" value="1" /> Use Classic Card Style</label> <br /> Unimplemented: ace logo, burst, rarity <br />
+          <span> <label><input name="classic" id="classic" type="checkbox" value="1" /> Try Classic Card Style (barely supported, probably broken, might be easier to load an old version)</label> <br /> Unimplemented: ace logo, burst, rarity <br />
           </span>
         </td>
       </tr>

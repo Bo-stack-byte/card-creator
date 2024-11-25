@@ -1,5 +1,6 @@
 
 import mon_background from './frames/background_digimon_evo.png';
+import mega_background from './frames/background_digimon.png';
 import egg_background from './frames/background_egg.png';
 import option_background from './frames/background_option.png';
 import tamer_background from './frames/background_tamer.png';
@@ -79,6 +80,14 @@ import outline_egg_green from './frames/new-egg-green.png';
 import outline_egg_purple from './frames/new-egg-purple.png';
 import outline_egg_black from './frames/new-egg-black.png';
 import outline_egg_white from './frames/new-egg-white.png';
+
+import outline_tamer_red from './frames/tamer/outline-tamer-red.png';
+import outline_tamer_blue from './frames/tamer/outline-tamer-blue.png';
+import outline_tamer_yellow from './frames/tamer/outline-tamer-yellow.png';
+import outline_tamer_green from './frames/tamer/outline-tamer-green.png';
+import outline_tamer_purple from './frames/tamer/outline-tamer-purple.png';
+import outline_tamer_black from './frames/tamer/outline-tamer-black.png';
+import outline_tamer_white from './frames/tamer/outline-tamer-white.png';
 
 
 
@@ -195,7 +204,7 @@ export const costs = {
 }
 
 // these backgrounds are used all the time and should be pre-loaded
-export { mon_background, egg_background, option_background, tamer_background,
+export { mon_background, mega_background, egg_background, option_background, tamer_background,
     cost, cost_egg, cost_option, cost_evo,
     outline_option
   };
@@ -231,6 +240,15 @@ export const outlines_egg = {
   'white': outline_egg_white,
 }
 
+export const outlines_tamer = {
+  'red': outline_tamer_red,
+  'blue': outline_tamer_blue,
+  'yellow': outline_tamer_yellow,
+  'green': outline_tamer_green,
+  'purple': outline_tamer_purple,
+  'black': outline_tamer_black,
+  'white': outline_tamer_white,
+}
 
 let bottom_evo_red = new Image(); bottom_evo_red.src = _bottom_evo_red;
 let bottom_evo_blue = new Image(); bottom_evo_blue.src = _bottom_evo_blue;

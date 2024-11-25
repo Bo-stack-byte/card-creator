@@ -14,3 +14,8 @@ br {
   font-size: 10px;
   transition: background-color 0.3s ease;
 }
+
+.radio-label {
+    white-space: nowrap;
+    display: inline-block; margin-right: 2px; /* Optional: add some space between spans */
+}

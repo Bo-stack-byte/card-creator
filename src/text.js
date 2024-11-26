@@ -185,6 +185,7 @@ export function drawBracketedText(ctx, text, x, y, maxWidth, lineHeight, extra) 
   //console.log("calling with " + text);
   let yOffset = y;
   let lines = [];
+  text = text.replaceAll(/</ig,"＜").replaceAll(/>/ig,"＞");
 
   const paragraphs = text.split("\n");
   for (let p = 0; p < paragraphs.length; p++) {

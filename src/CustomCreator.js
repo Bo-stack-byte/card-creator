@@ -500,6 +500,7 @@ function CustomCreator() {
     if (document.getElementById("classic").checked) array = classics;
     console.log(456, selectedOption);
     let type = selectedOption;
+    let overflow = undefined;
     if (type === "AUTO") {
       type = "MONSTER";
       if (json.cardLv === "Lv.6" || json.cardLv === "Lv.7") {
@@ -507,6 +508,14 @@ function CustomCreator() {
       }
       if (json.aceEffect && json.aceEffect.length > 5) {
         type = "ACE";
+        let match = json.aceEffect.match(/Overflow\s*.-(\d+)/i);
+        if (match) {
+          overflow = parseInt(match[1]);
+        } else { // if no overflow set, use level as backup
+          match = json.cardLv && json.cardLv.match(/\d+/);
+          if (match) overflow = parseInt(match) - 2;
+        }
+
       }
       if ((t = json.cardType)) {
         if (t.match(/option/i)) { type = "OPTION"; }
@@ -704,7 +713,8 @@ function CustomCreator() {
         offset_y -= 20;
         if (modern) ctx.drawImage(cost_evo, offset_x, offset_y + 600, 500, 500);
 
-
+        let base = -135; // degrees
+        let each = 360 / (_evos.length);
         for (let n = 0; n < _evos.length; n++) {
           //console.log(`n is ${n} and height is ${height * n}`);
           const evo = _evos[n];
@@ -715,11 +725,38 @@ function CustomCreator() {
           const evo_color = evo.color.toLowerCase();
           console.log(575, evo_color);
           const circle = new Image();
+          let X = offset_x + 130; 
+                  let Y = offset_y + 125 + 600;
+
           // only handling 2 colors for now
           if (modern) {
-            let circles = n ? new_evo2_circles : new_evo_circles;
+
+            let circles =  /* n? new_evo2_circles : (*/ new_evo_circles;
             circle.src = circles[evo_color];
-            ctx.drawImage(circle, 0, 0, 291, 291, offset_x + 130, offset_y + 125 + 600, 310, 310);
+          //  circle.onload = () => {
+            //  console.log(735, "onload for " + evo_color);
+              let x = X;
+              let y = Y;
+               const imgWidth = 310; // Your image display width
+            const imgHeight = 310; // Your image display height
+  
+              const radius = imgWidth / 2;
+              // TODO: wait for .onLoad();
+              let start = base + n * each
+              const startAngle = (start * Math.PI) / 180;
+              const sweepAngle = (each * Math.PI) / 180;
+              console.log(823, startAngle, sweepAngle);
+
+              ctx.save();
+              ctx.beginPath();
+              ctx.moveTo(x + radius, y + radius);
+              ctx.arc(x + radius, y + radius, radius, startAngle, startAngle + sweepAngle);
+              ctx.lineTo(x + radius, y + radius);
+              ctx.clip();
+
+              ctx.drawImage(circle, 0, 0, 291, 291, x, y, 310, 310);
+              ctx.restore();
+     //       }
           } else {
             circle.src = evos[evo_color];
             ctx.drawImage(circle, 60, 640 + height * n);
@@ -769,8 +806,26 @@ function CustomCreator() {
       }
 
 
-      if (type === "MONSTER" || type === "MEGA" || type === "ACE") {
+      if (type === "ACE") {
+        ctx.font = `70px Asimov`;
 
+        // fake blur 
+        ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)';
+        ctx.lineWidth = 15;
+        ctx.strokeText(overflow, 1045, 3605);
+
+        ctx.strokeStyle = '#eee';
+        ctx.lineWidth = 10;
+        ctx.strokeText(overflow, 1045, 3605);
+
+
+        ctx.shadowBlur = 0; // Remove shadow blur for the fill text
+        ctx.fillStyle = 'rgba(32, 32, 32, 0.8)'; // '#444';
+        ctx.fillText(overflow, 1045, 3605);
+
+      }
+
+      if (type === "MONSTER" || type === "MEGA" || type === "ACE") {
 
         // dp
         ctx.fillStyle = 'black';
@@ -823,7 +878,9 @@ function CustomCreator() {
       // name
       try {
         const name = json.name.english;
-        const maxWidth = 1400;
+        let ace_offset = (type === "ACE") ? -ace_logo.width / 2 : 0;
+        const maxWidth = 1400 + ace_offset;
+
         const initialFontSize = 200;
         const fontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize);
         // PF Das Grotesk Pro Bold is the actual font but $$
@@ -836,8 +893,6 @@ function CustomCreator() {
         ctx.lineWidth = 30; // Border width
         let bc = borderColor(colors);
         ctx.strokeStyle = bc;
-        // if we scale the ACE word this will need to scale, too
-        let ace_offset = (type === "ACE") ? -ace_logo.width / 2 : 0;
 
         if (bc !== "") {
           ctx.strokeText(name, 1480 + ace_offset, 3360 + delta_y);
@@ -946,7 +1001,7 @@ function CustomCreator() {
       if (type === "EGG") { delta_x = 0; delta_y = 0 }; // original is fine
       if (type === "OPTION") { delta_x = 0; delta_y = 0 }; // original is fine
       if (type === "TAMER") { delta_x += 20; delta_y += 40; }
-
+      if (type === "ACE") { delta_x -= 140; delta_y += 110; }
       if (sec_effect && type !== "MEGA") {
         drawBracketedText(ctx, sec_effect,
           880 + delta_x * 2, 3740 + delta_y * 2,
@@ -1161,7 +1216,7 @@ function CustomCreator() {
             <label><input name="effectbox" id="effectbox" type="checkbox" value="1" /> Put effect box onto mega (this hasn't been used since BT14 but could help with contrast on light backgrounds)</label>
 
             <br />
-            <br /> Unimplemented: ace logo, burst, rarity <br />
+            <br /> Unimplemented:  burst, rarity <br />
           </span>
         </td>
       </tr>

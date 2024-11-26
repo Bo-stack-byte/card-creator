@@ -204,6 +204,8 @@ let cost_egg = new Image(); cost_egg.src = _cost_egg;
 let cost_option = new Image(); cost_option.src = _cost_option;
 let cost_evo = new Image(); cost_evo.src = _cost_evo;
 
+let ace_logo = new Image(); ace_logo.src = _ace_logo;
+
 
 let cost_red = new Image(); cost_red.src = _cost_color_red;
 let cost_blue = new Image(); cost_blue.src = _cost_color_blue;
@@ -304,7 +306,6 @@ let bottom_ace_purple = new Image(); bottom_ace_purple.src = _bottom_ace_purple;
 let bottom_ace_black = new Image(); bottom_ace_black.src = _bottom_ace_black;
 let bottom_ace_white = new Image(); bottom_ace_white.src = _bottom_ace_white;
 
-let ace_logo = new Image(); ace_logo.src = _ace_logo;
 
 let bottom_plain_red = new Image(); bottom_plain_red.src = _bottom_plain_red;
 let bottom_plain_blue = new Image(); bottom_plain_blue.src = _bottom_plain_blue;

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { eggs, basics, classics, options, tamers, evos, colorReplace } from './images';
 import {
   mon_background, mega_background, egg_background, option_background, tamer_background,
@@ -364,18 +364,6 @@ function CustomCreator() {
     //  console.error("json error");
   }
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-
-    if (canvas.width !== 2977) {
-      canvas.width = 2977;
-      canvas.height = 4158 - 17;
-    }
-    draw(canvas, ctx);
-
-  }, [userImg, jsonText, imageOptions, selectedOption, draw]);
-
   const loadUserImage = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -451,8 +439,10 @@ function CustomCreator() {
   const draw2 = (x, y) => draw(x, y, true);
 
   //  const draw = (canvas, ctx) => {
-  const draw = async (x, y, clear) => {
-    const canvas = canvasRef.current;
+//  const draw = async (x, y, clear) => {
+ 
+  const draw = useCallback(async (x, y, clear) => {
+  const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
     console.log("===");
@@ -587,7 +577,7 @@ function CustomCreator() {
         ctx.fillText(json.cardType.toUpperCase(), 1480, 180);
       }
 
-      let w = canvas.width;
+   //   let w = canvas.width;
 //      let h = canvas.height;
       let len = colors.length;
       // multicolor
@@ -1072,7 +1062,21 @@ function CustomCreator() {
     //ightImg.onload = () => {
 
 
-  }
+  }, [userImg, jsonText, imageOptions, selectedOption] );
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    if (canvas.width !== 2977) {
+      canvas.width = 2977;
+      canvas.height = 4158 - 17;
+    }
+    draw(canvas, ctx);
+
+  }, [userImg, jsonText, imageOptions, selectedOption, draw]);
+
+
 
   const handleExport = () => {
     const canvas = canvasRef.current;

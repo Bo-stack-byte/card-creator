@@ -1,6 +1,6 @@
 
 const font = 'Asimov'
-let px = 80;  const g_width = 2800
+const px = 80;  /* const g_width = 2800 */
 const size = `${px}px`; 
 
 

@@ -4,7 +4,7 @@ import {
   mon_background, mega_background, egg_background, option_background, tamer_background,
   outlines, outlines_egg, outlines_tamer, outline_option,
   cost, cost_egg, cost_option, cost_evo, costs, ace_logo,
-  new_evo_circles, new_evo2_circles,
+  new_evo_circles, /* new_evo2_circles, */
   bottom_evos, bottoms, bottoms_plain, bottom_aces, borders, effectboxes
 } from './images';
 import { enterPlainText } from './plaintext';
@@ -184,8 +184,7 @@ const starter_text_3 = `   {
     "name": {   "english": "Aggressive Amy"   },
     "playCost": "3",
     "securityEffect": "[Security] Play this card without paying the cost.",
-    "attribute": "Data",
-
+    "type": "Data",
     "rarity": "Rare"
     }`;
 
@@ -375,7 +374,7 @@ function CustomCreator() {
     }
     draw(canvas, ctx);
 
-  }, [userImg, jsonText, imageOptions, selectedOption]); // Redraw on image or text change
+  }, [userImg, jsonText, imageOptions, selectedOption, draw]);
 
   const loadUserImage = (event) => {
     const file = event.target.files[0];
@@ -589,10 +588,10 @@ function CustomCreator() {
       }
 
       let w = canvas.width;
-      let h = canvas.height;
+//      let h = canvas.height;
       let len = colors.length;
       // multicolor
-      let fw = w / len; // frame width
+  //    let fw = w / len; // frame width
       let offset_x = 90, offset_y = 72;
       if (!modern) { offset_x = 0; offset_y = 0; }
 
@@ -754,7 +753,7 @@ function CustomCreator() {
               ctx.lineTo(x + radius, y + radius);
               ctx.clip();
 
-              ctx.drawImage(circle, 0, 0, 291, 291, x, y, 310, 310);
+              ctx.drawImage(circle, 0, 0, 291, 291, x, y, imgWidth, imgHeight);
               ctx.restore();
      //       }
           } else {

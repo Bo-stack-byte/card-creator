@@ -606,15 +606,19 @@ function CustomCreator() {
       if (!modern) { offset_x = 0; offset_y = 0; }
 
 
-      // effect greybox overlay
-      for (let i = 0; i < 2; i++) {
-        if (modern) {
+      const effectbox = document.getElementById("effectbox").checked;
+      if (effectbox) {
+        for (let i = 0; i < len; i++) {
           let col = colors[i];
-          if (type === "MEGA" && document.getElementById("effectbox").checked) {
-            let xxx = new Image(); xxx.src = effectboxes[col];
-            if (xxx.src)
-              scalePartialImage(ctx, xxx, i, len, 825, offset_x + 80, offset_y + 2760);
-          }
+          if (!col) continue;
+          let box = new Image();
+          box.src = effectboxes[col];
+          let delta_y = 2760;
+          if (type === "EGG") delta_y -= 640;
+          if (type === "MONSTER") delta_y -= 500;
+          if (type === "ACE") delta_y -= 480;
+          if (type === "TAMER") delta_y -= 640;
+          scalePartialImage(ctx, box, i, len, 825, offset_x + 80, offset_y + delta_y);
         }
       }
 
@@ -645,7 +649,9 @@ function CustomCreator() {
             // left/top/right of outline, sometimes bottom
             if (frame) {
               let l = (type === "OPTION") ? 1 : len; // just 1 option "outline"
-              scalePartialImage(ctx, frame, i, l, 3950, offset_x, offset_y);
+              // 1.05 is fudge factor because our frames aren't all left-justified the same
+              // this makes them  the same, but they might be the same wrong
+              scalePartialImage(ctx, frame, i+0.05, l, 3950, offset_x, offset_y);
             }
             // very bottom, evo conditions
 
@@ -656,11 +662,12 @@ function CustomCreator() {
               }
               scalePartialImage(ctx, img, i, len, 606, 164, 3550);
             }
-            if (type === "MONSTER" || type === "MEGA") {
+            if (type === "MONSTER" || type === "MEGA" || type === "ACE") {
               // bottom of frame
               let border = borders[col];
               let y = 3550 - 440;
               if (type === "MEGA") y += 500;
+              if (type === "ACE") y += 1;
               scalePartialImage(ctx, border, i, len, 67.3, 166, y);
 
               // todo: play with these numbers some more. scale is 67.2-67.5,
@@ -1018,17 +1025,17 @@ function CustomCreator() {
       }
 
       // evo effect
-    ctx.textAlign = 'start';
+      ctx.textAlign = 'start';
       ctx.textBaseline = 'bottom'; // Align text to the bottom
 
 
       const evo_effect = json.evolveEffect;
       console.log("a", evo_effect);
       const sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
-//ctx.fillStyle = 'red';
+      //ctx.fillStyle = 'red';
       let delta_x = delta_y;
       if (type === "ACE") {
-        delta_x -= 60; delta_y += 100; 
+        delta_x -= 60; delta_y += 100;
       } else {
         delta_x = 0; delta_y = 0;
       }
@@ -1276,12 +1283,10 @@ function CustomCreator() {
           <hr />
           <span>
             <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { console.log(1268, e.target.value); setFontSize(e.target.value) }} />Font Size </label>
-
-            <label><input name="classic" id="classic" type="checkbox" value="1" /> Try Classic Card Style (barely supported, probably broken, might be easier to load an old version)</label>
-
+            <br />
             <label><input name="classic" id="classic" type="checkbox" value="1" /> Try Classic Card Style (barely supported, probably broken, might be easier to load an old version)</label>
             <br />
-            <label><input name="effectbox" id="effectbox" type="checkbox" value="1" /> Put effect box onto mega (this hasn't been used since BT14 but could help with contrast on light backgrounds)</label>
+            <label><input name="effectbox" id="effectbox" type="checkbox" value="1" /> Put effect box (this hasn't been used since BT14 but could help with contrast on light backgrounds)</label>
 
             <br />
             <br /> Unimplemented:  burst, rarity <br />

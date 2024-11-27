@@ -1001,7 +1001,7 @@ function CustomCreator() {
       ctx.fillStyle = 'black';
 
       if (type === "MONSTER") y_line += 180;
-      if (effect && effect != "-") {
+      if (effect && effect !== "-") {
         y_line = drawBracketedText(ctx, fontSize, effect,
           //wrapText(ctx, effect, // + effect, 
           300, y_line,
@@ -1027,9 +1027,8 @@ function CustomCreator() {
       const sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
 //ctx.fillStyle = 'red';
       let delta_x = delta_y;
-      let width = 2400;
       if (type === "ACE") {
-        delta_x -= 60; delta_y += 100; width += 100;
+        delta_x -= 60; delta_y += 100; 
       } else {
         delta_x = 0; delta_y = 0;
       }

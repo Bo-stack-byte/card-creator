@@ -160,6 +160,7 @@ import evo_white from './frames/evo-white_out.png';
 // new evo
 import _cost_evo from './frames/evos/evolution.png';
 
+// circle
 import new_evo_red from    './frames/evos/evo_red.png';
 import new_evo_blue from   './frames/evos/evo_blue.png';
 import new_evo_yellow from './frames/evos/evo_yellow.png';
@@ -176,6 +177,16 @@ import new_evo2_purple from './frames/evos/evo2_purple.png';
 import new_evo2_black from  './frames/evos/evo2_black.png';
 import new_evo2_white from  './frames/evos/evo2_white.png';
 
+
+import wedge_evo_red from    './frames/evos/cost_evo_red.png';
+import wedge_evo_blue from   './frames/evos/cost_evo_blue.png';
+import wedge_evo_yellow from './frames/evos/cost_evo_yellow.png';
+import wedge_evo_green from  './frames/evos/cost_evo_green.png';
+import wedge_evo_purple from './frames/evos/cost_evo_purple.png';
+import wedge_evo_black from  './frames/evos/cost_evo_black.png';
+import wedge_evo_white from  './frames/evos/cost_evo_white.png';
+
+
 export const new_evo_circles = {
   'red': new_evo_red,
   'blue': new_evo_blue,
@@ -186,6 +197,17 @@ export const new_evo_circles = {
   'white': new_evo_white,
 }
 
+export const new_evo_wedges = {
+  'red': wedge_evo_red,
+  'blue': wedge_evo_blue,
+  'yellow': wedge_evo_yellow,
+  'green': wedge_evo_green,
+  'purple': wedge_evo_purple,
+  'black': wedge_evo_black,
+  'white': wedge_evo_white,
+}
+
+// unused now
 export const new_evo2_circles = {
   'red': new_evo2_red,
   'blue': new_evo2_blue,
@@ -195,6 +217,8 @@ export const new_evo2_circles = {
   'black': new_evo2_black,
   'white': new_evo2_white,
 }
+
+
 
 
 //export const background;
@@ -418,6 +442,8 @@ export const tamers = {
 }
 
 
+
+
 export const evos = {
   'red': evo_red,
   'blue': evo_blue,
@@ -427,6 +453,7 @@ export const evos = {
   'black': evo_black,
   'white': evo_white,
 }
+
 
 export function colorReplace(str) {
   str = str.replaceAll(/Red/ig, "🔴");

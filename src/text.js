@@ -1,18 +1,18 @@
 
 const font = 'Asimov'
-const px = 80;  /* const g_width = 2800 */
-const size = `${px}px`; 
+//const px = 100;  /* const g_width = 2800 */
+//const size = `${px}px`; 
 
 
 
 
-export function fitTextToWidth(ctx, text, maxWidth, initialFontSize) {
+export function fitTextToWidth(ctx, text, maxWidth, initialFontSize, limit) {
   const font = 'Asimov'
 
   let fontSize = initialFontSize;
   ctx.font = `${fontSize}px ${font}`;
 
-  while (ctx.measureText(text).width > maxWidth && fontSize > 0) {
+  while (ctx.measureText(text).width > maxWidth && fontSize > limit) {
     fontSize -= 1;
     ctx.font = `${fontSize}px ${font}`;
   }
@@ -76,6 +76,7 @@ function splitTextIntoParts(text) {
 //x,y is upper left
 function drawColoredRectangle(ctx, x, y, width, height, color) {
   //#922969 darker ois lower
+  height = Number(height);
   let color0, color1;
   switch (color) {
     case 'purple': color0 = '#720949'; color1 = '#b24999'; break;
@@ -89,7 +90,7 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
       color0 = 'darkblue'; color1 = '#8080ff';
   }
   // Draw the background rectangle with gradient
-  const gradient = ctx.createLinearGradient(x, y - 90, x, y);
+  const gradient = ctx.createLinearGradient(x, y - height, x, y);
   gradient.addColorStop(0, color0);
   gradient.addColorStop(1, color1);
   let d = 0;
@@ -98,12 +99,12 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
     d = 10;
   }
   ctx.fillStyle = gradient;
-  ctx.fillRect(x - d, y - 90 - 10 - d, width + 10 + 2 * d, height + 2 * d);
+  ctx.fillRect(x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d);
   ctx.globalAlpha = 1;
   if (color === 'bubble') {
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 8;
-    ctx.strokeRect(x - d, y - 90 - 10 - d, width + 10 + d * 2, height + d * 2);
+    ctx.strokeRect(x - d, y - height - 10 - d, width + 10 + d * 2, height + d * 2);
   }
   ctx.strokeStyle = '';
   ctx.lineWidth = 0;
@@ -181,8 +182,9 @@ function prepareKeywords(str, replaceBrackets) {
 
 // if "extra" is "bubble", put text in black bubble
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
-export function drawBracketedText(ctx, text, x, y, maxWidth, lineHeight, extra) {
-  //console.log("calling with " + text);
+export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeight, extra) {
+  console.log("calling with " + fontSize + " - " + text);
+  lineHeight = Number(lineHeight);
   let yOffset = y;
   let lines = [];
   text = text.replaceAll(/</ig,"＜").replaceAll(/>/ig,"＞");
@@ -197,12 +199,15 @@ export function drawBracketedText(ctx, text, x, y, maxWidth, lineHeight, extra) 
 
 
     for (let n = 0; n < words.length; n++) {
+      ctx.font = ` ${fontSize}px ${font}`;
       const testLine = line + words[n] + ' ';
-      const metrics = ctx.measureText(testLine);
+      const metrics = ctx.measureText(testLine.replaceAll(/[＜＞]/ig, 'n'));
       const testWidth = metrics.width;
-      //console.log(`is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
+//      console.log(`is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
 
       if (testWidth > maxWidth && n > 0) {
+        let currentWidth = ctx.measureText(line).width;
+        console.log(206, "pushing " + Math.round(currentWidth) + " <" + line + ">");
         //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
         lines.push({ ctx, line, x, yOffset });
         line = words[n] + ' ';
@@ -223,7 +228,7 @@ export function drawBracketedText(ctx, text, x, y, maxWidth, lineHeight, extra) 
     }
   }
   for (let line of lines) {
-    wrapAndDrawText(line.ctx, line.line, line.x, line.yOffset, extra);
+    wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra);
   }
 
 
@@ -239,7 +244,7 @@ function getColor(phrase) {
   return 'blue';
 }
 
-function wrapAndDrawText(ctx, text, x, y, style) {
+function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
   let cardWidth = 4400; // shouldn't be hard-coded
   let lastX = x;
   let scale;
@@ -252,10 +257,10 @@ function wrapAndDrawText(ctx, text, x, y, style) {
       (phrase.startsWith("[") && phrase.endsWith("]") && matchMagic(magicWords, cleanPhrase))
     ) {
       // Calculate the width of the bracketed text
-      ctx.font = ` ${size} ${font}`;
+      ctx.font = ` ${fontSize}px ${font}`;
       const phraseWidth = ctx.measureText(cleanPhrase).width;
       let color = getColor(cleanPhrase);
-      drawColoredRectangle(ctx, lastX, y + 20, phraseWidth + 10, 80, color);
+      drawColoredRectangle(ctx, lastX, y + 3, phraseWidth + 10, fontSize, color);
       // Draw the text in white on special background
       ctx.fillStyle = 'white';
       ctx.fillText(cleanPhrase, lastX + 5, y);
@@ -264,14 +269,15 @@ function wrapAndDrawText(ctx, text, x, y, style) {
       phrase.split(/(＜.*?＞)/).forEach(word => {
         if (word.includes("＜")) {
           const cleanWord = word.replace(/[＜＞_]/g, '  ');
-          ctx.font = ` ${size} ${font}`;
+          ctx.font = ` ${fontSize}px ${font}`;
           const wordWidth = ctx.measureText(cleanWord).width;
           scale = (cardWidth - lastX) / wordWidth; 
           if (scale > 1) scale = 1; 
-          drawDiamondRectangle(ctx, lastX, y, scale * wordWidth + 10, px + 10);
+          let h = Number(fontSize);
+          drawDiamondRectangle(ctx, lastX, y, scale * wordWidth + 10, h + 10);
           ctx.save();
           ctx.scale(scale, 1);
-          ctx.font = ` ${size} ${font}`;
+          ctx.font = ` ${fontSize}px ${font}`;
           ctx.fillStyle = 'white'; // white on colored background
           
           ctx.fillText(cleanWord, lastX  / scale + 5, y);

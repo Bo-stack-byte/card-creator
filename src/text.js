@@ -1,13 +1,20 @@
 
+import _left_diamond from './frames/keywords/left-diamond.png';
+import _middle_diamond from './frames/keywords/middle-diamond.png';
+import _right_diamond from './frames/keywords/right-diamond.png';
+
+let diamondLeft = new Image(); diamondLeft.src = _left_diamond;
+let diamondMiddle = new Image(); diamondMiddle.src = _middle_diamond;
+let diamondRight = new Image(); diamondRight.src = _right_diamond;
+
+
 const font = 'Asimov'
 //const px = 100;  /* const g_width = 2800 */
 //const size = `${px}px`; 
 
 
-
-
 export function fitTextToWidth(ctx, text, maxWidth, initialFontSize, limit) {
-  const font = 'Asimov'
+  const font = 'Asimov'; // Asimov'
 
   let fontSize = initialFontSize;
   ctx.font = `${fontSize}px ${font}`;
@@ -114,14 +121,37 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
 }
 
 // x,y is upper left?
+
 function drawDiamondRectangle(ctx, x, y, width, height) {
+  if (Math.random() < 0.0)
+    _1drawDiamondRectangle(ctx, x, y, width, height)
+  else
+    _2drawDiamondRectangle(ctx, x, y, width, height)
+}
+
+function _1drawDiamondRectangle(ctx, x, y, width, height) {
+  x = Number(x) - 20;
+  height = Number(height) + 10;
+  let f = 30; // fudge factor
+  let cw = width - height - 1 * f + 20;
+
+  let top = y - height * 0.9;
+  ctx.drawImage(diamondLeft, x - f, top, height * 0.9, height);
+  ctx.drawImage(diamondMiddle, x - f + height * 0.9, top, cw, height);
+  ctx.drawImage(diamondRight, x + height * 0.9 + cw - f, top, height * 0.9, height);
+
+
+}
+
+function _2drawDiamondRectangle(ctx, x, y, width, height) {
   // Calculate the half-height and half-width for the triangles
   y -= height;
   const halfHeight = height / 2;
   // Create the gradient from dark brown to medium brown
   const gradient = ctx.createLinearGradient(0, y, 0, y + height);
   gradient.addColorStop(0, '#7E3329'); // Dark brown
-  gradient.addColorStop(1, '#C36327'); // Medium brown
+  gradient.addColorStop(0.6, '#C36327'); // Medium brown
+  gradient.addColorStop(0.9, '#E38367'); // "light" brown
 
   // Begin drawing the shape
   ctx.beginPath();
@@ -187,7 +217,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
   lineHeight = Number(lineHeight);
   let yOffset = y;
   let lines = [];
-  text = text.replaceAll(/</ig,"＜").replaceAll(/>/ig,"＞");
+  text = text.replaceAll(/</ig, "＜").replaceAll(/>/ig, "＞");
 
   const paragraphs = text.split("\n");
   for (let p = 0; p < paragraphs.length; p++) {
@@ -201,9 +231,9 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
     for (let n = 0; n < words.length; n++) {
       ctx.font = ` ${fontSize}px ${font}`;
       const testLine = line + words[n] + ' ';
-      const metrics = ctx.measureText(testLine.replaceAll(/[＜＞]/ig, 'n'));
+      const metrics = ctx.measureText(testLine.replaceAll(/[＜＞\[\]]/ig, ''));
       const testWidth = metrics.width;
-//      console.log(`is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
+      //      console.log(`is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
 
       if (testWidth > maxWidth && n > 0) {
         let currentWidth = ctx.measureText(line).width;
@@ -211,7 +241,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
         //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
         lines.push({ ctx, line, x, yOffset });
         line = words[n] + ' ';
-        yOffset += lineHeight;
+        yOffset += lineHeight + 2;
       } else {
         line = testLine;
       }
@@ -219,7 +249,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
 
     // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
     lines.push({ ctx, line, x, yOffset });
-    yOffset += lineHeight;
+    yOffset += lineHeight + 2;
 
 
     if (extra === 'bubble') {
@@ -233,83 +263,66 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
 
 
 
-  return yOffset + lineHeight;
+  return yOffset + lineHeight + 2;
 
 }
 
 function getColor(phrase) {
   if (phrase.match(/DigiXros/i)) return 'green';
-  if (['Hand', 'Trash', 'Breeding', 'Security', 'Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'purple';
+  if (['Hand', 'Trash', 'Breeding', 'Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'purple';
   if (phrase.match(/(Digi|E)volve/i)) return 'darkblue';
   return 'blue';
 }
 
 function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
-  let cardWidth = 4400; // shouldn't be hard-coded
+  let cardWidth = 2700; // shouldn't be hard-coded; we need our start pos
   let lastX = x;
   let scale;
   // ⟦⟧ 
   text.split(/([[⟦].*?[\]⟧])/).forEach(phrase => {
-    const cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
-
+    let cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
     if (
       (phrase.startsWith("⟦") && phrase.endsWith("⟧")) ||
       (phrase.startsWith("[") && phrase.endsWith("]") && matchMagic(magicWords, cleanPhrase))
     ) {
       // Calculate the width of the bracketed text
-      ctx.font = ` ${fontSize}px ${font}`;
-      const phraseWidth = ctx.measureText(cleanPhrase).width;
       let color = getColor(cleanPhrase);
+      console.log(292, cleanPhrase);
+      if (cleanPhrase == "(Security)") {
+        color = "purple";
+        cleanPhrase = "Security";
+      }
+      ctx.font = ` ${(fontSize - 15)}px FallingSky`;
+      const phraseWidth = ctx.measureText(cleanPhrase).width;
       drawColoredRectangle(ctx, lastX, y + 3, phraseWidth + 10, fontSize, color);
-      // Draw the text in white on special background
       ctx.fillStyle = 'white';
-      ctx.fillText(cleanPhrase, lastX + 5, y);
+      console.log(299, lastX, cleanPhrase);
+      ctx.fillText(cleanPhrase, lastX + 5, y - 10);
       lastX += phraseWidth + 15;
+      ctx.font = ` ${(fontSize)}px ${font}`;
+
     } else {
       phrase.split(/(＜.*?＞)/).forEach(word => {
         if (word.includes("＜")) {
           const cleanWord = word.replace(/[＜＞_]/g, '  ');
-          ctx.font = ` ${fontSize}px ${font}`;
+          //          ctx.font = `600 ${(fontSize - 5)}px Schibsted Grotesk`;
+          //   ctx.font = `bold ${(fontSize - 5)}px Roboto`;
+          ctx.font = `300 ${(fontSize - 15)}px FallingSky`;
+
           const wordWidth = ctx.measureText(cleanWord).width;
-          scale = (cardWidth - lastX) / wordWidth; 
-          if (scale > 1) scale = 1; 
+          scale = (cardWidth - lastX) / wordWidth;
+          console.log(314, wordWidth, cardWidth, lastX, cleanWord);
+          if (scale > 1) scale = 1;
           let h = Number(fontSize);
           drawDiamondRectangle(ctx, lastX, y, scale * wordWidth + 10, h + 10);
           ctx.save();
           ctx.scale(scale, 1);
-          ctx.font = ` ${fontSize}px ${font}`;
           ctx.fillStyle = 'white'; // white on colored background
-          
-          ctx.fillText(cleanWord, lastX  / scale + 5, y);
+          ctx.fillText(cleanWord, lastX / scale + 5, y - 10);
           lastX += scale * wordWidth + 15;
           ctx.restore();
+          ctx.font = ` ${fontSize}px ${font}`;
         } else {
-
-          /*
- 
-// Create a controlled shadow effect
-ctx.shadowColor = 'black';
-ctx.shadowBlur = 20; // Adjust for desired thickness
-ctx.shadowOffsetX = 0;
-ctx.shadowOffsetY = 0;
- 
-// Draw the white fill with shadow
-ctx.fillStyle = 'white';
-ctx.fillText(word, lastX, y);
- 
-// Reset shadow properties to avoid affecting other elements
-ctx.shadowColor = 'transparent';
-ctx.shadowBlur = 0;
-ctx.shadowOffsetX = 0;
-ctx.shadowOffsetY = 0;
- 
-// Optionally, add a thin stroke to define the edges
-ctx.lineWidth = 2;
-ctx.strokeStyle = 'black';
-ctx.strokeText(word, lastX, y);
-lastX += ctx.measureText(word).width + ctx.measureText(' ').width;
-*/
-
           let width = 12;
           let stroke = 'black';
           let fill = 'white';
@@ -319,19 +332,22 @@ lastX += ctx.measureText(word).width + ctx.measureText(' ').width;
             fill = 'black';
           }
 
-         // First, draw the black stroke
-         ctx.lineWidth = width; // Thicker stroke
-          ctx.strokeStyle = stroke;
-          ctx.strokeText(word, lastX, y);
+          if (word.length > 0) {
+            console.log(334, lastX, word);
+
+            // First, draw the black stroke
+            ctx.lineWidth = width; // Thicker stroke
+            ctx.strokeStyle = stroke;
+            ctx.strokeText(word, lastX, y);
 
 
-          ctx.lineWidth = 2; // Smaller stroke to define the edges
-          ctx.fillStyle = fill;
-          ctx.fillText(word, lastX, y);
-     //     ctx.strokeText(word, lastX, y);
-          lastX += ctx.measureText(word).width + ctx.measureText(' ').width;
+            ctx.lineWidth = 2; // Smaller stroke to define the edges
+            ctx.fillStyle = fill;
+            ctx.fillText(word, lastX, y);
+            //     ctx.strokeText(word, lastX, y);
+            lastX += ctx.measureText(word).width + ctx.measureText(' ').width;
 
-
+          }
 
           /*
         ctx.font = `90px ${font}`;

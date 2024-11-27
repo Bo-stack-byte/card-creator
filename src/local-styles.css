@@ -27,3 +27,8 @@ br {
   font-family: 'Asimov';
   src: local('Asimov'), url(./fonts/Asimov-Print-C.ttf.woff) format('woff');
 }
+
+@font-face {
+  font-family: 'FallingSky';
+  src: local('FallingSky'), url(./fonts/FallingSky.otf) format('opentype');
+}

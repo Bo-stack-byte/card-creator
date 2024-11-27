@@ -46,6 +46,14 @@ import _bottom_ace_white from './frames/bottom_white_evo_ace.png';
 
 import _ace_logo from './frames/ACE.png';
 
+import _inherited_sec_red from './frames/inherits/bottom_red_security.png';
+import _inherited_sec_blue from './frames/inherits/bottom_blue_security.png';
+import _inherited_sec_yellow from './frames/inherits/bottom_yellow_security.png';
+import _inherited_sec_green from './frames/inherits/bottom_green_security.png';
+import _inherited_sec_purple from './frames/inherits/bottom_purple_security.png';
+import _inherited_sec_black from './frames/inherits/bottom_black_security.png';
+import _inherited_sec_white from './frames/inherits/bottom_white_security.png';
+
 
 import _bottom_plain_red from './frames/bottom_plain_red.png';
 import _bottom_plain_blue from './frames/bottom_plain_blue.png';
@@ -330,6 +338,14 @@ let bottom_ace_purple = new Image(); bottom_ace_purple.src = _bottom_ace_purple;
 let bottom_ace_black = new Image(); bottom_ace_black.src = _bottom_ace_black;
 let bottom_ace_white = new Image(); bottom_ace_white.src = _bottom_ace_white;
 
+let inherited_sec_red = new Image(); inherited_sec_red.src = _inherited_sec_red;
+let inherited_sec_blue = new Image(); inherited_sec_blue.src = _inherited_sec_blue;
+let inherited_sec_yellow = new Image(); inherited_sec_yellow.src = _inherited_sec_yellow;
+let inherited_sec_green = new Image(); inherited_sec_green.src = _inherited_sec_green;
+let inherited_sec_purple = new Image(); inherited_sec_purple.src = _inherited_sec_purple;
+let inherited_sec_black = new Image(); inherited_sec_black.src = _inherited_sec_black;
+let inherited_sec_white = new Image(); inherited_sec_white.src = _inherited_sec_white;
+
 
 let bottom_plain_red = new Image(); bottom_plain_red.src = _bottom_plain_red;
 let bottom_plain_blue = new Image(); bottom_plain_blue.src = _bottom_plain_blue;
@@ -379,6 +395,17 @@ export const bottom_aces = {
   'white': bottom_ace_white
 }
 
+export const inherited_security = {
+  'red': inherited_sec_red,
+  'blue': inherited_sec_blue,
+  'yellow': inherited_sec_yellow,
+  'green': inherited_sec_green,
+  'purple': inherited_sec_purple,
+  'black': inherited_sec_black,
+  'white': inherited_sec_white
+}
+
+// NAME field
 export const bottoms_plain = {
   'red': bottom_plain_red,
   'blue': bottom_plain_blue,

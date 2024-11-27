@@ -6,8 +6,11 @@ import {
   cost, cost_egg, cost_option, cost_evo, costs, ace_logo,
   new_evo_circles, /* new_evo2_circles, */
   new_evo_wedges,
-  bottom_evos, bottoms, bottoms_plain, bottom_aces, borders, effectboxes
+  bottom_evos, bottoms, bottoms_plain, borders, effectboxes,
+  // inherits at bottom:
+  bottom_aces, inherited_security
 } from './images';
+
 import { enterPlainText } from './plaintext';
 import { fitTextToWidth, drawBracketedText } from './text';
 import banner from './banner.png';
@@ -24,8 +27,10 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.5.4";
+const version = "0.5.5";
+const latest = "proper ESS symbols for options and inherit-less tamers; font updates; 'security' defaults to blue use [(security)] for magenta"
 
+// version 0.5.5  proper ESS symbols for options and inherit-less tamers; font updates; 'security' defaults to blue use [(security)] for magenta
 // version 0.5.4  pie wedges for evo; adjustable font; squeeze text horizontally beyond some threshold                            
 // version 0.5.3  aces
 // version 0.5.2  megas done, freeform input                                                                                      
@@ -131,7 +136,7 @@ const starter_text_1a = `  {
       [{ "color": "Blue", "cost": "4", "level": "5" },
        { "color": "Red", "cost": "4", "level": "5" } ],
     "dp": "9000",
-    "effect": "＜Vortex＞ \uff1cSecurity Attack +1\uff1e [Your Turn] When this monster attacks a Monster with [Shield] in its name, this Monster gets +5000 DP until the end of your opponent's turn.\\n[Security] [All Turns] Your Monsters get +1000 DP.",
+    "effect": "＜Vortex＞ \uff1cSecurity Attack +1\uff1e [Your Turn] When this monster attacks a Monster with [Shield] in its name, this Monster gets +5000 DP until the end of your opponent's turn.\\n[(Security)] [All Turns] Your Monsters get +1000 DP.",
     "evolveEffect": "-",
     "securityEffect": "-",
     "specialEvolve": "-",
@@ -517,27 +522,36 @@ function CustomCreator() {
       }
       if (json.aceEffect && json.aceEffect.length > 5) {
         type = "ACE";
-        let match = json.aceEffect.match(/Overflow\s*.-(\d+)/i);
-        if (match) {
-          overflow = parseInt(match[1]);
-        } else { // if no overflow set, use level as backup
-          match = json.cardLv && json.cardLv.match(/\d+/);
-          if (match) overflow = parseInt(match) - 2;
-        }
-
       }
       if ((t = json.cardType)) {
         if (t.match(/option/i)) { type = "OPTION"; }
-        if (t.match(/tamer/i)) { type = "TAMER"; }
+        if (t.match(/tamer/i)) {
+          type = "TAMER";
+          if (json.evolveEffect && json.evolveEffect !== "-")
+            type = "TAMERWITHINHERIT";
+        }
         if (t.match(/egg/i) || t.match(/tama/i)) { type = "EGG"; }
       }
     }
     switch (type) {
       case "MEGA": background = mega_background; break;
       case "OPTION": background = option_background; break;
-      case "TAMER": background = tamer_background; break;
+      case "TAMER":
+      case "TAMERINHERIT":
+        background = tamer_background; break;
       case "EGG": background = egg_background; break;
-      case "MONSTER": case "ACE":
+      case "MONSTER":  break;
+      case "ACE":
+        let match = json.aceEffect && json.aceEffect.match(/Overflow\s*.-(\d+)/i);
+        console.log(524, match);
+        if (match) {
+          overflow = parseInt(match[1]);
+        } else { // if no overflow set, use level as backup
+          match = json.cardLv && json.cardLv.match(/\d+/);
+          console.log(528, match);
+          if (match) overflow = parseInt(match) - 2;
+        }
+        break;
       default:
     }
 
@@ -617,7 +631,7 @@ function CustomCreator() {
           if (type === "EGG") delta_y -= 640;
           if (type === "MONSTER") delta_y -= 500;
           if (type === "ACE") delta_y -= 480;
-          if (type === "TAMER") delta_y -= 640;
+          if (type === "TAMER" || type === "TAMERINHERIT") delta_y -= 640;
           scalePartialImage(ctx, box, i, len, 825, offset_x + 80, offset_y + delta_y);
         }
       }
@@ -639,7 +653,7 @@ function CustomCreator() {
         let frame = frameImages[i];
         if (modern) {
           let name_field = bottoms; // i'm so sorry this is named 'bottom'
-          if (type === "OPTION" || type === "TAMER") name_field = bottoms_plain;
+          if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") name_field = bottoms_plain;
           let col = colors[i];
 
           if (outlines[col]) {
@@ -649,18 +663,27 @@ function CustomCreator() {
             // left/top/right of outline, sometimes bottom
             if (frame) {
               let l = (type === "OPTION") ? 1 : len; // just 1 option "outline"
+              let fudge = (type === "OPTION") ? 0 : 0.04;
               // 1.05 is fudge factor because our frames aren't all left-justified the same
               // this makes them  the same, but they might be the same wrong
-              scalePartialImage(ctx, frame, i+0.05, l, 3950, offset_x, offset_y);
+              scalePartialImage(ctx, frame, i + (fudge), l, 3950, offset_x, offset_y);
             }
             // very bottom, evo conditions
 
             if (type !== "MEGA") {
               let img = bottom_evos[col];
+              let scale = 606;
+              let height = 3550;
               if (type === "ACE") {
                 img = bottom_aces[col];
               }
-              scalePartialImage(ctx, img, i, len, 606, 164, 3550);
+              if (type === "OPTION" || type === "TAMER") {
+                img = inherited_security[col];
+                scale = 740;
+                height = 3450;
+              }
+              console.log(675, img);
+              scalePartialImage(ctx, img, i, len, scale, 164, height);
             }
             if (type === "MONSTER" || type === "MEGA" || type === "ACE") {
               // bottom of frame
@@ -675,14 +698,15 @@ function CustomCreator() {
             }
             // name block
             let y = 3550 - 365;
-            if (type === "EGG" || type === "OPTION" || type === "TAMER") y -= 90;
-            if (type === "OPTION" || type === "TAMER") y += 40;
+            if (type === "EGG" || type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y -= 90;
+            if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT")  y += 40;
             if (type === "MEGA") y += 500;
             let img_name = name_field[col];
             let scale = 364.2;
-            if (type === "OPTION" || type === "TAMER") scale = 305;
+            if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") scale = 305;
             scalePartialImage(ctx, img_name, i, len, scale, 164, y);
-            if (i === len - 1 && (type !== "TAMER" && type !== "OPTION")) {
+            if (i === len - 1 && (type !== "TAMER" && type !== "TAMERINHERIT" && type !== "OPTION")) {
+              // do underline for traits, check st19 arisa because Tamers might need it
               let left_img = name_field[colors[0]];
               if (left_img) {
                 //              ctx.drawImage(0,
@@ -834,8 +858,8 @@ function CustomCreator() {
       }
 
 
-      if (type === "ACE") {
-        ctx.font = `70px Asimov`;
+      if (type === "ACE" && overflow) {
+        ctx.font = `70px FallingSky`;
 
         // fake blur 
         ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)';
@@ -896,7 +920,8 @@ function CustomCreator() {
       let delta_y = 0;
       switch (type) {
         case "OPTION": delta_y -= 60; break;
-        case "TAMER": delta_y -= 60; break;
+        case "TAMER":
+        case "TAMERINHERIT": delta_y -= 60; break;
         case "EGG": delta_y -= 100; break;
         case "MEGA": delta_y += 500; break;
         case "MONSTER": case "ACE": break;
@@ -912,9 +937,10 @@ function CustomCreator() {
         const initialFontSize = 200;
         const fontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize, 150);
         // PF Das Grotesk Pro Bold is the actual font but $$
-        ctx.font = `bold ${fontSize}px Roboto`; // better looking I
-        // ctx.font = `700 ${fontSize}px Schibsted Grotesk`; // has curved lowercase l
-        ctx.textAlign = 'center';
+        //ctx.font = `bold ${fontSize}px Roboto`; // better looking I
+//        ctx.font = `700 ${fontSize}px Schibsted Grotesk`; // has curved lowercase l
+      ctx.font = `700 ${fontSize}px FallingSky`; // has curved lowercase l
+      ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = 'white';
 
@@ -960,7 +986,7 @@ function CustomCreator() {
       const traits = ` ${form}      |     ${attribute}      |      ${c_type}      `;
       //console.log("Traits", traits)
       ctx.fillStyle = whiteColor(colors[0]);
-      if (type === "TAMER") {
+      if (type === "TAMER" || type === "TAMERINHERIT") {
         ctx.fillStyle = 'black';
         delta_y += 50;
       }
@@ -1012,7 +1038,7 @@ function CustomCreator() {
         y_line = drawBracketedText(ctx, fontSize, effect,
           //wrapText(ctx, effect, // + effect, 
           300, y_line,
-          2461,
+          2455,
           fontSize, type === "OPTION" ? "effect-option" : "effect");
       }
 
@@ -1036,6 +1062,8 @@ function CustomCreator() {
       let delta_x = delta_y;
       if (type === "ACE") {
         delta_x -= 60; delta_y += 100;
+      } else if (type === "TAMER" || type === "OPTION") {
+        delta_x = 0; delta_y = -50;
       } else {
         delta_x = 0; delta_y = 0;
       }
@@ -1079,7 +1107,8 @@ function CustomCreator() {
     switch (type) {
       case "OPTION": array = options; break;
       // how is outlines_tamer different from outlines_egg??
-      case "TAMER": array = modern ? outlines_tamer : tamers; break;
+      case "TAMER":
+      case "TAMERINHERIT": array = modern ? outlines_tamer : tamers; break;
       case "EGG": array = modern ? outlines_egg : eggs; break;
       case "MONSTER": break;
       case "MEGA": break;
@@ -1158,20 +1187,18 @@ function CustomCreator() {
   let invite = "https://discord.gg/PRXgdCwp";
   return (
     <table>
-      <tr>
+      <tr style={{fontSize: "smaller"}} >
         <td width={"30%"} style={{ fontSize: "smaller" }}>
           Ask support or request features over on <a href={invite}>Discord</a>.
           <br />
-          Classic templates originally came from Quietype on WithTheWill.
-          <br />
-          Shout out to pinima and Zaffy who kept this dream alive in previous years.
-          <br />
-          Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.
-          <br />
+
+          <p style={{fontFamily: "Asimov"}}> Classic templates originally came from Quietype on WithTheWill.</p>
+          <p style={{fontFamily: "FallingSky"}}>Shout out to pinima and Zaffy who kept this dream alive in previous years.</p>
+          <p style={{fontFamily: "Roboto"}}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
           Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
           <br />
           <br />
-          Version {version}
+          Version {version} {latest}
           <br />
           <br />
           <button onClick={() => sample(0)}> Sample Egg </button><br />

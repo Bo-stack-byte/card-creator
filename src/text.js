@@ -80,6 +80,27 @@ function splitTextIntoParts(text) {
   return all_words;
 }
 
+
+function drawRoundedRect(ctx, x, y, width, height, radius, stroke) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.arcTo(x + width, y, x + width, y + radius, radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+  ctx.lineTo(x + radius, y + height);
+  ctx.arcTo(x, y + height, x, y + height - radius, radius);
+  ctx.lineTo(x, y + radius);
+  ctx.arcTo(x, y, x + radius, y, radius);
+  ctx.closePath();
+  if (stroke)
+    ctx.stroke(); // Draw only the outline
+  else
+    ctx.fill();
+  ctx.restore();
+}
+
 //x,y is upper left
 function drawColoredRectangle(ctx, x, y, width, height, color) {
   //#922969 darker ois lower
@@ -106,12 +127,15 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
     d = 10;
   }
   ctx.fillStyle = gradient;
-  ctx.fillRect(x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d);
+  //let radius = (color === 'bubble') ? height / 2 : 0;
+  //  ctx.fillRect(x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, false);
+  drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, false);
   ctx.globalAlpha = 1;
   if (color === 'bubble') {
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 8;
-    ctx.strokeRect(x - d, y - height - 10 - d, width + 10 + d * 2, height + d * 2);
+    drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, true);
+    //  ctx.strokeRect(x - d, y - height - 10 - d, width + 10 + d * 2, height + d * 2);
   }
   ctx.strokeStyle = '';
   ctx.lineWidth = 0;
@@ -227,9 +251,10 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
 
     let line = '';
 
+    const italics = (extra === "bubble") ? "italic" : "";
 
     for (let n = 0; n < words.length; n++) {
-      ctx.font = ` ${fontSize}px ${font}`;
+      ctx.font = `${italics} ${fontSize}px ${font}`;
       const testLine = line + words[n] + ' ';
       const metrics = ctx.measureText(testLine.replaceAll(/[＜＞[\]]/ig, ''));
       const testWidth = metrics.width;
@@ -287,19 +312,21 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
     ) {
       // Calculate the width of the bracketed text
       let color = getColor(cleanPhrase);
-     // console.log(292, cleanPhrase);
+      // console.log(292, cleanPhrase);
       if (cleanPhrase === "(Security)") {
         color = "purple";
         cleanPhrase = "Security";
       }
-      ctx.font = ` ${(fontSize - 15)}px FallingSky`;
+      const italics = (style === "bubble") ? "italic" : "";
+
+      ctx.font = `${italics} ${(fontSize - 15)}px FallingSky`;
       const phraseWidth = ctx.measureText(cleanPhrase).width;
       drawColoredRectangle(ctx, lastX, y + 3, phraseWidth + 10, fontSize, color);
       ctx.fillStyle = 'white';
-   //   console.log(299, lastX, cleanPhrase);
+      //   console.log(299, lastX, cleanPhrase);
       ctx.fillText(cleanPhrase, lastX + 5, y - 10);
       lastX += phraseWidth + 15;
-      ctx.font = ` ${(fontSize)}px ${font}`;
+      ctx.font = `${italics} ${(fontSize)}px ${font}`;
 
     } else {
       phrase.split(/(＜.*?＞)/).forEach(word => {
@@ -317,7 +344,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
           drawDiamondRectangle(ctx, lastX, y, scale * wordWidth + 10, h + 10);
           scale = 1;
           ctx.save();
-           ctx.scale(scale, 1);
+          ctx.scale(scale, 1);
           ctx.fillStyle = 'white'; // white on colored background
           ctx.fillText(cleanWord, lastX / scale + 5, y - 10, cardWidth - lastX);
           lastX += scale * wordWidth + 15;
@@ -334,7 +361,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
           }
 
           if (word.length > 0) {
-          //  console.log(334, lastX, word);
+            //  console.log(334, lastX, word);
 
             // First, draw the black stroke
             ctx.lineWidth = width; // Thicker stroke

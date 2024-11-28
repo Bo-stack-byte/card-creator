@@ -104,6 +104,7 @@ function drawRoundedRect(ctx, x, y, width, height, radius, stroke) {
 //x,y is upper left
 function drawColoredRectangle(ctx, x, y, width, height, color) {
   //#922969 darker ois lower
+  const cardWidth = 2700; // !
   height = Number(height);
   let color0, color1;
   switch (color) {
@@ -127,6 +128,7 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
     d = 10;
   }
   ctx.fillStyle = gradient;
+  if (width > (cardWidth - x)) width = cardWidth - x;
   //let radius = (color === 'bubble') ? height / 2 : 0;
   //  ctx.fillRect(x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, false);
   drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, false);
@@ -262,7 +264,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
 
       if (testWidth > maxWidth && n > 0) {
         let currentWidth = ctx.measureText(line).width;
-        console.log(206, "pushing " + Math.round(currentWidth) + " <" + line + ">");
+        console.log(267, "pushing " + Math.round(currentWidth) + " <" + line + ">");
         //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
         lines.push({ ctx, line, x, yOffset });
         line = words[n] + ' ';
@@ -271,6 +273,8 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
         line = testLine;
       }
     }
+
+    console.log(277, "pushing  <" + line + ">");
 
     // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
     lines.push({ ctx, line, x, yOffset });
@@ -283,6 +287,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
     }
   }
   for (let line of lines) {
+
     wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra);
   }
 
@@ -299,11 +304,22 @@ function getColor(phrase) {
   return 'blue';
 }
 
-function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
+function wrapAndDrawText(ctx, fontSize, text, x, y, style, preview = false) {
   let cardWidth = 2700; // shouldn't be hard-coded; we need our start pos
   let lastX = x;
-  let scale;
+  let scale = 1;
   // ⟦⟧ 
+  if (!preview) {
+    let width = wrapAndDrawText(ctx, fontSize, text, x, y, style, true);
+    console.log(314, width);
+    if (width > cardWidth) scale = cardWidth / width;
+    // compress all text equally, but we should let keywords stay a bit wider if we can    
+  }
+  ctx.save();
+  ctx.scale(scale, 1);
+
+
+  // console.log(313, `is ${testWidth} bigger than ${cardWidth}`);
   text.split(/([[⟦].*?[\]⟧])/).forEach(phrase => {
     let cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
     if (
@@ -321,10 +337,10 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
 
       ctx.font = `${italics} ${(fontSize - 15)}px FallingSky`;
       const phraseWidth = ctx.measureText(cleanPhrase).width;
-      drawColoredRectangle(ctx, lastX, y + 3, phraseWidth + 10, fontSize, color);
+      if (!preview) drawColoredRectangle(ctx, lastX, y + 3, phraseWidth + 10, fontSize, color);
       ctx.fillStyle = 'white';
-      //   console.log(299, lastX, cleanPhrase);
-      ctx.fillText(cleanPhrase, lastX + 5, y - 10);
+      console.log(328, lastX, cleanPhrase, (cardWidth - lastX - 5));
+      if (!preview) ctx.fillText(cleanPhrase, lastX + 5, y - 10, cardWidth - lastX - 5);
       lastX += phraseWidth + 15;
       ctx.font = `${italics} ${(fontSize)}px ${font}`;
 
@@ -337,16 +353,12 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
           ctx.font = `300 ${(fontSize - 15)}px FallingSky`;
 
           const wordWidth = ctx.measureText(cleanWord).width;
-          scale = (cardWidth - lastX) / wordWidth;
           console.log(314, wordWidth, cardWidth, lastX, cleanWord);
-          if (scale > 1) scale = 1;
           let h = Number(fontSize);
-          drawDiamondRectangle(ctx, lastX, y, scale * wordWidth + 10, h + 10);
-          scale = 1;
-          ctx.save();
+          if (!preview) drawDiamondRectangle(ctx, lastX, y, scale * wordWidth + 10, h + 10);
           ctx.scale(scale, 1);
           ctx.fillStyle = 'white'; // white on colored background
-          ctx.fillText(cleanWord, lastX / scale + 5, y - 10, cardWidth - lastX);
+          if (!preview) ctx.fillText(cleanWord, lastX / scale + 5, y - 10, cardWidth - lastX);
           lastX += scale * wordWidth + 15;
           ctx.restore();
           ctx.font = ` ${fontSize}px ${font}`;
@@ -366,12 +378,12 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
             // First, draw the black stroke
             ctx.lineWidth = width; // Thicker stroke
             ctx.strokeStyle = stroke;
-            ctx.strokeText(word, lastX, y);
+            if (!preview) ctx.strokeText(word, lastX, y); //  cardWidth - lastX);
 
 
             ctx.lineWidth = 2; // Smaller stroke to define the edges
             ctx.fillStyle = fill;
-            ctx.fillText(word, lastX, y);
+            if (!preview) ctx.fillText(word, lastX, y); //  cardWidth - lastX);
             //     ctx.strokeText(word, lastX, y);
             lastX += ctx.measureText(word).width + ctx.measureText(' ').width;
 
@@ -387,5 +399,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
       })
     }
   });
+  ctx.restore();
+  return lastX;
 }
 

@@ -27,9 +27,10 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.5.6";
-const latest = "rule text box";
+const version = "0.5.7";
+const latest = "bubble text italicized and rounded and compressed to fit (but also for keywords); rule text now working"
 
+// version 0.5.7  bubble text italicized and rounded and compressed to fit (but also for keywords); rule text now working
 // version 0.5.6  rule text box
 // version 0.5.5  proper ESS symbols for options and inherit-less tamers; font updates; 'security' defaults to blue use [(security)] for magenta
 // version 0.5.4  pie wedges for evo; adjustable font; squeeze text horizontally beyond some threshold                            
@@ -766,6 +767,7 @@ Cost: 3
             if (frame) {
               let l = (type === "OPTION") ? 1 : len; // just 1 option "outline"
               let fudge = (type === "OPTION" || !i) ? 0 : 0.04;
+              fudge = 0;
               // 1.05 is fudge factor because our frames aren't all left-justified the same
               // this makes them  the same, but they might be the same wrong
               scalePartialImage(ctx, frame, i + (fudge), l, 3950, offset_x, offset_y);

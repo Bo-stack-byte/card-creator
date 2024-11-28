@@ -64,6 +64,10 @@ import _bottom_plain_black from './frames/bottom_plain_black.png';
 import _bottom_plain_white from './frames/bottom_plain_white.png';
 
 
+import _bottom_property_white from './frames/bottom_digimon_properties_white.png';
+import _bottom_property_black from './frames/bottom_digimon_properties_black.png';
+
+
 import _border_red from './frames/border_red.png';
 import _border_blue from './frames/border_blue.png';
 import _border_yellow from './frames/border_yellow.png';
@@ -257,10 +261,17 @@ export const costs = {
   'white': cost_white,
 }
 
+
+
+let bottom_property_white = new Image(); bottom_property_white.src = _bottom_property_white;
+let bottom_property_black = new Image(); bottom_property_black.src = _bottom_property_black;
+
+
 // these backgrounds are used all the time and should be pre-loaded
 export { mon_background, mega_background, egg_background, option_background, tamer_background,
     cost, cost_egg, cost_option, cost_evo,
-    outline_option, ace_logo
+    outline_option, ace_logo,
+    bottom_property_white, bottom_property_black,
   };
 
 export const basics = {
@@ -337,6 +348,7 @@ let bottom_ace_green = new Image(); bottom_ace_green.src = _bottom_ace_green;
 let bottom_ace_purple = new Image(); bottom_ace_purple.src = _bottom_ace_purple;
 let bottom_ace_black = new Image(); bottom_ace_black.src = _bottom_ace_black;
 let bottom_ace_white = new Image(); bottom_ace_white.src = _bottom_ace_white;
+
 
 let inherited_sec_red = new Image(); inherited_sec_red.src = _inherited_sec_red;
 let inherited_sec_blue = new Image(); inherited_sec_blue.src = _inherited_sec_blue;

@@ -8,11 +8,13 @@ import {
   new_evo_wedges,
   bottom_evos, bottoms, bottoms_plain, borders, effectboxes,
   // inherits at bottom:
-  bottom_aces, inherited_security
+  bottom_aces, inherited_security,
+  bottom_property_white, bottom_property_black
+
 } from './images';
 
 import { enterPlainText } from './plaintext';
-import { fitTextToWidth, drawBracketedText } from './text';
+import { fitTextToWidth, drawBracketedText, writeRuleText } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
 import shieldsmasher from './shieldsmasher.png';
@@ -27,9 +29,10 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.5.7";
-const latest = "bubble text italicized and rounded and compressed to fit (but also for keywords); rule text now working"
+const version = "0.5.8";
+const latest = "black/white bar at bottom of name block if any trait";
 
+// version 0.5.8  black/white bar at bottom of name block if any trait
 // version 0.5.7  bubble text italicized and rounded and compressed to fit (but also for keywords); rule text now working
 // version 0.5.6  rule text box
 // version 0.5.5  proper ESS symbols for options and inherit-less tamers; font updates; 'security' defaults to blue use [(security)] for magenta
@@ -46,6 +49,13 @@ const latest = "bubble text italicized and rounded and compressed to fit (but al
 // version 0.4.4  less errors, fix egg text
 // version 0.4.3  multi color, egg.
 // version 0.4.2. Better error handling, re-orient custom image
+
+function empty(s) {
+  if (!s) return true;
+  if (s.length < 2) return true;
+  if (s === "-") return true;
+  return false;
+}
 
 function colorMap(color) {
   switch (color.toLowerCase()) {
@@ -330,7 +340,7 @@ Cost: 3
 
   const customs = [
     custom_1,
-    custom_2,  custom_3, custom_4
+    custom_2, custom_3, custom_4
   ];
   const custom_starter = customs[Math.floor(Math.random() * customs.length)];
   const [showJson, setShowJson] = useState(2);
@@ -709,33 +719,8 @@ Cost: 3
 
       bottom += 800;
       let rule = json.rule;
-      if (rule && rule.length > 1) {
-        // move to text.js?
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'bottom';
-        ctx.fillStyle = 'white';
-        ctx.font = `italic ${(fontSize - 10)}px Asimov`;
-        let text = rule;
-        if (text.startsWith("[Rule]")) text = text.substring(6).trim();
-        let width = ctx.measureText(text).width;
-        let x = 2700;
-        ctx.fillRect(x - width, bottom - fontSize / 8, width + fontSize / 4, - fontSize *  0.7);
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 20;
-        ctx.strokeText(text, x, bottom);
-        ctx.fillStyle = 'black';
-        ctx.fillText(text, x, bottom);
-        // Rule:
-        ctx.font = `${(fontSize - 10)}px Asimov`;
-        let rule_word = "Rule"
-        let rule_word_width = ctx.measureText(rule_word).width + 20;
-        ctx.fillRect(x - width - 10, bottom + 10, -rule_word_width, -(Number(fontSize) + 20));
-        console.log(730, x - width - 10, bottom + 10, -rule_word_width, -(fontSize + 20));
-        // ctx.strokeStyle = 'white'; 
-        ctx.fillStyle = 'white';
-        ctx.fillText(rule_word, x - width - 20, bottom);
-
-
+        if (rule && rule.length > 1) {
+        writeRuleText(ctx, rule, fontSize, bottom);
       }
 
 
@@ -802,48 +787,39 @@ Cost: 3
             // name block
             let y = 3550 - 365;
             if (type === "EGG" || type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y -= 90;
-            if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y += 40;
+            if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y += 0; // 40;
             if (type === "MEGA") y += 500;
             let img_name = name_field[col];
             let scale = 364.2;
             if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") scale = 305;
             scalePartialImage(ctx, img_name, i, len, scale, 164, y);
-            if (i === len - 1 && (type !== "TAMER" && type !== "TAMERINHERIT" && type !== "OPTION")) {
+
+
+            // do the black (white) bar on anything with a trait, or anything with "Lv.*" text
+            if (i === len - 1) {
+              let skip = false;
+              let bar_offset = 273;
+
+              if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") {
+                skip = true;
+                bar_offset = 242;
+              }
+              if (!empty(json.form) || !empty(json.attribute) || !empty(json.type)) skip = false;
+
               // do underline for traits, check st19 arisa because Tamers might need it
-              let left_img = name_field[colors[0]];
-              if (left_img) {
-                //              ctx.drawImage(0,
-                let yyy = 365;
-                let xxx = yyy * (left_img.width / left_img.height);
-                let crop_top = 70.5;
-                ctx.drawImage(left_img,
-                  0, crop_top,
-                  left_img.width, left_img.height,
-                  164, y + crop_top + 201,
-                  xxx, yyy * 1.2,
+              if (!skip) {
+                let bar_img = (colors[0] === "black") ? bottom_property_white : bottom_property_black;
 
-                  //  400,y/2,2000,2000
-
-                  //                 164, y, 
-                  //               3000, 100
-                );
+                let scale = 4.015;
+                ctx.drawImage(bar_img,
+                  162, y + bar_offset,
+                  bar_img.width * scale,
+                  bar_img.height * scale * 1.06) // stretch a little
               }
             }
-            // overwrite black/white bar
-
           }
-          //i * fw - offset_x, 0 - offset_y, fw, h, // start x,y  then size x,y
-          //i * fw, 0, fw, h);
         }
       }
-
-      //   if (type !== "OPTION" && type !== "TAMER") {
-      /*  ctx.fillStyle = "black";
-        ctx.beginPath(); 
-        ctx.rect(600, 3960, 2740 - 600, 4023 - 3961);
-        ctx.fill();*/
-      //   }
-
 
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -1022,9 +998,9 @@ Cost: 3
 
       let delta_y = 0;
       switch (type) {
-        case "OPTION": delta_y -= 60; break;
+        case "OPTION": ;
         case "TAMER":
-        case "TAMERINHERIT": delta_y -= 60; break;
+        case "TAMERINHERIT": delta_y -= 130; break;
         case "EGG": delta_y -= 100; break;
         case "MEGA": delta_y += 500; break;
         case "MONSTER": case "ACE": break;
@@ -1086,26 +1062,24 @@ Cost: 3
       let attribute = json.attribute || '';
       let c_type = json.type || '';
       // todo don't show when all blank
-      const traits = ` ${form}      |     ${attribute}      |      ${c_type}      `;
+      let traits = ` ${c_type}   `;
+      if (form || attribute) {
+        traits = ` ${form}      |     ${attribute}      |   ${traits}`;
+      }
       //console.log("Traits", traits)
       ctx.fillStyle = whiteColor(colors[0]);
-      if (type === "TAMER" || type === "TAMERINHERIT") {
-        ctx.fillStyle = 'black';
-        delta_y += 50;
-      }
-      if (type === "OPTION") {
-        delta_y += 50;
+      if (type === "TAMER" || type === "TAMERINHERIT" || type === "OPTION") {
+        delta_y -= 10;
       }
       if (type === "MEGA") {
         delta_y += 50;
       }
-
       if (type === "EGG") {
-        delta_y += 20;
+        delta_y += 0;
       }
 
       ctx.font = `bold 60px Roboto`;
-      ctx.fillText(traits, 2780, 3500 + delta_y * 0.9);
+      ctx.fillText(traits, 2750, 3500 + delta_y * 0.9);
 
       ///// MAIN TEXT 
       let y_line = 2800 - 400;

@@ -80,6 +80,32 @@ function splitTextIntoParts(text) {
   return all_words;
 }
 
+export function writeRuleText(ctx, rule, fontSize, bottom) {
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  ctx.fillStyle = 'white';
+  ctx.font = `italic ${(fontSize - 10)}px Asimov`;
+  let text = rule;
+  if (text.startsWith("[Rule]")) text = text.substring(6).trim();
+  let width = ctx.measureText(text).width;
+  let x = 2700;
+  ctx.fillRect(x - width, bottom - fontSize / 8, width + fontSize / 4, - fontSize * 0.7);
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 20;
+  ctx.strokeText(text, x, bottom);
+  ctx.fillStyle = 'black';
+  ctx.fillText(text, x, bottom);
+  // Rule:
+  ctx.font = `${(fontSize - 10)}px Asimov`;
+  let rule_word = "Rule"
+  let rule_word_width = ctx.measureText(rule_word).width + 20;
+  ctx.fillRect(x - width - 10, bottom + 10, -rule_word_width, -(Number(fontSize) + 20));
+  console.log(730, x - width - 10, bottom + 10, -rule_word_width, -(fontSize + 20));
+  // ctx.strokeStyle = 'white'; 
+  ctx.fillStyle = 'white';
+  ctx.fillText(rule_word, x - width - 20, bottom);
+}
+
 
 function drawRoundedRect(ctx, x, y, width, height, radius, stroke) {
   ctx.save();
@@ -311,7 +337,6 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, preview = false) {
   // ⟦⟧ 
   if (!preview) {
     let width = wrapAndDrawText(ctx, fontSize, text, x, y, style, true);
-    console.log(314, width);
     if (width > cardWidth) scale = cardWidth / width;
     // compress all text equally, but we should let keywords stay a bit wider if we can    
   }

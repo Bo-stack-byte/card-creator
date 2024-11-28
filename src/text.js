@@ -231,7 +231,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
     for (let n = 0; n < words.length; n++) {
       ctx.font = ` ${fontSize}px ${font}`;
       const testLine = line + words[n] + ' ';
-      const metrics = ctx.measureText(testLine.replaceAll(/[＜＞\[\]]/ig, ''));
+      const metrics = ctx.measureText(testLine.replaceAll(/[＜＞[\]]/ig, ''));
       const testWidth = metrics.width;
       //      console.log(`is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
 
@@ -287,8 +287,8 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
     ) {
       // Calculate the width of the bracketed text
       let color = getColor(cleanPhrase);
-      console.log(292, cleanPhrase);
-      if (cleanPhrase == "(Security)") {
+     // console.log(292, cleanPhrase);
+      if (cleanPhrase === "(Security)") {
         color = "purple";
         cleanPhrase = "Security";
       }
@@ -296,7 +296,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
       const phraseWidth = ctx.measureText(cleanPhrase).width;
       drawColoredRectangle(ctx, lastX, y + 3, phraseWidth + 10, fontSize, color);
       ctx.fillStyle = 'white';
-      console.log(299, lastX, cleanPhrase);
+   //   console.log(299, lastX, cleanPhrase);
       ctx.fillText(cleanPhrase, lastX + 5, y - 10);
       lastX += phraseWidth + 15;
       ctx.font = ` ${(fontSize)}px ${font}`;
@@ -333,7 +333,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
           }
 
           if (word.length > 0) {
-            console.log(334, lastX, word);
+          //  console.log(334, lastX, word);
 
             // First, draw the black stroke
             ctx.lineWidth = width; // Thicker stroke

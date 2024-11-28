@@ -27,9 +27,10 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.5.5";
-const latest = "proper ESS symbols for options and inherit-less tamers; font updates; 'security' defaults to blue use [(security)] for magenta"
+const version = "0.5.6";
+const latest = "rule text box";
 
+// version 0.5.6  rule text box
 // version 0.5.5  proper ESS symbols for options and inherit-less tamers; font updates; 'security' defaults to blue use [(security)] for magenta
 // version 0.5.4  pie wedges for evo; adjustable font; squeeze text horizontally beyond some threshold                            
 // version 0.5.3  aces
@@ -97,6 +98,23 @@ function whiteColor(color) {
   return "white";
 }
 
+const starter_text_empty = `{
+  "cardType": "Egg",
+    "cardLv": "Lv.2",
+    "cardNumber": "",
+    "color": "Red",
+    "evolveCondition": [],
+    "evolveEffect": "-", 
+    "dp": "-",
+    "effect": "-",
+    "name": {  "english": "Tama"  },
+    "playCost": "-",
+    "form": "In-Training",
+    "attribute": "",
+    "type": "",
+    "rarity": "C"
+  }`;
+
 const starter_text_0 = `  {
    "cardType": "Egg",
     "cardLv": "Lv.2",
@@ -112,8 +130,7 @@ const starter_text_0 = `  {
     "attribute": "Data",
     "type": "Sword",
     "rarity": "C"
-  }
-`
+}`;
 
 const starter_text_1 = `
      ʟᴠ.4 — Armored Cat — CS1-18
@@ -202,7 +219,7 @@ const starter_text_3 = `   {
     "rarity": "Rare"
     }`;
 
-const starter_text = starter_text_1a;
+const starter_text = starter_text_empty;
 
 
 const decodeAndDecompress = (encodedString) => {
@@ -262,10 +279,62 @@ function CustomCreator() {
     setSelectedOption(event.target.value);
   };
 
-  const [showJson, setShowJson] = useState(0);
+  // copied from the customs channel
+
+  let custom_1 = `     ʟᴠ.3 — ScrapBacomon
+[Rookie | Data | Mutant/ʟᴍᴡ] [Gre.]
+Play cost: 3 | Digivolution: 0 from Lv.2 [Gre.]
+     1000 DP
+
+[Rule] Trait: Has the [Free] type.
+[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mutant] traut and 1 card with the [ʟᴍᴡ] trait among them to the hand. Return the rest to the bottom of the deck.
+
+     · Inherited Effect:
+[All Turns] [Once Per Turn] When 1 other Digimon digivolves, <Draw 1>.
+`;
+  let custom_2 = `Imperialdramon: Fighter Mode 
+Purple/Red | Lv.6
+13000 DP
+Play cost: 13
+Digivolution cost: 5 from purple or red Lv.5
+[[Digivolve] [Imperialdramon: Dragon Mode]: Cost 2]
+Mega | Virus | Ancient Dragonkin 
+
+<Security A. +1> <Piercing>
+[When Digivolving] By returning 1 Multicolor Digimon card from this Digimon's digivolution cards to the hand, return all digivolution cards of 1 of your opponent's Digimon with as high or lower level as returned card to the bottom of the deck. Then, delete it.
+[Your Turn] This Digimon doesn't activate [Security] effects of the cards it checks.
+`;
+  let custom_3 = `Patamon
+Level 3 yellow/purple
+Playcost: 3
+Digivolve: 1 from lvl 2 yellow/purple
+Rookie | Data | Mammal
+1000 DP
+[Digivolve] [Tokomon]: Cost 0
+
+[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mythical Beast] trait and 1 card with the [LIBERATOR] trait among them to the hand. Return the rest to the bottom of the deck. 
+
+[Rule] Trait: Also has [Mythical Beast] Type.
+-----
+Inherited Effect: [On Deletion] You may place 1 card from either player's trash face down in the battle area as a [Relic] Option card. (Option/White/Relic/"[Main] <Delay> Lose 1 Memory")
+`;
+  let custom_4 = `Steal!!!! — [Option]
+[Gre.]
+Cost: 3
+
+     [Main] <Draw 1> for every Tamer your opponent has in play.
+
+     · Security Effect: [Security] <Draw 1>, then add this card to the hand.`;
+
+  const customs = [
+    custom_1,
+    custom_2,  custom_3, custom_4
+  ];
+  const custom_starter = customs[Math.floor(Math.random() * customs.length)];
+  const [showJson, setShowJson] = useState(2);
   const [formData, setFormData] = useState({}); // redundant
   const [shareURL, setShareURL] = useState("");
-  const [freeform, setFreeForm] = useState("");
+  const [freeform, setFreeForm] = useState(custom_starter);
 
   const toggleView = () => {
     setShowJson((showJson + 1) % 3);
@@ -540,7 +609,7 @@ function CustomCreator() {
       case "TAMERINHERIT":
         background = tamer_background; break;
       case "EGG": background = egg_background; break;
-      case "MONSTER":  break;
+      case "MONSTER": break;
       case "ACE":
         let match = json.aceEffect && json.aceEffect.match(/Overflow\s*.-(\d+)/i);
         console.log(524, match);
@@ -562,7 +631,7 @@ function CustomCreator() {
     const frameImages = Array.from({ length: len }, () => new Image());
     const baseImg = new Image();
     // baseImg.loaded = false;
-    baseImg.src = shieldsmasher; // default to get started
+    baseImg.src = egg; // default to get started
     const shellImg = new Image();
 
     const _evos = json.evolveCondition;
@@ -619,6 +688,11 @@ function CustomCreator() {
       let offset_x = 90, offset_y = 72;
       if (!modern) { offset_x = 0; offset_y = 0; }
 
+      let bottom = offset_y + 2760;
+      if (type === "EGG") bottom -= 640;
+      if (type === "MONSTER") bottom -= 500;
+      if (type === "ACE") bottom -= 480;
+      if (type === "TAMER" || type === "TAMERINHERIT") bottom -= 640;
 
       const effectbox = document.getElementById("effectbox").checked;
       if (effectbox) {
@@ -627,14 +701,40 @@ function CustomCreator() {
           if (!col) continue;
           let box = new Image();
           box.src = effectboxes[col];
-          let delta_y = 2760;
-          if (type === "EGG") delta_y -= 640;
-          if (type === "MONSTER") delta_y -= 500;
-          if (type === "ACE") delta_y -= 480;
-          if (type === "TAMER" || type === "TAMERINHERIT") delta_y -= 640;
-          scalePartialImage(ctx, box, i, len, 825, offset_x + 80, offset_y + delta_y);
+          scalePartialImage(ctx, box, i, len, 825, offset_x + 80, bottom);
         }
       }
+
+      bottom += 800;
+      let rule = json.rule;
+      if (rule) {
+        // move to text.js?
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        ctx.fillStyle = 'white';
+        ctx.font = `italic ${(fontSize - 10)}px Asimov`;
+        let text = "Trait: Treated as [Insectiod] Type.";
+        let width = ctx.measureText(text).width;
+        let x = 2700;
+        ctx.fillRect(x - width, bottom - fontSize / 8, width + fontSize / 4, - fontSize *  0.7);
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 20;
+        ctx.strokeText(text, x, bottom);
+        ctx.fillStyle = 'black';
+        ctx.fillText(text, x, bottom);
+        // Rule:
+        ctx.font = `${(fontSize - 10)}px Asimov`;
+        let rule_word = "Rule"
+        let rule_word_width = ctx.measureText(rule_word).width + 20;
+        ctx.fillRect(x - width - 10, bottom + 10, -rule_word_width, -(Number(fontSize) + 20));
+        console.log(730, x - width - 10, bottom + 10, -rule_word_width, -(fontSize + 20));
+        // ctx.strokeStyle = 'white'; 
+        ctx.fillStyle = 'white';
+        ctx.fillText(rule_word, x - width - 20, bottom);
+
+
+      }
+
 
       if (type === "MEGA") {
         console.log(602, frameImages.length);
@@ -682,7 +782,6 @@ function CustomCreator() {
                 scale = 740;
                 height = 3450;
               }
-              console.log(675, img);
               scalePartialImage(ctx, img, i, len, scale, 164, height);
             }
             if (type === "MONSTER" || type === "MEGA" || type === "ACE") {
@@ -699,7 +798,7 @@ function CustomCreator() {
             // name block
             let y = 3550 - 365;
             if (type === "EGG" || type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y -= 90;
-            if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT")  y += 40;
+            if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y += 40;
             if (type === "MEGA") y += 500;
             let img_name = name_field[col];
             let scale = 364.2;
@@ -938,9 +1037,9 @@ function CustomCreator() {
         const fontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize, 150);
         // PF Das Grotesk Pro Bold is the actual font but $$
         //ctx.font = `bold ${fontSize}px Roboto`; // better looking I
-//        ctx.font = `700 ${fontSize}px Schibsted Grotesk`; // has curved lowercase l
-      ctx.font = `700 ${fontSize}px FallingSky`; // has curved lowercase l
-      ctx.textAlign = 'center';
+        //        ctx.font = `700 ${fontSize}px Schibsted Grotesk`; // has curved lowercase l
+        ctx.font = `700 ${fontSize}px FallingSky`; // has curved lowercase l
+        ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = 'white';
 
@@ -1082,7 +1181,7 @@ function CustomCreator() {
     let imagesLoaded = 0;
     console.log(818, frameImages);
     const checkAllImagesLoaded = (e) => {
-      console.log(770, e);
+      //      console.log(770, e);
       imagesLoaded++;
       console.log(771, "image loaded", imagesLoaded, imagesToLoad);
       if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
@@ -1187,14 +1286,14 @@ function CustomCreator() {
   let invite = "https://discord.gg/PRXgdCwp";
   return (
     <table>
-      <tr style={{fontSize: "smaller"}} >
+      <tr style={{ fontSize: "smaller" }} >
         <td width={"30%"} style={{ fontSize: "smaller" }}>
           Ask support or request features over on <a href={invite}>Discord</a>.
           <br />
 
-          <p style={{fontFamily: "Asimov"}}> Classic templates originally came from Quietype on WithTheWill.</p>
-          <p style={{fontFamily: "FallingSky"}}>Shout out to pinima and Zaffy who kept this dream alive in previous years.</p>
-          <p style={{fontFamily: "Roboto"}}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
+          <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
+          <p style={{ fontFamily: "FallingSky" }}>Shout out to pinima and Zaffy who kept this dream alive in previous years.</p>
+          <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
           Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
           <br />
           <br />
@@ -1213,7 +1312,7 @@ function CustomCreator() {
           <img src={banner} alt={"Digi Viz Card Creator"} style={{ width: "792px", height: "224px", transform: "rotate(10deg)" }} />
         </td></tr>
       <tr>
-        <td><br /><br /><br /></td>
+        <td><br />Try pasting your custom card into the freeform field! A random one is there already to test...<br /><br /></td>
       </tr>
       <tr>
         <td
@@ -1258,7 +1357,7 @@ function CustomCreator() {
             </div>
           ) : (<form>
             <textarea defaultValue={freeform} name="free" cols={40} rows={10} /><br />
-            <input type="button" value={"go"} onClick={handleFreeformChange} />
+            <input type="button" value={"Parse Freeform card!"} onClick={handleFreeformChange} />
           </form>)}
         </td>
         <td valign={"top"}>

@@ -1,0 +1,15 @@
+
+red
+
+blue
+#4B90CC
+
+yellow
+
+green
+459A70
+
+purple
+58569D
+
+convert basic-red.png -crop 560x520+60+640 evo-red.png

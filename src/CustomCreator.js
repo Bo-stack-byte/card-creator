@@ -112,7 +112,8 @@ const starter_text_empty = `{
     "form": "In-Training",
     "attribute": "",
     "type": "",
-    "rarity": "C"
+    "rarity": "C",
+    "rule": "",
   }`;
 
 const starter_text_0 = `  {
@@ -707,13 +708,14 @@ Cost: 3
 
       bottom += 800;
       let rule = json.rule;
-      if (rule) {
+      if (rule && rule.length > 1) {
         // move to text.js?
         ctx.textAlign = 'right';
         ctx.textBaseline = 'bottom';
         ctx.fillStyle = 'white';
         ctx.font = `italic ${(fontSize - 10)}px Asimov`;
-        let text = "Trait: Treated as [Insectiod] Type.";
+        let text = rule;
+        if (text.startsWith("[Rule]")) text = text.substring(6).trim();
         let width = ctx.measureText(text).width;
         let x = 2700;
         ctx.fillRect(x - width, bottom - fontSize / 8, width + fontSize / 4, - fontSize *  0.7);
@@ -1292,7 +1294,7 @@ Cost: 3
           <br />
 
           <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
-          <p style={{ fontFamily: "FallingSky" }}>Shout out to pinima and Zaffy who kept this dream alive in previous years.</p>
+          <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba and Zaffy who kept this dream alive in previous years.</p>
           <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
           Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
           <br />

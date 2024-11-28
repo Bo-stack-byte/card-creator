@@ -315,10 +315,11 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style) {
           if (scale > 1) scale = 1;
           let h = Number(fontSize);
           drawDiamondRectangle(ctx, lastX, y, scale * wordWidth + 10, h + 10);
+          scale = 1;
           ctx.save();
-          ctx.scale(scale, 1);
+           ctx.scale(scale, 1);
           ctx.fillStyle = 'white'; // white on colored background
-          ctx.fillText(cleanWord, lastX / scale + 5, y - 10);
+          ctx.fillText(cleanWord, lastX / scale + 5, y - 10, cardWidth - lastX);
           lastX += scale * wordWidth + 15;
           ctx.restore();
           ctx.font = ` ${fontSize}px ${font}`;

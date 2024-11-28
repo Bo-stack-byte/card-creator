@@ -41,7 +41,14 @@ export const enterPlainText = (lines) => {
         "form": "",
         "attribute": "",
         "type": "",
-        "rule": ""
+        "rule": "",
+        "securityEffect": "-",
+        "specialEvolve": "-",
+        "digiXros": "",
+        "dnaEvolve": "-",
+        "burstEvolve": "-",
+        "rarity": ""
+      
     }
 
     let m;
@@ -84,7 +91,7 @@ export const enterPlainText = (lines) => {
             // [Champion | Data | Shield] [Yel.]
             json.form = m[1].trim();
             json.attribute = m[2].trim();
-            json.type = m[3].trim().split("/");
+            json.type = m[3].trim();
             json.color = abbr_parse_color(m[4]);
             //  Purple/Red | Lv.6
         } else if ((m = line.match(/^\s*(.*)\s+\|\s+Lv.(\d+)/i))) {

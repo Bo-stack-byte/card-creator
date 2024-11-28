@@ -246,9 +246,9 @@ function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top =
   if (crop_top < 0) bottom = crop_top;
   ctx.drawImage(img,
     i * ww, top, // crop x,y
-    ww, img.height + bottom, // crop w,h
+    ww * 1.2, img.height + bottom, // crop w,h
     start_x + i * fw, start_y, // place x,y
-    x / len, y // place w,h
+    x / len * 1.2, y // place w,h
   );
 
 }
@@ -765,7 +765,7 @@ Cost: 3
             // left/top/right of outline, sometimes bottom
             if (frame) {
               let l = (type === "OPTION") ? 1 : len; // just 1 option "outline"
-              let fudge = (type === "OPTION") ? 0 : 0.04;
+              let fudge = (type === "OPTION" || !i) ? 0 : 0.04;
               // 1.05 is fudge factor because our frames aren't all left-justified the same
               // this makes them  the same, but they might be the same wrong
               scalePartialImage(ctx, frame, i + (fudge), l, 3950, offset_x, offset_y);

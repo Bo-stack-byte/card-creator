@@ -998,7 +998,7 @@ Cost: 3
 
       let delta_y = 0;
       switch (type) {
-        case "OPTION": ;
+        case "OPTION": 
         case "TAMER":
         case "TAMERINHERIT": delta_y -= 130; break;
         case "EGG": delta_y -= 100; break;

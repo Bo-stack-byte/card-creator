@@ -21,18 +21,34 @@ module.exports = (app) => {
         return key;
     }
     app.post('/api/save', async (req, res) => {
+        let session;
         try {
-            const db = await connectDB();
+            const { client, db } = await connectDB();
             const collection = db.collection('artworks');
+            let session = client.startSession();
+            session.startTransaction();
+
             const document = { ...req.body };
             if (!document.referenceId) document.referenceId = generateKey(6);
             let key = document.referenceId;
-            const result = await collection.insertOne(document);
+
+            const existingDocs = await collection.find({ referenceId: key }).sort({ revision: -1 }).limit(1).toArray();
+            let newRevision = existingDocs.length > 0 ? existingDocs[0].revision + 1 : 1;
+
+            document.revision = newRevision;
+            const result = await collection.insertOne(document, { session });
             const referenceId = result.insertedId;
-            //    console.error(166, referenceId, document.referenceId);
-            res.status(201).send({ referenceId: key }); // why can't I put document.referenceId in here?
+
+            await session.commitTransaction();
+            session.endSession();
+
+            res.status(201).send({ referenceId: key, versionId: newRevision });
         } catch (err) {
-            console.error(168, err);
+            if (session) {
+                await session.abortTransaction();
+                session.endSession();
+            }
+            console.error('Error:', err);
             res.status(500).send({ error: 'Failed to save data' });
         }
     });
@@ -40,19 +56,25 @@ module.exports = (app) => {
     app.get('/api/data/:id', async (req, res) => {
         // console.error(176, req.params);
         try {
-            let ref = req.params.id;
-            const db = await connectDB();
+            const args = req.params.id;
+            const [ref, s_vid] = args.split(",");
+            const { _, db } = await connectDB();
             const collection = db.collection('artworks');
-            const data = await collection.findOne({ referenceId: ref });
-            //    const data = await collection.findOne({ _id: objectId });
-            //  console.error(180, data);
+            const n_vid = Number(s_vid);
+            let data;
+            if (n_vid && n_vid > 0) {
+                data = await collection.findOne({ referenceId: ref, revision: n_vid });
+            } else {
+                data = await collection.findOne({ referenceId: ref });
+            }
+
             if (data) {
                 res.status(200).send(data);
             } else {
                 res.status(404).send({ error: 'Data not found' });
             }
         } catch (err) {
-            console.error(err);
+            console.error(79, err, req);
             res.status(500).send({ error: 'Failed to retrieve data' });
         }
     });
@@ -60,7 +82,7 @@ module.exports = (app) => {
 
     //const puppeteer = require('puppeteer');
     //const fs = require('fs');
-
+    if (false) 
     app.use('/generate-image', async (req, res) => {
         try {
             const { share } = req.query;

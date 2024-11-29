@@ -6,10 +6,10 @@ let all_colors = ["Red", "Blue", "Yellow", "Green", "Black", "Purpler", "White",
 
 function split_colors(input) {
     if (input.includes("/")) {
-        return input.split("/").map( c => c.trim());
+        return input.split("/").map(c => c.trim());
     }
     if (input.includes(" or ")) {
-        return input.split(" or ").map( c => c.trim());
+        return input.split(" or ").map(c => c.trim());
     }
     return input;
 }
@@ -29,14 +29,14 @@ function abbr_parse_color(text) {
 export const enterPlainText = (lines) => {
     let json = {
         "cardType": "Monster",
+        "name": { "english": "" },
+        "color": "",
         "cardLv": "",
         "cardNumber": "",
-        "color": "",
         "evolveCondition": [],
         "evolveEffect": "",
         "dp": "-",
         "effect": "",
-        "name": { "english": "" },
         "playCost": "-",
         "form": "",
         "attribute": "",
@@ -48,7 +48,7 @@ export const enterPlainText = (lines) => {
         "dnaEvolve": "-",
         "burstEvolve": "-",
         "rarity": ""
-      
+
     }
 
     let m;
@@ -60,7 +60,7 @@ export const enterPlainText = (lines) => {
         console.log(41, line);
         //                            1              2   3          4    5
         if ((m = line.match(/^\s*[Lʟ][ᴠv].(\d+)(.*)/i))) {
-            console.log(55,m);
+            console.log(55, m);
             json.cardLv = "Lv." + parseInt(m[1]);
 
             let fields = line.split(/ [-—] /i);
@@ -74,18 +74,17 @@ export const enterPlainText = (lines) => {
             //          json.cardType = "Monster"; // assumed
             //        json.cardNumber = m[4] + "-" + m[5];
             //      json.cardLv = "Lv." + parseInt(m[1]);
-        } else if (( m = line.match(/(.*)\[(option|ᴏᴘᴛɪᴏɴ|tamer|ᴛᴀᴍᴇʀ)\]/))) {
+        } else if ((m = line.match(/(.*?)\s*[-—]*\s*\[(option|ᴏᴘᴛɪᴏɴ|tamer|ᴛᴀᴍᴇʀ)\]/i))) {
             if (m[2].match(/option|ᴏᴘᴛɪᴏɴ/i)) {
                 json.cardType = "Option";
-            }
-            if (m[2].match(/tamer|ᴛᴀᴍᴇʀ/i)) {
+            } else {
                 json.cardType = "Tamer";
             }
             if (m[1].trim().length > 2) {
                 json.name.english = m[1].trim();
             }
         } else if ((m = line.match(/^\s*(\[Rule.*:.*)/))) {
-        // [Rule] Trait: Has the [Insectoid] type.
+            // [Rule] Trait: Has the [Insectoid] type.
             json.rule = m[1];
         } else if ((m = line.match(/^\s*\[(.*?)\|(.*?)\|(.*?)\]( \[(.*)\])?/))) {
             // [Champion | Data | Shield] [Yel.]
@@ -119,34 +118,28 @@ export const enterPlainText = (lines) => {
         } else if ((m = line.match(/(.*)\|(.*)\|(.*)/))) {
             json.form = m[1].trim();
             json.attribute = m[2].trim();
-            json.type = m[3].trim().split("/");
-    //            Digivolve: 1 from lvl 2 yellow/purple
-    //  Digivolution cost: 5 from purple or red Lv.5
+            json.type = m[3].trim();
+            //            Digivolve: 1 from lvl 2 yellow/purple
+            //  Digivolution cost: 5 from purple or red Lv.5
         } else if ((m = line.match(/Digivol(\w*)\s*(cost)?\s*:\s*(\d+) from (.*)/i))) {
             let evo = {}
             evo.cost = parseInt(m[3]);
             let from = m[4];
             let n;
             if ((n = from.match(/(.*)(Level|lvl|Lv\.)\s*(\d+)(.*)/i))) {
-                evo.level = parseInt(n[3]);                
+                evo.level = parseInt(n[3]);
                 from = n[1] + n[4];
             }
-            console.log(109, "XXX");
             let colors = split_colors(from);
-            console.log(110, colors);
             for (let c of colors) {
                 evo.color = c;
                 json.evolveCondition.push(evo);
-                evo = {...evo}; // make copy
+                evo = { ...evo }; // make copy
 
             }
-        } else if ((m = line.match(/inherited effect\s*:\s*(.*)/i))) {
+        } else if ((m = line.match(/inherited effect\s*:\s*(\w+.*)/i))) {
             console.log(124, m);
             json.evolveEffect += m[1] + "\n";
-        } else if ((m = line.match(/inherited effect\s*:\s*(.*)/i))) {
-            console.log(124, m);
-            json.evolveEffect += m[1] + "\n";
-
         } else if ((m = line.match(/Inherited Effect/))) {
             mode = "inherited";
             // translator format

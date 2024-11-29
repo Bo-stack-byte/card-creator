@@ -30,9 +30,10 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.5.9";
-const latest = "save cards server-side";
+const version = "0.5.10";
+const latest = "save cards with versions, color wheels on ESS effects-side";
 
+// version 0.5.10 save cards with versions, color wheels on ESS effects-side
 // version 0.5.9  save cards server-side
 // version 0.5.8  black/white bar at bottom of name block if any trait
 // version 0.5.7  bubble text italicized and rounded and compressed to fit (but also for keywords); rule text now working
@@ -278,20 +279,26 @@ function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top =
 function CustomCreator() {
   useEffect(() => {
     console.error("FIRST TIME");
+    const params = new URLSearchParams(window.location.search);
     let ref = params.get("ref");
+    let vid = params.get("v");
     console.error(285, ref);
-     if (ref) restoreState(ref);
+     if (ref) restoreState(ref, vid);
   
     // first time init
   }, []);
 
-  let restoreState = async (ref) => {
+  let restoreState = async (ref, id) => {
     console.error(302, ref);
     try {
-      const response = await fetch(`/api/data/${ref}`);
+      const response = await fetch(`/api/data/${ref},${id}`);
       const result = await response.json();
       const cardState = result.cardState;
       console.error(288, cardState);
+      if (!cardState) {
+        console.error(cardState, ref, id);
+        return;
+      }
       if (cardState.fontSize) setFontSize(cardState.fontSize);
       if (cardState.jsonText) setJsonText(cardState.jsonText);
     } catch (err) {
@@ -374,7 +381,7 @@ Cost: 3
   const custom_starter = customs[Math.floor(Math.random() * customs.length)];
   const [showJson, setShowJson] = useState(2);
   const [formData, setFormData] = useState({}); // redundant
-  const [shareURL, setShareURL] = useState("");
+ // const [shareURL, setShareURL] = useState("");
   const [freeform, setFreeForm] = useState(custom_starter);
 
   const toggleView = () => {
@@ -557,6 +564,8 @@ Cost: 3
     setDoDraw(true);
   }
 
+/*  
+  // obsolete to create share links
   const getShare = () => {
     console.log("jsonText", jsonText);
     const compressed = pako.deflate(jsonText);
@@ -568,7 +577,7 @@ Cost: 3
     let url = baseUrl + "?share=" + encoded;
     setShareURL(url);
     navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
-  }
+  }*/
 
   const draw2 = (x, y) => draw(x, y, true);
 
@@ -1171,7 +1180,9 @@ Cost: 3
 
       const evo_effect = json.evolveEffect;
       console.log("a", evo_effect);
-      const sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
+      let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
+      sec_effect = colorReplace(sec_effect);
+
       //ctx.fillStyle = 'red';
       let delta_x = delta_y;
       if (type === "ACE") {
@@ -1420,9 +1431,7 @@ Cost: 3
           <button onClick={handleExport}>Save Image Locally</button>
           <hr />
           <SaveState jsonText={jsonText} fontSize={fontSize} />
-          <button onClick={getShare}>Share!</button>
           <br />
-          <a class={{ fontSize: "8px;" }} href={shareURL}>{shareURL}</a>
           <hr />
           <span>
             <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { console.log(1268, e.target.value); setFontSize(e.target.value) }} />Font Size </label>

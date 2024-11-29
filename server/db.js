@@ -12,14 +12,16 @@ let db;
 
 
 async function connectDB() {
-    if (db) return db;
+    console.error(15, username);
+    console.error(16, app_name);
+    if (db) return { client, db };
     await client.connect();
 
    // await client.db("admin").command({ ping: 1 });
    // console.error(14, "Pinged your deployment. You successfully connected to MongoDB!");
     
     db = client.db('saved-cards');
-    return db;
+    return { client, db };
 }
 
 module.exports = connectDB;

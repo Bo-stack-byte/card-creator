@@ -506,6 +506,7 @@ export const evos = {
 
 
 export function colorReplace(str, strict) {
+  if (!str) return "";
   if (strict) {
     str = str.replaceAll(/\(Red\)/ig, "🔴");
     str = str.replaceAll(/\(Blue\)/ig, "🔵");

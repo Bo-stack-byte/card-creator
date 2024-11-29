@@ -278,6 +278,10 @@ function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top =
 function CustomCreator() {
   useEffect(() => {
     console.error("FIRST TIME");
+    let ref = params.get("ref");
+    console.error(285, ref);
+     if (ref) restoreState(ref);
+  
     // first time init
   }, []);
 
@@ -300,9 +304,7 @@ function CustomCreator() {
   let share = params.get("share");
   let start = share ? decodeAndDecompress(share) : "";
   start ||= starter_text;
-  let ref = params.get("ref");
-  console.error(285, ref);
-  const canvasRef = useRef(null);
+ const canvasRef = useRef(null);
   const [userImg, setUserImg] = useState(null);
   const [doDraw, setDoDraw] = useState(true);
   const [jsonText, setJsonText] = useState(start);
@@ -312,8 +314,7 @@ function CustomCreator() {
     url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95
   }
   );
-  if (ref) restoreState(ref);
-
+ 
   
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);

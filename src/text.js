@@ -360,7 +360,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, preview = false) {
       }
       const italics = (style === "bubble") ? "italic" : "";
 
-      ctx.font = `${italics} ${(fontSize - 15)}px FallingSky`;
+      ctx.font = ` ${(fontSize - 15)}px FallingSky`;
       const phraseWidth = ctx.measureText(cleanPhrase).width;
       if (!preview) drawColoredRectangle(ctx, lastX, y + 3, phraseWidth + 10, fontSize, color);
       ctx.fillStyle = 'white';

@@ -19,14 +19,24 @@ import _cost_color_black from './frames/cost_color_black.png';
 import _cost_color_white from './frames/cost_color_white.png';
 
 
-
-import _bottom_evo_red from './frames/bottom_evo_red.png';
+// we use the tamer inherited for both tamer and monster, even though
+// it's bigger, and it just overflows the bottom of the image
+/*import _bottom_evo_red from './frames/bottom_evo_red.png';
 import _bottom_evo_blue from './frames/bottom_evo_blue.png';
 import _bottom_evo_yellow from './frames/bottom_evo_yellow.png';
 import _bottom_evo_green from './frames/bottom_evo_green.png';
 import _bottom_evo_purple from './frames/bottom_evo_purple.png';
 import _bottom_evo_black from './frames/bottom_evo_black.png';
-import _bottom_evo_white from './frames/bottom_evo_white.png';
+import _bottom_evo_white from './frames/bottom_evo_white.png';*/
+
+import _bottom_evo_red from './frames/inherits/bottom_red_evo_tamer.png';
+import _bottom_evo_blue from './frames/inherits/bottom_blue_evo_tamer.png';
+import _bottom_evo_yellow from './frames/inherits/bottom_yellow_evo_tamer.png';
+import _bottom_evo_green from './frames/inherits/bottom_green_evo_tamer.png';
+import _bottom_evo_purple from './frames/inherits/bottom_purple_evo_tamer.png';
+import _bottom_evo_black from './frames/inherits/bottom_black_evo_tamer.png';
+import _bottom_evo_white from './frames/inherits/bottom_white_evo_tamer.png';
+
 
 import _bottom_red from './frames/bottom_red.png';
 import _bottom_blue from './frames/bottom_blue.png';
@@ -173,30 +183,30 @@ import evo_white from './frames/evo-white_out.png';
 import _cost_evo from './frames/evos/evolution.png';
 
 // circle
-import new_evo_red from    './frames/evos/evo_red.png';
-import new_evo_blue from   './frames/evos/evo_blue.png';
+import new_evo_red from './frames/evos/evo_red.png';
+import new_evo_blue from './frames/evos/evo_blue.png';
 import new_evo_yellow from './frames/evos/evo_yellow.png';
-import new_evo_green from  './frames/evos/evo_green.png';
+import new_evo_green from './frames/evos/evo_green.png';
 import new_evo_purple from './frames/evos/evo_purple.png';
-import new_evo_black from  './frames/evos/evo_black.png';
-import new_evo_white from  './frames/evos/evo_white.png';
+import new_evo_black from './frames/evos/evo_black.png';
+import new_evo_white from './frames/evos/evo_white.png';
 
-import new_evo2_red from    './frames/evos/evo2_red.png';
-import new_evo2_blue from   './frames/evos/evo2_blue.png';
+import new_evo2_red from './frames/evos/evo2_red.png';
+import new_evo2_blue from './frames/evos/evo2_blue.png';
 import new_evo2_yellow from './frames/evos/evo2_yellow.png';
-import new_evo2_green from  './frames/evos/evo2_green.png';
+import new_evo2_green from './frames/evos/evo2_green.png';
 import new_evo2_purple from './frames/evos/evo2_purple.png';
-import new_evo2_black from  './frames/evos/evo2_black.png';
-import new_evo2_white from  './frames/evos/evo2_white.png';
+import new_evo2_black from './frames/evos/evo2_black.png';
+import new_evo2_white from './frames/evos/evo2_white.png';
 
 
-import wedge_evo_red from    './frames/evos/cost_evo_red.png';
-import wedge_evo_blue from   './frames/evos/cost_evo_blue.png';
+import wedge_evo_red from './frames/evos/cost_evo_red.png';
+import wedge_evo_blue from './frames/evos/cost_evo_blue.png';
 import wedge_evo_yellow from './frames/evos/cost_evo_yellow.png';
-import wedge_evo_green from  './frames/evos/cost_evo_green.png';
+import wedge_evo_green from './frames/evos/cost_evo_green.png';
 import wedge_evo_purple from './frames/evos/cost_evo_purple.png';
-import wedge_evo_black from  './frames/evos/cost_evo_black.png';
-import wedge_evo_white from  './frames/evos/cost_evo_white.png';
+import wedge_evo_black from './frames/evos/cost_evo_black.png';
+import wedge_evo_white from './frames/evos/cost_evo_white.png';
 
 
 export const new_evo_circles = {
@@ -251,7 +261,7 @@ let cost_purple = new Image(); cost_purple.src = _cost_color_purple;
 let cost_black = new Image(); cost_black.src = _cost_color_black;
 let cost_white = new Image(); cost_white.src = _cost_color_white;
 
-export const costs = { 
+export const costs = {
   'red': cost_red,
   'blue': cost_blue,
   'yellow': cost_yellow,
@@ -268,11 +278,12 @@ let bottom_property_black = new Image(); bottom_property_black.src = _bottom_pro
 
 
 // these backgrounds are used all the time and should be pre-loaded
-export { mon_background, mega_background, egg_background, option_background, tamer_background,
-    cost, cost_egg, cost_option, cost_evo,
-    outline_option, ace_logo,
-    bottom_property_white, bottom_property_black,
-  };
+export {
+  mon_background, mega_background, egg_background, option_background, tamer_background,
+  cost, cost_egg, cost_option, cost_evo,
+  outline_option, ace_logo,
+  bottom_property_white, bottom_property_black,
+};
 
 export const basics = {
   'red': basic_red,
@@ -494,15 +505,26 @@ export const evos = {
 }
 
 
-export function colorReplace(str) {
-  str = str.replaceAll(/Red/ig, "🔴");
-  str = str.replaceAll(/Blue/ig, "🔵");
-  str = str.replaceAll(/Yellow/ig, "🟡");
-  str = str.replaceAll(/Green/ig, "🟢");
-  str = str.replaceAll(/Purple/ig, "🟣");
-  str = str.replaceAll(/Black/ig, "⚫"); // that's black, really
-  str = str.replaceAll(/White/ig, "⚪");
+export function colorReplace(str, strict) {
+  if (strict) {
+    str = str.replaceAll(/\(Red\)/ig, "🔴");
+    str = str.replaceAll(/\(Blue\)/ig, "🔵");
+    str = str.replaceAll(/\(Yellow\)/ig, "🟡");
+    str = str.replaceAll(/\(Green\)/ig, "🟢");
+    str = str.replaceAll(/\(Purple\)/ig, "🟣");
+    str = str.replaceAll(/\(Black\)/ig, "⚫"); // that's black, really
+    str = str.replaceAll(/\(White\)/ig, "⚪");
+
+  } else {
+    str = str.replaceAll(/\bRed\b/ig, "🔴");
+    str = str.replaceAll(/\bBlue\b/ig, "🔵");
+    str = str.replaceAll(/\bYellow\b/ig, "🟡");
+    str = str.replaceAll(/\bGreen\b/ig, "🟢");
+    str = str.replaceAll(/\bPurple\b/ig, "🟣");
+    str = str.replaceAll(/\bBlack\b/ig, "⚫"); // that's black, really
+    str = str.replaceAll(/\bWhite\b/ig, "⚪");
+  }
   return str;
-// ⬤  ⬤ 🔴 🔶 🟡
-  
+  // ⬤  ⬤ 🔴 🔶 🟡
+
 }

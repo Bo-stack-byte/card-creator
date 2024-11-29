@@ -25,13 +25,15 @@ import armor_cat from './armorcat.png';
 //import './styles.css';
 import './local-styles.css';
 
+import SaveState from './SaveState';
 import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.5.8";
-const latest = "black/white bar at bottom of name block if any trait";
+const version = "0.5.9";
+const latest = "save cards server-side";
 
+// version 0.5.9  save cards server-side
 // version 0.5.8  black/white bar at bottom of name block if any trait
 // version 0.5.7  bubble text italicized and rounded and compressed to fit (but also for keywords); rule text now working
 // version 0.5.6  rule text box
@@ -124,7 +126,7 @@ const starter_text_empty = `{
     "attribute": "",
     "type": "",
     "rarity": "C",
-    "rule": "",
+    "rule": ""
   }`;
 
 const starter_text_0 = `  {
@@ -141,7 +143,8 @@ const starter_text_0 = `  {
     "form": "In-Training",
     "attribute": "Data",
     "type": "Sword",
-    "rarity": "C"
+    "rarity": "C",
+    "rule": ""
 }`;
 
 const starter_text_1 = `
@@ -175,7 +178,8 @@ const starter_text_1a = `  {
     "digiXros": "[DigiXros -3] [Axe Raider] x [Pikachu]",
     "dnaEvolve": "-",
     "burstEvolve": "-",
-    "rarity": "Rare"
+    "rarity": "Rare",
+    "rule": ""
   }`;
 //     "block": ["00", "01"], just remove this entirely, no one cares
 
@@ -202,7 +206,9 @@ const starter_text_1b = `  {
     "digiXros": "-",
     "aceEffect": "Overflow \uff1c-5\uff1e (As this card would move from the field or from under a card to another area, lose 4 memory.)",
     "burstEvolve": "-",
-    "rarity": "Secret Rare"
+    "rarity": "Secret Rare",
+    "rule": ""
+
   }
 `
 const starter_text_2 = `  {
@@ -266,16 +272,36 @@ function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top =
 
 
 
+
+
+
 function CustomCreator() {
   useEffect(() => {
     console.error("FIRST TIME");
     // first time init
   }, []);
 
+  let restoreState = async (ref) => {
+    console.error(302, ref);
+    try {
+      const response = await fetch(`/api/data/${ref}`);
+      const result = await response.json();
+      const cardState = result.cardState;
+      console.error(288, cardState);
+      if (cardState.fontSize) setFontSize(cardState.fontSize);
+      if (cardState.jsonText) setJsonText(cardState.jsonText);
+    } catch (err) {
+      console.error('Error restoring:', err);
+    }
+  };
+
+
   const params = new URLSearchParams(window.location.search);
   let share = params.get("share");
   let start = share ? decodeAndDecompress(share) : "";
   start ||= starter_text;
+  let ref = params.get("ref");
+  console.error(285, ref);
   const canvasRef = useRef(null);
   const [userImg, setUserImg] = useState(null);
   const [doDraw, setDoDraw] = useState(true);
@@ -286,7 +312,9 @@ function CustomCreator() {
     url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95
   }
   );
+  if (ref) restoreState(ref);
 
+  
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
   };
@@ -475,6 +503,7 @@ Cost: 3
     reader.readAsDataURL(file);
   };
 
+  /*
   const loadImageFromUrl = () => {
     const img = new Image();
     img.crossOrigin = "Anonymous"; // of CORS
@@ -482,7 +511,7 @@ Cost: 3
     img.onload = () => {
       setUserImg(img);
     };
-  };
+  };*/
 
   const sample = (number) => {
     console.log("UPDATING TO " + number);
@@ -719,7 +748,7 @@ Cost: 3
 
       bottom += 800;
       let rule = json.rule;
-        if (rule && rule.length > 1) {
+      if (rule && rule.length > 1) {
         writeRuleText(ctx, rule, fontSize, bottom);
       }
 
@@ -761,14 +790,20 @@ Cost: 3
 
             if (type !== "MEGA") {
               let img = bottom_evos[col];
-              let scale = 606;
+              // scale = 606 specifically for bottom_evo_${color}.png
+              let scale = 735;
               let height = 3550;
               if (type === "ACE") {
                 img = bottom_aces[col];
+                scale = 606;
               }
               if (type === "OPTION" || type === "TAMER") {
                 img = inherited_security[col];
                 scale = 740;
+                height = 3450;
+              }
+              if (type === "TAMERINHERIT") {
+                // tamer inherit has ESS box but raised height
                 height = 3450;
               }
               scalePartialImage(ctx, img, i, len, scale, 164, height);
@@ -998,7 +1033,7 @@ Cost: 3
 
       let delta_y = 0;
       switch (type) {
-        case "OPTION": 
+        case "OPTION":
         case "TAMER":
         case "TAMERINHERIT": delta_y -= 130; break;
         case "EGG": delta_y -= 100; break;
@@ -1107,11 +1142,12 @@ Cost: 3
         y_line = drawBracketedText(ctx, fontSize, spec_evo, 300, y_line, 3000, fontSize, "bubble");
       }
 
-      const effect = json.effect;
+      let effect = json.effect;
       ctx.fillStyle = 'black';
 
       if (type === "MONSTER") y_line += 180;
       if (effect && effect !== "-") {
+        effect = colorReplace(effect, true);
         y_line = drawBracketedText(ctx, fontSize, effect,
           //wrapText(ctx, effect, // + effect, 
           300, y_line,
@@ -1139,7 +1175,7 @@ Cost: 3
       let delta_x = delta_y;
       if (type === "ACE") {
         delta_x -= 60; delta_y += 100;
-      } else if (type === "TAMER" || type === "OPTION") {
+      } else if (type === "TAMER" || type === "TAMERINHERIT" || type === "OPTION") {
         delta_x = 0; delta_y = -50;
       } else {
         delta_x = 0; delta_y = 0;
@@ -1354,7 +1390,7 @@ Cost: 3
           Choose image:
           <input type="file" onChange={loadUserImage} />
           <br />
-          --- OR ---
+          {/*          --- OR ---
           <br />
           <input
             type="text"
@@ -1366,6 +1402,7 @@ Cost: 3
           />
           <br />
           <button onClick={loadImageFromUrl}>Load Image from that URL</button>
+          */}
           <br />
           Offset (in percent):
           X: <input type="number" style={{ width: "50px" }} name="x_pos" value={imageOptions.x_pos} onChange={updateImg} />
@@ -1381,6 +1418,7 @@ Cost: 3
 
           <button onClick={handleExport}>Save Image Locally</button>
           <hr />
+          <SaveState jsonText={jsonText} fontSize={fontSize} />
           <button onClick={getShare}>Share!</button>
           <br />
           <a class={{ fontSize: "8px;" }} href={shareURL}>{shareURL}</a>

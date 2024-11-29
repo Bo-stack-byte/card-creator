@@ -12,6 +12,8 @@ let db;
 
 
 async function connectDB() {
+    console.error(15, username);
+    console.error(16, app_name);
     if (db) return db;
     await client.connect();
 

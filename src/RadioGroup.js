@@ -85,7 +85,7 @@ const RadioGroup = ({ selectedOption, handleOptionChange }) => {
                 />
                 TAMERINHERIT
             </label> </span>
-
+            <p />
 
         </div>
     );

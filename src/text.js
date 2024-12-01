@@ -354,9 +354,9 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, preview = false) {
       // Calculate the width of the bracketed text
       let color = getColor(cleanPhrase);
       // console.log(292, cleanPhrase);
-      if (cleanPhrase === "(Security)") {
+      if (cleanPhrase.startsWith("(") && cleanPhrase.endsWith(")")) {
         color = "purple";
-        cleanPhrase = "Security";
+        cleanPhrase = cleanPhrase.slice(1, -1);
       }
       const italics = (style === "bubble") ? "italic" : "";
 

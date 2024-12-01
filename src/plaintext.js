@@ -28,33 +28,35 @@ function abbr_parse_color(text) {
 
 export const enterPlainText = (lines) => {
     let json = {
-        "cardType": "Monster",
         "name": { "english": "" },
         "color": "",
-        "cardLv": "",
-        "cardNumber": "",
-        "evolveCondition": [],
-        "evolveEffect": "",
-        "dp": "-",
-        "effect": "",
+        "cardType": "Monster",
         "playCost": "-",
+        "dp": "-",
+        "cardLv": "",
         "form": "",
         "attribute": "",
         "type": "",
-        "rule": "",
-        "securityEffect": "-",
+        "rarity": "",
+
         "specialEvolve": "-",
+        "evolveCondition": [],
+        "effect": "",
+        "evolveEffect": "",
+        "securityEffect": "-",
+
+        "rule": "",
         "digiXros": "",
         "dnaEvolve": "-",
         "burstEvolve": "-",
-        "rarity": ""
-
+        "cardNumber": "",
     }
 
     let m;
     let mode = "main";
     for (let line of lines) {
         if (line.length < 2) continue;
+        if (line.startsWith("#")) continue;
         // [ʟᴠ] [ᴛᴀᴍᴇʀ] [ᴏᴘᴛɪᴏɴ]
         //      ʟᴠ.4 — Armored Cat — CS1-18
         console.log(41, line);

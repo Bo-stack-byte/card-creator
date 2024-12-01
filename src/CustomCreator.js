@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { eggs, basics, classics, options, tamers, evos, colorReplace } from './images';
+import { eggs, basics, options, tamers, evos, colorReplace } from './images';
 import {
   mon_background, mega_background, egg_background, option_background, tamer_background,
   outlines, outlines_egg, outlines_tamer, outline_option,
@@ -30,9 +30,10 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.5.10";
-const latest = "save cards with versions, color wheels on ESS effects-side";
+const version = "0.6.0";
+const latest = "undo; new format; disable classic mode; freeform auto parsed"
 
+// version 0.6.0  undo; new format; disable classic mode; freeform auto parsed
 // version 0.5.10 save cards with versions, color wheels on ESS effects-side
 // version 0.5.9  save cards server-side
 // version 0.5.8  black/white bar at bottom of name block if any trait
@@ -113,39 +114,39 @@ function whiteColor(color) {
 }
 
 const starter_text_empty = `{
-  "cardType": "Egg",
+    "name": {  "english": "Tama"  },
+    "color": "Red",
+    "cardType": "Egg",
+    "playCost": "-",
     "cardLv": "Lv.2",
     "cardNumber": "",
-    "color": "Red",
-    "evolveCondition": [],
-    "evolveEffect": "-", 
     "dp": "-",
     "effect": "-",
-    "name": {  "english": "Tama"  },
-    "playCost": "-",
     "form": "In-Training",
     "attribute": "",
     "type": "",
     "rarity": "C",
-    "rule": ""
+    "evolveEffect": "-", 
+    "rule": "",
+    "cardNumber": "X-01"
   }`;
 
 const starter_text_0 = `  {
-   "cardType": "Egg",
+    "name": {  "english": "Doggie Dagger"  },
+    "color": "Green",
+    "cardType": "Egg",
     "cardLv": "Lv.2",
     "cardNumber": "CS2-01",
-    "color": "Green",
-    "evolveCondition": [],
-    "evolveEffect": "[Your Turn] While you have a red Monster or Tamer in play, all your Monsters gain +1000 DP.",
     "dp": "-",
     "effect": "-",
-    "name": {  "english": "Doggie Dagger"  },
     "playCost": "-",
     "form": "In-Training",
     "attribute": "Data",
     "type": "Sword",
     "rarity": "C",
-    "rule": ""
+    "evolveCondition": [],
+    "evolveEffect": "[Your Turn] While you have a red Monster or Tamer in play, all your Monsters gain +1000 DP.",
+    "cardNumber": "CS-01"
 }`;
 
 const starter_text_1 = `
@@ -159,83 +160,81 @@ Play cost: 6 | Evolution: 3 from Lv.3 [Yel.]
 `
 
 const starter_text_1a = `  {
-    "cardType": "Monster",
     "name": {  "english": "Shield Smasher"  },
-    "cardLv": "Lv.6",
-    "cardNumber": "CS2-11",
     "color": "Blue/Red",
+    "cardType": "Monster",
     "playCost": "12",
+    "dp": "9000",
+    "cardLv": "Lv.6",
+    "form": "Ultimate",
+    "attribute": "Data",
+    "type": "Sword",
     "evolveCondition": 
       [{ "color": "Blue", "cost": "4", "level": "5" },
        { "color": "Red", "cost": "4", "level": "5" } ],
-    "dp": "9000",
     "effect": "＜Vortex＞ \uff1cSecurity Attack +1\uff1e [Your Turn] When this monster attacks a Monster with [Shield] in its name, this Monster gets +5000 DP until the end of your opponent's turn.\\n[(Security)] [All Turns] Your Monsters get +1000 DP.",
     "evolveEffect": "-",
     "securityEffect": "-",
     "specialEvolve": "-",
-    "attribute": "Data",
-    "form": "Ultimate",
-    "type": "Sword",
     "digiXros": "[DigiXros -3] [Axe Raider] x [Pikachu]",
     "dnaEvolve": "-",
     "burstEvolve": "-",
     "rarity": "Rare",
-    "rule": ""
+    "rule": "[Rule] Trait: Has the [Virus] attribute",
+    "cardNumber": "CS2-11",
+
   }`;
 //     "block": ["00", "01"], just remove this entirely, no one cares
 
 const starter_text_1b = `  {
-    "cardType": "Monster",
     "name": {  "english": "Rampager"  },
-    "cardLv": "Lv.7",
-    "cardNumber": "CS2-18",
     "color": "Yellow/Blue",
+    "cardType": "Monster",
     "playCost": "14",
+    "dp": "14000",
+    "cardLv": "Lv.7",
+    "securityEffect": "-",
+    "form": "Ultimate",
+    "attribute": "Virus",
+    "type": "Sword/Shield",
     "evolveCondition": 
       [{ "color": "Yellow", "cost": "5", "level": "6" },
        { "color": "Blue", "cost": "5", "level": "6" },
        { "color": "Green", "cost": "5", "level": "6" } ],
     "specialEvolve": "-",
-    "dp": "14000",
-    "dnaEvolve": "[DNA Digivolve] Yellow Lv.6 + Blue Lv.6\u00a0: Cost 0",
-    "evolveEffect": "-",
     "effect": "\uff1cBlast DNA Digivolve (Colossal Sword + Onyx Shield)\uff1e\\n＜Resurrect＞ ＜Piercing＞ \\n [When Thinking] Delete all of your opponent's Monsters with the biggest level. Then delete all of your opponent's Monsters with the smallest DP.",
-    "securityEffect": "-",
-    "attribute": "Virus",
-    "form": "Ultimate",
-    "type": "Sword/Shield",
+    "evolveEffect": "-",
+    "dnaEvolve": "[DNA Digivolve] Yellow Lv.6 + Blue Lv.6\u00a0: Cost 0",
     "digiXros": "-",
     "aceEffect": "Overflow \uff1c-5\uff1e (As this card would move from the field or from under a card to another area, lose 4 memory.)",
     "burstEvolve": "-",
     "rarity": "Secret Rare",
-    "rule": ""
-
+    "rule": "",
+    "cardNumber": "CS2-18",
   }
 `
 const starter_text_2 = `  {
-  "cardType": "Option",
   "name": {      "english": "Double Bind"    },
-  "cardNumber": "CS1-13",
   "color": "Yellow/Green",
-  "evolveEffect": "-",
+  "cardType": "Option",
   "playCost": "7",
   "attribute": "Rock",
   "effect": "[Main] Suspend 2 of your opponent's Monsters. Then, return 1 of your opponent's suspended Monster to its owner's hand.",
   "securityEffect": "[Security] Activate this card's [Main] effect.",
-
-  "rarity": "Rare"
+  "rarity": "Rare",
+  "cardNumber": "CS1-13"
   }`;
 
 const starter_text_3 = `   {
-    "cardType": "Tamer",
-    "cardNumber": "CS2-17",
-    "color": "Blue/Red",
-    "effect": "[Start of Your Main Phase] If you have a monster, gain 1 memory.\\n[Main] By suspending this Tamer, until the end of your opponent's turn, 1 of your opponent's Monsters gains \\"[Start of Your Main Phase] Attack with this Monster\\".",
     "name": {   "english": "Aggressive Amy"   },
+    "color": "Blue/Red",
+    "cardType": "Tamer",
     "playCost": "3",
-    "securityEffect": "[Security] Play this card without paying the cost.",
     "type": "Data",
+    "effect": "[Start of Your Main Phase] If you have a monster, gain 1 memory.\\n[Main] By suspending this Tamer, until the end of your opponent's turn, 1 of your opponent's Monsters gains \\"[Start of Your Main Phase] Attack with this Monster\\".",
+    "securityEffect": "[Security] Play this card without paying the cost.",
     "rarity": "Rare"
+    "cardNumber": "CS2-17"
     }`;
 
 const starter_text = starter_text_empty;
@@ -283,10 +282,10 @@ function CustomCreator() {
     let ref = params.get("ref");
     let vid = params.get("v");
     console.error(285, ref);
-     if (ref) restoreState(ref, vid);
-  
+    if (ref) restoreState(ref, vid);
+
     // first time init
-  }, []);
+  });
 
   let restoreState = async (ref, id) => {
     console.error(302, ref);
@@ -300,7 +299,7 @@ function CustomCreator() {
         return;
       }
       if (cardState.fontSize) setFontSize(cardState.fontSize);
-      if (cardState.jsonText) setJsonText(cardState.jsonText);
+      if (cardState.jsonText) updateJson(cardState.jsonText);
     } catch (err) {
       console.error('Error restoring:', err);
     }
@@ -311,18 +310,19 @@ function CustomCreator() {
   let share = params.get("share");
   let start = share ? decodeAndDecompress(share) : "";
   start ||= starter_text;
- const canvasRef = useRef(null);
+  const canvasRef = useRef(null);
   const [userImg, setUserImg] = useState(null);
   const [doDraw, setDoDraw] = useState(true);
-  const [jsonText, setJsonText] = useState(start);
+  const [jsonText, setJsonText] = useState([start]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [fontSize, setFontSize] = useState(90);
   const [selectedOption, setSelectedOption] = useState('AUTO'); // radio buttons 
   const [imageOptions, setImageOptions] = useState({
     url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95
   }
   );
- 
-  
+
+
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
   };
@@ -378,15 +378,16 @@ Cost: 3
     custom_1,
     custom_2, custom_3, custom_4
   ];
-  const custom_starter = customs[Math.floor(Math.random() * customs.length)];
+  const custom_starter = `# This is a sample custom text.
+# Start typing to watch it update.
+# (Undo and updates to the other forms won't propogate here.)
+
+` + customs[Math.floor(Math.random() * customs.length)];
   const [showJson, setShowJson] = useState(2);
   const [formData, setFormData] = useState({}); // redundant
- // const [shareURL, setShareURL] = useState("");
+  // const [shareURL, setShareURL] = useState("");
   const [freeform, setFreeForm] = useState(custom_starter);
 
-  const toggleView = () => {
-    setShowJson((showJson + 1) % 3);
-  };
 
   const flattenJson = (obj, parentKey = '', result = {}) => {
     for (let key in obj) {
@@ -432,6 +433,15 @@ Cost: 3
 
   let jsonerror = "none";
 
+  const updateJson = (text) => {
+
+    const newHistory = jsonText.slice(0, currentIndex + 1);
+    setJsonText([...newHistory, text]);
+    setCurrentIndex(newHistory.length);
+    //    setJsonText( text);
+  }
+
+
   const handleFreeformChange = (event) => {
     console.log(302, event.target.form.free.value);
     let input = event.target.form.free.value;
@@ -439,7 +449,7 @@ Cost: 3
     console.log(304, input);
     let jsonTxt = enterPlainText(input.split("\n"));
     console.log(307, jsonTxt);
-    setJsonText(jsonTxt);
+    updateJson(jsonTxt);
     jsonToFields(jsonTxt);
 
   }
@@ -447,7 +457,7 @@ Cost: 3
   const handleTextareaChange = (event) => {
     // update the form data
     let jsonTxt = event.target.value;
-    setJsonText(jsonTxt);
+    updateJson(jsonTxt);
     jsonToFields(jsonTxt);
     /*  try {
         parsedJson = JSON.parse(event.target.value);
@@ -471,7 +481,7 @@ Cost: 3
 
     // Update the JSON text based on form data
     try {
-      const updatedJson = JSON.parse(jsonText);
+      const updatedJson = JSON.parse(jsonText[currentIndex]);
       const keys = key.split('.');
       let current = updatedJson;
       keys.forEach((k, index) => {
@@ -481,8 +491,7 @@ Cost: 3
           current = current[k];
         }
       });
-
-      setJsonText(JSON.stringify(updatedJson, null, 2));
+      updateJson(JSON.stringify(updatedJson, null, 2));
     } catch {
       // json error
     }
@@ -490,7 +499,7 @@ Cost: 3
 
   let parsedJson, flattenedJson;
   try {
-    parsedJson = JSON.parse(jsonText);
+    parsedJson = JSON.parse(jsonText[currentIndex]);
     flattenedJson = flattenJson(parsedJson);
     console.log(flattenedJson);
   } catch (e) {
@@ -545,11 +554,11 @@ Cost: 3
       setShowJson(2);
       setFreeForm(text);
       text = enterPlainText(text.split("\n"));
-      setJsonText(text);
+      updateJson(text);
     } else {
       setFreeForm("");
       if (showJson === 2) setShowJson(0);
-      setJsonText(text);
+      updateJson(text);
     }
     console.log("SETTING JSON TEXT", text);
     jsonToFields(text);
@@ -564,20 +573,20 @@ Cost: 3
     setDoDraw(true);
   }
 
-/*  
-  // obsolete to create share links
-  const getShare = () => {
-    console.log("jsonText", jsonText);
-    const compressed = pako.deflate(jsonText);
-    const encoded = Base64.fromUint8Array(compressed, true); // URL-safe
-    console.log("encoded", encoded);
-    const here = new URL(window.location.href);
-    const baseUrl = here.origin + here.pathname;
-
-    let url = baseUrl + "?share=" + encoded;
-    setShareURL(url);
-    navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
-  }*/
+  /*  
+    // obsolete to create share links
+    const getShare = () => {
+      console.log("jsonText", jsonText);
+      const compressed = pako.deflate(jsonText);
+      const encoded = Base64.fromUint8Array(compressed, true); // URL-safe
+      console.log("encoded", encoded);
+      const here = new URL(window.location.href);
+      const baseUrl = here.origin + here.pathname;
+  
+      let url = baseUrl + "?share=" + encoded;
+      setShareURL(url);
+      navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
+    }*/
 
   const draw2 = (x, y) => draw(x, y, true);
 
@@ -616,7 +625,7 @@ Cost: 3
     }
     let json;
     try {
-      json = JSON.parse(jsonText);
+      json = JSON.parse(jsonText[currentIndex]);
     } catch {
       console.log("json error");
       return;
@@ -631,7 +640,6 @@ Cost: 3
     let array = basics;
     let background = mon_background;
     if (modern) array = outlines;
-    if (document.getElementById("classic").checked) array = classics;
     console.log(503, selectedOption);
     let type = selectedOption;
     let overflow = undefined;
@@ -1181,7 +1189,7 @@ Cost: 3
       const evo_effect = json.evolveEffect;
       console.log("a", evo_effect);
       let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
-      sec_effect = colorReplace(sec_effect);
+      sec_effect = colorReplace(sec_effect, true);
 
       //ctx.fillStyle = 'red';
       let delta_x = delta_y;
@@ -1275,7 +1283,7 @@ Cost: 3
     //ightImg.onload = () => {
 
 
-  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize]);
+  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1307,98 +1315,102 @@ Cost: 3
     link.click();
   };
 
-  let json_modes = ["Fields", "JSON", "Freeform"];
-  let button_text = `Showing ${json_modes[showJson]}, click to toggle to ${json_modes[(showJson + 1) % 3]}`;
-  let invite = "https://discord.gg/PRXgdCwp";
+  const handleUndo = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+
+  let invite = "https://discord.gg/pP2eWEBQ";
+  let button = (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+      <button
+        onClick={handleUndo}
+        style={{ backgroundColor: showJson === 1 ? 'lightblue' : 'white', marginRight: 'auto' }}
+      >
+        Undo
+      </button>
+
+      <button
+        onClick={() => setShowJson(1)}
+        style={{ backgroundColor: showJson === 1 ? 'lightblue' : 'white' }}
+      >
+        Raw
+      </button>
+      <button
+        onClick={() => setShowJson(0)}
+        style={{ backgroundColor: showJson === 0 ? 'lightblue' : 'white' }}
+      >
+        Text Fields
+      </button>
+      <button
+        onClick={() => setShowJson(2)}
+        style={{ backgroundColor: showJson === 2 ? 'lightblue' : 'white' }}
+      >
+        Free Form
+      </button>
+
+    </div>
+  );
   return (
     <table>
-      <tr style={{ fontSize: "smaller" }} >
-        <td width={"30%"} style={{ fontSize: "smaller" }}>
-          Ask support or request features over on <a href={invite}>Discord</a>.
-          <br />
-
-          <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
-          <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba and Zaffy who kept this dream alive in previous years.</p>
-          <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
-          Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
-          <br />
-          <br />
-          Version {version} {latest}
-          <br />
-          <br />
-          <button onClick={() => sample(0)}> Sample Egg </button><br />
-          <button onClick={() => sample(5)}> Sample Monster </button><br />
-          <button onClick={() => sample(1)}> Sample Mega </button><br />
-          <button onClick={() => sample(2)}> Sample ACE </button><br />
-          <button onClick={() => sample(3)}> Sample Option </button><br />
-          <button onClick={() => sample(4)}> Sample Tamer </button><br />
-
-        </td>
-        <td colSpan={2}>
-          <img src={banner} alt={"Digi Viz Card Creator"} style={{ width: "792px", height: "224px", transform: "rotate(10deg)" }} />
-        </td></tr>
       <tr>
-        <td><br />Try pasting your custom card into the freeform field! A random one is there already to test...<br /><br /></td>
-      </tr>
-      <tr>
-        <td
-          width={"30%"}
-          valign={"top"}>
-          <RadioGroup selectedOption={selectedOption} handleOptionChange={handleOptionChange} />
-          <button onClick={toggleView}>
-            {button_text}
-          </button>
-          <br />
-          {(showJson === 1) ? (
+        <td width={"25%"} valign={"top"}>
+          <div style={{ overflowY: "scroll", maxHeight: "600px" }}>
+            <RadioGroup selectedOption={selectedOption} handleOptionChange={handleOptionChange} />
+            {button}
+            <br />
+            {(showJson === 1) ? (
 
-            <textarea cols={40} rows={20}
-              value={jsonText}
-              onChange={handleTextareaChange}
+              <textarea cols={40} rows={25}
+                value={jsonText[currentIndex]}
+                onChange={handleTextareaChange}
 
-            //           onChange={(e) => handleTextAreaChange(e.target.value)}
-            />
-          ) : (showJson === 0) ? (
-            <div>
-              <table style={{ maxWidth: "300px" }}>
-                {!flattenedJson ? (<tr><td>Error in JSON, try again <br /> {jsonerror} </td></tr>
-                ) :
-                  Object.entries(flattenedJson).map(([key, value]) =>
-                    <tr>
-                      <td key={key}>
-                        <label>{key}: </label>
-                      </td>
-                      <td>
-                        {key.match(/effect/i) ? (
-                          <textarea
-                            value={formData[key] ?? value}
-                            onChange={(e) => handleInputChange(key, e.target.value)} />) : (
-                          <input
-                            value={formData[key] ?? value}
-                            onChange={(e) => handleInputChange(key, e.target.value)} />)
-                        }
-                      </td>
-                    </tr>
-                  )}
-              </table>
-            </div>
-          ) : (<form>
-            <textarea defaultValue={freeform} name="free" cols={40} rows={10} /><br />
-            <input type="button" value={"Parse Freeform card!"} onClick={handleFreeformChange} />
-          </form>)}
+              //           onChange={(e) => handleTextAreaChange(e.target.value)}
+              />
+            ) : (showJson === 0) ? (
+              <div>
+                <table style={{ maxWidth: "300px" }}>
+                  {!flattenedJson ? (<tr><td>Error in JSON, try again <br /> {jsonerror} </td></tr>
+                  ) :
+                    Object.entries(flattenedJson).map(([key, value]) =>
+                      <tr>
+                        <td key={key}>
+                          <label>{key}: </label>
+                        </td>
+                        <td>
+                          {key.match(/effect/i) ? (
+                            <textarea
+                              value={formData[key] ?? value}
+                              onChange={(e) => handleInputChange(key, e.target.value)} />) : (
+                            <input
+                              value={formData[key] ?? value}
+                              onChange={(e) => handleInputChange(key, e.target.value)} />)
+                          }
+                        </td>
+                      </tr>
+                    )}
+                </table>
+              </div>
+            ) : (<form>
+              <textarea onChange={handleFreeformChange} defaultValue={freeform} name="free" cols={40} rows={25} /><br />
+            </form>)}
+          </div>
         </td>
-        <td valign={"top"}>
+        <td width={"25%"} valign={"top"}>
           <div>
             <canvas id="cardImage" ref={canvasRef}
               style={{
-                width: '296px',  // Visually scale the canvas down for editing
-                height: '416px',
+                width: '355px', // traditional cards are roughly 300 x 416, let's zoom in
+                height: '499px',
                 backgroundColor: '#eef'
               }}>
 
             </canvas>
           </div>
         </td>
-        <td valign={"top"}>
+        <td width={"25%"} valign={"top"}>
           Choose image:
           <input type="file" onChange={loadUserImage} />
           <br />
@@ -1430,21 +1442,56 @@ Cost: 3
 
           <button onClick={handleExport}>Save Image Locally</button>
           <hr />
-          <SaveState jsonText={jsonText} fontSize={fontSize} />
+          <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} />
           <br />
           <hr />
           <span>
             <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { console.log(1268, e.target.value); setFontSize(e.target.value) }} />Font Size </label>
             <br />
-            <label><input name="classic" id="classic" type="checkbox" value="1" /> Try Classic Card Style (barely supported, probably broken, might be easier to load an old version)</label>
-            <br />
-            <label><input name="effectbox" id="effectbox" type="checkbox" value="1" /> Put effect box (this hasn't been used since BT14 but could help with contrast on light backgrounds)</label>
+            <label><input name="effectbox" id="effectbox" type="checkbox" value="1" /> Effect box  </label>
 
             <br />
             <br /> Unimplemented:  burst, rarity <br />
           </span>
         </td>
+        <td width={"25%"} valign={"top"}>
+          <button onClick={() => sample(0)}> Sample Egg </button><br />
+          <button onClick={() => sample(5)}> Sample Monster </button><br />
+          <button onClick={() => sample(1)}> Sample Mega </button><br />
+          <button onClick={() => sample(2)}> Sample ACE </button><br />
+          <button onClick={() => sample(3)}> Sample Option </button><br />
+          <button onClick={() => sample(4)}> Sample Tamer </button><br />
+          <p />
+          <span>For now using these formatting hints while we figure out the best way:</span>
+          <p>
+            To have colors replaced by circles, put the color in parentheses.
+          </p>
+          <p> Put ⟦text⟧ in these crazy brackets to force the text to blue.</p>
+          <p> Put text that would otherwise be blue in parens to make it purple, like ⟦(test)⟧ or [(Five Times Per Turn)].</p>
+          <p> "Force Draw" may be needed in weird circumstances. </p>
+        </td>
       </tr>
+      <tr style={{ fontSize: "smaller" }} >
+        <td width={"30%"} style={{ fontSize: "smaller" }}>
+          Version {version} {latest}
+          <br />
+          Ask support or request features over on <a href={invite}>Discord</a>.
+          <br />
+
+          <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
+          <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba and Zaffy who kept this dream alive in previous years.</p>
+          <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
+          Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
+          <br />
+          <br />
+          <br />
+          <br />
+
+        </td>
+        <td colSpan={3}>
+          <img src={banner} alt={"Digi Viz Card Creator"} style={{ width: "700", height: "224px", transform: "rotate(-1deg)", zIndex: -3 }} />
+        </td></tr>
+
     </table>
 
   );

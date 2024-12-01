@@ -276,6 +276,7 @@ function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top =
 
 
 function CustomCreator() {
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     console.error("FIRST TIME");
     const params = new URLSearchParams(window.location.search);
@@ -285,7 +286,8 @@ function CustomCreator() {
     if (ref) restoreState(ref, vid);
 
     // first time init
-  });
+  }, []);
+/* eslint-enable react-hooks/exhaustive-deps */
 
   let restoreState = async (ref, id) => {
     console.error(302, ref);
@@ -364,7 +366,8 @@ Rookie | Data | Mammal
 
 [Rule] Trait: Also has [Mythical Beast] Type.
 -----
-Inherited Effect: [On Deletion] You may place 1 card from either player's trash face down in the battle area as a [Relic] Option card. (Option/White/Relic/"[Main] <Delay> Lose 1 Memory")
+Inherited Effect: [On Deletion] You may place 1 card from either player's trash face down in the battle area.
+
 `;
   let custom_4 = `Steal!!!! — [Option]
 [Gre.]
@@ -380,7 +383,7 @@ Cost: 3
   ];
   const custom_starter = `# This is a sample custom text.
 # Start typing to watch it update.
-# (Undo and updates to the other forms won't propogate here.)
+# (Undo and updates to the other forms won't propagate here.)
 
 ` + customs[Math.floor(Math.random() * customs.length)];
   const [showJson, setShowJson] = useState(2);

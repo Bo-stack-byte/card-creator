@@ -139,7 +139,13 @@ export const enterPlainText = (lines) => {
                 evo = { ...evo }; // make copy
 
             }
-        } else if ((m = line.match(/inherited effect\s*:\s*(\w+.*)/i))) {
+        } else if ((m = line.match(/security effect\s*:\s*(.*\w+.*)/i))) {
+            console.log(124, m);
+            json.securityEffect += m[1] + "\n";
+        } else if ((m = line.match(/Security Effect/))) {
+            mode = "security";
+            // translator format
+        } else if ((m = line.match(/inherited effect\s*:\s*(.*\w+.*)/i))) {
             console.log(124, m);
             json.evolveEffect += m[1] + "\n";
         } else if ((m = line.match(/Inherited Effect/))) {
@@ -152,6 +158,8 @@ export const enterPlainText = (lines) => {
                 json.name.english = line.trim();
             } else if (mode === "inherited") {
                 json.evolveEffect += line + "\n";
+            } else if (mode === "inherited") {
+                json.securityEffect += line + "\n";
             } else {
                 json.effect += line + "\n";
             }

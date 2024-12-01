@@ -181,8 +181,7 @@ const starter_text_1a = `  {
     "burstEvolve": "-",
     "rarity": "Rare",
     "rule": "[Rule] Trait: Has the [Virus] attribute",
-    "cardNumber": "CS2-11",
-
+    "cardNumber": "CS2-11"
   }`;
 //     "block": ["00", "01"], just remove this entirely, no one cares
 
@@ -210,7 +209,7 @@ const starter_text_1b = `  {
     "burstEvolve": "-",
     "rarity": "Secret Rare",
     "rule": "",
-    "cardNumber": "CS2-18",
+    "cardNumber": "CS2-18"
   }
 `
 const starter_text_2 = `  {
@@ -233,7 +232,7 @@ const starter_text_3 = `   {
     "type": "Data",
     "effect": "[Start of Your Main Phase] If you have a monster, gain 1 memory.\\n[Main] By suspending this Tamer, until the end of your opponent's turn, 1 of your opponent's Monsters gains \\"[Start of Your Main Phase] Attack with this Monster\\".",
     "securityEffect": "[Security] Play this card without paying the cost.",
-    "rarity": "Rare"
+    "rarity": "Rare",
     "cardNumber": "CS2-17"
     }`;
 

@@ -30,7 +30,7 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.1.1";
+const version = "0.6.1.2"; 
 const latest = "rainbow colors; zoom; better baseline; proper font on cost; fix shift on play cost when evo"
 
 // version 0.6.1  rainbow colors; zoom; better baseline; proper font on cost; fix shift on play cost when evo
@@ -810,7 +810,8 @@ Cost: 3
               fudge = 0;
               // 1.05 is fudge factor because our frames aren't all left-justified the same
               // this makes them  the same, but they might be the same wrong
-              scalePartialImage(ctx, frame, i + (fudge), l, 3950, offset_x, offset_y);
+              // y - 1.5 to avoid tiniest stray pixels above egg frame on upper left
+              scalePartialImage(ctx, frame, i + (fudge), l, 3950, offset_x, offset_y - 1.5);
             }
             // very bottom, evo conditions
 
@@ -944,9 +945,8 @@ Cost: 3
             ctx.clip();
             ctx.drawImage(circle, 0, 0, 291, 291, x, y, imgWidth, imgHeight);
             ctx.restore();
+            ctx.drawImage(wedge, 0, 0, 291, 291, x - 130, y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
 
-
-            ctx.drawImage(wedge, 0, 0, 291, 291, x - 134, y - 118, 5.27 * wedge.width, 5.27 * wedge.height);
             //       }
           } else {
             circle.src = evos[evo_color];
@@ -1002,7 +1002,7 @@ Cost: 3
         if (playcost) {
           ctx.font = 'bold 250px AyarKasone, Helvetica';
           ctx.fillStyle = 'white';
-          ctx.fillText(playcost, x + 15, 370);
+          ctx.fillText(playcost, x + 15, 390);
         }
       }
 

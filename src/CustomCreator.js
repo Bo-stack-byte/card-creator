@@ -30,7 +30,7 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.1";
+const version = "0.6.1.1";
 const latest = "rainbow colors; zoom; better baseline; proper font on cost; fix shift on play cost when evo"
 
 // version 0.6.1  rainbow colors; zoom; better baseline; proper font on cost; fix shift on play cost when evo
@@ -956,15 +956,15 @@ Cost: 3
           // we're drawing this with every circle
           let index = modern ? 0 : n;
 
-          ctx.font = `bold 80px AyarKasone`; //  Roboto`;
+          ctx.font = `bold 90px AyarKasone, Helvetica`; //  Roboto`;
           ctx.lineWidth = 5;
           ctx.strokeStyle = edgeColor(evo_color);
-          ctx.strokeText(evo_level, 355, 870 + height * index);
+          ctx.strokeText(evo_level, 375, 870 + height * index, 140);
           ctx.fillStyle = contrastColor(evo_color);
-          ctx.fillText(evo_level, 355, 870 + height * index);
+          ctx.fillText(evo_level, 375, 870 + height * index, 140);
 
           // we should only have a contrast color if our colors disagree
-          ctx.font = `bold 220px AyarKasone`;
+          ctx.font = `bold 220px AyarKasone, Helvetica`;
           ctx.lineWidth = 10;
           ctx.strokeStyle = edgeColor(evo_color);
        //   ctx.strokeStyle = contrastColor(evo_color);
@@ -1000,10 +1000,9 @@ Cost: 3
           }
         }
         if (playcost) {
-//          ctx.font = 'bold 250px Helvetica';
-          ctx.font = 'bold 250px AyarKasone';
+          ctx.font = 'bold 250px AyarKasone, Helvetica';
           ctx.fillStyle = 'white';
-          ctx.fillText(playcost, x + 15, 390);
+          ctx.fillText(playcost, x + 15, 370);
         }
       }
 

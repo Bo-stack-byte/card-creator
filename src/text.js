@@ -9,8 +9,6 @@ let diamondRight = new Image(); diamondRight.src = _right_diamond;
 
 
 const font = 'Asimov'
-//const px = 100;  /* const g_width = 2800 */
-//const size = `${px}px`; 
 
 
 export function fitTextToWidth(ctx, text, maxWidth, initialFontSize, limit) {
@@ -264,7 +262,7 @@ function prepareKeywords(str, replaceBrackets) {
 
 // if "extra" is "bubble", put text in black bubble
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
-export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeight, extra) {
+export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeight, extra, preview = false) {
   console.log("calling with " + fontSize + " - " + text);
   lineHeight = Number(lineHeight);
   let yOffset = y;
@@ -276,9 +274,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
     let graf = prepareKeywords(paragraphs[p], extra.startsWith("effect"));
 
     const words = splitTextIntoParts(graf);
-
     let line = '';
-
     const italics = (extra === "bubble") ? "italic" : "";
 
     for (let n = 0; n < words.length; n++) {
@@ -300,7 +296,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
       }
     }
 
-    console.log(277, "pushing  <" + line + ">");
+//    console.log(277, "pushing  <" + line + ">");
 
     // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
     lines.push({ ctx, line, x, yOffset });
@@ -309,12 +305,14 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
 
     if (extra === 'bubble') {
       let width = Math.max.apply(Math, lines.map(l => ctx.measureText(l.line).width));
-      drawColoredRectangle(ctx, x - 10, y, width, yOffset - y, 'bubble');
+      if (!preview)
+        drawColoredRectangle(ctx, x - 10, y, width, yOffset - y, 'bubble');
     }
   }
   for (let line of lines) {
 
-    wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra);
+    if (!preview) 
+      wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra);
   }
 
 
@@ -364,7 +362,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, preview = false) {
       const phraseWidth = ctx.measureText(cleanPhrase).width;
       if (!preview) drawColoredRectangle(ctx, lastX, y + 3, phraseWidth + 10, fontSize, color);
       ctx.fillStyle = 'white';
-      console.log(328, lastX, cleanPhrase, (cardWidth - lastX - 5));
+      //console.log(328, lastX, cleanPhrase, (cardWidth - lastX - 5));
       if (!preview) ctx.fillText(cleanPhrase, lastX + 5, y - 10, cardWidth - lastX - 5);
       lastX += phraseWidth + 15;
       ctx.font = `${italics} ${(fontSize)}px ${font}`;
@@ -378,7 +376,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, preview = false) {
           ctx.font = `300 ${(fontSize - 15)}px FallingSky`;
 
           const wordWidth = ctx.measureText(cleanWord).width;
-          console.log(314, wordWidth, cardWidth, lastX, cleanWord);
+          //console.log(314, wordWidth, cardWidth, lastX, cleanWord);
           let h = Number(fontSize);
           if (!preview) drawDiamondRectangle(ctx, lastX, y, scale * wordWidth + 10, h + 10);
           ctx.scale(scale, 1);

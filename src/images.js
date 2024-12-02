@@ -190,6 +190,7 @@ import new_evo_green from './frames/evos/evo_green.png';
 import new_evo_purple from './frames/evos/evo_purple.png';
 import new_evo_black from './frames/evos/evo_black.png';
 import new_evo_white from './frames/evos/evo_white.png';
+import new_evo_all from './frames/evos/evo_rainbow.png';
 
 import new_evo2_red from './frames/evos/evo2_red.png';
 import new_evo2_blue from './frames/evos/evo2_blue.png';
@@ -207,6 +208,7 @@ import wedge_evo_green from './frames/evos/cost_evo_green.png';
 import wedge_evo_purple from './frames/evos/cost_evo_purple.png';
 import wedge_evo_black from './frames/evos/cost_evo_black.png';
 import wedge_evo_white from './frames/evos/cost_evo_white.png';
+import wedge_evo_all from './frames/evos/cost_evo_all.png';
 
 
 export const new_evo_circles = {
@@ -217,6 +219,7 @@ export const new_evo_circles = {
   'purple': new_evo_purple,
   'black': new_evo_black,
   'white': new_evo_white,
+  'all': new_evo_all,
 }
 
 export const new_evo_wedges = {
@@ -227,6 +230,7 @@ export const new_evo_wedges = {
   'purple': wedge_evo_purple,
   'black': wedge_evo_black,
   'white': wedge_evo_white,
+  'all': wedge_evo_all,
 }
 
 // unused now

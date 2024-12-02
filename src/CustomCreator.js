@@ -30,9 +30,10 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.0";
-const latest = "undo; new format; disable classic mode; freeform auto parsed"
+const version = "0.6.1";
+const latest = "rainbow colors; zoom; better baseline; proper font on cost; fix shift on play cost when evo"
 
+// version 0.6.1  rainbow colors; zoom; better baseline; proper font on cost; fix shift on play cost when evo
 // version 0.6.0  undo; new format; disable classic mode; freeform auto parsed
 // version 0.5.10 save cards with versions, color wheels on ESS effects-side
 // version 0.5.9  save cards server-side
@@ -99,12 +100,12 @@ function borderColor(colors) {
 }
 
 function edgeColor(color) {
-  if (["red", "blue", "green", "purple", "black"].includes(color)) return "black";
+  if (["red", "blue", "green", "purple", "black", "all"].includes(color)) return "black";
   return "white";
 
 }
 function contrastColor(color) {
-  if (["red", "blue", "green", "purple", "black"].includes(color)) return "white";
+  if (["red", "blue", "green", "purple", "black", "all"].includes(color)) return "white";
   return "black";
 }
 // draw in white text on the black stripe -- unless we're a black card with a white stripe, in which case draw black
@@ -239,6 +240,7 @@ const starter_text_3 = `   {
 const starter_text = starter_text_empty;
 
 
+// deprecated from our old "share" functionality, that put the entire JSON blob into the URL compressed+encoded 
 const decodeAndDecompress = (encodedString) => {
   try {
     const decoded = Base64.toUint8Array(encodedString);
@@ -249,6 +251,21 @@ const decodeAndDecompress = (encodedString) => {
   }
   //  return JSON.parse(decompressed);
 };
+
+  /*  
+    // obsolete to create share links
+    const getShare = () => {
+      console.log("jsonText", jsonText);
+      const compressed = pako.deflate(jsonText);
+      const encoded = Base64.fromUint8Array(compressed, true); // URL-safe
+      console.log("encoded", encoded);
+      const here = new URL(window.location.href);
+      const baseUrl = here.origin + here.pathname;
+  
+      let url = baseUrl + "?share=" + encoded;
+      setShareURL(url);
+      navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
+    }*/
 
 // show i of len piece, scaled by scale, start at x,y
 function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top = 0) {
@@ -288,7 +305,7 @@ function CustomCreator() {
   }, []);
 /* eslint-enable react-hooks/exhaustive-deps */
 
-  let restoreState = async (ref, id) => {
+  const restoreState = async (ref, id) => {
     console.error(302, ref);
     try {
       const response = await fetch(`/api/data/${ref},${id}`);
@@ -309,14 +326,17 @@ function CustomCreator() {
 
   const params = new URLSearchParams(window.location.search);
   let share = params.get("share");
+  let ref = params.get("ref");
   let start = share ? decodeAndDecompress(share) : "";
   start ||= starter_text;
   const canvasRef = useRef(null);
   const [userImg, setUserImg] = useState(null);
   const [doDraw, setDoDraw] = useState(true);
+  const [zoom, setZoom] = useState(100);
   const [jsonText, setJsonText] = useState([start]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fontSize, setFontSize] = useState(90);
+  const [effectBox, setEffectBox] = useState(false);
   const [selectedOption, setSelectedOption] = useState('AUTO'); // radio buttons 
   const [imageOptions, setImageOptions] = useState({
     url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95
@@ -385,7 +405,8 @@ Cost: 3
 # (Undo and updates to the other forms won't propagate here.)
 
 ` + customs[Math.floor(Math.random() * customs.length)];
-  const [showJson, setShowJson] = useState(2);
+  // if a shared card, default to the fields list
+  const [showJson, setShowJson] = useState(ref ? 0 : 2);
   const [formData, setFormData] = useState({}); // redundant
   // const [shareURL, setShareURL] = useState("");
   const [freeform, setFreeForm] = useState(custom_starter);
@@ -422,6 +443,7 @@ Cost: 3
     try {
       parsedJson = JSON.parse(text);
       flattenedJson = flattenJson(parsedJson);
+      console.log(445, flattenedJson);
     } catch (e) {
       jsonerror = e;
       console.error("json error");
@@ -476,6 +498,12 @@ Cost: 3
       ) */
   }
 
+  const updateZoom = (e) => {
+    let z = e.target.value;
+    // moved validation logic out of here
+    setZoom(z);
+  }
+
   const handleInputChange = (key, value) => {
     console.log("form data", formData);
     const newFormData = { ...formData, [key]: value };
@@ -503,7 +531,7 @@ Cost: 3
   try {
     parsedJson = JSON.parse(jsonText[currentIndex]);
     flattenedJson = flattenJson(parsedJson);
-    console.log(flattenedJson);
+    console.log(533, flattenedJson);
   } catch (e) {
     jsonerror = e.toString();
     //  console.error("json error");
@@ -575,20 +603,6 @@ Cost: 3
     setDoDraw(true);
   }
 
-  /*  
-    // obsolete to create share links
-    const getShare = () => {
-      console.log("jsonText", jsonText);
-      const compressed = pako.deflate(jsonText);
-      const encoded = Base64.fromUint8Array(compressed, true); // URL-safe
-      console.log("encoded", encoded);
-      const here = new URL(window.location.href);
-      const baseUrl = here.origin + here.pathname;
-  
-      let url = baseUrl + "?share=" + encoded;
-      setShareURL(url);
-      navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
-    }*/
 
   const draw2 = (x, y) => draw(x, y, true);
 
@@ -642,7 +656,6 @@ Cost: 3
     let array = basics;
     let background = mon_background;
     if (modern) array = outlines;
-    console.log(503, selectedOption);
     let type = selectedOption;
     let overflow = undefined;
     if (type === "AUTO") {
@@ -685,7 +698,7 @@ Cost: 3
       default:
     }
 
-    console.log(467, type, background);
+    // console.log(467, type, background);
     const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
     // options don't need to load frames
     const len = (type === "OPTION") ? 1 : colors.length;
@@ -753,10 +766,9 @@ Cost: 3
       if (type === "EGG") bottom -= 640;
       if (type === "MONSTER") bottom -= 500;
       if (type === "ACE") bottom -= 480;
-      if (type === "TAMER" || type === "TAMERINHERIT") bottom -= 640;
+      if (type === "TAMER" || type === "TAMERINHERIT" || type === "OPTION") bottom -= 640;
 
-      const effectbox = document.getElementById("effectbox").checked;
-      if (effectbox) {
+      if (effectBox) {
         for (let i = 0; i < len; i++) {
           let col = colors[i];
           if (!col) continue;
@@ -764,12 +776,6 @@ Cost: 3
           box.src = effectboxes[col];
           scalePartialImage(ctx, box, i, len, 825, offset_x + 80, bottom);
         }
-      }
-
-      bottom += 800;
-      let rule = json.rule;
-      if (rule && rule.length > 1) {
-        writeRuleText(ctx, rule, fontSize, bottom);
       }
 
 
@@ -876,6 +882,14 @@ Cost: 3
         }
       }
 
+      bottom += 800;
+      let rule = json.rule;
+      if (rule && rule.length > 1) {
+        writeRuleText(ctx, rule, fontSize, bottom);
+      }
+
+
+
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
@@ -884,7 +898,7 @@ Cost: 3
       if (_evos && _evos.length > 0) {
 
         // only two handled for now
-        offset_y -= 20;
+        //offset_y -= 20;
         if (modern) ctx.drawImage(cost_evo, offset_x, offset_y + 600, 500, 500);
 
         let base = -135; // degrees
@@ -921,7 +935,6 @@ Cost: 3
             let start = base + n * each
             const startAngle = (start * Math.PI) / 180;
             const sweepAngle = (each * Math.PI) / 180;
-            console.log(823, startAngle, sweepAngle);
 
             ctx.save();
             ctx.beginPath();
@@ -943,20 +956,22 @@ Cost: 3
           // we're drawing this with every circle
           let index = modern ? 0 : n;
 
-          ctx.font = `bold 60px Roboto`;
+          ctx.font = `bold 80px AyarKasone`; //  Roboto`;
           ctx.lineWidth = 5;
           ctx.strokeStyle = edgeColor(evo_color);
-          ctx.strokeText(evo_level, 355, 850 + height * index);
+          ctx.strokeText(evo_level, 355, 870 + height * index);
           ctx.fillStyle = contrastColor(evo_color);
-          ctx.fillText(evo_level, 355, 850 + height * index);
+          ctx.fillText(evo_level, 355, 870 + height * index);
 
-
-          ctx.font = `bold 170px Roboto`;
+          // we should only have a contrast color if our colors disagree
+          ctx.font = `bold 220px AyarKasone`;
           ctx.lineWidth = 10;
           ctx.strokeStyle = edgeColor(evo_color);
-          ctx.strokeText(evo_cost, 355, 970 + height * index);
+       //   ctx.strokeStyle = contrastColor(evo_color);
+
+           ctx.strokeText(evo_cost, 375, 1020 + height * index);
           ctx.fillStyle = contrastColor(evo_color);
-          ctx.fillText(evo_cost, 355, 970 + height * index);
+          ctx.fillText(evo_cost, 375, 1020 + height * index);
         }
       }
 
@@ -985,9 +1000,10 @@ Cost: 3
           }
         }
         if (playcost) {
-          ctx.font = 'bold 250px Helvetica';
+//          ctx.font = 'bold 250px Helvetica';
+          ctx.font = 'bold 250px AyarKasone';
           ctx.fillStyle = 'white';
-          ctx.fillText(playcost, x + 15, 380 - 20);
+          ctx.fillText(playcost, x + 15, 390);
         }
       }
 
@@ -1137,42 +1153,43 @@ Cost: 3
       ctx.fillText(traits, 2750, 3500 + delta_y * 0.9);
 
       ///// MAIN TEXT 
-      let y_line = 2800 - 400;
+      let y_line = bottom - 640; // set above for effectbox / rule
+      console.log(1149, y_line);
+//      if (type === "
       // effect
-      if (type === "MEGA") y_line += 500 + 100;
       ctx.font = `bold 90px Arial`;
       ctx.textAlign = 'start';
       ctx.textBaseline = 'bottom'; // Align text to the bottom
 
 
-      // DNA evo
-      let dna_evo = json.dnaEvolve;
-      if (dna_evo && dna_evo !== "-") {
-        dna_evo = colorReplace(dna_evo);
-        // BT10-009 EX3-014: shaded box
-        // st19-10 solid box
-        y_line = drawBracketedText(ctx, fontSize, dna_evo, 300, y_line, 3000, fontSize, "bubble");
-      }
 
-      // special evo
+      // DNA evo and special evo appear above the effect line
+      const dna_evo = json.dnaEvolve;
       const spec_evo = json.specialEvolve;
-      if (spec_evo && spec_evo !== "-") {
-        // BT10-009 EX3-014: shaded box
-        // st19-10 solid box
-        y_line = drawBracketedText(ctx, fontSize, spec_evo, 300, y_line, 3000, fontSize, "bubble");
+      let special_baseline = y_line;
+      if (!empty(spec_evo)) {
+        special_baseline -= (fontSize * 2);        
+        drawBracketedText(ctx, fontSize, spec_evo, 300, special_baseline, 3000, fontSize, "bubble");
+      }
+      if (!empty(dna_evo)) {
+        special_baseline -= (fontSize * 2);        
+        drawBracketedText(ctx, fontSize, dna_evo, 300, special_baseline, 3000, fontSize, "bubble");
       }
 
       let effect = json.effect;
       ctx.fillStyle = 'black';
 
-      if (type === "MONSTER") y_line += 180;
+//      if (type === "MONSTER") y_line += 180;
+
       if (effect && effect !== "-") {
         effect = colorReplace(effect, true);
         y_line = drawBracketedText(ctx, fontSize, effect,
           //wrapText(ctx, effect, // + effect, 
           300, y_line,
           2455,
-          fontSize, type === "OPTION" ? "effect-option" : "effect");
+          fontSize, type === "OPTION" ? "effect-option" : "effect",
+          false
+        );
       }
 
       // digixros, put right after effect for now
@@ -1219,7 +1236,7 @@ Cost: 3
     const checkAllImagesLoaded = (e) => {
       //      console.log(770, e);
       imagesLoaded++;
-      console.log(771, "image loaded", imagesLoaded, imagesToLoad);
+      //console.log(771, "image loaded", imagesLoaded, imagesToLoad);
       if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
         // Set the canvas dimensions  
         afterLoad();
@@ -1232,7 +1249,7 @@ Cost: 3
     // this has a race condition    
     baseImg.onload = baseImg.onerror = function () { checkAllImagesLoaded(baseImg); }
     if (baseImg.complete) {
-      console.error("base img already loaded");
+      console.log("base img already loaded");
       //    baseImg.src = baseImg.src; // reload
     } else {
 
@@ -1261,7 +1278,8 @@ Cost: 3
     console.log(803, frameImages);
     if (_evos) {
       for (let n = _evos.length; n--; n >= 0) {
-        const evo_color = _evos[n].color.toLowerCase();
+
+        const evo_color = _evos[n].color?.toLowerCase();
         // will declaring the same image still have it loaded?
         {
           const circle = new Image();
@@ -1285,7 +1303,7 @@ Cost: 3
     //ightImg.onload = () => {
 
 
-  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex]);
+  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1355,6 +1373,13 @@ Cost: 3
 
     </div>
   );
+  let z = zoom;
+  if (!z) z = 100;
+  if (z < 25) z = 25;
+  if (z > 300) z = 300;
+  const width = (355 * z / 100) || 355;
+  const height = (499 * z / 100) || 499;
+
   return (
     <table>
       <tr>
@@ -1404,13 +1429,16 @@ Cost: 3
           <div>
             <canvas id="cardImage" ref={canvasRef}
               style={{
-                width: '355px', // traditional cards are roughly 300 x 416, let's zoom in
-                height: '499px',
+                width: width + 'px', // traditional cards are roughly 300 x 416, let's zoom in
+                height: height + 'px',
                 backgroundColor: '#eef'
               }}>
-
             </canvas>
-          </div>
+            <br/>
+            <label>Zoom: <input type="number" style={{ width: "50px" }} name="zoom" value={zoom} onChange={ updateZoom } />% </label>
+
+
+            </div>
         </td>
         <td width={"25%"} valign={"top"}>
           Choose image:
@@ -1450,7 +1478,10 @@ Cost: 3
           <span>
             <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { console.log(1268, e.target.value); setFontSize(e.target.value) }} />Font Size </label>
             <br />
-            <label><input name="effectbox" id="effectbox" type="checkbox" value="1" /> Effect box  </label>
+            <label>
+            <input type="checkbox" checked={effectBox} onChange={ (e) => { setEffectBox(e.target.checked) } } />
+            Effect box  
+            </label>
 
             <br />
             <br /> Unimplemented:  burst, rarity <br />

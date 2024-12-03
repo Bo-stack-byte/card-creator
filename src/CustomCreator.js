@@ -30,8 +30,12 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.1.2"; 
-const latest = "rainbow colors; zoom; better baseline; proper font on cost; fix shift on play cost when evo"
+const version = "0.6.2"; 
+const latest = "handle 'digivolve' as well as 'evolve'; helvetica as backup font; straggling pixels fixed; playcost and evocost offsets broken and then fixed"
+
+
+
+// versom 0.6.2   helvetica as backup font; 0.6.1.2 fix offset, wedges, and straggling pixels in bacckground
 
 // version 0.6.1  rainbow colors; zoom; better baseline; proper font on cost; fix shift on play cost when evo
 // version 0.6.0  undo; new format; disable classic mode; freeform auto parsed
@@ -658,6 +662,8 @@ Cost: 3
     if (modern) array = outlines;
     let type = selectedOption;
     let overflow = undefined;
+    const evo_effect = json.evolveEffect || json.digivolveEffect;
+
     if (type === "AUTO") {
       type = "MONSTER";
       if (json.cardLv === "Lv.6" || json.cardLv === "Lv.7") {
@@ -670,7 +676,7 @@ Cost: 3
         if (t.match(/option/i)) { type = "OPTION"; }
         if (t.match(/tamer/i)) {
           type = "TAMER";
-          if (json.evolveEffect && json.evolveEffect !== "-")
+          if (!empty(evo_effect))
             type = "TAMERWITHINHERIT";
         }
         if (t.match(/egg/i) || t.match(/tama/i)) { type = "EGG"; }
@@ -708,7 +714,7 @@ Cost: 3
     baseImg.src = egg; // default to get started
     const shellImg = new Image();
 
-    const _evos = json.evolveCondition;
+    const _evos = json.evolveCondition || json.digivolveCondition;
     const afterLoad = async () => {
       console.log(document.fred);
       console.log("LOADING2");
@@ -1204,7 +1210,6 @@ Cost: 3
       ctx.textBaseline = 'bottom'; // Align text to the bottom
 
 
-      const evo_effect = json.evolveEffect;
       console.log("a", evo_effect);
       let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
       sec_effect = colorReplace(sec_effect, true);

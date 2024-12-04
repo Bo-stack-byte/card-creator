@@ -211,6 +211,17 @@ import wedge_evo_white from './frames/evos/cost_evo_white.png';
 import wedge_evo_all from './frames/evos/cost_evo_all.png';
 
 
+
+import _dna_red from './frames/dna_box_red.png';
+import _dna_blue from './frames/dna_box_blue.png';
+import _dna_yellow from './frames/dna_box_yellow.png';
+import _dna_green from './frames/dna_box_green.png';
+import _dna_purple from './frames/dna_box_purple.png';
+import _dna_black from './frames/dna_box_black.png';
+import _dna_white from './frames/dna_box_white.png';
+import _dna_all from './frames/dna_box_all.png';
+
+
 export const new_evo_circles = {
   'red': new_evo_red,
   'blue': new_evo_blue,
@@ -245,7 +256,27 @@ export const new_evo2_circles = {
 }
 
 
+let dna_red = new Image(); dna_red.src = _dna_red;
+let dna_blue = new Image(); dna_blue.src = _dna_blue;
+let dna_yellow = new Image(); dna_yellow.src = _dna_yellow;
+let dna_green = new Image(); dna_green.src = _dna_green;
+let dna_purple = new Image(); dna_purple.src = _dna_purple;
+let dna_black = new Image(); dna_black.src = _dna_black;
+let dna_white = new Image(); dna_white.src = _dna_white;
+let dna_all = new Image(); dna_all.src = _dna_all;
 
+
+
+export const dna_boxes = {
+  'red': dna_red,
+  'blue': dna_blue,
+  'yellow': dna_yellow,
+  'green': dna_green,
+  'purple': dna_purple,
+  'black': dna_black,
+  'white': dna_white,
+  'all': dna_all,
+}
 
 //export const background;
 
@@ -508,6 +539,14 @@ export const evos = {
   'white': evo_white,
 }
 
+
+// this function and the next are too similar
+export function countColors(str) {
+  const colors = ['red', 'blue', 'yellow', 'green', 'purple', 'black', 'white'];
+  const regex = new RegExp(`\\b(${colors.join('|')})\\b`, 'ig');
+  const matches = [...str.matchAll(regex)].map(match => match[0]);
+  return matches;
+}
 
 export function colorReplace(str, strict) {
   if (!str) return "";

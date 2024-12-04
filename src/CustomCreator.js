@@ -30,13 +30,11 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.2"; 
-const latest = "handle 'digivolve' as well as 'evolve'; helvetica as backup font; straggling pixels fixed; playcost and evocost offsets broken and then fixed"
+const version = "0.6.3"; 
+const latest = "fix width on bubble and DNA and multi-line; DNA now uses proper colored box"
 
-
-
-// versom 0.6.2   helvetica as backup font; 0.6.1.2 fix offset, wedges, and straggling pixels in bacckground
-
+// version 0.6.3  fix width on bubble and DNA and multi-line; DNA now uses proper colored box"
+// version 0.6.2  handle 'digivolve' as well as 'evolve'; helvetica as backup font; straggling pixels fixed; playcost and evocost offsets broken and then fixed
 // version 0.6.1  rainbow colors; zoom; better baseline; proper font on cost; fix shift on play cost when evo
 // version 0.6.0  undo; new format; disable classic mode; freeform auto parsed
 // version 0.5.10 save cards with versions, color wheels on ESS effects-side
@@ -1169,8 +1167,8 @@ Cost: 3
 
 
       // DNA evo and special evo appear above the effect line
-      const dna_evo = json.dnaEvolve;
-      const spec_evo = json.specialEvolve;
+      const dna_evo = json.dnaEvolve; // colorReplace is inside drawBracketedText
+      const spec_evo = colorReplace(json.specialEvolve, true);
       let special_baseline = y_line;
       if (!empty(spec_evo)) {
         special_baseline -= (fontSize * 2);        
@@ -1178,7 +1176,7 @@ Cost: 3
       }
       if (!empty(dna_evo)) {
         special_baseline -= (fontSize * 2);        
-        drawBracketedText(ctx, fontSize, dna_evo, 300, special_baseline, 3000, fontSize, "bubble");
+        drawBracketedText(ctx, fontSize, dna_evo, 300, special_baseline, 3000, fontSize, "dna");
       }
 
       let effect = json.effect;

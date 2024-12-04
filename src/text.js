@@ -3,6 +3,8 @@ import _left_diamond from './frames/keywords/left-diamond.png';
 import _middle_diamond from './frames/keywords/middle-diamond.png';
 import _right_diamond from './frames/keywords/right-diamond.png';
 
+import { dna_boxes, countColors, colorReplace } from './images';
+
 let diamondLeft = new Image(); diamondLeft.src = _left_diamond;
 let diamondMiddle = new Image(); diamondMiddle.src = _middle_diamond;
 let diamondRight = new Image(); diamondRight.src = _right_diamond;
@@ -124,6 +126,35 @@ function drawRoundedRect(ctx, x, y, width, height, radius, stroke) {
     ctx.fill();
   ctx.restore();
 }
+
+//x,y is upper left
+function drawDnaBox(ctx, x, y, w, h, colors) {
+  let images = colors.map(x => dna_boxes[x.toLowerCase()]).filter(x => x);
+  console.log(135, images);
+  const len = images.length;
+  let per_width = w / len;
+
+  const left = images[0];
+  const right = images[len - 1];
+  let hw = left.width / 2; // half-wdith
+
+  // draw left-most box, 
+  ctx.drawImage(left, 0, 0, hw, left.height,
+    x, y, per_width, h);
+  // middle-boxes use combo of (50,95) + (5,50)
+  for (let i = 1; i < len - 1; i++) {
+    ctx.drawImage(images[i], hw, 0, hw * 0.9, left.height,
+      x + per_width * i, y, per_width / 2 + 10, h);
+    ctx.drawImage(images[i], hw * 0.1, 0, hw * 0.9, left.height,
+      x + per_width * (i + 0.5), y, per_width / 2 + 10, h);
+  }
+  // draw right-most box
+  ctx.drawImage(right, hw, 0, hw, right.height,
+    x + per_width * (len - 1), y, per_width, h);
+  return;
+  
+};
+
 
 //x,y is upper left
 function drawColoredRectangle(ctx, x, y, width, height, color) {
@@ -268,6 +299,9 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
   let yOffset = y;
   let lines = [];
   text = text.replaceAll(/</ig, "＜").replaceAll(/>/ig, "＞");
+  let right_limit = 2700;
+  const dna_colors = countColors(text);
+  if (extra === "dna") text = colorReplace(text);
 
   const paragraphs = text.split("\n");
   for (let p = 0; p < paragraphs.length; p++) {
@@ -275,7 +309,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
 
     const words = splitTextIntoParts(graf);
     let line = '';
-    const italics = (extra === "bubble") ? "italic" : "";
+    const italics = (extra === "bubble" || extra === "dna") ? "italic" : "";
 
     for (let n = 0; n < words.length; n++) {
       ctx.font = `${italics} ${fontSize}px ${font}`;
@@ -296,23 +330,33 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
       }
     }
 
-//    console.log(277, "pushing  <" + line + ">");
+    //    console.log(277, "pushing  <" + line + ">");
 
     // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
     lines.push({ ctx, line, x, yOffset });
     yOffset += lineHeight + 2;
 
+    // 2700 should not be hard-coded
+    let max_end = Math.max.apply(Math,
+      lines.map(l => wrapAndDrawText(l.ctx, fontSize, l.line, l.x, l.yOffset, extra, right_limit, true)));
+    console.log(515, 'max end', max_end);
+    if (max_end > right_limit) max_end = right_limit;
+    const pre_width = max_end - x;
 
+    let h = (yOffset - y);
     if (extra === 'bubble') {
-      let width = Math.max.apply(Math, lines.map(l => ctx.measureText(l.line).width));
       if (!preview)
-        drawColoredRectangle(ctx, x - 10, y, width, yOffset - y, 'bubble');
+        drawColoredRectangle(ctx, x - 10, y - fontSize * 1.1 + h, pre_width, yOffset - y, 'bubble');
+    }
+    if (extra === "dna") {
+      if (!preview) {
+        drawDnaBox(ctx, x - fontSize / 2, y - fontSize * 1.1 - 10, pre_width + fontSize / 2, (yOffset - y) * 1.1 + 20, dna_colors);
+      }
     }
   }
   for (let line of lines) {
 
-    if (!preview) 
-      wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra);
+    wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra, right_limit, preview);
   }
 
 
@@ -328,13 +372,14 @@ function getColor(phrase) {
   return 'blue';
 }
 
-function wrapAndDrawText(ctx, fontSize, text, x, y, style, preview = false) {
-  let cardWidth = 2700; // shouldn't be hard-coded; we need our start pos
+function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = false) {
+  console.log(361, fontSize, text, x, y, style, preview);
+  //  let cardWidth = 2700; // shouldn't be hard-coded; we need our start pos
   let lastX = x;
   let scale = 1;
   // ⟦⟧ 
   if (!preview) {
-    let width = wrapAndDrawText(ctx, fontSize, text, x, y, style, true);
+    let width = wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, true);
     if (width > cardWidth) scale = cardWidth / width;
     // compress all text equally, but we should let keywords stay a bit wider if we can    
   }
@@ -356,7 +401,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, preview = false) {
         color = "purple";
         cleanPhrase = cleanPhrase.slice(1, -1);
       }
-      const italics = (style === "bubble") ? "italic" : "";
+      const italics = (style === "bubble" || style === "dna") ? "italic" : "";
 
       ctx.font = ` ${(fontSize - 15)}px FallingSky`;
       const phraseWidth = ctx.measureText(cleanPhrase).width;
@@ -406,10 +451,17 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, preview = false) {
 
             ctx.lineWidth = 2; // Smaller stroke to define the edges
             ctx.fillStyle = fill;
-            if (!preview) ctx.fillText(word, lastX, y); //  cardWidth - lastX);
-            //     ctx.strokeText(word, lastX, y);
-            lastX += ctx.measureText(word).width + ctx.measureText(' ').width;
+            if (!preview) {
+              ctx.fillText(word, lastX, y); //  cardWidth - lastX);
+              ctx.strokeText(word, lastX, y);
+            }
+            width = ctx.measureText(word).width;
+            //            if (width > y) width = y;
+            width += ctx.measureText(' ').width;
+            console.log(493, `changing lastX from ${lastX} by ${width} or ${width * scale}`);
 
+            lastX += width * scale;
+            console.log(494, `lastX now ${lastX}`);
           }
 
           /*
@@ -423,6 +475,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, preview = false) {
     }
   });
   ctx.restore();
+  console.log(515, "not scaling " + lastX);
   return lastX;
 }
 

@@ -30,8 +30,8 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.3.1"; 
-const latest = "level font using Prohibition"
+const version = "0.6.3.2"; 
+const latest = "font guide; level font using Prohibition; trait font using Repo Medium"
 
 // version 0.6.3  fix width on bubble and DNA and multi-line; DNA now uses proper colored box"
 // version 0.6.2  handle 'digivolve' as well as 'evolve'; helvetica as backup font; straggling pixels fixed; playcost and evocost offsets broken and then fixed
@@ -1056,7 +1056,7 @@ Cost: 3
         ctx.strokeText("DP", x + 240, 380 - 180);
         ctx.fillText("DP", x + 240, 380 - 180);
       }
-      if (type === "EGG" || type === "MONSTER" || type === "MEGA" || type === "ACE") {
+      if (type === "EGG" || type === "MONSTER" || type === "MEGA" || type === "ACE" ) {
         // level
         let level = (json.cardLv === "-" || json.cardLv === undefined) ? "Lv.-" : json.cardLv;
         // roboto preferred
@@ -1071,24 +1071,24 @@ Cost: 3
         if (type === "MEGA") y += 500;
         y += 100
         ctx.font = '900 200px "Big Shoulders Text"'
-        ctx.font = '900 150px "ProhibitionRough"'
+        ctx.font = '900 150px "ProhibitionRough", "Big Shoulders Text"'
         let x = 250;
 
-        level = (level + "    ").substring(0,4);
-        ctx.font = '150px "ProhibitionRough"'
+        //level = (level + "    ").substring(0,4);
+        ctx.font = '150px "ProhibitionRough", "Big Shoulders Text"'
         ctx.fillText(level[0], x, y);
         x += ctx.measureText(level[0]).width;
 
-        ctx.font = '900 110px "ProhibitionRough"'
+        ctx.font = '900 110px "ProhibitionRough", "Big Shoulders Text"'
         ctx.fillText(level[1], x, y - 10);
-        x += ctx.measureText(level[0]).width + 10
+        x += ctx.measureText(level[1]).width + 10
 
-        ctx.font = '900 110px "ProhibitionRough"'
+        ctx.font = '900 110px "ProhibitionRough", "Big Shoulders Text"'
         ctx.fillText(level[2], x, y - 10);
-        x += ctx.measureText(level[0]).width;
+        x += ctx.measureText(level[2]).width;
 
-        ctx.font = '220px "ProhibitionRough"'
-        ctx.fillText(level[3], x, y);
+        ctx.font = '220px "ProhibitionRough", "Big Shoulders Text"'
+        ctx.fillText(level.substring(3), x, y);
         x += ctx.measureText(level[0]).width;
 
       }
@@ -1177,7 +1177,7 @@ Cost: 3
         delta_y += 0;
       }
 
-      ctx.font = `bold 60px "Repo Medium"`;
+      ctx.font = `bold 60px "Repo Medium", "Roboto"`;
       ctx.fillText(traits, 2750, 3500 + delta_y * 0.9);
 
       ///// MAIN TEXT 
@@ -1537,7 +1537,7 @@ Cost: 3
           <br />
           Ask support or request features over on <a href={invite}>Discord</a>.
           <br />
-
+          <p class="prohibition"><a href="./fontguide.html">FONT GUIDE</a></p>
           <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
           <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba and Zaffy who kept this dream alive in previous years.</p>
           <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>

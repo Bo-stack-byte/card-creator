@@ -1075,18 +1075,18 @@ Cost: 3
         ctx.font = '900 150px "ProhibitionRough", "Big Shoulders Text"'
         let x = 250;
 
-        //level = (level + "    ").substring(0,4);
+        level = (level + "    ").substring(0,4);
         ctx.font = '150px "ProhibitionRough", "Big Shoulders Text"'
-        ctx.fillText(level[0], x, y);
+        ctx.fillText(level[0], x, y - 10);
         x += ctx.measureText(level[0]).width;
 
         ctx.font = '900 110px "ProhibitionRough", "Big Shoulders Text"'
-        ctx.fillText(level[1], x, y - 10);
-        x += ctx.measureText(level[1]).width + 10
+        ctx.fillText(level[1], x, y -13);
+        x += ctx.measureText(level[1]).width;
 
         ctx.font = '900 110px "ProhibitionRough", "Big Shoulders Text"'
-        ctx.fillText(level[2], x, y - 10);
-        x += ctx.measureText(level[2]).width;
+        ctx.fillText(level[2], x, y - 18);
+        x += ctx.measureText(level[2]).width + 10;
 
         ctx.font = '220px "ProhibitionRough", "Big Shoulders Text"'
         ctx.fillText(level.substring(3), x, y);

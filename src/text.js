@@ -10,8 +10,9 @@ let diamondMiddle = new Image(); diamondMiddle.src = _middle_diamond;
 let diamondRight = new Image(); diamondRight.src = _right_diamond;
 
 
-const font = 'Asimov'
-
+//const font = 'Asimov'
+const font = 'MyriadProBold'
+        
 export function center(str, len=16) {
   let l = str.length;
   if (l >= len) return str;

@@ -22,6 +22,22 @@ br {
 
 
 
+@font-face {
+  font-family: 'MyriadProBold';
+  src: local('MyriadProBold'), url(./fonts/Myriad-Pro-Bold-SemiCondensed.otf) format('opentype');
+}
+
+@font-face {
+  font-family: 'MyriadProItalic';
+  src: local('MyriadProItalic'), url(./fonts/Myriad-Pro-Bold-Italic.otf) format('opentype');
+}
+
+@font-face {
+  font-family: 'ToppanBunkyExtraBold';
+  src: local('ToppanBunkyExtraBold'), url(./fonts/ToppanBunkyuMidashiGothicStdN-ExtraBold.otf) format('opentype');
+}
+  
+
 
 @font-face {
   font-family: 'Asimov';

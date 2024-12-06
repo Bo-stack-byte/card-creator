@@ -30,9 +30,10 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.3.2"; 
-const latest = "font guide; level font using Prohibition; trait font using Repo Medium"
+const version = "0.6.4"; 
+const latest = "massive font upgrade: name, effect/keywords, traits, level all identical to print cards now"
 
+// version 0.6.4  massive font upgrade: name, effect/keywords, traits, level all identical to print cards now
 // version 0.6.3  fix width on bubble and DNA and multi-line; DNA now uses proper colored box"
 // version 0.6.2  handle 'digivolve' as well as 'evolve'; helvetica as backup font; straggling pixels fixed; playcost and evocost offsets broken and then fixed
 // version 0.6.1  rainbow colors; zoom; better baseline; proper font on cost; fix shift on play cost when evo
@@ -1012,7 +1013,7 @@ Cost: 3
 
 
       if (type === "ACE" && overflow) {
-        ctx.font = `70px FallingSky`;
+        ctx.font = `70px MyriadProBold`;
 
         // fake blur 
         ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)';
@@ -1097,8 +1098,8 @@ Cost: 3
       switch (type) {
         case "OPTION":
         case "TAMER":
-        case "TAMERINHERIT": delta_y -= 130; break;
-        case "EGG": delta_y -= 100; break;
+        case "TAMERINHERIT": delta_y -= 125; break;
+        case "EGG": delta_y -= 90; break;
         case "MEGA": delta_y += 500; break;
         case "MONSTER": case "ACE": break;
         default: alert(1);
@@ -1111,11 +1112,11 @@ Cost: 3
         const maxWidth = 1700 + ace_offset * 2;
 
         const initialFontSize = 200;
-        const fontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize, 150);
+        const fontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize, 180);
         // PF Das Grotesk Pro Bold is the actual font but $$
         //ctx.font = `bold ${fontSize}px Roboto`; // better looking I
         //        ctx.font = `700 ${fontSize}px Schibsted Grotesk`; // has curved lowercase l
-        ctx.font = `700 ${fontSize}px FallingSky`; // has curved lowercase l
+        ctx.font = `700 ${fontSize}px ToppanBunkyExtraBold`; // has curved lowercase l
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = 'white';
@@ -1132,17 +1133,18 @@ Cost: 3
         // at  a certain point we should do multiple lines
         ctx.save();
         ctx.scale(scale, 1);
+        let name_line = 3330
         if (bc !== "") {
           ctx.lineWidth = 20; // Border width
-          ctx.strokeText(name, (1480 + ace_offset) / scale, 3360 + delta_y);
+          ctx.strokeText(name, (1480 + ace_offset) / scale, name_line + delta_y);
         }
         ctx.lineWidth = 2; // Border width
-        ctx.fillText(name, (1480 + ace_offset) / scale, 3360 + delta_y);
+        ctx.fillText(name, (1480 + ace_offset) / scale, name_line + delta_y);
         ctx.restore();
 
         if (type === "ACE") {
           let end = endWidth / 2;
-          ctx.drawImage(ace_logo, 1480 + ace_offset + end + 10, 3360 + delta_y - 100);
+          ctx.drawImage(ace_logo, 1480 + ace_offset + end + 10, name_line + delta_y - 100);
         }
       } catch { };
 
@@ -1168,17 +1170,17 @@ Cost: 3
       //console.log("Traits", traits)
       ctx.fillStyle = whiteColor(colors[0]);
       if (type === "TAMER" || type === "TAMERINHERIT" || type === "OPTION") {
-        delta_y -= 10;
+        delta_y += 10;
       }
       if (type === "MEGA") {
-        delta_y += 50;
+//        delta_y += 50;
       }
       if (type === "EGG") {
         delta_y += 0;
       }
 
-      ctx.font = `bold 60px "Repo Medium", "Roboto"`;
-      ctx.fillText(traits, 2750, 3500 + delta_y * 0.9);
+      ctx.font = `bold 60px "MyriadProBold", "Repo Medium", "Roboto"`;
+      ctx.fillText(traits, 2750, 3490 + delta_y)// * 0.9);
 
       ///// MAIN TEXT 
       let y_line = bottom - 640; // set above for effectbox / rule
@@ -1368,8 +1370,7 @@ Cost: 3
     }
   };
 
-
-  let invite = "https://discord.gg/pP2eWEBQ";
+  const invite = "https://discord.gg/wbN2vTmz";
   let button = (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
       <button
@@ -1534,10 +1535,8 @@ Cost: 3
       <tr style={{ fontSize: "smaller" }} >
         <td width={"30%"} style={{ fontSize: "smaller" }}>
           Version {version} {latest}
-          <br />
-          Ask support or request features over on <a href={invite}>Discord</a>.
-          <br />
-          <p class="prohibition"><a href="./fontguide.html">FONT GUIDE</a></p>
+          <p style={{ fontFamily: "ToppanBunkyExtraBold"}}>Ask support or request features over on <a href={invite}>Discord</a>.</p>
+          <p style={{ fontFamily: "ProhibitionRough"}}><a href="./fontguide.html">FONT GUIDE</a></p>
           <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
           <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba and Zaffy who kept this dream alive in previous years.</p>
           <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>

@@ -14,7 +14,7 @@ import {
 } from './images';
 
 import { enterPlainText } from './plaintext';
-import { fitTextToWidth, drawBracketedText, writeRuleText } from './text';
+import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
 import shieldsmasher from './shieldsmasher.png';
@@ -30,8 +30,8 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.3"; 
-const latest = "fix width on bubble and DNA and multi-line; DNA now uses proper colored box"
+const version = "0.6.3.1"; 
+const latest = "level font using Prohibition"
 
 // version 0.6.3  fix width on bubble and DNA and multi-line; DNA now uses proper colored box"
 // version 0.6.2  handle 'digivolve' as well as 'evolve'; helvetica as backup font; straggling pixels fixed; playcost and evocost offsets broken and then fixed
@@ -1058,16 +1058,39 @@ Cost: 3
       }
       if (type === "EGG" || type === "MONSTER" || type === "MEGA" || type === "ACE") {
         // level
-        const level = (json.cardLv === "-" || json.cardLv === undefined) ? "Lv.-" : json.cardLv;
-        ctx.font = '900 200px "Big Shoulders Text"'
+        let level = (json.cardLv === "-" || json.cardLv === undefined) ? "Lv.-" : json.cardLv;
         // roboto preferred
         //        ctx.font = '900 200px "Roboto"'
 
         ctx.fillStyle = whiteColor(colors[0]);
         let y = 3400;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+  
         if (type === "EGG") y -= 100;
         if (type === "MEGA") y += 500;
-        ctx.fillText(level, 390, y);
+        y += 100
+        ctx.font = '900 200px "Big Shoulders Text"'
+        ctx.font = '900 150px "ProhibitionRough"'
+        let x = 250;
+
+        level = (level + "    ").substring(0,4);
+        ctx.font = '150px "ProhibitionRough"'
+        ctx.fillText(level[0], x, y);
+        x += ctx.measureText(level[0]).width;
+
+        ctx.font = '900 110px "ProhibitionRough"'
+        ctx.fillText(level[1], x, y - 10);
+        x += ctx.measureText(level[0]).width + 10
+
+        ctx.font = '900 110px "ProhibitionRough"'
+        ctx.fillText(level[2], x, y - 10);
+        x += ctx.measureText(level[0]).width;
+
+        ctx.font = '220px "ProhibitionRough"'
+        ctx.fillText(level[3], x, y);
+        x += ctx.measureText(level[0]).width;
+
       }
 
       let delta_y = 0;
@@ -1137,8 +1160,10 @@ Cost: 3
       let c_type = json.type || '';
       // todo don't show when all blank
       let traits = ` ${c_type}   `;
+
+
       if (form || attribute) {
-        traits = ` ${form}      |     ${attribute}      |   ${traits}`;
+        traits = ` ${center(form)} | ${center(attribute)} | ${center(c_type)}`;
       }
       //console.log("Traits", traits)
       ctx.fillStyle = whiteColor(colors[0]);
@@ -1152,7 +1177,7 @@ Cost: 3
         delta_y += 0;
       }
 
-      ctx.font = `bold 60px Roboto`;
+      ctx.font = `bold 60px "Repo Medium"`;
       ctx.fillText(traits, 2750, 3500 + delta_y * 0.9);
 
       ///// MAIN TEXT 

@@ -12,6 +12,13 @@ let diamondRight = new Image(); diamondRight.src = _right_diamond;
 
 const font = 'Asimov'
 
+export function center(str, len=16) {
+  let l = str.length;
+  if (l >= len) return str;
+  let left = (len - l) / 2;
+  let right = (len - l - left);
+  return " ".repeat(left) + str + " ".repeat(right)
+}
 
 export function fitTextToWidth(ctx, text, maxWidth, initialFontSize, limit) {
   const font = 'Asimov'; // Asimov'
@@ -154,7 +161,6 @@ function drawDnaBox(ctx, x, y, w, h, colors) {
   return;
   
 };
-
 
 //x,y is upper left
 function drawColoredRectangle(ctx, x, y, width, height, color) {

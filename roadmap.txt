@@ -14,6 +14,7 @@ TO DO LIST:
 
 * pen for creator name (should credit both artist and author)
 * handle too-large text better
+* ACE frames with the fancy lines
 * related: user-tunable options for positions, sizing, spacing, and text color (why do Chaos Degradation and Seventh Divine Cruz have opposite text colors for their names?)
 * chasing more towards matching actual card style
 * get faint white glow in playcost circle
@@ -35,4 +36,5 @@ TO DO LIST:
 * the same way you set color to "green/red" people expect to be able to set the digivolve for a level to be "green/red" instead of needing 2 separate lines
 * add triangle to "Rule" text
 * DNA box for white mon
+* black level box not quite right in shape and size
 

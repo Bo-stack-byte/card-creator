@@ -32,3 +32,21 @@ br {
   font-family: 'FallingSky';
   src: local('FallingSky'), url(./fonts/FallingSky.otf) format('opentype');
 }
+
+
+@font-face {
+  font-family: 'Repo Medium';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Repo Medium'), url(./fonts/Repo-Medium.woff) format('woff');
+  }
+
+@font-face {
+  font-family: "ProhibitionRough";
+  src: url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.eot");
+  src: url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.eot?#iefix")format("embedded-opentype"),
+  url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.woff2")format("woff2"),
+  url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.woff")format("woff"),
+  url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.ttf")format("truetype"),
+  url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.svg#Prohibition W00 Rough")format("svg");
+}

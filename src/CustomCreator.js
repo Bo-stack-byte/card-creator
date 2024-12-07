@@ -30,8 +30,8 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.4"; 
-const latest = "massive font upgrade: name, effect/keywords, traits, level all identical to print cards now"
+const version = "0.6.5";
+const latest = "fix pixels of effect text and DP and other things to be near-pixel-perfect"
 
 // version 0.6.4  massive font upgrade: name, effect/keywords, traits, level all identical to print cards now
 // version 0.6.3  fix width on bubble and DNA and multi-line; DNA now uses proper colored box"
@@ -255,20 +255,20 @@ const decodeAndDecompress = (encodedString) => {
   //  return JSON.parse(decompressed);
 };
 
-  /*  
-    // obsolete to create share links
-    const getShare = () => {
-      console.log("jsonText", jsonText);
-      const compressed = pako.deflate(jsonText);
-      const encoded = Base64.fromUint8Array(compressed, true); // URL-safe
-      console.log("encoded", encoded);
-      const here = new URL(window.location.href);
-      const baseUrl = here.origin + here.pathname;
-  
-      let url = baseUrl + "?share=" + encoded;
-      setShareURL(url);
-      navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
-    }*/
+/*  
+  // obsolete to create share links
+  const getShare = () => {
+    console.log("jsonText", jsonText);
+    const compressed = pako.deflate(jsonText);
+    const encoded = Base64.fromUint8Array(compressed, true); // URL-safe
+    console.log("encoded", encoded);
+    const here = new URL(window.location.href);
+    const baseUrl = here.origin + here.pathname;
+ 
+    let url = baseUrl + "?share=" + encoded;
+    setShareURL(url);
+    navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
+  }*/
 
 // show i of len piece, scaled by scale, start at x,y
 function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top = 0) {
@@ -306,7 +306,7 @@ function CustomCreator() {
 
     // first time init
   }, []);
-/* eslint-enable react-hooks/exhaustive-deps */
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const restoreState = async (ref, id) => {
     console.error(302, ref);
@@ -338,8 +338,9 @@ function CustomCreator() {
   const [zoom, setZoom] = useState(100);
   const [jsonText, setJsonText] = useState([start]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [fontSize, setFontSize] = useState(90);
+  const [fontSize, setFontSize] = useState(90.5);
   const [effectBox, setEffectBox] = useState(false);
+  const [drawFrame, setDrawFrame] = useState(true);
   const [selectedOption, setSelectedOption] = useState('AUTO'); // radio buttons 
   const [imageOptions, setImageOptions] = useState({
     url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95
@@ -746,18 +747,6 @@ Cost: 3
       let i_y_pct = (100 - Number(imageOptions.y_scale)) / 2 + Number(imageOptions.y_pos);
       ctx.drawImage(back_img, i_x_pct * canvas.width / 100, i_y_pct * canvas.height / 100, i_width, i_height);
 
-      if (modern) {
-        // new style background
-        // we know shellimg is loaded because of pre-flight
-        //        shellImg.src = background;
-        ctx.drawImage(shellImg, 0, 0, canvas.width, canvas.height);
-
-        ctx.textAlign = 'center';
-        ctx.fillStyle = (type === "OPTION") ? 'white' : 'black'; // ?
-
-        ctx.font = `bold 80px Roboto`;
-        ctx.fillText(json.cardType.toUpperCase(), 1480, 180);
-      }
 
       //   let w = canvas.width;
       //      let h = canvas.height;
@@ -779,9 +768,25 @@ Cost: 3
           if (!col) continue;
           let box = new Image();
           box.src = effectboxes[col];
-          scalePartialImage(ctx, box, i, len, 825, offset_x + 80, bottom);
+          scalePartialImage(ctx, box, i, len, 825, offset_x + 100, bottom + 60);
         }
       }
+
+
+
+      if (drawFrame) {
+        // new style background
+        // we know shellimg is loaded because of pre-flight
+        //        shellImg.src = background;
+        ctx.drawImage(shellImg, 0, 0, canvas.width, canvas.height);
+      }
+      ctx.textAlign = 'center';
+      ctx.fillStyle = (type === "OPTION") ? 'white' : 'black'; // ?
+
+      ctx.font = `bold 84px Roboto`;
+      ctx.fillText(json.cardType.toUpperCase(), 1490, 180);
+
+
 
 
       if (type === "MEGA") {
@@ -961,22 +966,26 @@ Cost: 3
           // we're drawing this with every circle
           let index = modern ? 0 : n;
 
-          ctx.font = `bold 90px AyarKasone, Helvetica`; //  Roboto`;
-          ctx.lineWidth = 5;
+          ctx.font = `bold 90px Roboto, Helvetica`; //  Roboto`;
+          ctx.lineWidth = 0.1;
+          
+
+
           ctx.strokeStyle = edgeColor(evo_color);
           ctx.strokeText(evo_level, 375, 870 + height * index, 140);
           ctx.fillStyle = contrastColor(evo_color);
           ctx.fillText(evo_level, 375, 870 + height * index, 140);
 
+            // aray kasone isn't *quite* right here
           // we should only have a contrast color if our colors disagree
-          ctx.font = `bold 220px AyarKasone, Helvetica`;
-          ctx.lineWidth = 10;
+          ctx.font = `bold 220px AyagrKasone, Helvetica`;
+          ctx.lineWidth = 0.1;
           ctx.strokeStyle = edgeColor(evo_color);
-       //   ctx.strokeStyle = contrastColor(evo_color);
+          //   ctx.strokeStyle = contrastColor(evo_color);
 
-           ctx.strokeText(evo_cost, 375, 1020 + height * index);
+          ctx.strokeText(evo_cost, 375, 1010 + height * index);
           ctx.fillStyle = contrastColor(evo_color);
-          ctx.fillText(evo_cost, 375, 1020 + height * index);
+          ctx.fillText(evo_cost, 375, 1010 + height * index);
         }
       }
 
@@ -1005,7 +1014,7 @@ Cost: 3
           }
         }
         if (playcost) {
-          ctx.font = 'bold 250px AyarKasone, Helvetica';
+          ctx.font = 'bold 290px AyarKasone, Helvetica';
           ctx.fillStyle = 'white';
           ctx.fillText(playcost, x + 15, 390);
         }
@@ -1035,29 +1044,35 @@ Cost: 3
 
         // dp
         ctx.fillStyle = 'black';
-        x = 2450;
-        ctx.font = 'bold 300px Helvetica';
+        x = 2540;
+        y = 410;
+        ctx.font = 'bold 350px Helvetica';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+
         if (dp_k) {
           ctx.lineWidth = 15;
           ctx.strokeStyle = 'white';
-          ctx.strokeText(dp_k, x, 380 - 100);
-          ctx.fillText(dp_k, x, 380 - 100);
+          ctx.strokeText(dp_k, x, y);
+          ctx.fillText(dp_k, x, y);
         }
-        ctx.font = 'bold 150px Helvetica';
-        if (dp_k > 9) x += 100;
+        ctx.font = 'bold 175px Helvetica';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+
         if (dp_m) {
           ctx.lineWidth = 15;
           ctx.strokeStyle = 'white';
-          ctx.strokeText(dp_m, x + 200, 380 - 60);
-          ctx.fillText(dp_m, x + 200, 380 - 60);
+          ctx.strokeText(dp_m, x, y - 25, 275);
+          ctx.fillText(dp_m, x, y - 25, 275);
         }
         ctx.font = '100px Helvetica';
         ctx.lineWidth = 15;
         ctx.strokeStyle = 'white';
-        ctx.strokeText("DP", x + 240, 380 - 180);
-        ctx.fillText("DP", x + 240, 380 - 180);
+        ctx.strokeText("DP", x + 130, y - 200);
+        ctx.fillText("DP", x + 130, y - 200);
       }
-      if (type === "EGG" || type === "MONSTER" || type === "MEGA" || type === "ACE" ) {
+      if (type === "EGG" || type === "MONSTER" || type === "MEGA" || type === "ACE") {
         // level
         let level = (json.cardLv === "-" || json.cardLv === undefined) ? "Lv.-" : json.cardLv;
         // roboto preferred
@@ -1067,7 +1082,7 @@ Cost: 3
         let y = 3400;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
-  
+
         if (type === "EGG") y -= 100;
         if (type === "MEGA") y += 500;
         y += 100
@@ -1075,13 +1090,13 @@ Cost: 3
         ctx.font = '900 150px "ProhibitionRough", "Big Shoulders Text"'
         let x = 250;
 
-        level = (level + "    ").substring(0,4);
+        level = (level + "    ").substring(0, 4);
         ctx.font = '150px "ProhibitionRough", "Big Shoulders Text"'
         ctx.fillText(level[0], x, y - 10);
         x += ctx.measureText(level[0]).width;
 
         ctx.font = '900 110px "ProhibitionRough", "Big Shoulders Text"'
-        ctx.fillText(level[1], x, y -13);
+        ctx.fillText(level[1], x, y - 13);
         x += ctx.measureText(level[1]).width;
 
         ctx.font = '900 110px "ProhibitionRough", "Big Shoulders Text"'
@@ -1173,7 +1188,7 @@ Cost: 3
         delta_y += 10;
       }
       if (type === "MEGA") {
-//        delta_y += 50;
+        //        delta_y += 50;
       }
       if (type === "EGG") {
         delta_y += 0;
@@ -1185,7 +1200,7 @@ Cost: 3
       ///// MAIN TEXT 
       let y_line = bottom - 640; // set above for effectbox / rule
       console.log(1149, y_line);
-//      if (type === "
+      //      if (type === "
       // effect
       ctx.font = `bold 90px Arial`;
       ctx.textAlign = 'start';
@@ -1198,24 +1213,25 @@ Cost: 3
       const spec_evo = colorReplace(json.specialEvolve, true);
       let special_baseline = y_line;
       if (!empty(spec_evo)) {
-        special_baseline -= (fontSize * 2);        
+        special_baseline -= (fontSize * 2);
         drawBracketedText(ctx, fontSize, spec_evo, 300, special_baseline, 3000, fontSize, "bubble");
       }
       if (!empty(dna_evo)) {
-        special_baseline -= (fontSize * 2);        
+        special_baseline -= (fontSize * 2);
         drawBracketedText(ctx, fontSize, dna_evo, 300, special_baseline, 3000, fontSize, "dna");
       }
 
       let effect = json.effect;
       ctx.fillStyle = 'black';
 
-//      if (type === "MONSTER") y_line += 180;
+      y_line += 80;
+      //      if (type === "MONSTER") y_line += 180;
 
       if (effect && effect !== "-") {
         effect = colorReplace(effect, true);
         y_line = drawBracketedText(ctx, fontSize, effect,
           //wrapText(ctx, effect, // + effect, 
-          300, y_line,
+          250, y_line,
           2455,
           fontSize, type === "OPTION" ? "effect-option" : "effect",
           false
@@ -1332,7 +1348,7 @@ Cost: 3
     //ightImg.onload = () => {
 
 
-  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox]);
+  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1462,11 +1478,11 @@ Cost: 3
                 backgroundColor: '#eef'
               }}>
             </canvas>
-            <br/>
-            <label>Zoom: <input type="number" style={{ width: "50px" }} name="zoom" value={zoom} onChange={ updateZoom } />% </label>
+            <br />
+            <label>Zoom: <input type="number" style={{ width: "50px" }} name="zoom" value={zoom} onChange={updateZoom} />% </label>
 
 
-            </div>
+          </div>
         </td>
         <td width={"25%"} valign={"top"}>
           Choose image:
@@ -1500,18 +1516,18 @@ Cost: 3
 
           <button onClick={handleExport}>Save Image Locally</button>
           <hr />
-          <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} />
+          <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} drawFrame={drawFrame} />
           <br />
           <hr />
           <span>
             <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { console.log(1268, e.target.value); setFontSize(e.target.value) }} />Font Size </label>
             <br />
             <label>
-            <input type="checkbox" checked={effectBox} onChange={ (e) => { setEffectBox(e.target.checked) } } />
-            Effect box  
-            </label>
-
-            <br />
+              <input type="checkbox" checked={effectBox} onChange={(e) => { setEffectBox(e.target.checked) }} />
+              Effect box </label>  <br />
+            <label>
+              <input type="checkbox" checked={drawFrame} onChange={(e) => { setDrawFrame(e.target.checked) }} />
+              Card Frame </label>  <br />
             <br /> Unimplemented:  burst, rarity <br />
           </span>
         </td>
@@ -1535,8 +1551,8 @@ Cost: 3
       <tr style={{ fontSize: "smaller" }} >
         <td width={"30%"} style={{ fontSize: "smaller" }}>
           Version {version} {latest}
-          <p style={{ fontFamily: "ToppanBunkyExtraBold"}}>Ask support or request features over on <a href={invite}>Discord</a>.</p>
-          <p style={{ fontFamily: "ProhibitionRough"}}><a href="./fontguide.html">FONT GUIDE</a></p>
+          <p style={{ fontFamily: "ToppanBunkyExtraBold" }}>Ask support or request features over on <a href={invite}>Discord</a>.</p>
+          <p style={{ fontFamily: "ProhibitionRough" }}><a href="./fontguide.html">FONT GUIDE</a></p>
           <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
           <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba and Zaffy who kept this dream alive in previous years.</p>
           <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>

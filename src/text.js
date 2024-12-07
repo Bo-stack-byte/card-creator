@@ -318,11 +318,14 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
     let line = '';
     const italics = (extra === "bubble" || extra === "dna") ? "italic" : "";
 
+    let scale = 1.0;
+
+    
     for (let n = 0; n < words.length; n++) {
       ctx.font = `${italics} ${fontSize}px ${font}`;
       const testLine = line + words[n] + ' ';
       const metrics = ctx.measureText(testLine.replaceAll(/[＜＞[\]]/ig, ''));
-      const testWidth = metrics.width;
+      const testWidth = metrics.width * scale;
       //      console.log(`is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
 
       if (testWidth > maxWidth && n > 0) {
@@ -331,7 +334,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
         //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
         lines.push({ ctx, line, x, yOffset });
         line = words[n] + ' ';
-        yOffset += lineHeight + 2;
+        yOffset += lineHeight * 1.3;
       } else {
         line = testLine;
       }
@@ -341,7 +344,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
 
     // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
     lines.push({ ctx, line, x, yOffset });
-    yOffset += lineHeight + 2;
+    yOffset += lineHeight * 1.3;
 
     // 2700 should not be hard-coded
     let max_end = Math.max.apply(Math,
@@ -381,6 +384,7 @@ function getColor(phrase) {
 
 function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = false) {
   console.log(361, fontSize, text, x, y, style, preview);
+  fontSize = Number(fontSize);
   //  let cardWidth = 2700; // shouldn't be hard-coded; we need our start pos
   let lastX = x;
   let scale = 1;
@@ -415,8 +419,8 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
       if (!preview) drawColoredRectangle(ctx, lastX, y + 3, phraseWidth + 10, fontSize, color);
       ctx.fillStyle = 'white';
       //console.log(328, lastX, cleanPhrase, (cardWidth - lastX - 5));
-      if (!preview) ctx.fillText(cleanPhrase, lastX + 5, y - 10, cardWidth - lastX - 5);
-      lastX += phraseWidth + 15;
+      if (!preview) ctx.fillText(cleanPhrase, lastX + 5, y - 10, cardWidth - lastX - 5, phraseWidth);
+      lastX += phraseWidth + fontSize;
       ctx.font = `${italics} ${(fontSize)}px ${font}`;
 
     } else {

@@ -21,6 +21,11 @@ br {
 }
 
 
+@font-face {
+  font-family: 'AyarKasone';
+  src: local('AyarKasone'), url(./fonts/ayar_kasone.ttf) format('truetype');
+
+}
 
 @font-face {
   font-family: 'MyriadProBold';

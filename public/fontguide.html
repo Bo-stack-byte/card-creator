@@ -1,8 +1,13 @@
 <head>
   <link rel="stylesheet" href="./local-styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400&display=swap" rel="stylesheet">
+
   <style type="text/css">
     .center td {
       text-align: center;
+    }
+    .roboto {
+      font-family: "Roboto Condensed";
     }
     .prohibition {
       font-family: "ProhibitionRough"
@@ -13,11 +18,28 @@
     .asimov {
       font-family: "Asimov"
     }
+    .vegur {
+      font-family: "VegurBold"
+    }
     .fallingsky {
       font-family: "FallingSky"
     }
-
-    html {
+    .myriad {
+      font-family: "MyriadProBold"
+    }
+    .toppan1 {
+      font-family: toppan-bunkyu-midashi-go-std, sans-serif;
+    }
+    .toppan2 {
+      font-family: toppan-bunkyu-midashi-gothic, sans-serif;
+    }
+    .toppan3 {
+      font-family: "Toppan Bunkyu Midashi Gothic", sans-serif;
+    }
+    .toppan4 {
+      font-family: "ToppanBunkyExtraBold", sans-serif;
+    }
+      html {
       font-size: 18px;
     }
 
@@ -56,15 +78,15 @@
       WithTheWill</a> came up with the original card templates, and also eyeballed the fonts in use on the official
     cards. he probably didn't expect that lots of people would stick to his initial thoughts years later.</p>
 
-  <p>this is a guide on reverse-engineering the fonts in question.</p>
+  <p class="myriad">this is a guide on reverse-engineering the fonts in question.2</p>
   
-  <p>if you want to suggest a new font, specifically cite at least 1 glyph that is a better match to the card text. 
-    if that causes some other glyphs to be wrong, that's okay, we won't have to use the new one but knowing what pieces we need is valuable</p>
+  <p class="vegur">if you want to suggest a new font, specifically cite at least 1 glyph that is a better match to the card text. 
+    if that causes some other glyphs to be wrong, that's okay, we won't have to use the new one but knowing what pieces we need is valuable WarGreymon Imperial Dramon: Ace & f,f</p>
 
-  <p>if a font on this page isn't loading, it will default to <span style="font-family: XXXX;">Times New Roman like this</span>
+  <p class="toppan4">if a font on this page isn't loading, it will default to <span style="font-family: XXXX;">Times New Roman like this</span>
   </p>
 
-  <table border=0>
+  <table>
     <tr>
       <th width=50%>
       <th width=50%>
@@ -100,21 +122,14 @@
         <h1>Name</h1>
       </td>
       <td>
-        <h2>current confidence: medium-high; most glyphs match</h2>
+        <h2>current confidence: high; all glyphs match</h2>
       </td>
     </tr>
     <tr>
       <td colspan="2">
 
-        the most distinctive glyph is the ampersand:
-        <br />
-        <img src="./ampersand.png" />
-        <br />
-        <p>i have not found any font yet that matches this. find that glpyh and we win. i have a suspicion this might be
-          a custom glyph made specifically for Bandai and we will never find one that matches.</p>
-        <p>
           <tr><td>
-          for this font, the other distinctive features are the curve on the lower-case L and the hook on the lowercase
+          for this font, the distinctive features are the curve on the lower-case L and the hook on the lowercase
           g:
           </td><td>
             <img src="./name.png" />
@@ -135,8 +150,14 @@
             </td><td>
               <img src="./name-fallingsky.png" />
               </td></tr>
-              <tr><td colspan="2">we might want the capitals from one font and the lowercase from another</td></tr>
-
+              <tr><td colspan="2">we might want the capitals from one font and the lowercase from another
+              <p>
+              however, the most distinctive glyph is the ampersand 
+              <br />
+              <img src="./ampersand.png" />
+              <br />
+              this solves the mystery, we have Toppan Bunkya Gothic. weird how it's a merge of two others.
+      
     </tr>
 
 
@@ -150,11 +171,15 @@
       <td>
         <h1>Cost</h1>
       <td>
-        <h2>current confidence: high, all glyphs match</h2>
+        <h2>current confidence: medium to high</h2>
     <tr>
       <td colspan=2>
-        Ayar Kasone looks exactly right. Helvetica is a decent backup that looks nice on the "7" but fails on the "0".
-
+        Ayar Kasone looks right for play cost. Look at the "0" and its straight sides. Helvetica is a decent backup that looks nice on the "7" but fails on the "0".
+      <p>
+        For the "level" field of the circle, Roboto seems decent match, tough to say
+        <p>
+          For the evo cost, it's not *quite* Ayar Kasone. Look at "0" again. the actual "0" looks more rounded. like helvetica. it's weird for them to be so close yet different
+          so i really want to say they're both Ayar Kasone.
     </tr>
 
     <tr>
@@ -166,13 +191,14 @@
       <td>
         <h1>Effect Text</h1>
       <td>
-        <h2>current confidence: medium-high outside keyword, high inside keyword</h2>
+        <h2>current confidence: high outside keyword, medium inside keyword</h2>
     <tr>
       <td>
         There are two different fonts in use on effect text. One is the raw text, the other is that inside of effects.
         <p>
           The effect text outside has straight lower-case L and the lower-case G has a hook. Inside of a colored-block,
-          the l is curved and the g is hooked.
+          the l is curved and the g is hooked. the "t" has a sloped top, but the "h" does not even though it looks like it
+          does in this picture. i think AI "improved" this picture as I took it but check the physical card, there's no slope on "h"
       <td>
         <img src="./effects.png" />
       </td>
@@ -180,7 +206,7 @@
     <tr>
       <td>
         <a href="https://fonts.google.com/specimen/Roboto+Condensed?preview.text=Both%20players%20Digivolve%20Then,">Roboto
-          Condensed</a> is a decent match here. The comma too curved and the "t" and "h" have sloped tops.
+          Condensed</a> is a decent match here. The comma is too curved and the "t" is missing the sloped top.
       <td>
         <img src="./effects-roboto.png" />
       </td>
@@ -189,15 +215,31 @@
     <tr>
       <td class="asimov">
         <a href="https://fonts2u.com/asimov-print-c.font?ptext=Both+players%2C+%5BGuil">Asimov Print C</a> seems a bit
-        better. The "t" and "h" are missing the slopes on top.
+        better. The "t" is missing the slope on top.        
       <td>
         <img src="./effects-asimov.png" />
       </td>
     </tr>
-
+      <td class="myriad">
+        Using <a href="https://fonts.adobe.com/fonts/myriad">Myriad Pro</a> is the winner. <br/>
+        i can match a complete row of text down to the pixel. this is definitely right.
+        <td>
+          <img src="./myriad.png" />
+    </tr>
+    <tr><td class="roboto">Since people won't believe me, here's Roboto Condensed loop:
+      <td><img src="./robbold-loop.gif" />
+      </tr>
+      <tr><td class="myriad">And here's Myriad loop:
+        <td><img src="./myr-loop.gif" />
+        </tr>
+        
+      
+    <tr><td><br>...
     <tr>
       <td class="fallingsky">
-        For the text inside the effect box, Falling Sky seems a perfect match.
+        For the text inside the effect box, Falling Sky seems a good match. The "I" and "g" mean it 
+        I can't detect any glyph that's different, but it doesn't *quite* feel light in some way.
+        like i need to squish it vertically.
       <td>
         <img src="./keyword-fallingsky.png" />
       </td>
@@ -213,10 +255,10 @@
       <td>
         <h1>Traits</h1>
       <td>
-        <h2>current confidence: low</h2>
+        <h2>current confidence: medium-high</h2>
     <tr>
       <td colspan=2>
-        The trait text is harder to see. The capital-U is a perfect curiive, the lower-case U has a prong hanging off
+        The trait text is harder to see. The capital-U is a perfect curve, the lower-case U has a prong hanging off
         the lower-right and the lower-case G has a prong on the upper-right. The vertical strokes on the capital-M are
         not straight up-and-down.
         <br />
@@ -227,6 +269,8 @@
         lower-case G are missing prongs.
         </p>
         <img src="./traits-ours.png" />
+        <p>
+        Myriad, again, may be the right answer. it works elsewhere.
 
     </tr>
 

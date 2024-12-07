@@ -12,7 +12,8 @@ let diamondRight = new Image(); diamondRight.src = _right_diamond;
 
 //const font = 'Asimov'
 const font = 'MyriadProBold'
-        
+const boxfont = true ? "FallingSky" : "ToppanBunkyExtraBold";   
+
 export function center(str, len=16) {
   let l = str.length;
   if (l >= len) return str;
@@ -316,7 +317,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
 
     const words = splitTextIntoParts(graf);
     let line = '';
-    const italics = (extra === "bubble" || extra === "dna") ? "italic" : "";
+    const italics = (extra === "bubble" || extra === "dna") ? "italic" : "100";
 
     let scale = 1.0;
 
@@ -334,7 +335,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
         //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
         lines.push({ ctx, line, x, yOffset });
         line = words[n] + ' ';
-        yOffset += lineHeight * 1.3;
+        yOffset += 117.5; //  117.5 for EX2-039 w/90.5 font:for smaller lines lineHeight* 1.3;
       } else {
         line = testLine;
       }
@@ -414,13 +415,17 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
       }
       const italics = (style === "bubble" || style === "dna") ? "italic" : "";
 
-      ctx.font = ` ${(fontSize - 15)}px FallingSky`;
+      ctx.font = `100 ${(fontSize - 10)}px ${boxfont}`;
       const phraseWidth = ctx.measureText(cleanPhrase).width;
-      if (!preview) drawColoredRectangle(ctx, lastX, y + 3, phraseWidth + 10, fontSize, color);
+      let start = lastX; let width = phraseWidth + 50;
+      if (!preview) drawColoredRectangle(ctx, start, y+3,  width, fontSize, color);
       ctx.fillStyle = 'white';
+      ctx.textAlign = 'center';
       //console.log(328, lastX, cleanPhrase, (cardWidth - lastX - 5));
-      if (!preview) ctx.fillText(cleanPhrase, lastX + 5, y - 10, cardWidth - lastX - 5, phraseWidth);
-      lastX += phraseWidth + fontSize;
+      if (!preview) ctx.fillText(cleanPhrase, start + width / 2 + 5, y - 10, cardWidth - lastX - 5, phraseWidth);
+      ctx.textAlign = 'left';
+
+      lastX += width; // phraseWidth + fontSize;
       ctx.font = `${italics} ${(fontSize)}px ${font}`;
 
     } else {
@@ -429,7 +434,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
           const cleanWord = word.replace(/[＜＞_]/g, '  ');
           //          ctx.font = `600 ${(fontSize - 5)}px Schibsted Grotesk`;
           //   ctx.font = `bold ${(fontSize - 5)}px Roboto`;
-          ctx.font = `300 ${(fontSize - 15)}px FallingSky`;
+          ctx.font = `100 ${(fontSize - 10)}px ${boxfont}`;
 
           const wordWidth = ctx.measureText(cleanWord).width;
           //console.log(314, wordWidth, cardWidth, lastX, cleanWord);

@@ -30,9 +30,10 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.5";
-const latest = "fix pixels of effect text and DP and other things to be near-pixel-perfect"
+const version = "0.6.5.1"
+const latest = "try to pixel match both ex2-039 and bt14-014"
 
+// version 0.6.5  fix pixels of effect text and DP and other things to be near-pixel-perfect
 // version 0.6.4  massive font upgrade: name, effect/keywords, traits, level all identical to print cards now
 // version 0.6.3  fix width on bubble and DNA and multi-line; DNA now uses proper colored box"
 // version 0.6.2  handle 'digivolve' as well as 'evolve'; helvetica as backup font; straggling pixels fixed; playcost and evocost offsets broken and then fixed
@@ -103,7 +104,7 @@ function borderColor(colors) {
 }
 
 function edgeColor(color) {
-  if (["red", "blue", "green", "purple", "black", "all"].includes(color)) return "black";
+  if (["red", "blue", "green", "purple", "black", "all"].includes(color.toLowerCase())) return "black";
   return "white";
 
 }
@@ -967,19 +968,23 @@ Cost: 3
           let index = modern ? 0 : n;
 
           ctx.font = `bold 90px Roboto, Helvetica`; //  Roboto`;
-          ctx.lineWidth = 0.1;
+          ctx.lineWidth = 10;
           
 
 
-          ctx.strokeStyle = edgeColor(evo_color);
+          let ec = edgeColor(evo_color);
+          ctx.strokeStyle = ec;
+          // this isn't working!
+          if (ec === "white") ctx.lineWidth = 10;
+          if (ctx.strokeStyle === "white" || true) ctx.lineWidth = 0.1;
           ctx.strokeText(evo_level, 375, 870 + height * index, 140);
           ctx.fillStyle = contrastColor(evo_color);
           ctx.fillText(evo_level, 375, 870 + height * index, 140);
 
             // aray kasone isn't *quite* right here
           // we should only have a contrast color if our colors disagree
-          ctx.font = `bold 220px AyagrKasone, Helvetica`;
-          ctx.lineWidth = 0.1;
+          ctx.font = `bold 220px AyarfKasone, Helvetica`;
+          ctx.lineWidth = 10;
           ctx.strokeStyle = edgeColor(evo_color);
           //   ctx.strokeStyle = contrastColor(evo_color);
 
@@ -1209,16 +1214,17 @@ Cost: 3
 
 
       // DNA evo and special evo appear above the effect line
-      const dna_evo = json.dnaEvolve; // colorReplace is inside drawBracketedText
-      const spec_evo = colorReplace(json.specialEvolve, true);
+      const dna_evo = json.dnaEvolve || json.dnaDigivolve; // colorReplace is inside drawBracketedText
+      const spec_temp = json.specialEvolve || json.specialDigivolve;
+      const spec_evo = colorReplace(spec_temp, true);
       let special_baseline = y_line;
       if (!empty(spec_evo)) {
-        special_baseline -= (fontSize * 2);
-        drawBracketedText(ctx, fontSize, spec_evo, 300, special_baseline, 3000, fontSize, "bubble");
+        special_baseline -= (fontSize * 1);
+        drawBracketedText(ctx, fontSize, spec_evo, 270, special_baseline, 3000, fontSize, "bubble");
       }
       if (!empty(dna_evo)) {
-        special_baseline -= (fontSize * 2);
-        drawBracketedText(ctx, fontSize, dna_evo, 300, special_baseline, 3000, fontSize, "dna");
+        special_baseline -= (fontSize * 1);
+        drawBracketedText(ctx, fontSize, dna_evo, 270, special_baseline, 3000, fontSize, "dna");
       }
 
       let effect = json.effect;
@@ -1552,7 +1558,7 @@ Cost: 3
         <td width={"30%"} style={{ fontSize: "smaller" }}>
           Version {version} {latest}
           <p style={{ fontFamily: "ToppanBunkyExtraBold" }}>Ask support or request features over on <a href={invite}>Discord</a>.</p>
-          <p style={{ fontFamily: "ProhibitionRough" }}><a href="./fontguide.html">FONT GUIDE</a></p>
+          <p style={{ fontFamily: "ProhibitionRough" }}><a href="./fontguide.html">FONT GUIDE</a> &nbsp; &nbsp;  <a href="./roadmap.txt">roadmap</a></p>
           <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
           <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba and Zaffy who kept this dream alive in previous years.</p>
           <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>

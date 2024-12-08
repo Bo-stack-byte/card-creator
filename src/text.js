@@ -139,7 +139,6 @@ function drawRoundedRect(ctx, x, y, width, height, radius, stroke) {
 
 //x,y is upper left
 function drawDnaBox(ctx, x, y, w, h, colors) {
-  console.log(142, "xxx", x, y, w, h, colors);
   if (colors.length === 0) return;
  // return;
   let images = colors.map(x => dna_boxes[x.toLowerCase()]).filter(x => x);
@@ -250,11 +249,11 @@ function _2drawDiamondRectangle(ctx, x, y, width, height) {
   // Begin drawing the shape
   ctx.beginPath();
   ctx.moveTo(x, y + halfHeight); // Start at the left triangle point
-  ctx.lineTo(x + halfHeight, y); // Top-left corner
-  ctx.lineTo(x + width - halfHeight, y); // Top-right corner
+  ctx.lineTo(x + halfHeight/2, y); // Top-left corner
+  ctx.lineTo(x + width - halfHeight/2, y); // Top-right corner
   ctx.lineTo(x + width, y + halfHeight); // Right triangle point
-  ctx.lineTo(x + width - halfHeight, y + height); // Bottom-right corner
-  ctx.lineTo(x + halfHeight, y + height); // Bottom-left corner
+  ctx.lineTo(x + width - halfHeight/2, y + height); // Bottom-right corner
+  ctx.lineTo(x + halfHeight/2, y + height); // Bottom-left corner
   ctx.closePath(); // Close the path
 
   // Fill the shape with gradient
@@ -308,7 +307,7 @@ function prepareKeywords(str, replaceBrackets) {
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
 export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, preview = false) {
   let maxWidth = horizontal_limit - x;
-  console.log(308, "calling with " + fontSize + " - " + text + " - " + y);
+  console.log(308, "calling with" , fontSize, text , y , "XXX", lineHeight );
   lineHeight = Number(lineHeight);
   let yOffset = y;
   let lines = [];
@@ -341,7 +340,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
         //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
         lines.push({ ctx, line, x, yOffset });
         line = words[n] + ' ';
-        yOffset += lineHeight * 1.3; // 117.5; //  117.5 for EX2-039 w/90.5 font:for smaller lines lineHeight* 1.3;
+        yOffset += lineHeight; // 117.5; //  117.5 for EX2-039 w/90.5 font:for smaller lines lineHeight* 1.3;
       } else {
         line = testLine;
       }
@@ -351,7 +350,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 
     // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
     lines.push({ ctx, line, x, yOffset });
-    yOffset += lineHeight * 1.3 ; // use 117.5
+    yOffset += lineHeight ; // use 117.5
 
     // 2700 should not be hard-coded
     let max_end = Math.max.apply(Math,
@@ -448,7 +447,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
           const wordWidth = ctx.measureText(cleanWord).width;
           //console.log(314, wordWidth, cardWidth, lastX, cleanWord);
           let h = Number(fontSize);
-          if (!preview) drawDiamondRectangle(ctx, lastX, y, scale * wordWidth + 10, h + 10);
+          if (!preview) drawDiamondRectangle(ctx, lastX, y-8, scale * wordWidth + 10, h);
           ctx.scale(scale, 1);
           ctx.fillStyle = 'white'; // white on colored background
           if (!preview) ctx.fillText(cleanWord, lastX / scale + 5, y - 10, cardWidth - lastX);

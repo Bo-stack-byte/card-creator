@@ -343,7 +343,8 @@ function CustomCreator() {
   const [effectBox, setEffectBox] = useState(false);
   const [drawFrame, setDrawFrame] = useState(true);
   const [skipDraw, setSkipDraw] = useState(false);
-  const [baseline, setBaseline] = useState(0);
+  const [baselineOffset, setBaselineOffset] = useState(0);
+  const [lineSpacing, setLineSpacing] = useState(10);
   const [selectedOption, setSelectedOption] = useState('AUTO'); // radio buttons 
   const [imageOptions, setImageOptions] = useState({
     url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95
@@ -1218,10 +1219,10 @@ Cost: 3
       ///// MAIN TEXT 
       let y_line = bottom - 640; // set above for effectbox / rule
 
-      let b = Number(baseline);
-      y_line += Number(baseline);
+      let b = Number(baselineOffset);
+      y_line -= Number(baselineOffset);
 
-        console.log(1149, b, baseline, y_line);
+        console.log(1149, b, baselineOffset, y_line);
       //      if (type === "
       // effect
       ctx.font = `bold 90px Arial`;
@@ -1237,11 +1238,11 @@ Cost: 3
       let special_baseline = y_line;
       if (!empty(spec_evo)) {
         special_baseline -= (fontSize * 2);
-        drawBracketedText(ctx, fontSize, spec_evo, 270, special_baseline, 3000, fontSize, "bubble");
+        drawBracketedText(ctx, fontSize, spec_evo, 270, special_baseline, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
       }
       if (!empty(dna_evo)) {
         special_baseline -= (fontSize * 2);
-        drawBracketedText(ctx, fontSize, dna_evo, 270, special_baseline, 3000, fontSize, "dna");
+        drawBracketedText(ctx, fontSize, dna_evo, 270, special_baseline, 3000, Number(fontSize) + Number(lineSpacing), "dna");
       }
 
       let effect = json.effect;
@@ -1256,7 +1257,7 @@ Cost: 3
           //wrapText(ctx, effect, // + effect, 
           250, y_line,
           2455,
-          fontSize, type === "OPTION" ? "effect-option" : "effect",
+          Number(fontSize) + Number(lineSpacing), type === "OPTION" ? "effect-option" : "effect",
           false
         );
       }
@@ -1266,7 +1267,7 @@ Cost: 3
       if (xros && xros !== "-") {
         // BT10-009 EX3-014: shaded box
         // st19-10 solid box
-        /*y_line =  */ drawBracketedText(ctx, fontSize, xros, 300, bottom, 3000, fontSize, "bubble");
+        /*y_line =  */ drawBracketedText(ctx, fontSize, xros, 300, bottom, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
       }
 
       // evo effect
@@ -1290,7 +1291,7 @@ Cost: 3
       if (sec_effect && type !== "MEGA") {
         drawBracketedText(ctx, fontSize, sec_effect,
           700 + delta_x * 2, 3740 + delta_y * 2,
-          2500 - 400 - delta_x * 2, fontSize, "effect");
+          2500 - 400 - delta_x * 2, Number(fontSize) + Number(lineSpacing), "effect");
       }
     }
 
@@ -1371,7 +1372,7 @@ Cost: 3
     //ightImg.onload = () => {
 
 
-  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, baseline]);
+  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, baselineOffset, lineSpacing]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1543,9 +1544,11 @@ Cost: 3
           <br />
           <hr />
           <span>
-            <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { console.log(1268, e.target.value); setFontSize(e.target.value) }} /> </label>
+            <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { setFontSize(e.target.value) }} /> </label>
+            <span> &nbsp; &nbsp; </span>
+            <label>Line spacing: <input type="number" style={{ width: "50px" }} name="lineSpacing" value={lineSpacing} onChange={(e) => {  setLineSpacing(e.target.value) }} /> </label>
             <br />
-            <label>Effect offset: <input type="number" style={{ width: "50px" }} name="baseline" value={baseline} onChange={(e) => setBaseline(e.target.value) } /> </label>
+            <label>Move effect baseline up by: <input type="number" style={{ width: "50px" }} name="baseline" value={baselineOffset} onChange={(e) => setBaselineOffset(e.target.value) } /> </label>
             <br />
             <label>
               <input type="checkbox" checked={effectBox} onChange={(e) => { setEffectBox(e.target.checked) }} />
@@ -1553,10 +1556,9 @@ Cost: 3
             <label>
               <input type="checkbox" checked={drawFrame} onChange={(e) => { setDrawFrame(e.target.checked) }} />
               Card Frame </label>  <br />
-            { /*
-            <label>
-              <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
-              Skip Draw </label>  <br />*/ }
+            <label style={{display:"none"}} >
+              <input type="checkbox"  checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
+              Skip Draw </label>  <br />
             <br /> Unimplemented:  burst, rarity <br />
           </span>
         </td>

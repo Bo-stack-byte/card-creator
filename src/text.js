@@ -13,6 +13,7 @@ let diamondRight = new Image(); diamondRight.src = _right_diamond;
 //const font = 'Asimov'
 const font = 'MyriadProBold'
 const boxfont = true ? "FallingSky" : "ToppanBunkyExtraBold";   
+const horizontal_limit = 2800;
 
 export function center(str, len=16) {
   let l = str.length;
@@ -97,7 +98,7 @@ export function writeRuleText(ctx, rule, fontSize, bottom) {
   let text = rule;
   if (text.startsWith("[Rule]")) text = text.substring(6).trim();
   let width = ctx.measureText(text).width;
-  let x = 2700;
+  let x = horizontal_limit - 100;
   ctx.fillRect(x - width, bottom - fontSize / 8, width + fontSize / 4, - fontSize * 0.7);
   ctx.strokeStyle = 'white';
   ctx.lineWidth = 20;
@@ -138,6 +139,9 @@ function drawRoundedRect(ctx, x, y, width, height, radius, stroke) {
 
 //x,y is upper left
 function drawDnaBox(ctx, x, y, w, h, colors) {
+  console.log(142, "xxx", x, y, w, h, colors);
+  if (colors.length === 0) return;
+ // return;
   let images = colors.map(x => dna_boxes[x.toLowerCase()]).filter(x => x);
   console.log(135, images);
   const len = images.length;
@@ -167,7 +171,7 @@ function drawDnaBox(ctx, x, y, w, h, colors) {
 //x,y is upper left
 function drawColoredRectangle(ctx, x, y, width, height, color) {
   //#922969 darker ois lower
-  const cardWidth = 2700; // !
+  const cardWidth = horizontal_limit; // !
   height = Number(height);
   let color0, color1;
   switch (color) {
@@ -234,6 +238,7 @@ function _1drawDiamondRectangle(ctx, x, y, width, height) {
 
 function _2drawDiamondRectangle(ctx, x, y, width, height) {
   // Calculate the half-height and half-width for the triangles
+  console.log(238, x, y, width, height);
   y -= height;
   const halfHeight = height / 2;
   // Create the gradient from dark brown to medium brown
@@ -301,13 +306,14 @@ function prepareKeywords(str, replaceBrackets) {
 
 // if "extra" is "bubble", put text in black bubble
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
-export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeight, extra, preview = false) {
-  console.log("calling with " + fontSize + " - " + text);
+export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, preview = false) {
+  let maxWidth = horizontal_limit - x;
+  console.log(308, "calling with " + fontSize + " - " + text + " - " + y);
   lineHeight = Number(lineHeight);
   let yOffset = y;
   let lines = [];
   text = text.replaceAll(/</ig, "＜").replaceAll(/>/ig, "＞");
-  let right_limit = 2700;
+  let right_limit = horizontal_limit;
   const dna_colors = countColors(text);
   if (extra === "dna") text = colorReplace(text);
 
@@ -335,7 +341,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
         //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
         lines.push({ ctx, line, x, yOffset });
         line = words[n] + ' ';
-        yOffset += 117.5; //  117.5 for EX2-039 w/90.5 font:for smaller lines lineHeight* 1.3;
+        yOffset += lineHeight * 1.3; // 117.5; //  117.5 for EX2-039 w/90.5 font:for smaller lines lineHeight* 1.3;
       } else {
         line = testLine;
       }
@@ -345,7 +351,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
 
     // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
     lines.push({ ctx, line, x, yOffset });
-    yOffset += lineHeight * 1.3;
+    yOffset += lineHeight * 1.3 ; // use 117.5
 
     // 2700 should not be hard-coded
     let max_end = Math.max.apply(Math,
@@ -361,10 +367,12 @@ export function drawBracketedText(ctx, fontSize, text, x, y, maxWidth, lineHeigh
     }
     if (extra === "dna") {
       if (!preview) {
-        drawDnaBox(ctx, x - fontSize / 2, y - fontSize * 1.1 - 10, pre_width + fontSize / 2, (yOffset - y) * 1.1 + 20, dna_colors);
+        drawDnaBox(ctx, x - fontSize / 2, y - fontSize * 1.3 - 10, pre_width + fontSize / 2, (yOffset - y) * 1.1 + 20, dna_colors);
       }
     }
   }
+
+  console.log(372, lines);
   for (let line of lines) {
 
     wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra, right_limit, preview);
@@ -386,6 +394,7 @@ function getColor(phrase) {
 function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = false) {
   console.log(361, fontSize, text, x, y, style, preview);
   fontSize = Number(fontSize);
+  y = Number(y);
   //  let cardWidth = 2700; // shouldn't be hard-coded; we need our start pos
   let lastX = x;
   let scale = 1;

@@ -57,8 +57,8 @@ br {
 
 @font-face {
   font-family: 'RepoMedium';
-  font-style: normal;
-  font-weight: normal;
+/*  font-style: normal;
+  font-weight: normal; */
   src: local('RepoMedium'), url(./fonts/Repo-Medium.woff) format('woff');
   }
 

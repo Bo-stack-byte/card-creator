@@ -30,7 +30,7 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.5.1"
+const version = "0.6.5.2"; // customize effect height
 const latest = "try to pixel match both ex2-039 and bt14-014"
 
 // version 0.6.5  fix pixels of effect text and DP and other things to be near-pixel-perfect
@@ -342,6 +342,8 @@ function CustomCreator() {
   const [fontSize, setFontSize] = useState(90.5);
   const [effectBox, setEffectBox] = useState(false);
   const [drawFrame, setDrawFrame] = useState(true);
+  const [skipDraw, setSkipDraw] = useState(false);
+  const [baseline, setBaseline] = useState(0);
   const [selectedOption, setSelectedOption] = useState('AUTO'); // radio buttons 
   const [imageOptions, setImageOptions] = useState({
     url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95
@@ -763,6 +765,8 @@ Cost: 3
       if (type === "ACE") bottom -= 480;
       if (type === "TAMER" || type === "TAMERINHERIT" || type === "OPTION") bottom -= 640;
 
+      if (skipDraw) return;
+
       if (effectBox) {
         for (let i = 0; i < len; i++) {
           let col = colors[i];
@@ -772,8 +776,6 @@ Cost: 3
           scalePartialImage(ctx, box, i, len, 825, offset_x + 100, bottom + 60);
         }
       }
-
-
 
       if (drawFrame) {
         // new style background
@@ -969,7 +971,7 @@ Cost: 3
 
           ctx.font = `bold 90px Roboto, Helvetica`; //  Roboto`;
           ctx.lineWidth = 10;
-          
+
 
 
           let ec = edgeColor(evo_color);
@@ -981,7 +983,7 @@ Cost: 3
           ctx.fillStyle = contrastColor(evo_color);
           ctx.fillText(evo_level, 375, 870 + height * index, 140);
 
-            // aray kasone isn't *quite* right here
+          // aray kasone isn't *quite* right here
           // we should only have a contrast color if our colors disagree
           ctx.font = `bold 220px AyarfKasone, Helvetica`;
           ctx.lineWidth = 10;
@@ -1129,7 +1131,7 @@ Cost: 3
       try {
         const name = json.name.english;
         let ace_offset = (type === "ACE") ? -ace_logo.width / 2 : 0;
-        const maxWidth = 1700 + ace_offset * 2;
+        const maxWidth = 1200 + ace_offset * 2;
 
         const initialFontSize = 200;
         const fontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize, 180);
@@ -1173,8 +1175,17 @@ Cost: 3
       const id = json.cardNumber;
       ctx.textAlign = 'right';
       ctx.fillStyle = contrastColor(colors[colors.length - 1]);
-      ctx.font = `bold 90px Arial`;
-      ctx.fillText(id, 2780, 3400 + delta_y);
+      ctx.font = `bold 85px Helvetica`;
+      // Helvetica seems basically right but needs to be made skinny
+      // ToppanBunkyExtraBold has serifs on 1 now??
+      // myriadprobold wrong on 7 6 1
+      // asimov has wrong 6
+      // ayarkasone has the right 1 but the wrong 5
+      // levetica and arial may be too plain? or not.
+      // not roboto because the 6 needs a hook
+      // fallingsky ihas the wrong 1
+
+      ctx.fillText(id, 2740, 3300 + delta_y, 330);
 
       // traits: form, attribute, type
       let form = json.form || '';
@@ -1199,12 +1210,18 @@ Cost: 3
         delta_y += 0;
       }
 
-      ctx.font = `bold 60px "MyriadProBold", "Repo Medium", "Roboto"`;
+      ctx.font = `bold 60px "FallifngSky", "MyrggiadProBold", "RepoMedium", "Robgoto"`;
+      ctx.font = `60px MyriadProBold`;
       ctx.fillText(traits, 2750, 3490 + delta_y)// * 0.9);
+
 
       ///// MAIN TEXT 
       let y_line = bottom - 640; // set above for effectbox / rule
-      console.log(1149, y_line);
+
+      let b = Number(baseline);
+      y_line += Number(baseline);
+
+        console.log(1149, b, baseline, y_line);
       //      if (type === "
       // effect
       ctx.font = `bold 90px Arial`;
@@ -1219,11 +1236,11 @@ Cost: 3
       const spec_evo = colorReplace(spec_temp, true);
       let special_baseline = y_line;
       if (!empty(spec_evo)) {
-        special_baseline -= (fontSize * 1);
+        special_baseline -= (fontSize * 2);
         drawBracketedText(ctx, fontSize, spec_evo, 270, special_baseline, 3000, fontSize, "bubble");
       }
       if (!empty(dna_evo)) {
-        special_baseline -= (fontSize * 1);
+        special_baseline -= (fontSize * 2);
         drawBracketedText(ctx, fontSize, dna_evo, 270, special_baseline, 3000, fontSize, "dna");
       }
 
@@ -1249,7 +1266,7 @@ Cost: 3
       if (xros && xros !== "-") {
         // BT10-009 EX3-014: shaded box
         // st19-10 solid box
-        /*y_line =  */ drawBracketedText(ctx, fontSize, xros, 300, y_line, 3000, fontSize, "bubble");
+        /*y_line =  */ drawBracketedText(ctx, fontSize, xros, 300, bottom, 3000, fontSize, "bubble");
       }
 
       // evo effect
@@ -1354,7 +1371,7 @@ Cost: 3
     //ightImg.onload = () => {
 
 
-  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame]);
+  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, baseline]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1526,7 +1543,9 @@ Cost: 3
           <br />
           <hr />
           <span>
-            <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { console.log(1268, e.target.value); setFontSize(e.target.value) }} />Font Size </label>
+            <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { console.log(1268, e.target.value); setFontSize(e.target.value) }} /> </label>
+            <br />
+            <label>Effect offset: <input type="number" style={{ width: "50px" }} name="baseline" value={baseline} onChange={(e) => setBaseline(e.target.value) } /> </label>
             <br />
             <label>
               <input type="checkbox" checked={effectBox} onChange={(e) => { setEffectBox(e.target.checked) }} />
@@ -1534,6 +1553,10 @@ Cost: 3
             <label>
               <input type="checkbox" checked={drawFrame} onChange={(e) => { setDrawFrame(e.target.checked) }} />
               Card Frame </label>  <br />
+            { /*
+            <label>
+              <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
+              Skip Draw </label>  <br />*/ }
             <br /> Unimplemented:  burst, rarity <br />
           </span>
         </td>

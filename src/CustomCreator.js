@@ -25,14 +25,15 @@ import armor_cat from './armorcat.png';
 //import './styles.css';
 import './local-styles.css';
 
-import SaveState from './SaveState';
+import { restoreState, SaveState } from './SaveState';
 import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.5.2"; // customize effect height
-const latest = "try to pixel match both ex2-039 and bt14-014"
+const version = "0.6.6"; // customize effect height
+const latest = "try to pixel match both ex2-039 and bt14-014; customize effect height; scale effectbox (but not for options)"
 
+// version 0.6.6  try to pixel match both ex2-039 and bt14-014; customize effect height; scale effectbox (but not for options)
 // version 0.6.5  fix pixels of effect text and DP and other things to be near-pixel-perfect
 // version 0.6.4  massive font upgrade: name, effect/keywords, traits, level all identical to print cards now
 // version 0.6.3  fix width on bubble and DNA and multi-line; DNA now uses proper colored box"
@@ -64,6 +65,11 @@ function empty(s) {
   if (s.length < 2) return true;
   if (s === "-") return true;
   return false;
+}
+
+function effectBoxScale(source_height, offset) {
+  let y_scale = (source_height + Number(offset) - 30) / (source_height)
+  return y_scale;
 }
 
 function colorMap(color) {
@@ -272,7 +278,7 @@ const decodeAndDecompress = (encodedString) => {
   }*/
 
 // show i of len piece, scaled by scale, start at x,y
-function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top = 0) {
+function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top = 0, y_scale = 1) {
 
   if (!img) return;
   let y = scale; let x = y * (img.width / img.height);
@@ -285,7 +291,7 @@ function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top =
     i * ww, top, // crop x,y
     ww * 1.2, img.height + bottom, // crop w,h
     start_x + i * fw, start_y, // place x,y
-    x / len * 1.2, y // place w,h
+    x / len * 1.2, y * y_scale// place w,h
   );
 
 }
@@ -303,28 +309,22 @@ function CustomCreator() {
     let ref = params.get("ref");
     let vid = params.get("v");
     console.error(285, ref);
-    if (ref) restoreState(ref, vid);
+    if (ref) myRestoreState(ref, vid);
 
     // first time init
   }, []);
   /* eslint-enable react-hooks/exhaustive-deps */
 
-  const restoreState = async (ref, id) => {
-    console.error(302, ref);
-    try {
-      const response = await fetch(`/api/data/${ref},${id}`);
-      const result = await response.json();
-      const cardState = result.cardState;
-      console.error(288, cardState);
-      if (!cardState) {
-        console.error(cardState, ref, id);
-        return;
-      }
-      if (cardState.fontSize) setFontSize(cardState.fontSize);
-      if (cardState.jsonText) updateJson(cardState.jsonText);
-    } catch (err) {
-      console.error('Error restoring:', err);
-    }
+  const myRestoreState = async (ref, id) => {
+    let cardState = await restoreState(ref, id);
+    console.log(320, cardState);
+    if (!cardState) return;
+    if ("fontSize" in cardState) setFontSize(cardState.fontSize);
+    if ("jsonText" in cardState) updateJson(cardState.jsonText);
+    if ("drawFrame" in cardState) setDrawFrame(cardState.drawFrame);
+    if ("effectBox" in cardState) setEffectBox(cardState.effectBox);
+    if ("baselineOffset" in cardState) setBaselineOffset(cardState.baselineOffset);
+    if ("lineSpacing" in cardState) setLineSpacing(cardState.lineSpacing);
   };
 
 
@@ -774,7 +774,10 @@ Cost: 3
           if (!col) continue;
           let box = new Image();
           box.src = effectboxes[col];
-          scalePartialImage(ctx, box, i, len, 825, offset_x + 100, bottom + 60);
+          //          let true_bottom = 4000;
+          //        let y_scale = ((true_bottom) - (bottom + 60 - baselineOffset)) / box.height;
+          let y_scale = effectBoxScale(box.height, baselineOffset);
+          scalePartialImage(ctx, box, i, len, 825, offset_x + 100, bottom + 60 - baselineOffset, 0, y_scale);
         }
       }
 
@@ -825,6 +828,8 @@ Cost: 3
               // 1.05 is fudge factor because our frames aren't all left-justified the same
               // this makes them  the same, but they might be the same wrong
               // y - 1.5 to avoid tiniest stray pixels above egg frame on upper left
+
+
               scalePartialImage(ctx, frame, i + (fudge), l, 3950, offset_x, offset_y - 1.5);
             }
             // very bottom, evo conditions
@@ -1222,7 +1227,7 @@ Cost: 3
       let b = Number(baselineOffset);
       y_line -= Number(baselineOffset);
 
-        console.log(1149, b, baselineOffset, y_line);
+      console.log(1149, b, baselineOffset, y_line);
       //      if (type === "
       // effect
       ctx.font = `bold 90px Arial`;
@@ -1540,15 +1545,16 @@ Cost: 3
 
           <button onClick={handleExport}>Save Image Locally</button>
           <hr />
-          <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} drawFrame={drawFrame} />
-          <br />
+          <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} drawFrame={drawFrame}
+            effectBox={effectBox} baselineOffset={baselineOffset} lineSpacing={lineSpacing}
+          />
           <hr />
           <span>
             <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { setFontSize(e.target.value) }} /> </label>
             <span> &nbsp; &nbsp; </span>
-            <label>Line spacing: <input type="number" style={{ width: "50px" }} name="lineSpacing" value={lineSpacing} onChange={(e) => {  setLineSpacing(e.target.value) }} /> </label>
+            <label>Line spacing: <input type="number" style={{ width: "50px" }} name="lineSpacing" value={lineSpacing} onChange={(e) => { setLineSpacing(e.target.value) }} /> </label>
             <br />
-            <label>Move effect baseline up by: <input type="number" style={{ width: "50px" }} name="baseline" value={baselineOffset} onChange={(e) => setBaselineOffset(e.target.value) } /> </label>
+            <label>Move effect baseline up by: <input type="number" style={{ width: "50px" }} name="baseline" value={baselineOffset} onChange={(e) => setBaselineOffset(e.target.value)} /> </label>
             <br />
             <label>
               <input type="checkbox" checked={effectBox} onChange={(e) => { setEffectBox(e.target.checked) }} />
@@ -1556,8 +1562,8 @@ Cost: 3
             <label>
               <input type="checkbox" checked={drawFrame} onChange={(e) => { setDrawFrame(e.target.checked) }} />
               Card Frame </label>  <br />
-            <label style={{display:"none"}} >
-              <input type="checkbox"  checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
+            <label style={{ display: "xxx" }} >
+              <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
               Skip Draw </label>  <br />
             <br /> Unimplemented:  burst, rarity <br />
           </span>

@@ -1,6 +1,25 @@
 import React, {  useState  } from 'react';
 
-const SaveState = ({ jsonText, fontSize }) => {
+export const restoreState = async (ref, id) => {
+    console.error(302, ref);
+    try {
+      const response = await fetch(`/api/data/${ref},${id}`);
+      const result = await response.json();
+      const cardState = result.cardState;
+      console.error(288, cardState);
+      if (!cardState) {
+        console.error(cardState, ref, id);
+        return false;
+      }
+      return cardState;
+    } catch (err) {
+      console.error('Error restoring:', err);
+      return false;
+    }
+  };
+
+export const SaveState = ({ jsonText, fontSize, drawFrame,
+    effectBox, baselineOffset, lineSpacing }) => {
     const [handle, setHandle] = useState({ referenceId: 0, versionId: 0 } ); // For storing the returned reference ID
     const here = new URL(window.location.href);
     const baseUrl = here.origin + here.pathname;
@@ -8,8 +27,8 @@ const SaveState = ({ jsonText, fontSize }) => {
 
     const handleSave = async () => {
         const cardState = {
-            jsonText,
-            fontSize
+            jsonText, fontSize, drawFrame,
+            effectBox, baselineOffset, lineSpacing
         };
         try {
             let document = { cardState: cardState, referenceId: handle.referenceId };
@@ -39,4 +58,3 @@ const SaveState = ({ jsonText, fontSize }) => {
     );
 };
 
-export default SaveState;

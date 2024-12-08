@@ -1562,7 +1562,7 @@ Cost: 3
             <label>
               <input type="checkbox" checked={drawFrame} onChange={(e) => { setDrawFrame(e.target.checked) }} />
               Card Frame </label>  <br />
-            <label style={{ display: "xxx" }} >
+            <label style={{ display: "none" }} >
               <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
               Skip Draw </label>  <br />
             <br /> Unimplemented:  burst, rarity <br />

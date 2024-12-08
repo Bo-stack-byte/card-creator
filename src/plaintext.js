@@ -96,8 +96,10 @@ export const enterPlainText = (lines) => {
             json.color = abbr_parse_color(m[4]);
             //  Purple/Red | Lv.6
         } else if ((m = line.match(/^\s*(.*)\s+\|\s+Lv.(\d+)/i))) {
+            console.log(99, m);
             json.cardLv = "Lv." + m[2];
             json.color = m[1];
+            console.log(102, json);
             // level 3 yellow/purple
         } else if ((m = line.match(/^\s*(level|Lv\.|lvl)\s*(\d+)\s+(.*)/i))) {
             json.cardLv = "Lv." + m[2];
@@ -115,7 +117,8 @@ export const enterPlainText = (lines) => {
             json.dp = parseInt(m[1]);
         } else if ((m = line.match(/^(Play|Use)?.?cost\s*:\s*(\d+)/i))) {
             json.playCost = parseInt(m[2]);
-        } else if ((m = line.match(/^\[(.*)\]$/i))) {
+            // only if pure colors
+        } else if ((m = line.match(/^\[\S*\]$/i))) {
             json.color = abbr_parse_color(m[1]);
         } else if ((m = line.match(/(.*)\|(.*)\|(.*)/))) {
             json.form = m[1].trim();
@@ -139,6 +142,10 @@ export const enterPlainText = (lines) => {
                 evo = { ...evo }; // make copy
 
             }
+            // [[Digivolve] [Imperialdramon: Dragon Mode]: Cost 2] 
+        } else if ((m = line.match(/.?.?.?(?:Evolve|Digivolve).*\d+/))) {
+            console.log(147, m);
+            json.specialEvolve = m[0];
         } else if ((m = line.match(/security effect\s*:\s*(.*\w+.*)/i))) {
             console.log(124, m);
             json.securityEffect += m[1] + "\n";

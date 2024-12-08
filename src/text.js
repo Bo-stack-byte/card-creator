@@ -391,7 +391,7 @@ function getColor(phrase) {
 }
 
 function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = false) {
-  console.log(361, fontSize, text, x, y, style, preview);
+  //console.log(361, fontSize, text, x, y, style, preview);
   fontSize = Number(fontSize);
   y = Number(y);
   //  let cardWidth = 2700; // shouldn't be hard-coded; we need our start pos
@@ -482,10 +482,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
             width = ctx.measureText(word).width;
             //            if (width > y) width = y;
             width += ctx.measureText(' ').width;
-            console.log(493, `changing lastX from ${lastX} by ${width} or ${width * scale}`);
-
             lastX += width * scale;
-            console.log(494, `lastX now ${lastX}`);
           }
 
           /*
@@ -499,7 +496,6 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
     }
   });
   ctx.restore();
-  console.log(515, "not scaling " + lastX);
   return lastX;
 }
 

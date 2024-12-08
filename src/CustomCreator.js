@@ -289,9 +289,9 @@ function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top =
   if (crop_top < 0) bottom = crop_top;
   ctx.drawImage(img,
     i * ww, top, // crop x,y
-    ww * 1.2, img.height + bottom, // crop w,h
+    ww * 1.0, img.height + bottom, // crop w,h
     start_x + i * fw, start_y, // place x,y
-    x / len * 1.2, y * y_scale// place w,h
+    x / len * 1.0, y * y_scale// place w,h
   );
 
 }
@@ -308,7 +308,6 @@ function CustomCreator() {
     const params = new URLSearchParams(window.location.search);
     let ref = params.get("ref");
     let vid = params.get("v");
-    console.error(285, ref);
     if (ref) myRestoreState(ref, vid);
 
     // first time init
@@ -1137,7 +1136,7 @@ Cost: 3
       try {
         const name = json.name.english;
         let ace_offset = (type === "ACE") ? -ace_logo.width / 2 : 0;
-        const maxWidth = 1200 + ace_offset * 2;
+        const maxWidth = 1600 + ace_offset * 2;
 
         const initialFontSize = 200;
         const fontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize, 180);
@@ -1156,7 +1155,6 @@ Cost: 3
         let actualWidth = ctx.measureText(name).width;
         let scale = (maxWidth) / actualWidth;
         let endWidth = Math.min(maxWidth, actualWidth);
-        console.log(918, scale);
         if (scale > 1) scale = 1;
         // at  a certain point we should do multiple lines
         ctx.save();
@@ -1455,69 +1453,70 @@ Cost: 3
 
   return (
     <table>
-      <tr>
-        <td width={"25%"} valign={"top"}>
-          <div style={{ overflowY: "scroll", maxHeight: "600px" }}>
-            <RadioGroup selectedOption={selectedOption} handleOptionChange={handleOptionChange} />
-            {button}
+      <tbody>
+        <tr>
+          <td width={"25%"} valign={"top"}>
+            <div style={{ overflowY: "scroll", maxHeight: "600px" }}>
+              <RadioGroup selectedOption={selectedOption} handleOptionChange={handleOptionChange} />
+              {button}
+              <br />
+              {(showJson === 1) ? (
+
+                <textarea cols={40} rows={25}
+                  value={jsonText[currentIndex]}
+                  onChange={handleTextareaChange}
+
+                //           onChange={(e) => handleTextAreaChange(e.target.value)}
+                />
+              ) : (showJson === 0) ? (
+                <div>
+                  <table style={{ maxWidth: "300px" }}>
+                    {!flattenedJson ? (<tr><td>Error in JSON, try again <br /> {jsonerror} </td></tr>
+                    ) :
+                      Object.entries(flattenedJson).map(([key, value]) =>
+                        <tr>
+                          <td key={key}>
+                            <label>{key}: </label>
+                          </td>
+                          <td>
+                            {key.match(/effect/i) ? (
+                              <textarea
+                                value={formData[key] ?? value}
+                                onChange={(e) => handleInputChange(key, e.target.value)} />) : (
+                              <input
+                                value={formData[key] ?? value}
+                                onChange={(e) => handleInputChange(key, e.target.value)} />)
+                            }
+                          </td>
+                        </tr>
+                      )}
+                  </table>
+                </div>
+              ) : (<form>
+                <textarea onChange={handleFreeformChange} defaultValue={freeform} name="free" cols={40} rows={25} /><br />
+              </form>)}
+            </div>
+          </td>
+          <td width={"25%"} valign={"top"}>
+            <div>
+              <canvas id="cardImage" ref={canvasRef}
+                style={{
+                  width: width + 'px', // traditional cards are roughly 300 x 416, let's zoom in
+                  height: height + 'px',
+                  backgroundColor: '#eef'
+                }}>
+              </canvas>
+              <br />
+              <label>Zoom: <input type="number" style={{ width: "50px" }} name="zoom" value={zoom} onChange={updateZoom} />% </label>
+
+
+            </div>
+          </td>
+          <td width={"25%"} valign={"top"}>
+            Choose image:
+            <input type="file" onChange={loadUserImage} />
             <br />
-            {(showJson === 1) ? (
-
-              <textarea cols={40} rows={25}
-                value={jsonText[currentIndex]}
-                onChange={handleTextareaChange}
-
-              //           onChange={(e) => handleTextAreaChange(e.target.value)}
-              />
-            ) : (showJson === 0) ? (
-              <div>
-                <table style={{ maxWidth: "300px" }}>
-                  {!flattenedJson ? (<tr><td>Error in JSON, try again <br /> {jsonerror} </td></tr>
-                  ) :
-                    Object.entries(flattenedJson).map(([key, value]) =>
-                      <tr>
-                        <td key={key}>
-                          <label>{key}: </label>
-                        </td>
-                        <td>
-                          {key.match(/effect/i) ? (
-                            <textarea
-                              value={formData[key] ?? value}
-                              onChange={(e) => handleInputChange(key, e.target.value)} />) : (
-                            <input
-                              value={formData[key] ?? value}
-                              onChange={(e) => handleInputChange(key, e.target.value)} />)
-                          }
-                        </td>
-                      </tr>
-                    )}
-                </table>
-              </div>
-            ) : (<form>
-              <textarea onChange={handleFreeformChange} defaultValue={freeform} name="free" cols={40} rows={25} /><br />
-            </form>)}
-          </div>
-        </td>
-        <td width={"25%"} valign={"top"}>
-          <div>
-            <canvas id="cardImage" ref={canvasRef}
-              style={{
-                width: width + 'px', // traditional cards are roughly 300 x 416, let's zoom in
-                height: height + 'px',
-                backgroundColor: '#eef'
-              }}>
-            </canvas>
-            <br />
-            <label>Zoom: <input type="number" style={{ width: "50px" }} name="zoom" value={zoom} onChange={updateZoom} />% </label>
-
-
-          </div>
-        </td>
-        <td width={"25%"} valign={"top"}>
-          Choose image:
-          <input type="file" onChange={loadUserImage} />
-          <br />
-          {/*          --- OR ---
+            {/*          --- OR ---
           <br />
           <input
             type="text"
@@ -1530,80 +1529,80 @@ Cost: 3
           <br />
           <button onClick={loadImageFromUrl}>Load Image from that URL</button>
           */}
-          <br />
-          Offset (in percent):
-          X: <input type="number" style={{ width: "50px" }} name="x_pos" value={imageOptions.x_pos} onChange={updateImg} />
-          Y: <input type="number" style={{ width: "50px" }} name="y_pos" value={imageOptions.y_pos} onChange={updateImg} />
-          <br />
-          Fill size (in percent):
-          X: <input type="number" style={{ width: "50px" }} name="x_scale" value={imageOptions.x_scale} onChange={updateImg} />
-          Y: <input type="number" style={{ width: "50px" }} name="y_scale" value={imageOptions.y_scale} onChange={updateImg} />
-          <hr />
-          <button onClick={draw2}>Force Draw</button>
-
-          <hr />
-
-          <button onClick={handleExport}>Save Image Locally</button>
-          <hr />
-          <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} drawFrame={drawFrame}
-            effectBox={effectBox} baselineOffset={baselineOffset} lineSpacing={lineSpacing}
-          />
-          <hr />
-          <span>
-            <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { setFontSize(e.target.value) }} /> </label>
-            <span> &nbsp; &nbsp; </span>
-            <label>Line spacing: <input type="number" style={{ width: "50px" }} name="lineSpacing" value={lineSpacing} onChange={(e) => { setLineSpacing(e.target.value) }} /> </label>
             <br />
-            <label>Move effect baseline up by: <input type="number" style={{ width: "50px" }} name="baseline" value={baselineOffset} onChange={(e) => setBaselineOffset(e.target.value)} /> </label>
+            Offset (in percent):
+            X: <input type="number" style={{ width: "50px" }} name="x_pos" value={imageOptions.x_pos} onChange={updateImg} />
+            Y: <input type="number" style={{ width: "50px" }} name="y_pos" value={imageOptions.y_pos} onChange={updateImg} />
             <br />
-            <label>
-              <input type="checkbox" checked={effectBox} onChange={(e) => { setEffectBox(e.target.checked) }} />
-              Effect box </label>  <br />
-            <label>
-              <input type="checkbox" checked={drawFrame} onChange={(e) => { setDrawFrame(e.target.checked) }} />
-              Card Frame </label>  <br />
-            <label style={{ display: "none" }} >
-              <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
-              Skip Draw </label>  <br />
-            <br /> Unimplemented:  burst, rarity <br />
-          </span>
-        </td>
-        <td width={"25%"} valign={"top"}>
-          <button onClick={() => sample(0)}> Sample Egg </button><br />
-          <button onClick={() => sample(5)}> Sample Monster </button><br />
-          <button onClick={() => sample(1)}> Sample Mega </button><br />
-          <button onClick={() => sample(2)}> Sample ACE </button><br />
-          <button onClick={() => sample(3)}> Sample Option </button><br />
-          <button onClick={() => sample(4)}> Sample Tamer </button><br />
-          <p />
-          <span>For now using these formatting hints while we figure out the best way:</span>
-          <p>
-            To have colors replaced by circles, put the color in parentheses.
-          </p>
-          <p> Put ⟦text⟧ in these crazy brackets to force the text to blue.</p>
-          <p> Put text that would otherwise be blue in parens to make it purple, like ⟦(test)⟧ or [(Five Times Per Turn)].</p>
-          <p> "Force Draw" may be needed in weird circumstances. </p>
-        </td>
-      </tr>
-      <tr style={{ fontSize: "smaller" }} >
-        <td width={"30%"} style={{ fontSize: "smaller" }}>
-          Version {version} {latest}
-          <p style={{ fontFamily: "ToppanBunkyExtraBold" }}>Ask support or request features over on <a href={invite}>Discord</a>.</p>
-          <p style={{ fontFamily: "ProhibitionRough" }}><a href="./fontguide.html">FONT GUIDE</a> &nbsp; &nbsp;  <a href="./roadmap.txt">roadmap</a></p>
-          <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
-          <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba and Zaffy who kept this dream alive in previous years.</p>
-          <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
-          Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
-          <br />
-          <br />
-          <br />
-          <br />
+            Fill size (in percent):
+            X: <input type="number" style={{ width: "50px" }} name="x_scale" value={imageOptions.x_scale} onChange={updateImg} />
+            Y: <input type="number" style={{ width: "50px" }} name="y_scale" value={imageOptions.y_scale} onChange={updateImg} />
+            <hr />
+            <button onClick={draw2}>Force Draw</button>
 
-        </td>
-        <td colSpan={3}>
-          <img src={banner} alt={"Digi Viz Card Creator"} style={{ width: "700", height: "224px", transform: "rotate(-1deg)", zIndex: -3 }} />
-        </td></tr>
+            <hr />
 
+            <button onClick={handleExport}>Save Image Locally</button>
+            <hr />
+            <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} drawFrame={drawFrame}
+              effectBox={effectBox} baselineOffset={baselineOffset} lineSpacing={lineSpacing}
+            />
+            <hr />
+            <span>
+              <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { setFontSize(e.target.value) }} /> </label>
+              <span> &nbsp; &nbsp; </span>
+              <label>Line spacing: <input type="number" style={{ width: "50px" }} name="lineSpacing" value={lineSpacing} onChange={(e) => { setLineSpacing(e.target.value) }} /> </label>
+              <br />
+              <label>Move effect baseline up by: <input type="number" style={{ width: "50px" }} name="baseline" value={baselineOffset} onChange={(e) => setBaselineOffset(e.target.value)} /> </label>
+              <br />
+              <label>
+                <input type="checkbox" checked={effectBox} onChange={(e) => { setEffectBox(e.target.checked) }} />
+                Effect box </label>  <br />
+              <label>
+                <input type="checkbox" checked={drawFrame} onChange={(e) => { setDrawFrame(e.target.checked) }} />
+                Card Frame </label>  <br />
+              <label style={{ display: "none" }} >
+                <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
+                Skip Draw </label>  <br />
+              <br /> Unimplemented:  burst, rarity <br />
+            </span>
+          </td>
+          <td width={"25%"} valign={"top"}>
+            <button onClick={() => sample(0)}> Sample Egg </button><br />
+            <button onClick={() => sample(5)}> Sample Monster </button><br />
+            <button onClick={() => sample(1)}> Sample Mega </button><br />
+            <button onClick={() => sample(2)}> Sample ACE </button><br />
+            <button onClick={() => sample(3)}> Sample Option </button><br />
+            <button onClick={() => sample(4)}> Sample Tamer </button><br />
+            <p />
+            <span>For now using these formatting hints while we figure out the best way:</span>
+            <p>
+              To have colors replaced by circles, put the color in parentheses.
+            </p>
+            <p> Put ⟦text⟧ in these crazy brackets to force the text to blue.</p>
+            <p> Put text that would otherwise be blue in parens to make it purple, like ⟦(test)⟧ or [(Five Times Per Turn)].</p>
+            <p> "Force Draw" may be needed in weird circumstances. </p>
+          </td>
+        </tr>
+        <tr style={{ fontSize: "smaller" }} >
+          <td width={"30%"} style={{ fontSize: "smaller" }}>
+            Version {version} {latest}
+            <p style={{ fontFamily: "ToppanBunkyExtraBold" }}>Ask support or request features over on <a href={invite}>Discord</a>.</p>
+            <p style={{ fontFamily: "ProhibitionRough" }}><a href="./fontguide.html">FONT GUIDE</a> &nbsp; &nbsp;  <a href="./roadmap.txt">roadmap</a></p>
+            <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
+            <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba and Zaffy who kept this dream alive in previous years.</p>
+            <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
+            Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
+            <br />
+            <br />
+            <br />
+            <br />
+
+          </td>
+          <td colSpan={3}>
+            <img src={banner} alt={"Digi Viz Card Creator"} style={{ width: "700", height: "224px", transform: "rotate(-1deg)", zIndex: -3 }} />
+          </td></tr>
+      </tbody>
     </table>
 
   );

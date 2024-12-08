@@ -6,7 +6,6 @@ export const restoreState = async (ref, id) => {
       const response = await fetch(`/api/data/${ref},${id}`);
       const result = await response.json();
       const cardState = result.cardState;
-      console.error(288, cardState);
       if (!cardState) {
         console.error(cardState, ref, id);
         return false;

@@ -815,11 +815,11 @@ Cost: 3
       ctx.fillStyle = 'white';
       ctx.font = `bold 84px Roboto`;
       if (type !== "OPTION") {
+        ctx.fillStyle = 'black';
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 6
         ctx.strokeText(json.cardType.toUpperCase(), 1490, 180);
       }
-      ctx.fillStyle = 'black';
       ctx.fillText(json.cardType.toUpperCase(), 1490, 180);
 
 
@@ -1171,11 +1171,11 @@ Cost: 3
         const maxWidth = 1600 + ace_offset * 2;
 
         const initialFontSize = 200;
-        const fontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize, 180);
+        const namefontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize, 180);
         // PF Das Grotesk Pro Bold is the actual font but $$
         //ctx.font = `bold ${fontSize}px Roboto`; // better looking I
         //        ctx.font = `700 ${fontSize}px Schibsted Grotesk`; // has curved lowercase l
-        ctx.font = `700 ${fontSize}px ToppanBunkyExtraBold`; // has curved lowercase l
+        ctx.font = `700 ${namefontSize}px ToppanBunkyExtraBold`; // has curved lowercase l
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = 'white';
@@ -1256,6 +1256,7 @@ Cost: 3
 
       let b = Number(baselineOffset);
       let so = Number(specialOffset);
+      console.log(1259, b, so);
       y_line -= Number(baselineOffset);
 
       console.log(1149, b, baselineOffset, y_line);
@@ -1266,19 +1267,22 @@ Cost: 3
       ctx.textBaseline = 'bottom'; // Align text to the bottom
 
 
-
+      const fontSize_n = Number(fontSize);
+      console.log(1271, fontSize_n, so, (fontSize_n + so));
       // DNA evo and special evo appear above the effect line
       const dna_evo = json.dnaEvolve || json.dnaDigivolve; // colorReplace is inside drawBracketedText
       const spec_temp = json.specialEvolve || json.specialDigivolve;
       const spec_evo = colorReplace(spec_temp, true);
+      const delta = fontSize_n + so;
       let special_baseline = y_line;
+      console.log(1277, special_baseline, y_line, (fontSize_n + so))
       if (!empty(spec_evo)) {
-        special_baseline -= (fontSize + so);
-        drawBracketedText(ctx, fontSize, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize) + Number(lineSpacing), "bubble");
+        special_baseline -= (delta);
+        drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(lineSpacing), "bubble");
       }
       if (!empty(dna_evo)) {
-        special_baseline -= (fontSize + so);
-        drawBracketedText(ctx, fontSize, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize) + Number(lineSpacing), "dna");
+        special_baseline -= (delta);
+        drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(lineSpacing), "dna");
       }
 
       let effect = json.effect;

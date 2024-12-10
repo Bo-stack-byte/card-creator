@@ -17,12 +17,13 @@ function split_colors(input) {
 function abbr_parse_color(text) {
     let ret = [];
     // gets colors in wrong order, sorry
-    for (let c of all_colors) {
-        let abbr = c.substring(0, 3);
-        if (text.includes(abbr)) {
-            ret.push(c);
+    if (text)
+        for (let c of all_colors) {
+            let abbr = c.substring(0, 3);
+            if (text.includes(abbr)) {
+                ret.push(c);
+            }
         }
-    }
     return ret.join("/");
 }
 

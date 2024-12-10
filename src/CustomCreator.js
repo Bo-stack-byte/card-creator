@@ -30,9 +30,10 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.6"; // customize effect height
-const latest = "try to pixel match both ex2-039 and bt14-014; customize effect height; scale effectbox (but not for options)"
+const version = "0.6.7"; 
+const latest = "skinny up two-digit DP number; specialOffset tuneable; rounded corners"
 
+// version 0.6.7  skinny up two-digit DP number; specialOffset tuneable; rounded corners
 // version 0.6.6  try to pixel match both ex2-039 and bt14-014; customize effect height; scale effectbox (but not for options)
 // version 0.6.5  fix pixels of effect text and DP and other things to be near-pixel-perfect
 // version 0.6.4  massive font upgrade: name, effect/keywords, traits, level all identical to print cards now
@@ -84,6 +85,8 @@ function colorMap(color) {
 function coloredCircle(canvas, centerX, centerY, color) {
   try {
     const ctx = canvas.getContext('2d');
+    setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
+
     const radius = 140;
 
     const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
@@ -123,6 +126,24 @@ function whiteColor(color) {
   if (color?.toLowerCase() === "black") return "black";
   return "white";
 }
+
+// not using radius
+const setupRoundedCorners = (ctx, width, height, radius) => {
+  radius = 200;
+  ctx.beginPath();
+  ctx.moveTo(radius, 0);
+  ctx.lineTo(width - radius, 0);
+  ctx.quadraticCurveTo(width, 0, width, radius);
+  ctx.lineTo(width, height - radius);
+  ctx.quadraticCurveTo(width, height, width - radius, height);
+  ctx.lineTo(radius, height);
+  ctx.quadraticCurveTo(0, height, 0, height - radius);
+  ctx.lineTo(0, radius);
+  ctx.quadraticCurveTo(0, 0, radius, 0);
+  ctx.closePath();
+  ctx.clip();
+};
+
 
 const starter_text_empty = `{
     "name": {  "english": "Tama"  },
@@ -323,6 +344,7 @@ function CustomCreator() {
     if ("drawFrame" in cardState) setDrawFrame(cardState.drawFrame);
     if ("effectBox" in cardState) setEffectBox(cardState.effectBox);
     if ("baselineOffset" in cardState) setBaselineOffset(cardState.baselineOffset);
+    if ("specialOffset" in cardState) setSpecialOffset(cardState.specialOffset);
     if ("lineSpacing" in cardState) setLineSpacing(cardState.lineSpacing);
   };
 
@@ -343,6 +365,7 @@ function CustomCreator() {
   const [drawFrame, setDrawFrame] = useState(true);
   const [skipDraw, setSkipDraw] = useState(false);
   const [baselineOffset, setBaselineOffset] = useState(0);
+  const [specialOffset, setSpecialOffset] = useState(0);
   const [lineSpacing, setLineSpacing] = useState(10);
   const [selectedOption, setSelectedOption] = useState('AUTO'); // radio buttons 
   const [imageOptions, setImageOptions] = useState({
@@ -618,9 +641,10 @@ Cost: 3
 
   const draw = useCallback(async (x, y, clear) => {
     if (!doDraw) return false;
-    console.error("START DRAW");
+    console.log(643, "START DRAW");
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
 
     console.log("===");
     if (clear) {
@@ -645,6 +669,8 @@ Cost: 3
     if (clear === true) {
       canvas.width = 2977;
       canvas.height = 4158 - 17;
+      const ctx = canvas.getContext('2d');
+      setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
     }
     let json;
     try {
@@ -707,7 +733,6 @@ Cost: 3
       default:
     }
 
-    // console.log(467, type, background);
     const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
     // options don't need to load frames
     const len = (type === "OPTION") ? 1 : colors.length;
@@ -787,9 +812,14 @@ Cost: 3
         ctx.drawImage(shellImg, 0, 0, canvas.width, canvas.height);
       }
       ctx.textAlign = 'center';
-      ctx.fillStyle = (type === "OPTION") ? 'white' : 'black'; // ?
-
+      ctx.fillStyle = 'white';
       ctx.font = `bold 84px Roboto`;
+      if (type !== "OPTION") {
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 6
+        ctx.strokeText(json.cardType.toUpperCase(), 1490, 180);
+      }
+      ctx.fillStyle = 'black';
       ctx.fillText(json.cardType.toUpperCase(), 1490, 180);
 
 
@@ -1063,17 +1093,19 @@ Cost: 3
         ctx.textBaseline = 'bottom';
 
         if (dp_k) {
-          ctx.lineWidth = 15;
+          ctx.lineWidth = 20;
           ctx.strokeStyle = 'white';
-          ctx.strokeText(dp_k, x, y);
-          ctx.fillText(dp_k, x, y);
+          // we can squeeze the numbers
+          let width = (dp_k > 1) ? 300 : 150;
+          ctx.strokeText(dp_k, x - 15, y, width);
+          ctx.fillText(dp_k, x - 15, y, width);
         }
         ctx.font = 'bold 175px Helvetica';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
 
         if (dp_m) {
-          ctx.lineWidth = 15;
+          ctx.lineWidth = 20;
           ctx.strokeStyle = 'white';
           ctx.strokeText(dp_m, x, y - 25, 275);
           ctx.fillText(dp_m, x, y - 25, 275);
@@ -1223,6 +1255,7 @@ Cost: 3
       let y_line = bottom - 640; // set above for effectbox / rule
 
       let b = Number(baselineOffset);
+      let so = Number(specialOffset);
       y_line -= Number(baselineOffset);
 
       console.log(1149, b, baselineOffset, y_line);
@@ -1240,12 +1273,12 @@ Cost: 3
       const spec_evo = colorReplace(spec_temp, true);
       let special_baseline = y_line;
       if (!empty(spec_evo)) {
-        special_baseline -= (fontSize * 2);
-        drawBracketedText(ctx, fontSize, spec_evo, 270, special_baseline, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
+        special_baseline -= (fontSize + so);
+        drawBracketedText(ctx, fontSize, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize) + Number(lineSpacing), "bubble");
       }
       if (!empty(dna_evo)) {
-        special_baseline -= (fontSize * 2);
-        drawBracketedText(ctx, fontSize, dna_evo, 270, special_baseline, 3000, Number(fontSize) + Number(lineSpacing), "dna");
+        special_baseline -= (fontSize + so);
+        drawBracketedText(ctx, fontSize, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize) + Number(lineSpacing), "dna");
       }
 
       let effect = json.effect;
@@ -1375,7 +1408,7 @@ Cost: 3
     //ightImg.onload = () => {
 
 
-  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, baselineOffset, lineSpacing]);
+  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, baselineOffset, specialOffset, lineSpacing]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1386,6 +1419,8 @@ Cost: 3
       canvas.width = 2977;
       canvas.height = 4158 - 17;
     }
+    setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
+
     console.log(1113, doDraw);
     if (doDraw)
       draw(canvas, ctx);
@@ -1400,10 +1435,18 @@ Cost: 3
 
 
   const handleExport = () => {
+    let name = 'custom-card.png';
+    try {
+      let json = JSON.parse(jsonText[currentIndex]);
+      name = json.name.english;
+      name = name.replace(/[^a-zA-Z0-9]+/g, '-') + ".png";
+    } catch { }
     const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
     const link = document.createElement('a');
     link.href = canvas.toDataURL('image/png');
-    link.download = 'exported-image.png';
+    link.download = name;
     link.click();
   };
 
@@ -1503,7 +1546,9 @@ Cost: 3
                 style={{
                   width: width + 'px', // traditional cards are roughly 300 x 416, let's zoom in
                   height: height + 'px',
-                  backgroundColor: '#eef'
+                  backgroundColor: '#eef',
+                  borderRadius: '20px',  // this radius is scaled differently than the one in the function
+                  overflow: 'hidden'
                 }}>
               </canvas>
               <br />
@@ -1545,7 +1590,7 @@ Cost: 3
             <button onClick={handleExport}>Save Image Locally</button>
             <hr />
             <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} drawFrame={drawFrame}
-              effectBox={effectBox} baselineOffset={baselineOffset} lineSpacing={lineSpacing}
+              effectBox={effectBox} baselineOffset={baselineOffset} specialOffset={specialOffset} lineSpacing={lineSpacing}
             />
             <hr />
             <span>
@@ -1555,13 +1600,15 @@ Cost: 3
               <br />
               <label>Move effect baseline up by: <input type="number" style={{ width: "50px" }} name="baseline" value={baselineOffset} onChange={(e) => setBaselineOffset(e.target.value)} /> </label>
               <br />
+              <label>Move special evo text up by: <input type="number" style={{ width: "50px" }} name="specialOffset" value={specialOffset} onChange={(e) => setSpecialOffset(e.target.value)} /> </label>
+              <br />
               <label>
                 <input type="checkbox" checked={effectBox} onChange={(e) => { setEffectBox(e.target.checked) }} />
                 Effect box </label>  <br />
               <label>
                 <input type="checkbox" checked={drawFrame} onChange={(e) => { setDrawFrame(e.target.checked) }} />
                 Card Frame </label>  <br />
-              <label style={{ display: "none" }} >
+              <label style={{ display: "xxx" }} >
                 <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
                 Skip Draw </label>  <br />
               <br /> Unimplemented:  burst, rarity <br />

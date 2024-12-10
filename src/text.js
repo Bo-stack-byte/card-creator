@@ -305,8 +305,10 @@ function prepareKeywords(str, replaceBrackets) {
 
 // if "extra" is "bubble", put text in black bubble
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
+  // _maxWidth is unused :(
 export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, preview = false) {
   let maxWidth = horizontal_limit - x;
+  if (extra === "bubble") maxWidth -= 150;
   console.log(308, "calling with" , fontSize, text , y , "XXX", lineHeight );
   lineHeight = Number(lineHeight);
   let yOffset = y;

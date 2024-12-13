@@ -172,22 +172,26 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
   //#922969 darker ois lower
   const cardWidth = horizontal_limit; // !
   height = Number(height);
-  let color0, color1;
+  let color0, color1, color2;
   switch (color) {
     case 'purple': color0 = '#720949'; color1 = '#b24999'; break;
     case 'green': color0 = 'darkgreen'; color1 = 'lightgreen'; break;
     case 'bubble': color0 = 'black'; color1 = 'black'; break;
     case 'darkblue': color0 = '#0D1544'; color1 = '#4D5584'; break;
 
-
     case 'blue':
     default:
-      color0 = 'darkblue'; color1 = '#8080ff';
+      color0 = '#41386A'; color1 = '#4765CC'; color2 = '#55D8E6';
   }
   // Draw the background rectangle with gradient
   const gradient = ctx.createLinearGradient(x, y - height, x, y);
   gradient.addColorStop(0, color0);
   gradient.addColorStop(1, color1);
+  if (color2) {
+    gradient.addColorStop(0.3, color0);
+    gradient.addColorStop(0.6, color1);
+   gradient.addColorStop(0.99, color2);
+  }
   let d = 0;
   if (color === 'bubble') {
     ctx.globalAlpha = 0.4;

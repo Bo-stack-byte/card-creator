@@ -3,31 +3,31 @@ Feedback on this list appreciated. Just a few people asking for a feature makes 
 BUGS
 
 * default font for level text (before remote font loads) is really ugly
+* for remote fonts, delay first rendering or re-render when it loads
 * assumes only 1 digivolve circle ever needed, mangled art if they're mixed (and can't handle "tamer")
 * multi-color fields don't have same boundaries
 * costs in digivolve circle should only have a border if one color in the multi-color demands it
 * digimon name for pure yellow/pure white should be solid black, not white with black border
 * fix those extra pixels at intersections where angles jut out
-* Digixros down too low sometimes.
+* Digixros and "rule" text overlaps.
 * Keyword scrunching (try sample ACE with fontsize 140)
+* (maybe same issue) Keywords that appear far along the line may be mis-aligned. So do [] symbols
 * Report of scaling broken on Safari (unable to reproduce so far)
+* "Effect box" doesn't always show up right away when clicking check box
+* rounded corners not quite right on full art
+* lower name when no traits
 
-TO DO LIST:
+VAGUE TO DO LIST:
 
-* for remote fonts, delay first rendering or re-render when it loads
 * pen for creator name (should credit both artist and author)
 * handle too-large text in a better way
 * ACE frames with the fancy lines
-* related: user-tunable options for positions, sizing, spacing, and text color (why do Chaos Degradation and Seventh Divine Cruz have opposite text colors for their names?)
-* chasing more towards matching actual card style
 * get faint white glow in playcost circle
-* delete backgrounds for art all the way to edges
 * dual-layer art (user supplies background and foreground: foreground gets drawn over background)
 * save final art and user art with link
 * browseable gallery of all saves
 * user accounts
 * better parsing of custom card formats
-* rounded corners
 * maybe pre-BT14 styles as an option
 * rarity icons
 * Burst digivolve format
@@ -39,5 +39,5 @@ TO DO LIST:
 * the same way you set color to "green/red" people expect to be able to set the digivolve for a level to be "green/red" instead of needing 2 separate lines
 * add triangle to "Rule" text
 * DNA box for white mon
-* black level box not quite right in shape and size
+* black level box not quite right in shape and size if you look really closely
 

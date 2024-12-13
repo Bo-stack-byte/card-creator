@@ -30,7 +30,7 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.7"; 
+const version = "0.6.7"; // 0.6.7.1 digivolve bubble a better blue
 const latest = "skinny up two-digit DP number; specialOffset tuneable; rounded corners"
 
 // version 0.6.7  skinny up two-digit DP number; specialOffset tuneable; rounded corners
@@ -838,6 +838,8 @@ Cost: 3
           console.log(611, e);
         }
       }
+      let has_traits = (!empty(json.form) || !empty(json.attribute) || !empty(json.type));
+
       for (let i = 0; i < len; i++) {
         let frame = frameImages[i];
         if (modern) {
@@ -914,8 +916,9 @@ Cost: 3
                 skip = true;
                 bar_offset = 242;
               }
-              if (!empty(json.form) || !empty(json.attribute) || !empty(json.type)) skip = false;
 
+              if (has_traits) skip = false;
+              
               // do underline for traits, check st19 arisa because Tamers might need it
               if (!skip) {
                 let bar_img = (colors[0] === "black") ? bottom_property_white : bottom_property_black;
@@ -926,6 +929,7 @@ Cost: 3
                   bar_img.width * scale,
                   bar_img.height * scale * 1.06) // stretch a little
               }
+
             }
           }
         }
@@ -943,6 +947,10 @@ Cost: 3
       ctx.textBaseline = 'middle';
 
       const height = 390;
+
+      // only monsters (and tamers, why not) can have evo circles
+      if (type === "MONSTER" || type === "MEGA" || type === "ACE" ||
+        type === "TAMER" || type === "TAMERINHERIT")  
       // evo circles
       if (_evos && _evos.length > 0) {
 
@@ -1018,16 +1026,16 @@ Cost: 3
           ctx.fillStyle = contrastColor(evo_color);
           ctx.fillText(evo_level, 375, 870 + height * index, 140);
 
-          // aray kasone isn't *quite* right here
           // we should only have a contrast color if our colors disagree
-          ctx.font = `bold 220px AyarfKasone, Helvetica`;
+          // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
+          ctx.font = `bold 220px AyarKasone, Helvetica`;
           ctx.lineWidth = 10;
           ctx.strokeStyle = edgeColor(evo_color);
           //   ctx.strokeStyle = contrastColor(evo_color);
 
-          ctx.strokeText(evo_cost, 375, 1010 + height * index);
+          ctx.strokeText(evo_cost, 375, 1020 + height * index);
           ctx.fillStyle = contrastColor(evo_color);
-          ctx.fillText(evo_cost, 375, 1010 + height * index);
+          ctx.fillText(evo_cost, 375, 1020 + height * index);
         }
       }
 
@@ -1047,7 +1055,7 @@ Cost: 3
       const playcost = json.playCost !== "-" ? json.playCost : undefined;
       if (type === "MONSTER" || type === "EGG" || true) {
         if (modern) {
-          let img = playcost ? cost : cost_egg;
+          let img = playcost >= 0 ? cost : cost_egg;
           if (type === "OPTION") img = cost_option;
           ctx.drawImage(img, offset_x, offset_y, 500, 500);
           for (let color of colors) {
@@ -1157,7 +1165,7 @@ Cost: 3
       switch (type) {
         case "OPTION":
         case "TAMER":
-        case "TAMERINHERIT": delta_y -= 125; break;
+        case "TAMERINHERIT": delta_y -= 125; if (!has_traits) delta_y += 30; break;
         case "EGG": delta_y -= 90; break;
         case "MEGA": delta_y += 500; break;
         case "MONSTER": case "ACE": break;

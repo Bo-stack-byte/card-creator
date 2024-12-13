@@ -32,7 +32,7 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.8.2"; // trying to get ess image // trying to get foil
+const version = "0.6.8.4"; // unsuck on mobile // trying to get ess image // trying to get foil
 const latest = "trying to get foil"
 
 // version 0.6.8  no digi on eggs; offset name on trait-less option/tamer; AyarKasone back for evo; blue keywords a better blue
@@ -83,6 +83,14 @@ function colorMap(color) {
     case "purple": return "#58569d"
     default: return color;
   }
+}
+
+function stringRound(str) {
+  if (!str) return "";
+  let n = Number(str);
+  if (n === 0) return 0;
+  if (!n) return "";
+  return Math.round(n * 10) / 10;
 }
 
 function coloredCircle(canvas, centerX, centerY, color) {
@@ -1618,6 +1626,7 @@ Cost: 3
   };
 
   const handleMouseUp = () => {
+    if (!isSelecting) return;
     setIsSelecting(false);
     const width = ((endX - startX) / 355) * 100;
     const height = ((endY - startY) / 499) * 100;
@@ -1729,12 +1738,12 @@ Cost: 3
             Y: <input type="number" style={{ width: "50px" }} name="y_scale" value={imageOptions.y_scale} onChange={updateImg} />
             <hr />
             ESS start (in percent):
-            X: <input type="number" style={{ width: "50px" }} name="ess_x_pos" value={Math.round(imageOptions.ess_x_pos * 10) / 10} onChange={updateImg} />
-            Y: <input type="number" style={{ width: "50px" }} name="ess_y_pos" value={Math.round(imageOptions.ess_y_pos * 10 / 10)} onChange={updateImg} />
+            X: <input type="number" style={{ width: "50px" }} name="ess_x_pos" value={stringRound(imageOptions.ess_x_pos)} onChange={updateImg} />
+            Y: <input type="number" style={{ width: "50px" }} name="ess_y_pos" value={stringRound(imageOptions.ess_y_pos)} onChange={updateImg} />
             <br />
             ESS end (in percent):
-            X: <input type="number" style={{ width: "50px" }} name="ess_x_end" value={Math.round(imageOptions.ess_x_end * 10) / 10} onChange={updateImg} />
-            Y: <input type="number" style={{ width: "50px" }} name="ess_y_end" value={Math.round(imageOptions.ess_y_end * 10) / 10} onChange={updateImg} />
+            X: <input type="number" style={{ width: "50px" }} name="ess_x_end" value={stringRound(imageOptions.ess_x_end)} onChange={updateImg} />
+            Y: <input type="number" style={{ width: "50px" }} name="ess_y_end" value={stringRound(imageOptions.ess_y_end)} onChange={updateImg} />
             <br />
             {isSelecting ? "TRACE" : "or try dragging a rectangle on the image"}
             <hr />

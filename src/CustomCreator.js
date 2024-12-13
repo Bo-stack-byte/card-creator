@@ -32,7 +32,7 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.8.1"; // trying to get foil
+const version = "0.6.8.2"; // trying to get ess image // trying to get foil
 const latest = "trying to get foil"
 
 // version 0.6.8  no digi on eggs; offset name on trait-less option/tamer; AyarKasone back for evo; blue keywords a better blue
@@ -367,13 +367,21 @@ function CustomCreator() {
   const [effectBox, setEffectBox] = useState(false);
   const [drawFrame, setDrawFrame] = useState(true);
   const [skipDraw, setSkipDraw] = useState(false);
-  const [addFoil, setAddFoil] = useState(1);
+  const [addFoil, setAddFoil] = useState(false);
+  const [isSelecting, setIsSelecting] = useState(false);
+
+  const [startX, setStartX] = useState(0);
+  const [startY, setStartY] = useState(0);
+  const [endX, setEndX] = useState(0);
+  const [endY, setEndY] = useState(0);
+
   const [baselineOffset, setBaselineOffset] = useState(0);
   const [specialOffset, setSpecialOffset] = useState(0);
   const [lineSpacing, setLineSpacing] = useState(10);
   const [selectedOption, setSelectedOption] = useState('AUTO'); // radio buttons 
   const [imageOptions, setImageOptions] = useState({
-    url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95
+    url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
+    ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50,
   }
   );
 
@@ -812,16 +820,73 @@ Cost: 3
       if (drawFrame) {
         // new style background
         // we know shellimg is loaded because of pre-flight
-        //        shellImg.src = background;
-        ctx.drawImage(shellImg, 0, 0, canvas.width, canvas.height);
+
+
+        if (addFoil) {
+
+          const baseImage = shellImg;
+          //          const overlayImage = foil;
+
+          const offScreenCanvas = document.createElement('canvas');
+          offScreenCanvas.width = canvas.width;
+          offScreenCanvas.height = canvas.height;
+          const offScreenCtx = offScreenCanvas.getContext('2d');
+
+          // Draw base image on off-screen canvas
+          offScreenCtx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+
+          // Create image data for the base image
+          const baseImageData = offScreenCtx.getImageData(0, 0, canvas.width, canvas.height);
+          const basePixels = baseImageData.data;
+
+          // Clear the off-screen canvas before drawing the overlay image
+          offScreenCtx.clearRect(0, 0, canvas.width, canvas.height);
+          offScreenCtx.drawImage(foil, 0, 0, canvas.width, canvas.height);
+
+          // Create image data for the overlay image
+          const overlayImageData = offScreenCtx.getImageData(0, 0, canvas.width, canvas.height); // Use canvas.width and canvas.height for consistency
+          const overlayPixels = overlayImageData.data;
+
+          for (let i = 0; i < basePixels.length; i += 4) {
+            const baseAlpha = basePixels[i + 3] / 255;
+            const overlayAlpha = overlayPixels[i + 3] / 255;
+
+            // Composite alpha
+            const finalAlpha = overlayAlpha + baseAlpha * (1 - overlayAlpha);
+
+            if (finalAlpha > 0) {
+              basePixels[i] = Math.round((overlayPixels[i] * overlayAlpha + basePixels[i] * baseAlpha * (1 - overlayAlpha)) / finalAlpha); // Red
+              basePixels[i + 1] = Math.round((overlayPixels[i + 1] * overlayAlpha + basePixels[i + 1] * baseAlpha * (1 - overlayAlpha)) / finalAlpha); // Green
+              basePixels[i + 2] = Math.round((overlayPixels[i + 2] * overlayAlpha + basePixels[i + 2] * baseAlpha * (1 - overlayAlpha)) / finalAlpha); // Blue
+              // basePixels[i + 3] = Math.round(finalAlpha * 255); // Alpha
+            }
+          }
+          offScreenCtx.putImageData(baseImageData, 0, 0);
+
+          // Draw the composite image on the main canvas
+          ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height); // Draw the original base image scaled to canvas
+          ctx.drawImage(offScreenCanvas, 0, 0, canvas.width, canvas.height); // Draw the composite image scaled to canvas
+
+          // Put the modified image data back to the off-screen canvas
+          offScreenCtx.putImageData(baseImageData, 0, 0);
+          // Draw the composite image on the main canvas
+          ctx.drawImage(shellImg, 0, 0, canvas.width, canvas.height);
+          ctx.drawImage(offScreenCanvas, 0, 0, canvas.width, canvas.height);
+
+        } else {
+          ctx.drawImage(shellImg, 0, 0, canvas.width, canvas.height);
+        }
       }
 
-      if (false)
-      if (addFoil) {
-        ctx.globalAlpha = 0.2;
-        ctx.drawImage(foil, 0, 0, canvas.width, canvas.height);
-        ctx.globalAlpha = 1.0;
-      }
+      let ess_i_width = (Number(imageOptions.ess_x_end) - Number(imageOptions.ess_x_pos)) * back_img.width / 100
+      let ess_i_height = (Number(imageOptions.ess_y_end) - Number(imageOptions.ess_y_pos)) * back_img.height / 100
+      let ess_x = Number(imageOptions.ess_x_pos) * back_img.width / 100
+      let ess_y = Number(imageOptions.ess_y_pos) * back_img.height / 100
+
+      ctx.drawImage(back_img,
+        ess_x, ess_y, ess_i_width, ess_i_height,
+        240, 3700, 350, 350,
+      );
 
 
       ctx.textAlign = 'center';
@@ -1233,7 +1298,7 @@ Cost: 3
       const id = json.cardNumber;
       ctx.textAlign = 'right';
       ctx.fillStyle = contrastColor(colors[colors.length - 1]);
-      ctx.font = `bold 85px Helvetica`;
+      ctx.font = `100px HelveticaNeue-CondensedBold`;
       // Helvetica seems basically right but needs to be made skinny
       // ToppanBunkyExtraBold has serifs on 1 now??
       // myriadprobold wrong on 7 6 1
@@ -1243,7 +1308,7 @@ Cost: 3
       // not roboto because the 6 needs a hook
       // fallingsky ihas the wrong 1
 
-      ctx.fillText(id, 2740, 3300 + delta_y, 330);
+      ctx.fillText(id, 2740, 3300 + delta_y);
 
       // traits: form, attribute, type
       let form = json.form || '';
@@ -1355,15 +1420,20 @@ Cost: 3
           700 + delta_x * 2, 3740 + delta_y * 2,
           2500 - 400 - delta_x * 2, Number(fontSize) + Number(lineSpacing), "effect");
       }
-
-      if (true)
-        if (addFoil) {
-          ctx.globalAlpha = Number(addFoil) / 100
-          ctx.drawImage(foil, 0, 0, canvas.width, canvas.height);
-          ctx.globalAlpha = 1.0;
-        }
-  
     }
+
+    if (isSelecting || true) {
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 30;
+      console.log(1026, "x", startX, startY, endX - startX, endY - startY);
+
+      ctx.strokeRect(startX * 2977 / 355,
+        startY * canvas.height / 499,
+        (endX - startX) * 2977 / 355,
+        (endY - startY) * canvas.height / 499
+      )
+    }
+
 
 
 
@@ -1371,7 +1441,6 @@ Cost: 3
     let imagesToLoad = 2 + frameImages.length + 2 * (_evos ? _evos.length : 0);
     console.log(817, frameImages.length, _evos && _evos.length);
     let imagesLoaded = 0;
-    console.log(818, frameImages);
     const checkAllImagesLoaded = (e) => {
       //      console.log(770, e);
       imagesLoaded++;
@@ -1442,7 +1511,9 @@ Cost: 3
     //ightImg.onload = () => {
 
 
-  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing]);
+  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing,
+    endX, endY, isSelecting, startX, startY
+  ]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1528,6 +1599,39 @@ Cost: 3
   const width = (355 * z / 100) || 355;
   const height = (499 * z / 100) || 499;
 
+  const handleMouseDown = (e) => {
+    setIsSelecting(true);
+    const rect = canvasRef.current.getBoundingClientRect();
+    setStartX(e.clientX - rect.left);
+    setStartY(e.clientY - rect.top);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isSelecting) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    setEndX(e.clientX - rect.left);
+    setEndY(e.clientY - rect.top);
+  };
+
+  const handleMouseUp = () => {
+    setIsSelecting(false);
+    const width = ((endX - startX) / 355) * 100;
+    const height = ((endY - startY) / 499) * 100;
+    const x = (startX / 355) * 100;
+    const y = (startY / 499) * 100;
+
+    setImageOptions(prev => ({
+      ...prev,
+      ess_x_pos: x,
+      ess_y_pos: y,
+      ess_x_end: x + width,
+      ess_y_end: y + height
+      //        rectangleCoordinates: { x, y, width, height }
+    }));
+    console.log(1768, 'Rectangle Coordinates (%):', { x, y, width, height });
+  };
+
+
   return (
     <table>
       <tbody>
@@ -1576,7 +1680,12 @@ Cost: 3
           </td>
           <td width={"25%"} valign={"top"}>
             <div>
+              <button onClick={() => setIsSelecting(true)}>Select Rectangle</button>
+
               <canvas id="cardImage" ref={canvasRef}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
                 style={{
                   width: width + 'px', // traditional cards are roughly 300 x 416, let's zoom in
                   height: height + 'px',
@@ -1617,6 +1726,15 @@ Cost: 3
             X: <input type="number" style={{ width: "50px" }} name="x_scale" value={imageOptions.x_scale} onChange={updateImg} />
             Y: <input type="number" style={{ width: "50px" }} name="y_scale" value={imageOptions.y_scale} onChange={updateImg} />
             <hr />
+            ESS start (in percent):
+            X: <input type="number" style={{ width: "50px" }} name="ess_x_pos" value={Math.round(imageOptions.ess_x_pos)} onChange={updateImg} />
+            Y: <input type="number" style={{ width: "50px" }} name="ess_y_pos" value={Math.round(imageOptions.ess_y_pos)} onChange={updateImg} />
+            <br />
+            ESS end (in percent):
+            X: <input type="number" style={{ width: "50px" }} name="ess_x_end" value={imageOptions.ess_x_end} onChange={updateImg} />
+            Y: <input type="number" style={{ width: "50px" }} name="ess_y_end" value={imageOptions.ess_y_end} onChange={updateImg} />
+
+            <hr />
             <button onClick={draw2}>Force Draw</button>
 
             <hr />
@@ -1645,12 +1763,14 @@ Cost: 3
               <label style={{ display: "xxx" }} >
                 <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
                 Skip Draw </label>  <br />
-                <label>Foil opacity: <input type="number" style={{ width: "50px" }} name="addFoil" value={addFoil} onChange={(e) => { setAddFoil(e.target.value) }} /> </label>
-              <span> &nbsp; &nbsp; </span>
-{ /*
               <label>
                 <input type="checkbox" checked={addFoil} onChange={(e) => { setAddFoil(e.target.checked) }} />
-                Add Foil </label>  <br /> */ } 
+                Add Foil </label>  <br />
+              <span> &nbsp; &nbsp; </span>
+              { /*
+              <label>
+                <input type="checkbox" checked={addFoil} onChange={(e) => { setAddFoil(e.target.checked) }} />
+                Add Foil </label>  <br /> */ }
               <br /> Unimplemented:  burst, rarity <br />
             </span>
           </td>

@@ -882,11 +882,15 @@ Cost: 3
       let ess_i_height = (Number(imageOptions.ess_y_end) - Number(imageOptions.ess_y_pos)) * back_img.height / 100
       let ess_x = Number(imageOptions.ess_x_pos) * back_img.width / 100
       let ess_y = Number(imageOptions.ess_y_pos) * back_img.height / 100
-
-      ctx.drawImage(back_img,
-        ess_x, ess_y, ess_i_width, ess_i_height,
-        240, 3700, 350, 350,
-      );
+      let ess_height = 3700;
+      if (type === "MEGA" || type === "OPTION") ess_height = 0;
+      if (type === "TAMERINHERIT") ess_height -= 105
+      if (ess_height) {
+        ctx.drawImage(back_img,
+          ess_x, ess_y, ess_i_width, ess_i_height,
+          240, ess_height, 350, 350,
+        );
+      }
 
 
       ctx.textAlign = 'center';
@@ -1422,7 +1426,7 @@ Cost: 3
       }
     }
 
-    if (isSelecting || true) {
+    if (isSelecting) {
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 30;
       console.log(1026, "x", startX, startY, endX - startX, endY - startY);
@@ -1680,8 +1684,6 @@ Cost: 3
           </td>
           <td width={"25%"} valign={"top"}>
             <div>
-              <button onClick={() => setIsSelecting(true)}>Select Rectangle</button>
-
               <canvas id="cardImage" ref={canvasRef}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
@@ -1727,13 +1729,14 @@ Cost: 3
             Y: <input type="number" style={{ width: "50px" }} name="y_scale" value={imageOptions.y_scale} onChange={updateImg} />
             <hr />
             ESS start (in percent):
-            X: <input type="number" style={{ width: "50px" }} name="ess_x_pos" value={Math.round(imageOptions.ess_x_pos)} onChange={updateImg} />
-            Y: <input type="number" style={{ width: "50px" }} name="ess_y_pos" value={Math.round(imageOptions.ess_y_pos)} onChange={updateImg} />
+            X: <input type="number" style={{ width: "50px" }} name="ess_x_pos" value={Math.round(imageOptions.ess_x_pos * 10) / 10} onChange={updateImg} />
+            Y: <input type="number" style={{ width: "50px" }} name="ess_y_pos" value={Math.round(imageOptions.ess_y_pos * 10 / 10)} onChange={updateImg} />
             <br />
             ESS end (in percent):
-            X: <input type="number" style={{ width: "50px" }} name="ess_x_end" value={imageOptions.ess_x_end} onChange={updateImg} />
-            Y: <input type="number" style={{ width: "50px" }} name="ess_y_end" value={imageOptions.ess_y_end} onChange={updateImg} />
-
+            X: <input type="number" style={{ width: "50px" }} name="ess_x_end" value={Math.round(imageOptions.ess_x_end * 10) / 10} onChange={updateImg} />
+            Y: <input type="number" style={{ width: "50px" }} name="ess_y_end" value={Math.round(imageOptions.ess_y_end * 10) / 10} onChange={updateImg} />
+            <br />
+            {isSelecting ? "TRACE" : "or try dragging a rectangle on the image"}
             <hr />
             <button onClick={draw2}>Force Draw</button>
 

@@ -30,9 +30,10 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.7"; // 0.6.7.1 digivolve bubble a better blue
-const latest = "skinny up two-digit DP number; specialOffset tuneable; rounded corners"
+const version = "0.6.8"; // 0.6.7.1 digivolve bubble a better blue 0.6.7.2 back to AyaKasone, no evo 
+const latest = "no digi on eggs; offset name on trait-less option/tamer; AyarKasone back for evo; blue keywords a better blue"
 
+// version 0.6.8  no digi on eggs; offset name on trait-less option/tamer; AyarKasone back for evo; blue keywords a better blue
 // version 0.6.7  skinny up two-digit DP number; specialOffset tuneable; rounded corners
 // version 0.6.6  try to pixel match both ex2-039 and bt14-014; customize effect height; scale effectbox (but not for options)
 // version 0.6.5  fix pixels of effect text and DP and other things to be near-pixel-perfect
@@ -1051,8 +1052,8 @@ Cost: 3
 
 
       let x = 355;
-      //playcost
-      const playcost = json.playCost !== "-" ? json.playCost : undefined;
+      //playcost. If 0 or more, show that number. Else show egg symbol.
+      const playcost = parseInt(json.playCost)
       if (type === "MONSTER" || type === "EGG" || true) {
         if (modern) {
           let img = playcost >= 0 ? cost : cost_egg;
@@ -1063,7 +1064,7 @@ Cost: 3
             if (i) ctx.drawImage(i, offset_x, offset_y, 500, 500);
           }
         }
-        if (playcost) {
+        if (playcost >= 0) {
           ctx.font = 'bold 290px AyarKasone, Helvetica';
           ctx.fillStyle = 'white';
           ctx.fillText(playcost, x + 15, 390);

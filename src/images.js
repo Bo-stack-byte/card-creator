@@ -46,13 +46,13 @@ import _bottom_purple from './frames/bottom_purple.png';
 import _bottom_black from './frames/bottom_black.png';
 import _bottom_white from './frames/bottom_white.png';
 
-import _bottom_ace_red from './frames/bottom_red_evo_ace.png';
-import _bottom_ace_blue from './frames/bottom_blue_evo_ace.png';
-import _bottom_ace_yellow from './frames/bottom_yellow_evo_ace.png';
-import _bottom_ace_green from './frames/bottom_green_evo_ace.png';
-import _bottom_ace_purple from './frames/bottom_purple_evo_ace.png';
-import _bottom_ace_black from './frames/bottom_black_evo_ace.png';
-import _bottom_ace_white from './frames/bottom_white_evo_ace.png';
+import _bottom_ace_red from './frames/inherits/bottom_red_evo_ace.png';
+import _bottom_ace_blue from './frames/inherits/bottom_blue_evo_ace.png';
+import _bottom_ace_yellow from './frames/inherits/bottom_yellow_evo_ace.png';
+import _bottom_ace_green from './frames/inherits/bottom_green_evo_ace.png';
+import _bottom_ace_purple from './frames/inherits/bottom_purple_evo_ace.png';
+import _bottom_ace_black from './frames/inherits/bottom_black_evo_ace.png';
+import _bottom_ace_white from './frames/inherits/bottom_white_evo_ace.png';
 
 import _ace_logo from './frames/ACE.png';
 
@@ -65,13 +65,13 @@ import _inherited_sec_black from './frames/inherits/bottom_black_security.png';
 import _inherited_sec_white from './frames/inherits/bottom_white_security.png';
 
 
-import _bottom_plain_red from './frames/bottom_plain_red.png';
-import _bottom_plain_blue from './frames/bottom_plain_blue.png';
-import _bottom_plain_yellow from './frames/bottom_plain_yellow.png';
-import _bottom_plain_green from './frames/bottom_plain_green.png';
-import _bottom_plain_purple from './frames/bottom_plain_purple.png';
-import _bottom_plain_black from './frames/bottom_plain_black.png';
-import _bottom_plain_white from './frames/bottom_plain_white.png';
+import _bottom_plain_red from './frames/inherits/bottom_plain_red.png';
+import _bottom_plain_blue from './frames/inherits/bottom_plain_blue.png';
+import _bottom_plain_yellow from './frames/inherits/bottom_plain_yellow.png';
+import _bottom_plain_green from './frames/inherits/bottom_plain_green.png';
+import _bottom_plain_purple from './frames/inherits/bottom_plain_purple.png';
+import _bottom_plain_black from './frames/inherits/bottom_plain_black.png';
+import _bottom_plain_white from './frames/inherits/bottom_plain_white.png';
 
 
 import _bottom_property_white from './frames/bottom_digimon_properties_white.png';
@@ -221,6 +221,7 @@ import _dna_black from './frames/dna_box_black.png';
 import _dna_white from './frames/dna_box_white.png';
 import _dna_all from './frames/dna_box_all.png';
 
+import _foil from './frames/foil.png';
 
 export const new_evo_circles = {
   'red': new_evo_red,
@@ -255,6 +256,7 @@ export const new_evo2_circles = {
   'white': new_evo2_white,
 }
 
+let foil = new Image(); foil.src = _foil;
 
 let dna_red = new Image(); dna_red.src = _dna_red;
 let dna_blue = new Image(); dna_blue.src = _dna_blue;
@@ -318,6 +320,7 @@ export {
   cost, cost_egg, cost_option, cost_evo,
   outline_option, ace_logo,
   bottom_property_white, bottom_property_black,
+  foil,
 };
 
 export const basics = {

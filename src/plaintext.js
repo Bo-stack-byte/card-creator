@@ -31,7 +31,7 @@ export const enterPlainText = (lines) => {
     let json = {
         "name": { "english": "" },
         "color": "",
-        "cardType": "Monster",
+        "cardType": "Digimon",
         "playCost": "-",
         "dp": "-",
         "cardLv": "",

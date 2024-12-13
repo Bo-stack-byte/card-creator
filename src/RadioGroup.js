@@ -29,7 +29,7 @@ const RadioGroup = ({ selectedOption, handleOptionChange }) => {
                     checked={selectedOption === 'EGG'}
                     onChange={handleOptionChange}
                 />
-                EGG
+                DIGI-EGG
             </label> </span>
             <span className="radio-label"><label>
                 <input
@@ -38,7 +38,7 @@ const RadioGroup = ({ selectedOption, handleOptionChange }) => {
                     checked={selectedOption === 'MONSTER'}
                     onChange={handleOptionChange}
                 />
-                MONSTER
+                DIGIMON
             </label> </span>
             <span className="radio-label"><label>
                 <input

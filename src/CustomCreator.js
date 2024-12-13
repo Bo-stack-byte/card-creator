@@ -3,11 +3,13 @@ import { eggs, basics, options, tamers, evos, colorReplace } from './images';
 import {
   mon_background, mega_background, egg_background, option_background, tamer_background,
   outlines, outlines_egg, outlines_tamer, outline_option,
-  cost, cost_egg, cost_option, cost_evo, costs, ace_logo,
+  cost, cost_egg, cost_option, cost_evo, costs, ace_logo, foil,
   new_evo_circles, /* new_evo2_circles, */
   new_evo_wedges,
-  bottom_evos, bottoms, bottoms_plain, borders, effectboxes,
+  bottoms, bottoms_plain, borders, effectboxes,
+
   // inherits at bottom:
+  bottom_evos,
   bottom_aces, inherited_security,
   bottom_property_white, bottom_property_black
 
@@ -30,8 +32,8 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.8"; // 0.6.7.1 digivolve bubble a better blue 0.6.7.2 back to AyaKasone, no evo 
-const latest = "no digi on eggs; offset name on trait-less option/tamer; AyarKasone back for evo; blue keywords a better blue"
+const version = "0.6.8.1"; // trying to get foil
+const latest = "trying to get foil"
 
 // version 0.6.8  no digi on eggs; offset name on trait-less option/tamer; AyarKasone back for evo; blue keywords a better blue
 // version 0.6.7  skinny up two-digit DP number; specialOffset tuneable; rounded corners
@@ -149,7 +151,7 @@ const setupRoundedCorners = (ctx, width, height, radius) => {
 const starter_text_empty = `{
     "name": {  "english": "Tama"  },
     "color": "Red",
-    "cardType": "Egg",
+    "cardType": "Digi-Egg",
     "playCost": "-",
     "cardLv": "Lv.2",
     "cardNumber": "",
@@ -167,7 +169,7 @@ const starter_text_empty = `{
 const starter_text_0 = `  {
     "name": {  "english": "Doggie Dagger"  },
     "color": "Green",
-    "cardType": "Egg",
+    "cardType": "Digi-Egg",
     "cardLv": "Lv.2",
     "cardNumber": "CS2-01",
     "dp": "-",
@@ -195,7 +197,7 @@ Play cost: 6 | Evolution: 3 from Lv.3 [Yel.]
 const starter_text_1a = `  {
     "name": {  "english": "Shield Smasher"  },
     "color": "Blue/Red",
-    "cardType": "Monster",
+    "cardType": "Digimon",
     "playCost": "12",
     "dp": "9000",
     "cardLv": "Lv.6",
@@ -365,6 +367,7 @@ function CustomCreator() {
   const [effectBox, setEffectBox] = useState(false);
   const [drawFrame, setDrawFrame] = useState(true);
   const [skipDraw, setSkipDraw] = useState(false);
+  const [addFoil, setAddFoil] = useState(1);
   const [baselineOffset, setBaselineOffset] = useState(0);
   const [specialOffset, setSpecialOffset] = useState(0);
   const [lineSpacing, setLineSpacing] = useState(10);
@@ -812,6 +815,15 @@ Cost: 3
         //        shellImg.src = background;
         ctx.drawImage(shellImg, 0, 0, canvas.width, canvas.height);
       }
+
+      if (false)
+      if (addFoil) {
+        ctx.globalAlpha = 0.2;
+        ctx.drawImage(foil, 0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1.0;
+      }
+
+
       ctx.textAlign = 'center';
       ctx.fillStyle = 'white';
       ctx.font = `bold 84px Roboto`;
@@ -919,7 +931,7 @@ Cost: 3
               }
 
               if (has_traits) skip = false;
-              
+
               // do underline for traits, check st19 arisa because Tamers might need it
               if (!skip) {
                 let bar_img = (colors[0] === "black") ? bottom_property_white : bottom_property_black;
@@ -936,6 +948,7 @@ Cost: 3
         }
       }
 
+
       bottom += 800;
       let rule = json.rule;
       if (rule && rule.length > 1) {
@@ -951,94 +964,94 @@ Cost: 3
 
       // only monsters (and tamers, why not) can have evo circles
       if (type === "MONSTER" || type === "MEGA" || type === "ACE" ||
-        type === "TAMER" || type === "TAMERINHERIT")  
-      // evo circles
-      if (_evos && _evos.length > 0) {
+        type === "TAMER" || type === "TAMERINHERIT")
+        // evo circles
+        if (_evos && _evos.length > 0) {
 
-        // only two handled for now
-        //offset_y -= 20;
-        if (modern) ctx.drawImage(cost_evo, offset_x, offset_y + 600, 500, 500);
+          // only two handled for now
+          //offset_y -= 20;
+          if (modern) ctx.drawImage(cost_evo, offset_x, offset_y + 600, 500, 500);
 
-        let base = -135; // degrees
-        let each = 360 / (_evos.length);
-        for (let n = 0; n < _evos.length; n++) {
-          //console.log(`n is ${n} and height is ${height * n}`);
-          const evo = _evos[n];
-          if (!evo.level) continue;
+          let base = -135; // degrees
+          let each = 360 / (_evos.length);
+          for (let n = 0; n < _evos.length; n++) {
+            //console.log(`n is ${n} and height is ${height * n}`);
+            const evo = _evos[n];
+            if (!evo.level) continue;
 
-          const evo_level = `Lv.${evo.level}`;
-          const evo_cost = evo.cost;
-          const evo_color = evo.color.toLowerCase();
+            const evo_level = `Lv.${evo.level}`;
+            const evo_cost = evo.cost;
+            const evo_color = evo.color.toLowerCase();
 
-          const circle = new Image();
-          let X = offset_x + 130;
-          let Y = offset_y + 125 + 600;
+            const circle = new Image();
+            let X = offset_x + 130;
+            let Y = offset_y + 125 + 600;
 
-          // only handling 2 colors for now
-          if (modern) {
-            const wedge = new Image();
-            wedge.src = new_evo_wedges[evo_color];
+            // only handling 2 colors for now
+            if (modern) {
+              const wedge = new Image();
+              wedge.src = new_evo_wedges[evo_color];
 
-            let circles =  /* n? new_evo2_circles : (*/ new_evo_circles;
-            circle.src = circles[evo_color];
-            //  circle.onload = () => {
-            //  console.log(735, "onload for " + evo_color);
-            let x = X;
-            let y = Y;
-            const imgWidth = 310; // Your image display width
-            const imgHeight = 310; // Your image display height
+              let circles =  /* n? new_evo2_circles : (*/ new_evo_circles;
+              circle.src = circles[evo_color];
+              //  circle.onload = () => {
+              //  console.log(735, "onload for " + evo_color);
+              let x = X;
+              let y = Y;
+              const imgWidth = 310; // Your image display width
+              const imgHeight = 310; // Your image display height
 
-            const radius = imgWidth / 2;
-            // TODO: wait for .onLoad();
-            let start = base + n * each
-            const startAngle = (start * Math.PI) / 180;
-            const sweepAngle = (each * Math.PI) / 180;
+              const radius = imgWidth / 2;
+              // TODO: wait for .onLoad();
+              let start = base + n * each
+              const startAngle = (start * Math.PI) / 180;
+              const sweepAngle = (each * Math.PI) / 180;
 
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y + radius);
-            ctx.arc(x + radius, y + radius, radius, startAngle, startAngle + sweepAngle);
-            ctx.lineTo(x + radius, y + radius);
-            ctx.clip();
-            ctx.drawImage(circle, 0, 0, 291, 291, x, y, imgWidth, imgHeight);
-            ctx.restore();
-            ctx.drawImage(wedge, 0, 0, 291, 291, x - 130, y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
+              ctx.save();
+              ctx.beginPath();
+              ctx.moveTo(x + radius, y + radius);
+              ctx.arc(x + radius, y + radius, radius, startAngle, startAngle + sweepAngle);
+              ctx.lineTo(x + radius, y + radius);
+              ctx.clip();
+              ctx.drawImage(circle, 0, 0, 291, 291, x, y, imgWidth, imgHeight);
+              ctx.restore();
+              ctx.drawImage(wedge, 0, 0, 291, 291, x - 130, y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
 
-            //       }
-          } else {
-            circle.src = evos[evo_color];
-            ctx.drawImage(circle, 60, 640 + height * n);
-            coloredCircle(canvas, 370, 920 + height * n, evo_color);
+              //       }
+            } else {
+              circle.src = evos[evo_color];
+              ctx.drawImage(circle, 60, 640 + height * n);
+              coloredCircle(canvas, 370, 920 + height * n, evo_color);
+            }
+            // we're drawing this with every circle
+            let index = modern ? 0 : n;
+
+            ctx.font = `bold 90px Roboto, Helvetica`; //  Roboto`;
+            ctx.lineWidth = 10;
+
+
+
+            let ec = edgeColor(evo_color);
+            ctx.strokeStyle = ec;
+            // this isn't working!
+            if (ec === "white") ctx.lineWidth = 10;
+            if (ctx.strokeStyle === "white" || true) ctx.lineWidth = 0.1;
+            ctx.strokeText(evo_level, 375, 870 + height * index, 140);
+            ctx.fillStyle = contrastColor(evo_color);
+            ctx.fillText(evo_level, 375, 870 + height * index, 140);
+
+            // we should only have a contrast color if our colors disagree
+            // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
+            ctx.font = `bold 220px AyarKasone, Helvetica`;
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = edgeColor(evo_color);
+            //   ctx.strokeStyle = contrastColor(evo_color);
+
+            ctx.strokeText(evo_cost, 375, 1020 + height * index);
+            ctx.fillStyle = contrastColor(evo_color);
+            ctx.fillText(evo_cost, 375, 1020 + height * index);
           }
-          // we're drawing this with every circle
-          let index = modern ? 0 : n;
-
-          ctx.font = `bold 90px Roboto, Helvetica`; //  Roboto`;
-          ctx.lineWidth = 10;
-
-
-
-          let ec = edgeColor(evo_color);
-          ctx.strokeStyle = ec;
-          // this isn't working!
-          if (ec === "white") ctx.lineWidth = 10;
-          if (ctx.strokeStyle === "white" || true) ctx.lineWidth = 0.1;
-          ctx.strokeText(evo_level, 375, 870 + height * index, 140);
-          ctx.fillStyle = contrastColor(evo_color);
-          ctx.fillText(evo_level, 375, 870 + height * index, 140);
-
-          // we should only have a contrast color if our colors disagree
-          // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
-          ctx.font = `bold 220px AyarKasone, Helvetica`;
-          ctx.lineWidth = 10;
-          ctx.strokeStyle = edgeColor(evo_color);
-          //   ctx.strokeStyle = contrastColor(evo_color);
-
-          ctx.strokeText(evo_cost, 375, 1020 + height * index);
-          ctx.fillStyle = contrastColor(evo_color);
-          ctx.fillText(evo_cost, 375, 1020 + height * index);
         }
-      }
 
 
       let _dp = parseInt(json.dp);
@@ -1342,6 +1355,14 @@ Cost: 3
           700 + delta_x * 2, 3740 + delta_y * 2,
           2500 - 400 - delta_x * 2, Number(fontSize) + Number(lineSpacing), "effect");
       }
+
+      if (true)
+        if (addFoil) {
+          ctx.globalAlpha = Number(addFoil) / 100
+          ctx.drawImage(foil, 0, 0, canvas.width, canvas.height);
+          ctx.globalAlpha = 1.0;
+        }
+  
     }
 
 
@@ -1421,7 +1442,7 @@ Cost: 3
     //ightImg.onload = () => {
 
 
-  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, baselineOffset, specialOffset, lineSpacing]);
+  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1602,7 +1623,7 @@ Cost: 3
 
             <button onClick={handleExport}>Save Image Locally</button>
             <hr />
-            <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} drawFrame={drawFrame}
+            <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} drawFrame={drawFrame} addFoil={addFoil}
               effectBox={effectBox} baselineOffset={baselineOffset} specialOffset={specialOffset} lineSpacing={lineSpacing}
             />
             <hr />
@@ -1624,6 +1645,12 @@ Cost: 3
               <label style={{ display: "xxx" }} >
                 <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
                 Skip Draw </label>  <br />
+                <label>Foil opacity: <input type="number" style={{ width: "50px" }} name="addFoil" value={addFoil} onChange={(e) => { setAddFoil(e.target.value) }} /> </label>
+              <span> &nbsp; &nbsp; </span>
+{ /*
+              <label>
+                <input type="checkbox" checked={addFoil} onChange={(e) => { setAddFoil(e.target.checked) }} />
+                Add Foil </label>  <br /> */ } 
               <br /> Unimplemented:  burst, rarity <br />
             </span>
           </td>
@@ -1649,9 +1676,10 @@ Cost: 3
             Version {version} {latest}
             <p style={{ fontFamily: "ToppanBunkyExtraBold" }}>Ask support or request features over on <a href={invite}>Discord</a>.</p>
             <p style={{ fontFamily: "ProhibitionRough" }}><a href="./fontguide.html">FONT GUIDE</a> &nbsp; &nbsp;  <a href="./roadmap.txt">roadmap</a></p>
-            <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
-            <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba and Zaffy who kept this dream alive in previous years.</p>
             <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
+            <p style={{ fontFamily: "AyarKasone" }}> More templates from <a href="https://digi-lov.tumblr.com/post/748763635923435520/digimon-card-template">Digi-Lov</a></p>
+            <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba, Zaffy, and Digimoncard.io who kept this dream alive in previous years.</p>
+            <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
             Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
             <br />
             <br />

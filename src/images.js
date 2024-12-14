@@ -5,6 +5,16 @@ import egg_background from './frames/background_egg.png';
 import option_background from './frames/background_option.png';
 import tamer_background from './frames/background_tamer.png';
 
+import ace_red from './frames/backgrounds/red-ace.png';
+import ace_blue from './frames/backgrounds/blue-ace.png';
+import ace_yellow from './frames/backgrounds/yellow-ace.png';
+import ace_green from './frames/backgrounds/green-ace.png';
+import ace_black from './frames/backgrounds/black-ace.png';
+import ace_purple from './frames/backgrounds/purple-ace.png';
+import ace_white from './frames/backgrounds/white-ace.png';
+
+
+
 
 import _cost from './frames/cost.png';
 import _cost_egg from './frames/cost-egg.png';
@@ -222,6 +232,16 @@ import _dna_white from './frames/dna_box_white.png';
 import _dna_all from './frames/dna_box_all.png';
 
 import _foil from './frames/foil.png';
+
+export const ace_backgrounds = {
+  'red': ace_red,
+  'blue': ace_blue,
+  'yellow': ace_yellow,
+  'green': ace_green,
+  'purple': ace_purple,
+  'black': ace_black,
+  'white': ace_white
+}
 
 export const new_evo_circles = {
   'red': new_evo_red,

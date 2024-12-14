@@ -2,7 +2,9 @@ import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { eggs, basics, options, tamers, evos, colorReplace } from './images';
 import {
   mon_background, mega_background, egg_background, option_background, tamer_background,
+  ace_backgrounds,
   outlines, outlines_egg, outlines_tamer, outline_option,
+
   cost, cost_egg, cost_option, cost_evo, costs, ace_logo, foil,
   new_evo_circles, /* new_evo2_circles, */
   new_evo_wedges,
@@ -32,9 +34,11 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.8.4"; // unsuck on mobile // trying to get ess image // trying to get foil
-const latest = "trying to get foil"
+const version = "0.6.10"
+const latest = "hide outline, ace frame"
 
+// version 0.6.10 hide outline, ace frame
+// version 0.6.9  foil frame, ess image
 // version 0.6.8  no digi on eggs; offset name on trait-less option/tamer; AyarKasone back for evo; blue keywords a better blue
 // version 0.6.7  skinny up two-digit DP number; specialOffset tuneable; rounded corners
 // version 0.6.6  try to pixel match both ex2-039 and bt14-014; customize effect height; scale effectbox (but not for options)
@@ -374,6 +378,8 @@ function CustomCreator() {
   const [fontSize, setFontSize] = useState(90.5);
   const [effectBox, setEffectBox] = useState(false);
   const [drawFrame, setDrawFrame] = useState(true);
+  const [aceFrame, setAceFrame] = useState(true);
+  const [drawOutline, setDrawOutline] = useState(true);
   const [skipDraw, setSkipDraw] = useState(false);
   const [addFoil, setAddFoil] = useState(false);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -731,6 +737,9 @@ Cost: 3
         if (t.match(/egg/i) || t.match(/tama/i)) { type = "EGG"; }
       }
     }
+
+    const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
+
     switch (type) {
       case "MEGA": background = mega_background; break;
       case "OPTION": background = option_background; break;
@@ -740,8 +749,10 @@ Cost: 3
       case "EGG": background = egg_background; break;
       case "MONSTER": break;
       case "ACE":
+        if (aceFrame) {
+          if (ace_backgrounds[colors[0]]) background = ace_backgrounds[colors[0]];
+        }
         let match = json.aceEffect && json.aceEffect.match(/Overflow\s*.-(\d+)/i);
-        console.log(524, match);
         if (match) {
           overflow = parseInt(match[1]);
         } else { // if no overflow set, use level as backup
@@ -753,7 +764,6 @@ Cost: 3
       default:
     }
 
-    const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
     // options don't need to load frames
     const len = (type === "OPTION") ? 1 : colors.length;
     const frameImages = Array.from({ length: len }, () => new Image());
@@ -915,7 +925,7 @@ Cost: 3
 
 
 
-      if (type === "MEGA") {
+      if (type === "MEGA" && drawOutline) {
         console.log(602, frameImages.length);
         // draw the left and right line all the way down. crop off the top 1000 pixels
         try {
@@ -939,18 +949,13 @@ Cost: 3
 
           if (outlines[col]) {
 
-            // why bother doing "top" differently?
-            //              let top = new Image(); top.src = outlines[col];
-            // left/top/right of outline, sometimes bottom
-            if (frame) {
+            if (frame && drawOutline) {
               let l = (type === "OPTION") ? 1 : len; // just 1 option "outline"
               let fudge = (type === "OPTION" || !i) ? 0 : 0.04;
               fudge = 0;
               // 1.05 is fudge factor because our frames aren't all left-justified the same
               // this makes them  the same, but they might be the same wrong
               // y - 1.5 to avoid tiniest stray pixels above egg frame on upper left
-
-
               scalePartialImage(ctx, frame, i + (fudge), l, 3950, offset_x, offset_y - 1.5);
             }
             // very bottom, evo conditions
@@ -975,7 +980,7 @@ Cost: 3
               }
               scalePartialImage(ctx, img, i, len, scale, 164, height);
             }
-            if (type === "MONSTER" || type === "MEGA" || type === "ACE") {
+            if (drawOutline && (type === "MONSTER" || type === "MEGA" || type === "ACE")) {
               // bottom of frame
               let border = borders[col];
               let y = 3550 - 440;
@@ -1290,7 +1295,7 @@ Cost: 3
         // at  a certain point we should do multiple lines
         ctx.save();
         ctx.scale(scale, 1);
-        let name_line = 3330
+        let name_line = 3328
         if (bc !== "") {
           ctx.lineWidth = 20; // Border width
           ctx.strokeText(name, (1480 + ace_offset) / scale, name_line + delta_y);
@@ -1301,7 +1306,7 @@ Cost: 3
 
         if (type === "ACE") {
           let end = endWidth / 2;
-          ctx.drawImage(ace_logo, 1480 + ace_offset + end + 10, name_line + delta_y - 100);
+          ctx.drawImage(ace_logo, 1480 + ace_offset + end + 10, name_line + delta_y - 95);
         }
       } catch { };
 
@@ -1524,7 +1529,7 @@ Cost: 3
 
 
   }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing,
-    endX, endY, isSelecting, startX, startY
+    endX, endY, isSelecting, startX, startY, aceFrame, drawOutline
   ]);
 
   useEffect(() => {
@@ -1753,7 +1758,8 @@ Cost: 3
 
             <button onClick={handleExport}>Save Image Locally</button>
             <hr />
-            <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} drawFrame={drawFrame} addFoil={addFoil}
+            <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} drawFrame={drawFrame}
+              addFoil={addFoil} drawOutline={drawOutline} aceFrame={aceFrame}
               effectBox={effectBox} baselineOffset={baselineOffset} specialOffset={specialOffset} lineSpacing={lineSpacing}
             />
             <hr />
@@ -1771,18 +1777,21 @@ Cost: 3
                 Effect box </label>  <br />
               <label>
                 <input type="checkbox" checked={drawFrame} onChange={(e) => { setDrawFrame(e.target.checked) }} />
-                Card Frame </label>  <br />
+                Card Frame </label>
+              <label>
+                <input type="checkbox" checked={addFoil} onChange={(e) => { setAddFoil(e.target.checked) }} />
+                Add Foil </label>
+              <label>
+                <input type="checkbox" checked={aceFrame} onChange={(e) => { setAceFrame(e.target.checked) }} />
+                ACE Frame </label>
+              <br />
+              <label>
+                <input type="checkbox" checked={drawOutline} onChange={(e) => { setDrawOutline(e.target.checked) }} />
+                Outline </label>  <br />
               <label style={{ display: "xxx" }} >
                 <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
                 Skip Draw </label>  <br />
-              <label>
-                <input type="checkbox" checked={addFoil} onChange={(e) => { setAddFoil(e.target.checked) }} />
-                Add Foil </label>  <br />
               <span> &nbsp; &nbsp; </span>
-              { /*
-              <label>
-                <input type="checkbox" checked={addFoil} onChange={(e) => { setAddFoil(e.target.checked) }} />
-                Add Foil </label>  <br /> */ }
               <br /> Unimplemented:  burst, rarity <br />
             </span>
           </td>

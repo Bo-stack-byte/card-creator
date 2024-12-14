@@ -34,7 +34,7 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.10"
+const version = "0.6.10.1" // fixing helvetica font as backup
 const latest = "hide outline, ace frame"
 
 // version 0.6.10 hide outline, ace frame
@@ -1315,7 +1315,8 @@ Cost: 3
       const id = json.cardNumber;
       ctx.textAlign = 'right';
       ctx.fillStyle = contrastColor(colors[colors.length - 1]);
-      ctx.font = `100px HelveticaNeue-CondensedBold`;
+       ctx.font = `bold 100px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
+
       // Helvetica seems basically right but needs to be made skinny
       // ToppanBunkyExtraBold has serifs on 1 now??
       // myriadprobold wrong on 7 6 1
@@ -1783,7 +1784,7 @@ Cost: 3
                 Add Foil </label>
               <label>
                 <input type="checkbox" checked={aceFrame} onChange={(e) => { setAceFrame(e.target.checked) }} />
-                ACE Frame </label>
+              ACE Frame (beta) </label>
               <br />
               <label>
                 <input type="checkbox" checked={drawOutline} onChange={(e) => { setDrawOutline(e.target.checked) }} />

@@ -241,7 +241,7 @@ function _1drawDiamondRectangle(ctx, x, y, width, height) {
 
 function _2drawDiamondRectangle(ctx, x, y, width, height) {
   // Calculate the half-height and half-width for the triangles
-  console.log(238, x, y, width, height);
+  //console.log(238, x, y, width, height);
   y -= height;
   const halfHeight = height / 2;
   // Create the gradient from dark brown to medium brown
@@ -313,7 +313,7 @@ function prepareKeywords(str, replaceBrackets) {
 export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, preview = false) {
   let maxWidth = horizontal_limit - x;
   if (extra === "bubble") maxWidth -= 150;
-  console.log(308, "calling with" , fontSize, text , y , "XXX", lineHeight );
+  console.debug(308, "calling with" , fontSize, text , y , "XXX", lineHeight );
   lineHeight = Number(lineHeight);
   let yOffset = y;
   let lines = [];
@@ -341,8 +341,8 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
       //      console.log(`is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
 
       if (testWidth > maxWidth && n > 0) {
-        let currentWidth = ctx.measureText(line).width;
-        console.log(267, "pushing " + Math.round(currentWidth) + " <" + line + ">");
+  //      let currentWidth = ctx.measureText(line).width;
+        //console.log(267, "pushing " + Math.round(currentWidth) + " <" + line + ">");
         //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
         lines.push({ ctx, line, x, yOffset });
         line = words[n] + ' ';
@@ -353,7 +353,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     }
 
     //    console.log(277, "pushing  <" + line + ">");
-
+ 
     // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
     lines.push({ ctx, line, x, yOffset });
     yOffset += lineHeight ; // use 117.5
@@ -361,7 +361,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     // 2700 should not be hard-coded
     let max_end = Math.max.apply(Math,
       lines.map(l => wrapAndDrawText(l.ctx, fontSize, l.line, l.x, l.yOffset, extra, right_limit, true)));
-    console.log(515, 'max end', max_end);
+    //console.log(515, 'max end', max_end);
     if (max_end > right_limit) max_end = right_limit;
     const pre_width = max_end - x;
 

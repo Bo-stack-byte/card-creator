@@ -180,7 +180,7 @@ import tamer_purple from './frames/tamer-purple1.png';
 import tamer_black from './frames/tamer-black1.png';
 import tamer_white from './frames/tamer-white1.png';
 
-
+/* Pre-BT14
 import evo_red from './frames/evo-red_out.png';
 import evo_blue from './frames/evo-blue_out.png';
 import evo_yellow from './frames/evo-yellow_out.png';
@@ -188,6 +188,7 @@ import evo_green from './frames/evo-green_out.png';
 import evo_purple from './frames/evo-purple_out.png';
 import evo_black from './frames/evo-black_out.png';
 import evo_white from './frames/evo-white_out.png';
+*/
 
 // new evo
 import _cost_evo from './frames/evos/evolution.png';
@@ -552,6 +553,7 @@ export const tamers = {
 
 
 
+/* pre BT-14
 export const evos = {
   'red': evo_red,
   'blue': evo_blue,
@@ -560,7 +562,7 @@ export const evos = {
   'purple': evo_purple,
   'black': evo_black,
   'white': evo_white,
-}
+}*/
 
 
 // this function and the next are too similar

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { eggs, basics, options, tamers, evos, colorReplace } from './images';
+import { eggs, basics, options, tamers, colorReplace } from './images';
 import {
   mon_background, mega_background, egg_background, option_background, tamer_background,
   ace_backgrounds,
@@ -34,9 +34,11 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.10.1" // fixing helvetica font as backup
-const latest = "hide outline, ace frame"
 
+const version = "0.6.11" 
+const latest = "more obvious multi-level select; fix helvetica font as backup"
+
+// verison 0.6.11 more obvious multi-level select; fix helvetica font as backup
 // version 0.6.10 hide outline, ace frame
 // version 0.6.9  foil frame, ess image
 // version 0.6.8  no digi on eggs; offset name on trait-less option/tamer; AyarKasone back for evo; blue keywords a better blue
@@ -80,14 +82,6 @@ function effectBoxScale(source_height, offset) {
   return y_scale;
 }
 
-function colorMap(color) {
-  switch (color.toLowerCase()) {
-    case "blue": return "#5C8FC7";
-    case "green": return "#459A70";
-    case "purple": return "#58569d"
-    default: return color;
-  }
-}
 
 function stringRound(str) {
   if (!str) return "";
@@ -97,28 +91,32 @@ function stringRound(str) {
   return Math.round(n * 10) / 10;
 }
 
+/*  // Draw an evo circle instead of loading an image
+
+function colorMap(color) {
+  switch (color.toLowerCase()) {
+    case "blue": return "#5C8FC7";
+    case "green": return "#459A70";
+    case "purple": return "#58569d"
+    default: return color;
+  }
+}
 function coloredCircle(canvas, centerX, centerY, color) {
   try {
     const ctx = canvas.getContext('2d');
     setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
-
     const radius = 140;
-
     const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-
     // Add color stops to the gradient
     gradient.addColorStop(0, 'white');  // Center of the circle
     gradient.addColorStop(0.6, colorMap(color));    // Edge of the circle
-
-    // Use the gradient to fill the circle
     ctx.fillStyle = gradient;
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
     ctx.fill();
   } catch (e) {
   }
-
-}
+}*/
 
 function borderColor(colors) {
   for (let color of colors) {
@@ -127,11 +125,25 @@ function borderColor(colors) {
   return "";
 }
 
-function edgeColor(color) {
+// returns [fillColor, edgeColor, boolean if we need edge]
+// color should be lowercase array before we get here
+function textColor(colors) {
+  let border = (colors.includes("white") || colors.includes("yellow"));
+  let fillColor = 'white';
+  let strokeColor = 'black';
+  if (colors.length === 1 && (colors[0] === 'yellow' || colors[0] === 'white')) {
+    fillColor = 'black';
+    strokeColor = 'white';
+    border = false; // may not draw border at all
+  }
+  return [fillColor, strokeColor, border];
+}
+
+/*function edgeColor(color) {
   if (["red", "blue", "green", "purple", "black", "all"].includes(color.toLowerCase())) return "black";
   return "white";
+}*/
 
-}
 function contrastColor(color) {
   if (["red", "blue", "green", "purple", "black", "all"].includes(color)) return "white";
   return "black";
@@ -217,8 +229,7 @@ const starter_text_1a = `  {
     "attribute": "Data",
     "type": "Sword",
     "evolveCondition": 
-      [{ "color": "Blue", "cost": "4", "level": "5" },
-       { "color": "Red", "cost": "4", "level": "5" } ],
+      [{ "color": "Blue/Red", "cost": "4", "level": "5" }],
     "effect": "＜Vortex＞ \uff1cSecurity Attack +1\uff1e [Your Turn] When this monster attacks a Monster with [Shield] in its name, this Monster gets +5000 DP until the end of your opponent's turn.\\n[(Security)] [All Turns] Your Monsters get +1000 DP.",
     "evolveEffect": "-",
     "securityEffect": "-",
@@ -587,7 +598,6 @@ Cost: 3
   try {
     parsedJson = JSON.parse(jsonText[currentIndex]);
     flattenedJson = flattenJson(parsedJson);
-    console.log(533, flattenedJson);
   } catch (e) {
     jsonerror = e.toString();
     //  console.error("json error");
@@ -1050,89 +1060,75 @@ Cost: 3
         // evo circles
         if (_evos && _evos.length > 0) {
 
-          // only two handled for now
-          //offset_y -= 20;
-          if (modern) ctx.drawImage(cost_evo, offset_x, offset_y + 600, 500, 500);
+          // BT-14 and up, there is never two evo circles any more (until direct on tamers).
+          // This assumes that all circle evos are from the same level and for the same cost, just different colors.
+          // Post BT-14 alterate conditions were handled via special digivolve lines.
+          // For now there is just one circle. Ask in feedback if you want more. 
+
+          let evo1_level = "Lv." + _evos[0].level;
+          if (_evos[0].level.toUpperCase() === "TAMER") evo1_level = "TAMER";
+          let evo1_cost = _evos[0].cost;
+          let index = 0 // just 1 circle 
+          let evo1_colors = _evos.map(e => e.color.toLowerCase().split("/"))
+            .reduce((acc, curr) => acc.concat(curr), []);
+          ctx.drawImage(cost_evo, offset_x, offset_y + 600, 500, 500);
 
           let base = -135; // degrees
-          let each = 360 / (_evos.length);
-          for (let n = 0; n < _evos.length; n++) {
-            //console.log(`n is ${n} and height is ${height * n}`);
-            const evo = _evos[n];
-            if (!evo.level) continue;
+          let each = 360 / (evo1_colors.length);
 
-            const evo_level = `Lv.${evo.level}`;
-            const evo_cost = evo.cost;
-            const evo_color = evo.color.toLowerCase();
-
+          for (let i in evo1_colors) {
+            const evo_color = evo1_colors[i];
             const circle = new Image();
             let X = offset_x + 130;
             let Y = offset_y + 125 + 600;
 
-            // only handling 2 colors for now
-            if (modern) {
-              const wedge = new Image();
-              wedge.src = new_evo_wedges[evo_color];
+            const wedge = new Image();
+            wedge.src = new_evo_wedges[evo_color];
+            let circles = new_evo_circles;
+            circle.src = circles[evo_color];
+            const imgWidth = 310;
+            const imgHeight = 310;
 
-              let circles =  /* n? new_evo2_circles : (*/ new_evo_circles;
-              circle.src = circles[evo_color];
-              //  circle.onload = () => {
-              //  console.log(735, "onload for " + evo_color);
-              let x = X;
-              let y = Y;
-              const imgWidth = 310; // Your image display width
-              const imgHeight = 310; // Your image display height
+            const radius = imgWidth / 2;
+            // TODO: wait for .onLoad()? Or did we.
+            let start = base + i * each
+            const startAngle = (start * Math.PI) / 180;
+            const sweepAngle = (each * Math.PI) / 180;
 
-              const radius = imgWidth / 2;
-              // TODO: wait for .onLoad();
-              let start = base + n * each
-              const startAngle = (start * Math.PI) / 180;
-              const sweepAngle = (each * Math.PI) / 180;
-
-              ctx.save();
-              ctx.beginPath();
-              ctx.moveTo(x + radius, y + radius);
-              ctx.arc(x + radius, y + radius, radius, startAngle, startAngle + sweepAngle);
-              ctx.lineTo(x + radius, y + radius);
-              ctx.clip();
-              ctx.drawImage(circle, 0, 0, 291, 291, x, y, imgWidth, imgHeight);
-              ctx.restore();
-              ctx.drawImage(wedge, 0, 0, 291, 291, x - 130, y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
-
-              //       }
-            } else {
-              circle.src = evos[evo_color];
-              ctx.drawImage(circle, 60, 640 + height * n);
-              coloredCircle(canvas, 370, 920 + height * n, evo_color);
-            }
-            // we're drawing this with every circle
-            let index = modern ? 0 : n;
-
-            ctx.font = `bold 90px Roboto, Helvetica`; //  Roboto`;
-            ctx.lineWidth = 10;
-
-
-
-            let ec = edgeColor(evo_color);
-            ctx.strokeStyle = ec;
-            // this isn't working!
-            if (ec === "white") ctx.lineWidth = 10;
-            if (ctx.strokeStyle === "white" || true) ctx.lineWidth = 0.1;
-            ctx.strokeText(evo_level, 375, 870 + height * index, 140);
-            ctx.fillStyle = contrastColor(evo_color);
-            ctx.fillText(evo_level, 375, 870 + height * index, 140);
-
-            // we should only have a contrast color if our colors disagree
-            // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
-            ctx.font = `bold 220px AyarKasone, Helvetica`;
-            ctx.lineWidth = 10;
-            ctx.strokeStyle = edgeColor(evo_color);
-            //   ctx.strokeStyle = contrastColor(evo_color);
-
-            ctx.strokeText(evo_cost, 375, 1020 + height * index);
-            ctx.fillStyle = contrastColor(evo_color);
-            ctx.fillText(evo_cost, 375, 1020 + height * index);
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(X + radius, Y + radius);
+            ctx.arc(X + radius, Y + radius, radius, startAngle, startAngle + sweepAngle);
+            ctx.lineTo(X + radius, Y + radius);
+            ctx.clip();
+            ctx.drawImage(circle, 0, 0, 291, 291, X, Y, imgWidth, imgHeight);
+            ctx.restore();
+            ctx.drawImage(wedge, 0, 0, 291, 291, X - 130, Y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
           }
+
+          ctx.font = `bold 90px Roboto, Helvetica`; //  Roboto`;
+          ctx.lineWidth = 10;
+
+          let [fillColor, strokeColor, border] = textColor(evo1_colors);
+          if (evo1_colors.length === 1 && (evo1_colors[0] === 'yellow' || evo1_colors[0] === 'white')) {
+            fillColor = 'black';
+            border = false;
+          }
+          if (border) {
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 10;
+            ctx.strokeText(evo1_level, 375, 870 + height * index, 140);
+          }
+          ctx.fillStyle = fillColor; // contrastColor(evo_color);
+          ctx.fillText(evo1_level, 375, 870 + height * index, 140);
+
+          // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
+          ctx.font = `bold 220px AyarKasone, Helvetica`;
+          if (border) {
+            ctx.lineWidth = 10;
+            ctx.strokeText(evo1_cost, 375, 1020 + height * index);
+          }
+          ctx.fillText(evo1_cost, 375, 1020 + height * index);
         }
 
 
@@ -1315,7 +1311,7 @@ Cost: 3
       const id = json.cardNumber;
       ctx.textAlign = 'right';
       ctx.fillStyle = contrastColor(colors[colors.length - 1]);
-       ctx.font = `bold 100px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
+      ctx.font = `bold 100px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
 
       // Helvetica seems basically right but needs to be made skinny
       // ToppanBunkyExtraBold has serifs on 1 now??
@@ -1359,21 +1355,17 @@ Cost: 3
       ///// MAIN TEXT 
       let y_line = bottom - 640; // set above for effectbox / rule
 
-      let b = Number(baselineOffset);
+//      let b = Number(baselineOffset);
       let so = Number(specialOffset);
-      console.log(1259, b, so);
       y_line -= Number(baselineOffset);
 
-      console.log(1149, b, baselineOffset, y_line);
-      //      if (type === "
-      // effect
+      //console.log(1149, b, baselineOffset, y_line);
       ctx.font = `bold 90px Arial`;
       ctx.textAlign = 'start';
       ctx.textBaseline = 'bottom'; // Align text to the bottom
 
 
       const fontSize_n = Number(fontSize);
-      console.log(1271, fontSize_n, so, (fontSize_n + so));
       // DNA evo and special evo appear above the effect line
       const dna_evo = json.dnaEvolve || json.dnaDigivolve; // colorReplace is inside drawBracketedText
       const spec_temp = json.specialEvolve || json.specialDigivolve;
@@ -1536,15 +1528,12 @@ Cost: 3
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    console.log(1111, selectedOption, doDraw);
-
     if (canvas.width !== 2977) {
       canvas.width = 2977;
       canvas.height = 4158 - 17;
     }
     setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
 
-    console.log(1113, doDraw);
     if (doDraw)
       draw(canvas, ctx);
 
@@ -1784,7 +1773,7 @@ Cost: 3
                 Add Foil </label>
               <label>
                 <input type="checkbox" checked={aceFrame} onChange={(e) => { setAceFrame(e.target.checked) }} />
-              ACE Frame (beta) </label>
+                ACE Frame (beta) </label>
               <br />
               <label>
                 <input type="checkbox" checked={drawOutline} onChange={(e) => { setDrawOutline(e.target.checked) }} />

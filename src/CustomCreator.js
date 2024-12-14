@@ -378,7 +378,7 @@ function CustomCreator() {
   const [fontSize, setFontSize] = useState(90.5);
   const [effectBox, setEffectBox] = useState(false);
   const [drawFrame, setDrawFrame] = useState(true);
-  const [aceFrame, setAceFrame] = useState(true);
+  const [aceFrame, setAceFrame] = useState(false);
   const [drawOutline, setDrawOutline] = useState(true);
   const [skipDraw, setSkipDraw] = useState(false);
   const [addFoil, setAddFoil] = useState(false);

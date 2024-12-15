@@ -12,10 +12,10 @@ let diamondRight = new Image(); diamondRight.src = _right_diamond;
 
 //const font = 'Asimov'
 const font = 'MyriadProBold'
-const boxfont = true ? "FallingSky" : "ToppanBunkyExtraBold";   
+const boxfont = true ? "FallingSky" : "ToppanBunkyExtraBold";
 const horizontal_limit = 2800;
 
-export function center(str, len=16) {
+export function center(str, len = 16) {
   let l = str.length;
   if (l >= len) return str;
   let left = (len - l) / 2;
@@ -90,7 +90,7 @@ function splitTextIntoParts(text) {
   return all_words;
 }
 
-export function writeRuleText(ctx, rule, fontSize, bottom) {
+export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
   ctx.fillStyle = 'white';
@@ -99,16 +99,19 @@ export function writeRuleText(ctx, rule, fontSize, bottom) {
   if (text.startsWith("[Rule]")) text = text.substring(6).trim();
   let width = ctx.measureText(text).width;
   let x = horizontal_limit - 100;
-  ctx.fillRect(x - width, bottom - fontSize / 8, width + fontSize / 4, - fontSize * 0.7);
   ctx.strokeStyle = 'white';
   ctx.lineWidth = 20;
-  ctx.strokeText(text, x, bottom);
-  ctx.fillStyle = 'black';
-  ctx.fillText(text, x, bottom);
+if (!preview) {
+    ctx.fillRect(x - width, bottom - fontSize / 8, width + fontSize / 4, - fontSize * 0.7);
+    ctx.strokeText(text, x, bottom);
+    ctx.fillStyle = 'black';
+    ctx.fillText(text, x, bottom);
+  }
   // Rule:
   ctx.font = `${(fontSize - 10)}px Asimov`;
   let rule_word = "Rule"
   let rule_word_width = ctx.measureText(rule_word).width + 20;
+  if (preview) return x - width - 10; // return start pos
   ctx.fillRect(x - width - 10, bottom + 10, -rule_word_width, -(Number(fontSize) + 20));
   console.log(730, x - width - 10, bottom + 10, -rule_word_width, -(fontSize + 20));
   // ctx.strokeStyle = 'white'; 
@@ -140,7 +143,7 @@ function drawRoundedRect(ctx, x, y, width, height, radius, stroke) {
 //x,y is upper left
 function drawDnaBox(ctx, x, y, w, h, colors) {
   if (colors.length === 0) return;
- // return;
+  // return;
   let images = colors.map(x => dna_boxes[x.toLowerCase()]).filter(x => x);
   console.log(135, images);
   const len = images.length;
@@ -164,7 +167,7 @@ function drawDnaBox(ctx, x, y, w, h, colors) {
   ctx.drawImage(right, hw, 0, hw, right.height,
     x + per_width * (len - 1), y, per_width, h);
   return;
-  
+
 };
 
 //x,y is upper left
@@ -190,7 +193,7 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
   if (color2) {
     gradient.addColorStop(0.3, color0);
     gradient.addColorStop(0.6, color1);
-   gradient.addColorStop(0.99, color2);
+    gradient.addColorStop(0.99, color2);
   }
   let d = 0;
   if (color === 'bubble') {
@@ -253,11 +256,11 @@ function _2drawDiamondRectangle(ctx, x, y, width, height) {
   // Begin drawing the shape
   ctx.beginPath();
   ctx.moveTo(x, y + halfHeight); // Start at the left triangle point
-  ctx.lineTo(x + halfHeight/2, y); // Top-left corner
-  ctx.lineTo(x + width - halfHeight/2, y); // Top-right corner
+  ctx.lineTo(x + halfHeight / 2, y); // Top-left corner
+  ctx.lineTo(x + width - halfHeight / 2, y); // Top-right corner
   ctx.lineTo(x + width, y + halfHeight); // Right triangle point
-  ctx.lineTo(x + width - halfHeight/2, y + height); // Bottom-right corner
-  ctx.lineTo(x + halfHeight/2, y + height); // Bottom-left corner
+  ctx.lineTo(x + width - halfHeight / 2, y + height); // Bottom-right corner
+  ctx.lineTo(x + halfHeight / 2, y + height); // Bottom-left corner
   ctx.closePath(); // Close the path
 
   // Fill the shape with gradient
@@ -309,11 +312,11 @@ function prepareKeywords(str, replaceBrackets) {
 
 // if "extra" is "bubble", put text in black bubble
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
-  // _maxWidth is unused :(
+// _maxWidth is unused :(
 export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, preview = false) {
   let maxWidth = horizontal_limit - x;
   if (extra === "bubble") maxWidth -= 150;
-  console.debug(308, "calling with" , fontSize, text , y , "XXX", lineHeight );
+  console.debug(308, "calling with", fontSize, text, y, "XXX", lineHeight);
   lineHeight = Number(lineHeight);
   let yOffset = y;
   let lines = [];
@@ -332,7 +335,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 
     let scale = 1.0;
 
-    
+
     for (let n = 0; n < words.length; n++) {
       ctx.font = `${italics} ${fontSize}px ${font}`;
       const testLine = line + words[n] + ' ';
@@ -341,7 +344,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
       //      console.log(`is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
 
       if (testWidth > maxWidth && n > 0) {
-  //      let currentWidth = ctx.measureText(line).width;
+        //      let currentWidth = ctx.measureText(line).width;
         //console.log(267, "pushing " + Math.round(currentWidth) + " <" + line + ">");
         //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
         lines.push({ ctx, line, x, yOffset });
@@ -353,10 +356,10 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     }
 
     //    console.log(277, "pushing  <" + line + ">");
- 
+
     // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
     lines.push({ ctx, line, x, yOffset });
-    yOffset += lineHeight ; // use 117.5
+    yOffset += lineHeight; // use 117.5
 
     // 2700 should not be hard-coded
     let max_end = Math.max.apply(Math,
@@ -432,7 +435,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
       ctx.font = `100 ${(fontSize - 10)}px ${boxfont}`;
       const phraseWidth = ctx.measureText(cleanPhrase).width;
       let start = lastX; let width = phraseWidth + 50;
-      if (!preview) drawColoredRectangle(ctx, start, y+3,  width, fontSize, color);
+      if (!preview) drawColoredRectangle(ctx, start, y + 3, width, fontSize, color);
       ctx.fillStyle = 'white';
       ctx.textAlign = 'center';
       //console.log(328, lastX, cleanPhrase, (cardWidth - lastX - 5));
@@ -453,7 +456,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
           const wordWidth = ctx.measureText(cleanWord).width;
           //console.log(314, wordWidth, cardWidth, lastX, cleanWord);
           let h = Number(fontSize);
-          if (!preview) drawDiamondRectangle(ctx, lastX, y-8, scale * wordWidth + 10, h);
+          if (!preview) drawDiamondRectangle(ctx, lastX, y - 8, scale * wordWidth + 10, h);
           ctx.scale(scale, 1);
           ctx.fillStyle = 'white'; // white on colored background
           if (!preview) ctx.fillText(cleanWord, lastX / scale + 5, y - 10, cardWidth - lastX);

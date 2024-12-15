@@ -35,9 +35,10 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.11" 
-const latest = "more obvious multi-level select; fix helvetica font as backup"
+const version = "0.6.12"
+const latest = "digixros + rule text non-overlap"
 
+// version 0.6.12 digixros + rule text non-overlap
 // verison 0.6.11 more obvious multi-level select; fix helvetica font as backup
 // version 0.6.10 hide outline, ace frame
 // version 0.6.9  foil frame, ess image
@@ -898,11 +899,14 @@ Cost: 3
           // Put the modified image data back to the off-screen canvas
           offScreenCtx.putImageData(baseImageData, 0, 0);
           // Draw the composite image on the main canvas
-          ctx.drawImage(shellImg, 0, 0, canvas.width, canvas.height);
+          let ace_scale = 1; // aceFrame ? .: 0.95;
+          ctx.drawImage(shellImg, 0, 0, canvas.width * ace_scale, canvas.height * ace_scale);
           ctx.drawImage(offScreenCanvas, 0, 0, canvas.width, canvas.height);
 
         } else {
-          ctx.drawImage(shellImg, 0, 0, canvas.width, canvas.height);
+          let ace_scale = aceFrame ? 1 : 1;
+
+          ctx.drawImage(shellImg, 0, 0, canvas.width * ace_scale, canvas.height * ace_scale);
         }
       }
 
@@ -1001,50 +1005,74 @@ Cost: 3
               // todo: play with these numbers some more. scale is 67.2-67.5,
               // and left is 166
             }
+
             // name block
-            let y = 3550 - 365;
-            if (type === "EGG" || type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y -= 90;
-            if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y += 0; // 40;
-            if (type === "MEGA") y += 500;
-            let img_name = name_field[col];
-            let scale = 364.2;
-            if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") scale = 305;
-            scalePartialImage(ctx, img_name, i, len, scale, 164, y);
+            if (true) {
+              let y = 3550 - 365;
+              if (type === "EGG" || type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y -= 90;
+              if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y += 0; // 40;
+              if (type === "MEGA") y += 500;
+              let img_name = name_field[col];
+              let scale = 364.2;
+              if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") scale = 305;
+              scalePartialImage(ctx, img_name, i, len, scale, 164, y);
 
 
-            // do the black (white) bar on anything with a trait, or anything with "Lv.*" text
-            if (i === len - 1) {
-              let skip = false;
-              let bar_offset = 273;
+              // do the black (white) bar on anything with a trait, or anything with "Lv.*" text
+              if (i === len - 1) {
+                let skip = false;
+                let bar_offset = 273;
 
-              if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") {
-                skip = true;
-                bar_offset = 242;
+                if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") {
+                  skip = true;
+                  bar_offset = 242;
+                }
+
+                if (has_traits) skip = false;
+
+                // do underline for traits, check st19 arisa because Tamers might need it
+                if (!skip) {
+                  let bar_img = (colors[0] === "black") ? bottom_property_white : bottom_property_black;
+
+                  let scale = 4.015;
+                  ctx.drawImage(bar_img,
+                    162, y + bar_offset,
+                    bar_img.width * scale,
+                    bar_img.height * scale * 1.06) // stretch a little
+                }
               }
-
-              if (has_traits) skip = false;
-
-              // do underline for traits, check st19 arisa because Tamers might need it
-              if (!skip) {
-                let bar_img = (colors[0] === "black") ? bottom_property_white : bottom_property_black;
-
-                let scale = 4.015;
-                ctx.drawImage(bar_img,
-                  162, y + bar_offset,
-                  bar_img.width * scale,
-                  bar_img.height * scale * 1.06) // stretch a little
-              }
-
             }
           }
         }
-      }
+      } // end multi-color drawing
 
+      // rule text can either be at the very end
+      // if digixros && rule are both small, they can be on the same line (BT18-072)
+      // if ruletext is short it could be after the effect text, above digixros (BT18-028, BT19-065)
+      // sometimes they have the full digixros effect and the rule above it (BT15-012)
 
       bottom += 800;
-      let rule = json.rule;
-      if (rule && rule.length > 1) {
-        writeRuleText(ctx, rule, fontSize, bottom);
+      const rule = json.rule;
+      const xros = json.digiXros;
+      let xros_offset, rule_offset = 0;
+      if (rule && xros) {
+         let rule_start = writeRuleText(ctx, rule, fontSize, bottom, true);
+         let xros_length = ctx.measureText(xros).width;
+        let fudge = 250;
+         if (300 + xros_length + fudge > rule_start) {
+          rule_offset = (fontSize + 10);
+         }
+         console.log(1060, rule_start, 300 + xros_length);
+
+      }
+      if (!empty(rule)) {
+        writeRuleText(ctx, rule, fontSize, bottom - rule_offset);
+      }
+
+      if (xros && xros !== "-") {
+        // BT10-009 EX3-014: shaded box
+        // st19-10 solid box
+        drawBracketedText(ctx, fontSize, xros, 300, bottom, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
       }
 
 
@@ -1054,10 +1082,9 @@ Cost: 3
 
       const height = 390;
 
-      // only monsters (and tamers, why not) can have evo circles
+      // EVO CIRCLES: only monsters (and tamers, why not) can have evo circles
       if (type === "MONSTER" || type === "MEGA" || type === "ACE" ||
-        type === "TAMER" || type === "TAMERINHERIT")
-        // evo circles
+        type === "TAMER" || type === "TAMERINHERIT") {
         if (_evos && _evos.length > 0) {
 
           // BT-14 and up, there is never two evo circles any more (until direct on tamers).
@@ -1130,7 +1157,7 @@ Cost: 3
           }
           ctx.fillText(evo1_cost, 375, 1020 + height * index);
         }
-
+      }
 
       let _dp = parseInt(json.dp);
       let dp_k, dp_m;
@@ -1216,6 +1243,8 @@ Cost: 3
         ctx.strokeText("DP", x + 130, y - 200);
         ctx.fillText("DP", x + 130, y - 200);
       }
+
+
       if (type === "EGG" || type === "MONSTER" || type === "MEGA" || type === "ACE") {
         // level
         let level = (json.cardLv === "-" || json.cardLv === undefined) ? "Lv.-" : json.cardLv;
@@ -1355,7 +1384,7 @@ Cost: 3
       ///// MAIN TEXT 
       let y_line = bottom - 640; // set above for effectbox / rule
 
-//      let b = Number(baselineOffset);
+      //      let b = Number(baselineOffset);
       let so = Number(specialOffset);
       y_line -= Number(baselineOffset);
 
@@ -1399,13 +1428,6 @@ Cost: 3
         );
       }
 
-      // digixros, put right after effect for now
-      const xros = json.digiXros;
-      if (xros && xros !== "-") {
-        // BT10-009 EX3-014: shaded box
-        // st19-10 solid box
-        /*y_line =  */ drawBracketedText(ctx, fontSize, xros, 300, bottom, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
-      }
 
       // evo effect
       ctx.textAlign = 'start';
@@ -1568,7 +1590,7 @@ Cost: 3
     }
   };
 
-  const invite = "https://discord.gg/wbN2vTmz";
+  const invite = 'https://discord.gg/FY3TYNMu';
   let button = (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
       <button

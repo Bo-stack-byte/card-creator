@@ -1054,18 +1054,19 @@ Cost: 3
       bottom += 800;
       const rule = json.rule;
       const xros = json.digiXros;
-      let xros_offset, rule_offset = 0;
+      let rule_offset = 0;
       if (rule && xros) {
          let rule_start = writeRuleText(ctx, rule, fontSize, bottom, true);
          let xros_length = ctx.measureText(xros).width;
-        let fudge = 250;
+        let fudge = 300;
          if (300 + xros_length + fudge > rule_start) {
-          rule_offset = (fontSize + 10);
+          rule_offset = (Number(fontSize) + Number(lineSpacing) * 1.5);
          }
-         console.log(1060, rule_start, 300 + xros_length);
+         //console.log(1060, rule_start, 300 + xros_length);
 
       }
       if (!empty(rule)) {
+        console.log(1069, "bottom is " + (bottom-rule_offset));
         writeRuleText(ctx, rule, fontSize, bottom - rule_offset);
       }
 

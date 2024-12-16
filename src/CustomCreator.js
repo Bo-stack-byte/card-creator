@@ -35,7 +35,7 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.12"
+const version = "0.6.12.1" // edit digixros + rule overlap
 const latest = "digixros + rule text non-overlap"
 
 // version 0.6.12 digixros + rule text non-overlap
@@ -1061,10 +1061,8 @@ Cost: 3
         let xros_length = ctx.measureText(xros).width;
         let fudge = 300;
         if (300 + xros_length + fudge > rule_start) {
-          rule_offset = (Number(fontSize) + Number(lineSpacing) * 1.5);
+          rule_offset = (Number(fontSize) * 1.2 + Number(lineSpacing) * 2.0);
         }
-        //console.log(1060, rule_start, 300 + xros_length);
-
       }
       if (!empty(rule)) {
         console.log(1069, "bottom is " + (bottom - rule_offset));

@@ -64,7 +64,7 @@ export const enterPlainText = (lines) => {
         //                            1              2   3          4    5
         if ((m = line.match(/^\s*[Lʟ][ᴠv].(\d+)(.*)/i))) {
             console.log(55, m);
-            json.cardLv = "Lv." + parseInt(m[1]);
+            json.cardLv = "Lv." + (m[1]);
 
             let fields = line.split(/ [-—] /i);
             console.log(47, fields);
@@ -107,17 +107,17 @@ export const enterPlainText = (lines) => {
             json.color = m[3];
         } else if ((m = line.match(/^\s*Play cost: (\d+)\s*\|\s*(E|Digi)volution: (\d+) from Lv.(\d+) \[(.*)\]/))) {
             // Play cost: (6) | Evolution: (3) from Lv.(3) [Yel.]
-            json.playCost = parseInt(m[1]);
+            json.playCost = (m[1]);
             let evo = {}
-            evo.level = parseInt(m[4]);
-            evo.cost = parseInt(m[3]);
+            evo.level = (m[4]);
+            evo.cost = (m[3]);
             evo.color = abbr_parse_color(m[5])
             json.evolveCondition.push(evo);
         } else if ((m = line.match(/^\s*(\d+) DP/))) {
             //      6000 DP
-            json.dp = parseInt(m[1]);
+            json.dp = (m[1]);
         } else if ((m = line.match(/^(Play|Use)?.?cost\s*:\s*(\d+)/i))) {
-            json.playCost = parseInt(m[2]);
+            json.playCost = (m[2]);
             // only if pure colors
         } else if ((m = line.match(/^\[\S*\]$/i))) {
             json.color = abbr_parse_color(m[1]);
@@ -129,11 +129,11 @@ export const enterPlainText = (lines) => {
             //  Digivolution cost: 5 from purple or red Lv.5
         } else if ((m = line.match(/Digivol(\w*)\s*(cost)?\s*:\s*(\d+) from (.*)/i))) {
             let evo = {}
-            evo.cost = parseInt(m[3]);
+            evo.cost = (m[3]);
             let from = m[4];
             let n;
             if ((n = from.match(/(.*)(Level|lvl|Lv\.)\s*(\d+)(.*)/i))) {
-                evo.level = parseInt(n[3]);
+                evo.level = (n[3]);
                 from = n[1] + n[4];
             }
             let colors = split_colors(from);

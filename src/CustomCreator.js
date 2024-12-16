@@ -394,13 +394,14 @@ function CustomCreator() {
   const [drawOutline, setDrawOutline] = useState(true);
   const [skipDraw, setSkipDraw] = useState(false);
   const [addFoil, setAddFoil] = useState(false);
+/*
   const [isSelecting, setIsSelecting] = useState(false);
 
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
   const [endX, setEndX] = useState(0);
   const [endY, setEndY] = useState(0);
-
+*/
   const [baselineOffset, setBaselineOffset] = useState(0);
   const [specialOffset, setSpecialOffset] = useState(0);
   const [lineSpacing, setLineSpacing] = useState(10);
@@ -1056,17 +1057,17 @@ Cost: 3
       const xros = json.digiXros;
       let rule_offset = 0;
       if (rule && xros) {
-         let rule_start = writeRuleText(ctx, rule, fontSize, bottom, true);
-         let xros_length = ctx.measureText(xros).width;
+        let rule_start = writeRuleText(ctx, rule, fontSize, bottom, true);
+        let xros_length = ctx.measureText(xros).width;
         let fudge = 300;
-         if (300 + xros_length + fudge > rule_start) {
+        if (300 + xros_length + fudge > rule_start) {
           rule_offset = (Number(fontSize) + Number(lineSpacing) * 1.5);
-         }
-         //console.log(1060, rule_start, 300 + xros_length);
+        }
+        //console.log(1060, rule_start, 300 + xros_length);
 
       }
       if (!empty(rule)) {
-        console.log(1069, "bottom is " + (bottom-rule_offset));
+        console.log(1069, "bottom is " + (bottom - rule_offset));
         writeRuleText(ctx, rule, fontSize, bottom - rule_offset);
       }
 
@@ -1093,7 +1094,10 @@ Cost: 3
           // Post BT-14 alterate conditions were handled via special digivolve lines.
           // For now there is just one circle. Ask in feedback if you want more. 
 
+          console.log(1096, _evos);
           let evo1_level = "Lv." + _evos[0].level;
+          console.log(1098, _evos[0]);
+          console.log(1099, _evos[0].level);
           if (_evos[0].level.toUpperCase() === "TAMER") evo1_level = "TAMER";
           let evo1_cost = _evos[0].cost;
           let index = 0 // just 1 circle 
@@ -1455,17 +1459,20 @@ Cost: 3
       }
     }
 
-    if (isSelecting) {
-      ctx.strokeStyle = 'red';
-      ctx.lineWidth = 30;
-      console.log(1026, "x", startX, startY, endX - startX, endY - startY);
+    /*
+    if (false)
+      if (isSelecting) {
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 30;
+        console.log(1026, "x", startX, startY, endX - startX, endY - startY);
 
-      ctx.strokeRect(startX * 2977 / 355,
-        startY * canvas.height / 499,
-        (endX - startX) * 2977 / 355,
-        (endY - startY) * canvas.height / 499
-      )
-    }
+        ctx.strokeRect(startX * 2977 / 355,
+          startY * canvas.height / 499,
+          (endX - startX) * 2977 / 355,
+          (endY - startY) * canvas.height / 499
+        )
+      }
+        */
 
 
 
@@ -1545,7 +1552,9 @@ Cost: 3
 
 
   }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing,
-    endX, endY, isSelecting, startX, startY, aceFrame, drawOutline
+    
+    //, endY, isSelecting, startX, startY, 
+    aceFrame, drawOutline
   ]);
 
   useEffect(() => {
@@ -1629,6 +1638,7 @@ Cost: 3
   const width = (355 * z / 100) || 355;
   const height = (499 * z / 100) || 499;
 
+  /*
   const handleMouseDown = (e) => {
     setIsSelecting(true);
     const rect = canvasRef.current.getBoundingClientRect();
@@ -1662,6 +1672,12 @@ Cost: 3
     console.log(1768, 'Rectangle Coordinates (%):', { x, y, width, height });
   };
 
+  removed from <canvas />?
+  onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+
+*/
 
   return (
     <table>
@@ -1712,9 +1728,6 @@ Cost: 3
           <td width={"25%"} valign={"top"}>
             <div>
               <canvas id="cardImage" ref={canvasRef}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
                 style={{
                   width: width + 'px', // traditional cards are roughly 300 x 416, let's zoom in
                   height: height + 'px',
@@ -1763,7 +1776,8 @@ Cost: 3
             X: <input type="number" style={{ width: "50px" }} name="ess_x_end" value={stringRound(imageOptions.ess_x_end)} onChange={updateImg} />
             Y: <input type="number" style={{ width: "50px" }} name="ess_y_end" value={stringRound(imageOptions.ess_y_end)} onChange={updateImg} />
             <br />
-            {isSelecting ? "TRACE" : "or try dragging a rectangle on the image"}
+              
+            {/* isSelecting ? "TRACE" : "(dragging  rectangle temporarily disabled)" */ }
             <hr />
             <button onClick={draw2}>Force Draw</button>
 

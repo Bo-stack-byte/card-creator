@@ -35,7 +35,7 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.13" 
+const version = "0.6.13.1" 
 const latest = "put image data into blob"
 
 // version 0.6.13 put image data into blob
@@ -507,9 +507,23 @@ Cost: 3
 
 
   const jsonToFields = (text) => {
+
+    let imageOptions = "";
+    try {
+      let json = JSON.parse(text);
+      imageOptions = json.imageOptions;
+    } catch { }
+    if (!imageOptions) {
+      imageOptions = { ...initImageOptions };
+      
+    }
+
+
     try {
       parsedJson = JSON.parse(text);
+      if (!parsedJson.imageOptions) parsedJson.imageOptions = imageOptions;
       flattenedJson = flattenJson(parsedJson);
+
       console.log(445, flattenedJson);
     } catch (e) {
       jsonerror = e;
@@ -525,6 +539,18 @@ Cost: 3
   let jsonerror = "none";
 
   const updateJson = (text) => {
+
+    let json;
+    try {
+      json = JSON.parse(text);
+      imageOptions = json.imageOptions;
+    } catch { }
+    if (!imageOptions && json) {
+      json.imageOptions = { ...initImageOptions };
+      text = JSON.stringify(json, null, 2);
+    }
+
+
 
     const newHistory = jsonText.slice(0, currentIndex + 1);
     setJsonText([...newHistory, text]);

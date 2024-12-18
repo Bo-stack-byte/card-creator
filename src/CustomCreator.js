@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useEffect } from 'react';
+import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import { eggs, basics, options, tamers, colorReplace } from './images';
 import {
   mon_background, mega_background, egg_background, option_background, tamer_background,
@@ -35,9 +35,10 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.12.1" // edit digixros + rule overlap
-const latest = "digixros + rule text non-overlap"
+const version = "0.6.13" 
+const latest = "put image data into blob"
 
+// version 0.6.13 put image data into blob
 // version 0.6.12 digixros + rule text non-overlap
 // verison 0.6.11 more obvious multi-level select; fix helvetica font as backup
 // version 0.6.10 hide outline, ace frame
@@ -84,13 +85,8 @@ function effectBoxScale(source_height, offset) {
 }
 
 
-function stringRound(str) {
-  if (!str) return "";
-  let n = Number(str);
-  if (n === 0) return 0;
-  if (!n) return "";
-  return Math.round(n * 10) / 10;
-}
+// stringroundremoved, dec 17
+
 
 /*  // Draw an evo circle instead of loading an image
 
@@ -394,23 +390,33 @@ function CustomCreator() {
   const [drawOutline, setDrawOutline] = useState(true);
   const [skipDraw, setSkipDraw] = useState(false);
   const [addFoil, setAddFoil] = useState(false);
-/*
-  const [isSelecting, setIsSelecting] = useState(false);
-
-  const [startX, setStartX] = useState(0);
-  const [startY, setStartY] = useState(0);
-  const [endX, setEndX] = useState(0);
-  const [endY, setEndY] = useState(0);
-*/
+  /*
+    const [isSelecting, setIsSelecting] = useState(false);
+  
+    const [startX, setStartX] = useState(0);
+    const [startY, setStartY] = useState(0);
+    const [endX, setEndX] = useState(0);
+    const [endY, setEndY] = useState(0);
+  */
   const [baselineOffset, setBaselineOffset] = useState(0);
   const [specialOffset, setSpecialOffset] = useState(0);
   const [lineSpacing, setLineSpacing] = useState(10);
   const [selectedOption, setSelectedOption] = useState('AUTO'); // radio buttons 
-  const [imageOptions, setImageOptions] = useState({
+
+  const initImageOptions = useMemo(() => {  return {
     url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
-    ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50,
+      ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50}; }, [] );
+
+  let imageOptions = "";
+  try {
+    let json = JSON.parse(jsonText);
+    imageOptions = json.imageOptions;
+  } catch { }
+
+  if (!imageOptions) {
+    imageOptions = { ...initImageOptions };
   }
-  );
+
 
 
   const handleOptionChange = (event) => {
@@ -499,14 +505,6 @@ Cost: 3
     return result;
   };
 
-  const updateImg = (e) => {
-    const { name, value } = e.target;
-    setImageOptions(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-    //    draw(); handled by useEffect()
-  };
 
   const jsonToFields = (text) => {
     try {
@@ -807,6 +805,16 @@ Cost: 3
 
       // Set the canvas dimensions
 
+      let imageOptions = "";
+      try {
+        let json = JSON.parse(jsonText[currentIndex]);
+        imageOptions = json.imageOptions;
+        console.log(527, 222, imageOptions);
+      } catch { }
+      if (!imageOptions) {
+        console.log(527, 111);
+        imageOptions = { ...initImageOptions };
+      }
 
       // background image
       let back_img = userImg || baseImg;
@@ -1549,8 +1557,8 @@ Cost: 3
     //ightImg.onload = () => {
 
 
-  }, [userImg, jsonText, imageOptions, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing,
-    
+  }, [userImg, jsonText, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing,
+    initImageOptions,
     //, endY, isSelecting, startX, startY, 
     aceFrame, drawOutline
   ]);
@@ -1677,6 +1685,9 @@ Cost: 3
 
 */
 
+  console.log(52799, imageOptions);
+
+
   return (
     <table>
       <tbody>
@@ -1699,7 +1710,7 @@ Cost: 3
                   <table style={{ maxWidth: "300px" }}>
                     {!flattenedJson ? (<tr><td>Error in JSON, try again <br /> {jsonerror} </td></tr>
                     ) :
-                      Object.entries(flattenedJson).map(([key, value]) =>
+                      Object.entries(flattenedJson).filter(([key, value]) => !key.includes("imageOptions")).map(([key, value]) =>
                         <tr>
                           <td key={key}>
                             <label>{key}: </label>
@@ -1758,6 +1769,28 @@ Cost: 3
           <button onClick={loadImageFromUrl}>Load Image from that URL</button>
           */}
             <br />
+            {
+              flattenedJson && Object.entries(flattenedJson).filter(([key, value]) => key.includes("imageOptions.")).map(([k, v]) => [k, v, k.split(".")[1]]).map(([key, value, label]) =>
+                <tr>
+                  <td key={label}>
+                    <label>{label}: </label>
+                  </td>
+                  <td>
+                    {key.match(/effect/i) ? (
+                      <textarea
+                        value={formData[key] ?? value}
+                        onChange={(e) => handleInputChange(key, e.target.value)} />) : (
+                      <input type={label === "url" ? "text" : "number"}
+                        value={formData[key] ?? value}
+                        onChange={(e) => handleInputChange(key, e.target.value)} />)
+                    }
+                  </td>
+                </tr>
+              )}
+            xy_pos, xy_scale are positing & scale for main image, in percent
+            <br />
+            ess_xy_pos ess_xy_end are corners of box for ess image,
+            { /*
             Offset (in percent):
             X: <input type="number" style={{ width: "50px" }} name="x_pos" value={imageOptions.x_pos} onChange={updateImg} />
             Y: <input type="number" style={{ width: "50px" }} name="y_pos" value={imageOptions.y_pos} onChange={updateImg} />
@@ -1774,8 +1807,8 @@ Cost: 3
             X: <input type="number" style={{ width: "50px" }} name="ess_x_end" value={stringRound(imageOptions.ess_x_end)} onChange={updateImg} />
             Y: <input type="number" style={{ width: "50px" }} name="ess_y_end" value={stringRound(imageOptions.ess_y_end)} onChange={updateImg} />
             <br />
-              
-            {/* isSelecting ? "TRACE" : "(dragging  rectangle temporarily disabled)" */ }
+                */}
+            {/* isSelecting ? "TRACE" : "(dragging  rectangle temporarily disabled)" */}
             <hr />
             <button onClick={draw2}>Force Draw</button>
 

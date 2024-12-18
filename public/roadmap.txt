@@ -6,22 +6,22 @@ BUGS
 * for remote fonts, delay first rendering or re-render when it loads
 * assumes only 1 digivolve circle ever needed, mangled art if they're mixed (and can't handle "tamer")
 * multi-color fields don't have same boundaries
-* costs in digivolve circle should only have a border if one color in the multi-color demands it
 * digimon name for pure yellow/pure white should be solid black, not white with black border
 * fix those extra pixels at intersections where angles jut out
-* Digixros and "rule" text overlaps.
 * Keyword scrunching (try sample ACE with fontsize 140)
 * (maybe same issue) Keywords that appear far along the line may be mis-aligned. So do [] symbols
 * Report of scaling broken on Safari (unable to reproduce so far)
 * "Effect box" doesn't always show up right away when clicking check box
 * rounded corners not quite right on full art
 * lower name when no traits
+* rounded corners not quite working on download
+* digixros field goes nuts if it doesn't start with [digixros -x]
 
 VAGUE TO DO LIST:
 
 * pen for creator name (should credit both artist and author)
 * handle too-large text in a better way
-* ACE frames with the fancy lines
+* ACE frames with the fancy lines (sort of working already but not really)
 * get faint white glow in playcost circle
 * dual-layer art (user supplies background and foreground: foreground gets drawn over background)
 * save final art and user art with link
@@ -36,8 +36,14 @@ VAGUE TO DO LIST:
 * (maybe auto-guessing where the "face" is for that)
 * new security icons
 * add/remove digivolve condition button
-* the same way you set color to "green/red" people expect to be able to set the digivolve for a level to be "green/red" instead of needing 2 separate lines
 * add triangle to "Rule" text
-* DNA box for white mon
+* for white mon, use 
 * black level box not quite right in shape and size if you look really closely
+
+NOMINALLY FIXED BUGS / FEATURES
+
+* Digixros and "rule" text overlaps.
+* lower name on options/tamers when no traits
+* the same way you set color to "green/red" people expect to be able to set the digivolve for a level to be "green/red" instead of needing 2 separate lines
+* costs in digivolve circle should only have a border if one color in the multi-color demands it
 

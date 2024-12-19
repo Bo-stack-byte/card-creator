@@ -35,9 +35,10 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.13.1" 
-const latest = "put image data into blob"
+const version = "0.6.14"
+const latest = "DP number width"
 
+// version 0.6.14 DP number width
 // version 0.6.13 put image data into blob
 // version 0.6.12 digixros + rule text non-overlap
 // verison 0.6.11 more obvious multi-level select; fix helvetica font as backup
@@ -403,9 +404,12 @@ function CustomCreator() {
   const [lineSpacing, setLineSpacing] = useState(10);
   const [selectedOption, setSelectedOption] = useState('AUTO'); // radio buttons 
 
-  const initImageOptions = useMemo(() => {  return {
-    url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
-      ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50}; }, [] );
+  const initImageOptions = useMemo(() => {
+    return {
+      url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
+      ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50
+    };
+  }, []);
 
   let imageOptions = "";
   try {
@@ -515,7 +519,7 @@ Cost: 3
     } catch { }
     if (!imageOptions) {
       imageOptions = { ...initImageOptions };
-      
+
     }
 
 
@@ -1252,29 +1256,41 @@ Cost: 3
         ctx.fillStyle = 'black';
         x = 2540;
         y = 410;
-        ctx.font = 'bold 350px Helvetica';
+        ctx.font = `bold 350px 'HelveticaNeue-CondensedBold', 'Helvetica`;
         ctx.textAlign = 'right';
         ctx.textBaseline = 'bottom';
 
-        if (dp_k) {
+
+        let dp_x = x - 5;
+        while (dp_k > 0) {
+          // right-to-left for dp_k
+          let letterSpacing = -25;
+          let dp_char = dp_k % 10;
           ctx.lineWidth = 20;
           ctx.strokeStyle = 'white';
-          // we can squeeze the numbers
-          let width = (dp_k > 1) ? 300 : 150;
-          ctx.strokeText(dp_k, x - 15, y, width);
-          ctx.fillText(dp_k, x - 15, y, width);
+          ctx.strokeText(dp_char, dp_x, y);
+          ctx.fillText(dp_char, dp_x, y);
+          dp_x -= (ctx.measureText(dp_char).width + letterSpacing);
+          dp_k = Math.floor(dp_k / 10);
         }
-        ctx.font = 'bold 175px Helvetica';
+
+        ctx.font = `bold 175px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
-
+        dp_x = x + 10;
         if (dp_m) {
-          ctx.lineWidth = 20;
-          ctx.strokeStyle = 'white';
-          ctx.strokeText(dp_m, x, y - 25, 275);
-          ctx.fillText(dp_m, x, y - 25, 275);
+          for (let dp_char of dp_m) {
+            let letterSpacing = 5;
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = 'white';
+            ctx.strokeText(dp_char, dp_x, y - 25);
+            ctx.fillText(dp_char, dp_x, y - 25);
+            dp_x += (ctx.measureText(dp_char).width + letterSpacing);
+            // left-to-right for dp_m
+            console.log(1292, dp_char, dp_x);
+          }
         }
-        ctx.font = '100px Helvetica';
+        ctx.font = `100px 'Helvetica'`;
         ctx.lineWidth = 15;
         ctx.strokeStyle = 'white';
         ctx.strokeText("DP", x + 130, y - 200);

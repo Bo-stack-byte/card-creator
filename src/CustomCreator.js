@@ -18,7 +18,7 @@ import {
 } from './images';
 
 import { enterPlainText } from './plaintext';
-import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
+import { fitTextToWidth, drawBracketedText, writeRuleText, center, isNeueLoaded } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
 import shieldsmasher from './shieldsmasher.png';
@@ -35,7 +35,7 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.14"
+const version = "0.6.15.2" // flag is neue not present
 const latest = "HelveticaNeue instead of AyarKasone for costs"
 
 // version 0.6.15 HelveticaNeue instead of AyarKasone for costs
@@ -186,7 +186,11 @@ const starter_text_empty = `{
     "rarity": "C",
     "evolveEffect": "-", 
     "rule": "",
-    "cardNumber": "X-01"
+    "cardNumber": "X-01",
+    "imageOptions":{
+      "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50
+    }
   }`;
 
 const starter_text_0 = `  {
@@ -204,7 +208,11 @@ const starter_text_0 = `  {
     "rarity": "C",
     "evolveCondition": [],
     "evolveEffect": "[Your Turn] While you have a red Monster or Tamer in play, all your Monsters gain +1000 DP.",
-    "cardNumber": "CS-01"
+    "cardNumber": "CS-01",
+    "imageOptions":{
+      "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50
+    }
 }`;
 
 const starter_text_1 = `
@@ -238,9 +246,12 @@ const starter_text_1a = `  {
     "burstEvolve": "-",
     "rarity": "Rare",
     "rule": "[Rule] Trait: Has the [Virus] attribute",
-    "cardNumber": "CS2-11"
+    "cardNumber": "CS2-11",
+    "imageOptions":{
+      "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50
+    }
   }`;
-//     "block": ["00", "01"], just remove this entirely, no one cares
 
 const starter_text_1b = `  {
     "name": {  "english": "Rampager"  },
@@ -266,7 +277,11 @@ const starter_text_1b = `  {
     "burstEvolve": "-",
     "rarity": "Secret Rare",
     "rule": "",
-    "cardNumber": "CS2-18"
+    "cardNumber": "CS2-18",
+    "imageOptions":{
+      "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50
+    }
   }
 `
 const starter_text_2 = `  {
@@ -278,7 +293,11 @@ const starter_text_2 = `  {
   "effect": "[Main] Suspend 2 of your opponent's Monsters. Then, return 1 of your opponent's suspended Monster to its owner's hand.",
   "securityEffect": "[Security] Activate this card's [Main] effect.",
   "rarity": "Rare",
-  "cardNumber": "CS1-13"
+  "cardNumber": "CS1-13",
+    "imageOptions":{
+      "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50
+    }
   }`;
 
 const starter_text_3 = `   {
@@ -290,7 +309,11 @@ const starter_text_3 = `   {
     "effect": "[Start of Your Main Phase] If you have a monster, gain 1 memory.\\n[Main] By suspending this Tamer, until the end of your opponent's turn, 1 of your opponent's Monsters gains \\"[Start of Your Main Phase] Attack with this Monster\\".",
     "securityEffect": "[Security] Play this card without paying the cost.",
     "rarity": "Rare",
-    "cardNumber": "CS2-17"
+    "cardNumber": "CS2-17",
+    "imageOptions":{
+      "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50
+    }
     }`;
 
 const starter_text = starter_text_empty;
@@ -428,7 +451,16 @@ function CustomCreator() {
     setSelectedOption(event.target.value);
   };
 
-  // copied from the customs channel
+  let _canvas = canvasRef.current;
+  let neue = true;
+  if (_canvas) {
+    let correct = 1714;
+    let _ctx = _canvas.getContext("2d");
+    _ctx.font = `275px HelveticaNeue-CondensedBold`;
+    let fontwidth = Math.round(_ctx.measureText("AAAaaa423434i").width);
+    neue = (fontwidth === correct);
+  }
+// copied from the customs channel
 
   let custom_1 = `     ʟᴠ.3 — ScrapBacomon
 [Rookie | Data | Mutant/ʟᴍᴡ] [Gre.]
@@ -718,13 +750,12 @@ Cost: 3
       console.log("clear is ", clear);
       //canvas.width = 2977;
     }
-    if (document.fonts.check('bold 60px Roboto')) {
-      //      console.error("roboto pass1");
+    if (document.fonts.check('bold 60px Helvetica')) {
     } else {
-      //      console.error("roboto fail1");
     }
 
     await document.fonts.ready;
+    console.log(745, neue);
 
     if (document.fonts.check('bold 60px Roboto')) {
       //    console.error("roboto pass2");
@@ -1194,7 +1225,7 @@ Cost: 3
           ctx.fillText(evo1_level, 375, 870 + height * index, 140);
 
           // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
-          ctx.font = `bold 220px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
+          ctx.font = `bold 220px HelveticaNeue-CondensedBold, Helvetica, AyarKasone`;
           if (border) {
             ctx.lineWidth = 10;
             ctx.strokeText(evo1_cost, 375, 1010 + height * index);
@@ -1227,7 +1258,7 @@ Cost: 3
           }
         }
         if (playcost >= 0) {
-          ctx.font = `bold 290px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
+          ctx.font = `bold 290px HelveticaNeue-CondensedBold, Helvetica`;
           ctx.fillStyle = 'white';
           ctx.fillText(playcost, x + 15, 370);
         }
@@ -1605,6 +1636,7 @@ Cost: 3
   }, [userImg, jsonText, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing,
     initImageOptions,
     //, endY, isSelecting, startX, startY, 
+    neue,
     aceFrame, drawOutline
   ]);
 
@@ -1797,6 +1829,10 @@ Cost: 3
             </div>
           </td>
           <td width={"25%"} valign={"top"}>
+          {
+            neue || (<p>HelveticaNeue may not be loaded.</p>)
+          }
+
             Choose image:
             <input type="file" onChange={loadUserImage} />
             <br />
@@ -1913,6 +1949,7 @@ Cost: 3
             <p> Put ⟦text⟧ in these crazy brackets to force the text to blue.</p>
             <p> Put text that would otherwise be blue in parens to make it purple, like ⟦(test)⟧ or [(Five Times Per Turn)].</p>
             <p> "Force Draw" may be needed in weird circumstances. </p>
+            {isNeueLoaded(canvasRef.current)}
           </td>
         </tr>
         <tr style={{ fontSize: "smaller" }} >

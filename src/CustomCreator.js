@@ -36,8 +36,9 @@ import pako from 'pako';
 
 
 const version = "0.6.14"
-const latest = "DP number width"
+const latest = "HelveticaNeue instead of AyarKasone for costs"
 
+// version 0.6.15 HelveticaNeue instead of AyarKasone for costs
 // version 0.6.14 DP number width
 // version 0.6.13 put image data into blob
 // version 0.6.12 digixros + rule text non-overlap
@@ -1175,6 +1176,8 @@ Cost: 3
           }
 
           ctx.font = `bold 90px Roboto, Helvetica`; //  Roboto`;
+          ctx.font = `bold 90px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
+
           ctx.lineWidth = 10;
 
           let [fillColor, strokeColor, border] = textColor(evo1_colors);
@@ -1191,12 +1194,12 @@ Cost: 3
           ctx.fillText(evo1_level, 375, 870 + height * index, 140);
 
           // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
-          ctx.font = `bold 220px AyarKasone, Helvetica`;
+          ctx.font = `bold 220px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
           if (border) {
             ctx.lineWidth = 10;
-            ctx.strokeText(evo1_cost, 375, 1020 + height * index);
+            ctx.strokeText(evo1_cost, 375, 1010 + height * index);
           }
-          ctx.fillText(evo1_cost, 375, 1020 + height * index);
+          ctx.fillText(evo1_cost, 375, 1010 + height * index);
         }
       }
 
@@ -1224,9 +1227,9 @@ Cost: 3
           }
         }
         if (playcost >= 0) {
-          ctx.font = 'bold 290px AyarKasone, Helvetica';
+          ctx.font = `bold 290px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
           ctx.fillStyle = 'white';
-          ctx.fillText(playcost, x + 15, 390);
+          ctx.fillText(playcost, x + 15, 370);
         }
       }
 

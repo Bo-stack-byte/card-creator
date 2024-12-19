@@ -18,7 +18,7 @@ import {
 } from './images';
 
 import { enterPlainText } from './plaintext';
-import { fitTextToWidth, drawBracketedText, writeRuleText, center, isNeueLoaded } from './text';
+import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
 import shieldsmasher from './shieldsmasher.png';
@@ -35,7 +35,7 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.15.2" // flag is neue not present
+const version = "0.6.15.3" // neue warning // flag is neue not present
 const latest = "HelveticaNeue instead of AyarKasone for costs"
 
 // version 0.6.15 HelveticaNeue instead of AyarKasone for costs
@@ -1949,7 +1949,6 @@ Cost: 3
             <p> Put ⟦text⟧ in these crazy brackets to force the text to blue.</p>
             <p> Put text that would otherwise be blue in parens to make it purple, like ⟦(test)⟧ or [(Five Times Per Turn)].</p>
             <p> "Force Draw" may be needed in weird circumstances. </p>
-            {isNeueLoaded(canvasRef.current)}
           </td>
         </tr>
         <tr style={{ fontSize: "smaller" }} >

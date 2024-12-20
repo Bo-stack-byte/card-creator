@@ -35,7 +35,7 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.16.2" // fontsize in json
+const version = "0.6.16.4" // fontsize in json
 const latest = "preserve spacing around [words in brackets]"
 
 // version 0.6.16 disabling scaling, neue warning
@@ -84,7 +84,7 @@ function empty(s) {
 
 // handles empty imageOptions object, or incomplete one
 function initObject(target, reference) {
-  if (!target) return ( {...reference} );
+  if (!target) return ({ ...reference });
   for (const key in reference) {
     if (!target.hasOwnProperty(key)) {
       target[key] = reference[key];
@@ -402,16 +402,34 @@ function CustomCreator() {
   /* eslint-enable react-hooks/exhaustive-deps */
 
   const myRestoreState = async (ref, id) => {
-    let cardState = await restoreState(ref, id);
-    console.log(320, cardState);
-    if (!cardState) return;
-    if ("fontSize" in cardState) handleInputChange("fontSize", cardState.fontSize);
-    if ("jsonText" in cardState) updateJson(cardState.jsonText);
-    if ("drawFrame" in cardState) setDrawFrame(cardState.drawFrame);
-    if ("effectBox" in cardState) setEffectBox(cardState.effectBox);
-    if ("baselineOffset" in cardState) setBaselineOffset(cardState.baselineOffset);
-    if ("specialOffset" in cardState) setSpecialOffset(cardState.specialOffset);
-    if ("lineSpacing" in cardState) setLineSpacing(cardState.lineSpacing);
+    try {
+      let cardState = await restoreState(ref, id);
+      console.log(320, cardState);
+      if (!cardState) return;
+      let jsonText = "";
+      let jsonObject = undefined;
+      if ("jsonText" in cardState) {
+        jsonText = cardState.jsonText;
+        jsonObject = JSON.parse(jsonText);
+      }
+      console.log(415, jsonText, jsonObject);
+      if ("fontSize" in cardState) {
+        jsonObject.imageOptions.fontSize = cardState.fontSize;
+        console.log(418, jsonText, jsonObject);
+      }
+      // handle all other new options here
+      jsonText = JSON.stringify(jsonObject, null, 2);
+      console.log(422, jsonText);
+      updateJson(jsonText); // this must be first
+
+      if ("drawFrame" in cardState) setDrawFrame(cardState.drawFrame);
+      if ("effectBox" in cardState) setEffectBox(cardState.effectBox);
+      if ("baselineOffset" in cardState) setBaselineOffset(cardState.baselineOffset);
+      if ("specialOffset" in cardState) setSpecialOffset(cardState.specialOffset);
+      if ("lineSpacing" in cardState) setLineSpacing(cardState.lineSpacing);
+    } catch (e) {
+      console.error("restore error: " + e);
+    }
   };
 
 
@@ -602,12 +620,9 @@ Cost: 3
       console.log(599, json);
     }
 
-
-
     const newHistory = jsonText.slice(0, currentIndex + 1);
     setJsonText([...newHistory, text]);
     setCurrentIndex(newHistory.length);
-    //    setJsonText( text);
   }
 
 

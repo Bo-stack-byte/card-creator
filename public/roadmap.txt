@@ -2,8 +2,7 @@ Feedback on this list appreciated. Just a few people asking for a feature makes 
 
 BUGS
 
-* default font for level text (before remote font loads) is really ugly
-* for remote fonts, delay first rendering or re-render when it loads
+* sometimes the evo circle colors don't populate
 * assumes only 1 digivolve circle ever needed, mangled art if they're mixed (and can't handle "tamer")
 * multi-color fields don't have same boundaries
 * digimon name for pure yellow/pure white should be solid black, not white with black border
@@ -19,6 +18,8 @@ BUGS
 
 VAGUE TO DO LIST:
 
+* default font for level text (before remote font loads) is really ugly
+* for remote fonts, delay first rendering or re-render when it loads
 * pen for creator name (should credit both artist and author)
 * handle too-large text in a better way
 * ACE frames with the fancy lines (sort of working already but not really)

@@ -1,8 +1,9 @@
 {
-  "name": "Digi Viz Card Creator",
-  "homepage": "/card-creator",
-  "version": "0.1.0",
-  "private": true,
+  "name": "DigiVizCardCreator",
+  "UNUSED_homepage": "/card-creator",
+  "version": "0.6.0",
+    "main": "main.js",
+    "private": true,
   "dependencies": {
     "@fontsource/roboto": "^5.1.0",
     "@testing-library/jest-dom": "^5.17.0",
@@ -15,11 +16,15 @@
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
+  "devDependencies": {
+    "electron": "^13.1.7" 
+  },
   "scripts": {
     "start": "PUBLIC_URL=http://localhost:3000/card-creator react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+      "eject": "react-scripts eject",
+      "electron": "electron ."
   },
   "eslintConfig": {
     "extends": [
@@ -38,5 +43,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "electron": "^33.2.1"
   }
 }

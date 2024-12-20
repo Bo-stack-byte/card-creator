@@ -1,0 +1,73 @@
+
+body {
+    font-family: 'Roboto', sans-serif;
+    /*background-color: #f0f0f0;*/
+}
+
+br {
+  background-color: #ccc;
+  color: black;
+  border: black;
+  padding: 10px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.radio-label {
+    white-space: nowrap;
+    display: inline-block; margin-right: 2px; /* Optional: add some space between spans */
+}
+
+
+@font-face {
+  font-family: 'AyarKasone';
+  src: local('AyarKasone'), url(./fonts/ayar_kasone.ttf) format('truetype');
+
+}
+
+@font-face {
+  font-family: 'MyriadProBold';
+  src: local('MyriadProBold'), url(./fonts/Myriad-Pro-Bold-SemiCondensed.otf) format('opentype');
+}
+
+@font-face {
+  font-family: 'MyriadProItalic';
+  src: local('MyriadProItalic'), url(./fonts/Myriad-Pro-Bold-Italic.otf) format('opentype');
+}
+
+@font-face {
+  font-family: 'ToppanBunkyExtraBold';
+  src: local('ToppanBunkyExtraBold'), url(./fonts/ToppanBunkyuMidashiGothicStdN-ExtraBold.otf) format('opentype');
+}
+  
+
+
+@font-face {
+  font-family: 'Asimov';
+  src: local('Asimov'), url(./fonts/Asimov-Print-C.ttf.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'FallingSky';
+  src: local('FallingSky'), url(./fonts/FallingSky.otf) format('opentype');
+}
+
+
+@font-face {
+  font-family: 'RepoMedium';
+/*  font-style: normal;
+  font-weight: normal; */
+  src: local('RepoMedium'), url(./fonts/Repo-Medium.woff) format('woff');
+  }
+
+@font-face {
+  font-family: "ProhibitionRough";
+  src: url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.eot");
+  src: url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.eot?#iefix")format("embedded-opentype"),
+  url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.woff2")format("woff2"),
+  url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.woff")format("woff"),
+  url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.ttf")format("truetype"),
+  url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.svg#Prohibition W00 Rough")format("svg");
+}

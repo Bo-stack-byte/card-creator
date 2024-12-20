@@ -1,0 +1,297 @@
+<head>
+  <link rel="stylesheet" href="./local-styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400&display=swap" rel="stylesheet">
+
+  <style type="text/css">
+    .center td {
+      text-align: center;
+    }
+    .roboto {
+      font-family: "Roboto Condensed";
+    }
+    .prohibition {
+      font-family: "ProhibitionRough"
+    }
+    .repo {
+      font-family: "RepoMedium"
+    }   
+    .asimov {
+      font-family: "Asimov"
+    }
+    .vegur {
+      font-family: "VegurBold"
+    }
+    .fallingsky {
+      font-family: "FallingSky"
+    }
+    .myriad {
+      font-family: "MyriadProBold"
+    }
+    .helvetica {
+      font-family: "Helvetica"
+    }
+    .helveticaneue {
+      font-family: "HelveticaNeue-CondensedBold";
+      font-weight: bold;
+      font-style: normal;
+
+    }
+    .toppan1 {
+      font-family: toppan-bunkyu-midashi-go-std, sans-serif;
+    }
+    .toppan2 {
+      font-family: toppan-bunkyu-midashi-gothic, sans-serif;
+    }
+    .toppan3 {
+      font-family: "Toppan Bunkyu Midashi Gothic", sans-serif;
+    }
+    .toppan4 {
+      font-family: "ToppanBunkyExtraBold", sans-serif;
+    }
+      html {
+      font-size: 18px;
+    }
+
+    big.td {
+      font-size: 40px;
+    }
+
+    table {
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    td {
+      width: 50%;
+      text-align: center;
+    }
+
+    .center td {
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    td img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <p>many years ago <a href="https://withthewill.net/threads/digimon-card-game-blank-templates.23126/">Quietype over on
+      WithTheWill</a> came up with the original card templates, and also eyeballed the fonts in use on the official
+    cards. he probably didn't expect that lots of people would stick to his initial thoughts years later.</p>
+
+  <p class="myriad">this is a guide on reverse-engineering the fonts in question.2</p>
+  
+  <p class="vegur">if you want to suggest a new font, specifically cite at least 1 glyph that is a better match to the card text. 
+    if that causes some other glyphs to be wrong, that's okay, we won't have to use the new one but knowing what pieces we need is valuable WarGreymon Imperial Dramon: Ace & f,f</p>
+
+  <p class="toppan4">if a font on this page isn't loading, it will default to <span style="font-family: XXXX;">Times New Roman like this</span>
+  </p>
+
+  <p> some of this is out-of-date!
+    <a href="https://digi-lov.tumblr.com/post/748763635923435520/digimon-card-template">Digi-Lov</a>
+      has done great research on this. the things we disagreed on, for most of them they were right</p>
+
+  <table>
+    <tr>
+      <th width=50%>
+      <th width=50%>
+    </tr>
+    <tr class="big">
+      <td colspan="2">
+        <hr />
+      </td>
+    </tr>
+    <tr class="center">
+      <td>
+        <h1>Level</h1>
+      <td>
+        <h2>current confidence: high, all glyphs match</h2>
+    <tr>
+      <td colspan=2 class="prohibition">
+        this looks a lot like <a href="https://fonts.adobe.com/fonts/prohibition">Prohibition</a>. specifically, note
+        that the "2" and "7" have serifs on them, and that the two top prongs on the "4" are equal height.
+    <tr class="center">
+      <td>
+        <img src="./lv4.png" /><br />
+        <img src="./lv5.png" /><br />
+        <img src="./lv7.png" /><br />
+      <td><img src="./level-ours.png" />
+    </tr>
+    <tr class="big">
+      <td colspan="2">
+        <hr />
+      </td>
+    </tr>
+    <tr class="center">
+      <td>
+        <h1>Name</h1>
+      </td>
+      <td>
+        <h2>current confidence: high; all glyphs match</h2>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+
+          <tr><td>
+          for this font, the distinctive features are the curve on the lower-case L and the hook on the lowercase
+          g:
+          </td><td>
+            <img src="./name.png" />
+          </td></tr>
+          <tr><td>
+            <a
+            href="https://fonts.google.com/specimen/Schibsted+Grotesk?preview.text=Plug-in%20%26%20Q%20War&query=Schibsted+Grotesk">Schibsted
+            Grotesk hits on several glyphs</a> including the lower-case L, A, and G. The capital I is particularly ugly,
+            though:</td><td>
+
+              <img src="./schibsted.png" />
+            </td></tr>
+            <tr><td>
+            <p class="fallingsky">j.griin found <a href="https://www.fontspace.com/falling-sky-font-f22358">Falling Sky</a> which has a nice capital I and capital
+              Q while still being close on the general shape of the "g". however, the
+              but the serif on the top of the "g" is going the wrong direction and the serif on the bottom right of the "a" is
+              also incorrect.
+            </td><td>
+              <img src="./name-fallingsky.png" />
+              </td></tr>
+              <tr><td colspan="2">we might want the capitals from one font and the lowercase from another
+              <p>
+              however, the most distinctive glyph is the ampersand 
+              <br />
+              <img src="./ampersand.png" />
+              <br />
+              this solves the mystery, we have Toppan Bunkya Gothic. weird how it's a merge of two others.
+      
+    </tr>
+
+
+    <tr class="big">
+      <td colspan="2">
+        <hr />
+      </td>
+    </tr>
+
+    <tr class="center">
+      <td>
+        <h1>Cost</h1>
+      <td>
+        <h2>current confidence: medium to high</h2>
+    <tr>
+      <td colspan=2>
+        Ayar Kasone looked right for play cost and evo cost.
+
+        <p>
+          However, HelveticaNeue is better, and also used in DP. 
+      <p>
+        For the "level" field of the circle, Roboto seems decent match, tough to say
+        <p>
+          For the evo cost, . Look at "0" again. the actual "0" looks more rounded. like helvetica. it's weird for them to be so close yet different
+          so i really want to say they're both Ayar Kasone.
+    </tr>
+<tr><td class="helveticaneue"> Card id is helvetica neue ST17-065</td>
+  <td class="helvetica"> helvetica is decent back up if you don't have the font ST17-065</td>
+    <tr>
+      <td colspan="2">
+        <hr />
+      </td>
+    </tr>
+    <tr class="center">
+      <td>
+        <h1>Effect Text</h1>
+      <td>
+        <h2>current confidence: high outside keyword, medium inside keyword</h2>
+    <tr>
+      <td>
+        There are two different fonts in use on effect text. One is the raw text, the other is that inside of effects.
+        <p>
+          The effect text outside has straight lower-case L and the lower-case G has a hook. Inside of a colored-block,
+          the l is curved and the g is hooked. the "t" has a sloped top, but the "h" does not even though it looks like it
+          does in this picture. i think AI "improved" this picture as I took it but check the physical card, there's no slope on "h"
+      <td>
+        <img src="./effects.png" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="https://fonts.google.com/specimen/Roboto+Condensed?preview.text=Both%20players%20Digivolve%20Then,">Roboto
+          Condensed</a> is a decent match here. The comma is too curved and the "t" is missing the sloped top.
+      <td>
+        <img src="./effects-roboto.png" />
+      </td>
+    </tr>
+
+    <tr>
+      <td class="asimov">
+        <a href="https://fonts2u.com/asimov-print-c.font?ptext=Both+players%2C+%5BGuil">Asimov Print C</a> seems a bit
+        better. The "t" is missing the slope on top.        
+      <td>
+        <img src="./effects-asimov.png" />
+      </td>
+    </tr>
+      <td class="myriad">
+        Using <a href="https://fonts.adobe.com/fonts/myriad">Myriad Pro</a> is the winner. <br/>
+        i can match a complete row of text down to the pixel. this is definitely right.
+        <td>
+          <img src="./myriad.png" />
+    </tr>
+    <tr><td class="roboto">Since people won't believe me, here's Roboto Condensed loop:
+      <td><img src="./robbold-loop.gif" />
+      </tr>
+      <tr><td class="myriad">And here's Myriad loop:
+        <td><img src="./myr-loop.gif" />
+        </tr>
+        
+      
+    <tr><td><br>...
+    <tr>
+      <td class="fallingsky">
+        For the text inside the effect box, Falling Sky seems a good match. The "I" and "g" mean it 
+        I can't detect any glyph that's different, but it doesn't *quite* feel light in some way.
+        like i need to squish it vertically.
+      <td>
+        <img src="./keyword-fallingsky.png" />
+      </td>
+    </tr>
+
+
+    <tr>
+      <td colspan="2">
+        <hr />
+      </td>
+    </tr>
+    <tr class="center">
+      <td>
+        <h1>Traits</h1>
+      <td>
+        <h2>current confidence: medium-high</h2>
+    <tr>
+      <td colspan=2>
+        The trait text is harder to see. The capital-U is a perfect curve, the lower-case U has a prong hanging off
+        the lower-right and the lower-case G has a prong on the upper-right. The vertical strokes on the capital-M are
+        not straight up-and-down.
+        <br />
+        <img src="./traits.png" />
+        <br />
+        <p class="repo">
+        <a href="https://www.cufonfonts.com/font/repo">Repo Medium</a> sort of matches, except that the lower-case U and
+        lower-case G are missing prongs.
+        </p>
+        <img src="./traits-ours.png" />
+        <p>
+        Myriad, again, may be the right answer, but it needs to be "squashed" like the keyword text, but note that they're
+        definitely not the same font there, as the "g" has a hook here.
+
+    </tr>
+
+
+  </table>
+</body>

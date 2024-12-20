@@ -53,8 +53,9 @@ export const enterPlainText = (lines) => {
         "cardNumber": "",
         "imageOptions":  {    
                 url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
-              ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50}
-              
+              ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50,
+              "fontSize": 90.5}
+
     }
 
     let m;

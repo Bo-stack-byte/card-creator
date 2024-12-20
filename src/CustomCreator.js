@@ -35,7 +35,7 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.16.1"
+const version = "0.6.16.2" // fontsize in json
 const latest = "preserve spacing around [words in brackets]"
 
 // version 0.6.16 disabling scaling, neue warning
@@ -80,6 +80,17 @@ function empty(s) {
   if (s.length < 2) return true;
   if (s === "-") return true;
   return false;
+}
+
+// handles empty imageOptions object, or incomplete one
+function initObject(target, reference) {
+  if (!target) return ( {...reference} );
+  for (const key in reference) {
+    if (!target.hasOwnProperty(key)) {
+      target[key] = reference[key];
+    }
+  }
+  return target;
 }
 
 function effectBoxScale(source_height, offset) {
@@ -190,7 +201,8 @@ const starter_text_empty = `{
     "cardNumber": "X-01",
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
-      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
+      "fontSize": 90.5
     }
   }`;
 
@@ -212,7 +224,8 @@ const starter_text_0 = `  {
     "cardNumber": "CS-01",
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
-      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
+      "fontSize": 90.5
     }
 }`;
 
@@ -250,7 +263,8 @@ const starter_text_1a = `  {
     "cardNumber": "CS2-11",
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
-      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
+      "fontSize": 90.5
     }
   }`;
 
@@ -281,7 +295,8 @@ const starter_text_1b = `  {
     "cardNumber": "CS2-18",
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
-      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
+      "fontSize": 90.5
     }
   }
 `
@@ -297,7 +312,8 @@ const starter_text_2 = `  {
   "cardNumber": "CS1-13",
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
-      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
+      "fontSize": 90.5
     }
   }`;
 
@@ -313,7 +329,8 @@ const starter_text_3 = `   {
     "cardNumber": "CS2-17",
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
-      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
+      "fontSize": 90.5
     }
     }`;
 
@@ -388,7 +405,7 @@ function CustomCreator() {
     let cardState = await restoreState(ref, id);
     console.log(320, cardState);
     if (!cardState) return;
-    if ("fontSize" in cardState) setFontSize(cardState.fontSize);
+    if ("fontSize" in cardState) handleInputChange("fontSize", cardState.fontSize);
     if ("jsonText" in cardState) updateJson(cardState.jsonText);
     if ("drawFrame" in cardState) setDrawFrame(cardState.drawFrame);
     if ("effectBox" in cardState) setEffectBox(cardState.effectBox);
@@ -409,7 +426,6 @@ function CustomCreator() {
   const [zoom, setZoom] = useState(100);
   const [jsonText, setJsonText] = useState([start]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [fontSize, setFontSize] = useState(90.5);
   const [effectBox, setEffectBox] = useState(false);
   const [drawFrame, setDrawFrame] = useState(true);
   const [aceFrame, setAceFrame] = useState(false);
@@ -432,7 +448,8 @@ function CustomCreator() {
   const initImageOptions = useMemo(() => {
     return {
       url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
-      ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50
+      ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50,
+      fontSize: 90.5,
     };
   }, []);
 
@@ -441,11 +458,7 @@ function CustomCreator() {
     let json = JSON.parse(jsonText);
     imageOptions = json.imageOptions;
   } catch { }
-
-  if (!imageOptions) {
-    imageOptions = { ...initImageOptions };
-  }
-
+  imageOptions = initObject(imageOptions, initImageOptions);
 
 
   const handleOptionChange = (event) => {
@@ -461,7 +474,7 @@ function CustomCreator() {
     let fontwidth = Math.round(_ctx.measureText("AAAaaa423434i").width);
     neue = (fontwidth === correct);
   }
-// copied from the customs channel
+  // copied from the customs channel
 
   let custom_1 = `     ʟᴠ.3 — ScrapBacomon
 [Rookie | Data | Mutant/ʟᴍᴡ] [Gre.]
@@ -551,15 +564,13 @@ Cost: 3
       let json = JSON.parse(text);
       imageOptions = json.imageOptions;
     } catch { }
-    if (!imageOptions) {
-      imageOptions = { ...initImageOptions };
-
-    }
+    imageOptions = initObject(imageOptions, initImageOptions);
 
 
     try {
       parsedJson = JSON.parse(text);
       if (!parsedJson.imageOptions) parsedJson.imageOptions = imageOptions;
+      parsedJson.imageOptions = initObject(parsedJson.imageOptioons, initImageOptions);
       flattenedJson = flattenJson(parsedJson);
 
       console.log(445, flattenedJson);
@@ -583,9 +594,12 @@ Cost: 3
       json = JSON.parse(text);
       imageOptions = json.imageOptions;
     } catch { }
-    if (!imageOptions && json) {
-      json.imageOptions = { ...initImageOptions };
+    if (json) {
+      console.log(598, json);
+      imageOptions = initObject(imageOptions, initImageOptions);
+      json.imageOptions = imageOptions;
       text = JSON.stringify(json, null, 2);
+      console.log(599, json);
     }
 
 
@@ -874,10 +888,7 @@ Cost: 3
         imageOptions = json.imageOptions;
         console.log(527, 222, imageOptions);
       } catch { }
-      if (!imageOptions) {
-        console.log(527, 111);
-        imageOptions = { ...initImageOptions };
-      }
+      imageOptions = initObject(imageOptions, initImageOptions);
 
       // background image
       let back_img = userImg || baseImg;
@@ -1126,6 +1137,7 @@ Cost: 3
       bottom += 800;
       const rule = json.rule;
       const xros = json.digiXros;
+      const fontSize = json.imageOptions.fontSize || 90.5
       let rule_offset = 0;
       if (rule && xros) {
         let rule_start = writeRuleText(ctx, rule, fontSize, bottom, true);
@@ -1634,7 +1646,7 @@ Cost: 3
     //ightImg.onload = () => {
 
 
-  }, [userImg, jsonText, selectedOption, doDraw, fontSize, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing,
+  }, [userImg, jsonText, selectedOption, doDraw, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing,
     initImageOptions,
     //, endY, isSelecting, startX, startY, 
     neue,
@@ -1657,7 +1669,7 @@ Cost: 3
     userImg,
     jsonText,
     imageOptions, selectedOption,
-    doDraw, fontSize,
+    doDraw,
     draw]);
 
 
@@ -1830,9 +1842,9 @@ Cost: 3
             </div>
           </td>
           <td width={"25%"} valign={"top"}>
-          {
-            neue || (<p>HelveticaNeue may not be loaded.</p>)
-          }
+            {
+              neue || (<p>HelveticaNeue may not be loaded.</p>)
+            }
 
             Choose image:
             <input type="file" onChange={loadUserImage} />
@@ -1898,14 +1910,12 @@ Cost: 3
 
             <button onClick={handleExport}>Save Image Locally</button>
             <hr />
-            <SaveState jsonText={jsonText[currentIndex]} fontSize={fontSize} drawFrame={drawFrame}
+            <SaveState jsonText={jsonText[currentIndex]} drawFrame={drawFrame}
               addFoil={addFoil} drawOutline={drawOutline} aceFrame={aceFrame}
               effectBox={effectBox} baselineOffset={baselineOffset} specialOffset={specialOffset} lineSpacing={lineSpacing}
             />
             <hr />
             <span>
-              <label>Font size: <input type="number" style={{ width: "50px" }} name="fontSize" value={fontSize} onChange={(e) => { setFontSize(e.target.value) }} /> </label>
-              <span> &nbsp; &nbsp; </span>
               <label>Line spacing: <input type="number" style={{ width: "50px" }} name="lineSpacing" value={lineSpacing} onChange={(e) => { setLineSpacing(e.target.value) }} /> </label>
               <br />
               <label>Move effect baseline up by: <input type="number" style={{ width: "50px" }} name="baseline" value={baselineOffset} onChange={(e) => setBaselineOffset(e.target.value)} /> </label>

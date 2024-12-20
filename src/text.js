@@ -13,7 +13,7 @@ let diamondRight = new Image(); diamondRight.src = _right_diamond;
 //const font = 'Asimov'
 const font = 'MyriadProBold'
 const boxfont = true ? "FallingSky" : "ToppanBunkyExtraBold";
-const horizontal_limit = 2800;
+const horizontal_limit = 2700;
 
 export function center(str, len = 16) {
   let l = str.length;
@@ -73,6 +73,20 @@ const magicWords = [
   "Twice Per Turn",
 ]
 
+export function isNeueLoaded(canvas) {
+//  const canvas = canvasRef.current;
+console.log(78, canvas);
+if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  ctx.font = `275px HelveticaNeue-CondensedBold`;
+  let str1 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&,';
+  let len1 = ctx.measureText(str1).width;
+  let str2 = 'IIIILLLL';
+  let len2 = ctx.measureText(str2).width;
+  console.log(82, len1, len2);
+}
+
 function splitTextIntoParts(text) {
   //  const words = text.split(/((\[＜).*?(\]＞))/);
   //const words = text.split(/((\[).*?(\]))/);
@@ -83,10 +97,13 @@ function splitTextIntoParts(text) {
     if (words[i].includes("[")) {
       all_words.push(words[i]);
     } else {
-      all_words.push(...words[i].trim().split(" "));
+      all_words.push(...words[i].trim().split(/(?<=\s)(?=\S)|(?<=\S)(?=\s)/));
     }
   }
+  console.log(89, `for {${text}}`);
+  all_words.forEach( word => console.log(90, "{" + word + "}") );
   while (all_words[0] === '') all_words.shift(); // trim empty elements
+
   return all_words;
 }
 
@@ -338,7 +355,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 
     for (let n = 0; n < words.length; n++) {
       ctx.font = `${italics} ${fontSize}px ${font}`;
-      const testLine = line + words[n] + ' ';
+      const testLine = line + words[n];//  + ' ';
       const metrics = ctx.measureText(testLine.replaceAll(/[＜＞[\]]/ig, ''));
       const testWidth = metrics.width * scale;
       //      console.log(`is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
@@ -347,8 +364,10 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
         //      let currentWidth = ctx.measureText(line).width;
         //console.log(267, "pushing " + Math.round(currentWidth) + " <" + line + ">");
         //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
+        line = line.trim();
         lines.push({ ctx, line, x, yOffset });
-        line = words[n] + ' ';
+
+        line = words[n];//  + ' ';
         yOffset += lineHeight; // 117.5; //  117.5 for EX2-039 w/90.5 font:for smaller lines lineHeight* 1.3;
       } else {
         line = testLine;
@@ -356,7 +375,9 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     }
 
     //    console.log(277, "pushing  <" + line + ">");
-
+    console.log(375, line);
+    line = line.trim();
+    console.log(377, line);
     // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
     lines.push({ ctx, line, x, yOffset });
     yOffset += lineHeight; // use 117.5
@@ -412,8 +433,8 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
     if (width > cardWidth) scale = cardWidth / width;
     // compress all text equally, but we should let keywords stay a bit wider if we can    
   }
-  ctx.save();
-  ctx.scale(scale, 1);
+//  ctx.save();
+ // ctx.scale(scale, 1);
 
 
   // console.log(313, `is ${testWidth} bigger than ${cardWidth}`);
@@ -457,11 +478,11 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
           //console.log(314, wordWidth, cardWidth, lastX, cleanWord);
           let h = Number(fontSize);
           if (!preview) drawDiamondRectangle(ctx, lastX, y - 8, scale * wordWidth + 10, h);
-          ctx.scale(scale, 1);
+      //    ctx.scale(scale, 1);
           ctx.fillStyle = 'white'; // white on colored background
           if (!preview) ctx.fillText(cleanWord, lastX / scale + 5, y - 10, cardWidth - lastX);
           lastX += scale * wordWidth + 15;
-          ctx.restore();
+        //  ctx.restore();
           ctx.font = ` ${fontSize}px ${font}`;
         } else {
           let width = 12;
@@ -494,17 +515,11 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
             lastX += width * scale;
           }
 
-          /*
-        ctx.font = `90px ${font}`;
-        ctx.fillStyle = 'black';
-        ctx.fillText(word, lastX, y);
-        lastX += ctx.measureText(word).width + ctx.measureText(' ').width;
-        */
         }
       })
     }
   });
-  ctx.restore();
+ // ctx.restore();
   return lastX;
 }
 

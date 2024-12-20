@@ -35,8 +35,8 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.16.0"
-const latest = "disabling scaling, neue warning"
+const version = "0.6.16.1"
+const latest = "preserve spacing around [words in brackets]"
 
 // version 0.6.16 disabling scaling, neue warning
 // version 0.6.15 HelveticaNeue instead of AyarKasone for costs

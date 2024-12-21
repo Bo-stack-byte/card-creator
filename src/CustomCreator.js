@@ -35,8 +35,8 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.18.1"; // fix restore of old cards
-const latest = "ace frames and alignment fixed"
+const version = "0.6.18.2"; // overflow number in text; fix restore of old cards
+const latest = "ace frames and alignment fixed; overflow text; fix restore"
 
 // versiom 0.6.18 ace frames and alignment fixed
 // version 0.6.17 fontsize in JSON
@@ -438,7 +438,7 @@ function CustomCreator() {
       console.log(415, jsonText, jsonObject);
 
       jsonObject.imageOptions = initObject(jsonObject.imageOptions, initImageOptions);
-      
+
 
       if ("fontSize" in cardState) {
         jsonObject.imageOptions.fontSize = cardState.fontSize;
@@ -446,7 +446,7 @@ function CustomCreator() {
       }
       // handle all other new options here before getting text back
 
-      
+
       jsonText = JSON.stringify(jsonObject, null, 2);
       console.log(422, jsonText);
       updateJson(jsonText); // this must be first
@@ -1346,6 +1346,21 @@ Cost: 3
         ctx.shadowBlur = 0; // Remove shadow blur for the fill text
         ctx.fillStyle = 'rgba(32, 32, 32, 0.8)'; // '#444';
         ctx.fillText(overflow, 1045, 3605);
+
+
+        // this isn't quite right, it's too slanted. maybe gothic ?
+        ctx.font = `italic 111px MyriadCondenser`;
+        // ctx.font = `italic 90px "Adobe Gothic Std"`;
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = 5;
+        ctx.fillStyle = '#ddd';
+        //        ctx.fillText('lose  4  memory', 1850, 3730);
+        ctx.strokeText(overflow, 2040, 3735);
+        ctx.fillText(overflow, 2040, 3735);
+
+
+
+        // now put it in its second place
 
       }
 

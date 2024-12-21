@@ -38,6 +38,12 @@ br {
 }
 
 @font-face {
+  font-family: 'MyriadCondenser';
+  src: local('MyriadCondenser'), url(./fonts/MYRIADPRO-COND.OTF) format('opentype');
+}
+
+
+@font-face {
   font-family: 'ToppanBunkyExtraBold';
   src: local('ToppanBunkyExtraBold'), url(./fonts/ToppanBunkyuMidashiGothicStdN-ExtraBold.otf) format('opentype');
 }

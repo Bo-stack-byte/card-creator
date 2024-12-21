@@ -169,7 +169,15 @@ function drawBubble(ctx, x, y, w, h) {
 
 //x,y is upper left
 function drawDnaBox(ctx, x, y, w, h, colors) {
-  if (colors.length === 0) return;
+  let alpha = 1.0
+  if (colors.length === 0) {
+    colors = ['white']; 
+    alpha = 0.6;
+  };
+  if (colors.length === 1) {
+    colors.push(colors[0]);
+  }
+
   // return;
   let images = colors.map(x => dna_boxes[x.toLowerCase()]).filter(x => x);
   console.log(135, images);
@@ -181,6 +189,7 @@ function drawDnaBox(ctx, x, y, w, h, colors) {
   let hw = left.width / 2; // half-wdith
 
   // draw left-most box, 
+  ctx.globalAlpha = alpha;
   ctx.drawImage(left, 0, 0, hw, left.height,
     x, y, per_width, h);
   // middle-boxes use combo of (50,95) + (5,50)
@@ -193,7 +202,8 @@ function drawDnaBox(ctx, x, y, w, h, colors) {
   // draw right-most box
   ctx.drawImage(right, hw, 0, hw, right.height,
     x + per_width * (len - 1), y, per_width, h);
-  return;
+  ctx.globalAlpha = 1.0 
+    return;
 
 };
 
@@ -413,7 +423,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     }
     if (extra === "dna") {
       if (!preview) {
-        drawDnaBox(ctx, x - fontSize / 2, y - fontSize * 1.3 - 10, pre_width + fontSize / 2, (yOffset - y) * 1.1 + 20, dna_colors);
+        drawDnaBox(ctx, x - fontSize * 0.5, y - fontSize * 1.3 , pre_width + fontSize, (yOffset - y) * 1.1 + 20, dna_colors);
       }
     }
   }

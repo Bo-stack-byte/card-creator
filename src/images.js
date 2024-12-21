@@ -234,6 +234,8 @@ import _dna_all from './frames/dna_box_all.png';
 
 import _foil from './frames/foil.png';
 
+import _bubble from './frames/bubble.png';
+
 export const ace_backgrounds = {
   'red': ace_red,
   'blue': ace_blue,
@@ -278,6 +280,7 @@ export const new_evo2_circles = {
 }
 
 let foil = new Image(); foil.src = _foil;
+let bubble = new Image(); bubble.src = _bubble;
 
 let dna_red = new Image(); dna_red.src = _dna_red;
 let dna_blue = new Image(); dna_blue.src = _dna_blue;
@@ -287,6 +290,7 @@ let dna_purple = new Image(); dna_purple.src = _dna_purple;
 let dna_black = new Image(); dna_black.src = _dna_black;
 let dna_white = new Image(); dna_white.src = _dna_white;
 let dna_all = new Image(); dna_all.src = _dna_all;
+
 
 
 
@@ -341,7 +345,7 @@ export {
   cost, cost_egg, cost_option, cost_evo,
   outline_option, ace_logo,
   bottom_property_white, bottom_property_black,
-  foil,
+  foil, bubble
 };
 
 export const basics = {

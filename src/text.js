@@ -3,7 +3,7 @@ import _left_diamond from './frames/keywords/left-diamond.png';
 import _middle_diamond from './frames/keywords/middle-diamond.png';
 import _right_diamond from './frames/keywords/right-diamond.png';
 
-import { dna_boxes, countColors, colorReplace } from './images';
+import { dna_boxes, countColors, colorReplace, bubble } from './images';
 
 let diamondLeft = new Image(); diamondLeft.src = _left_diamond;
 let diamondMiddle = new Image(); diamondMiddle.src = _middle_diamond;
@@ -149,11 +149,22 @@ function drawRoundedRect(ctx, x, y, width, height, radius, stroke) {
   ctx.lineTo(x, y + radius);
   ctx.arcTo(x, y, x + radius, y, radius);
   ctx.closePath();
-  if (stroke)
-    ctx.stroke(); // Draw only the outline
-  else
+  if (stroke) {
+    ctx.stroke(); // Draw only the outline,m may be dead code now
+  } else {
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = 'black';
+    ctx.stroke(); // Draw only the outline,m may be dead code now
     ctx.fill();
+  }
   ctx.restore();
+}
+
+function drawBubble(ctx, x, y, w, h) {
+  ctx.globalAlpha = 0.9;
+  ctx.drawImage(bubble, x - 20, y - h, w, h);
+  ctx.globalAlpha = 1.0;
+
 }
 
 //x,y is upper left
@@ -188,7 +199,13 @@ function drawDnaBox(ctx, x, y, w, h, colors) {
 
 //x,y is upper left
 function drawColoredRectangle(ctx, x, y, width, height, color) {
+  console.log(195, x, y, width, height, color);
   //#922969 darker ois lower
+  if (color === 'bubble') {
+
+    drawBubble(ctx, x, y, width, height);
+    return;
+  }
   const cardWidth = horizontal_limit; // !
   height = Number(height);
   let color0, color1, color2;
@@ -222,7 +239,7 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
   //  ctx.fillRect(x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, false);
   drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, false);
   ctx.globalAlpha = 1;
-  if (color === 'bubble') {
+  if (color === 'bubble') { // dead code
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 8;
     drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, true);
@@ -341,7 +358,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   let yOffset = y;
   let lines = [];
   text = text.replaceAll(/</ig, "＜").replaceAll(/>/ig, "＞");
- // console.log(341, text);
+  // console.log(341, text);
   let right_limit = horizontal_limit;
   const dna_colors = countColors(text);
   if (extra === "dna") text = colorReplace(text);
@@ -392,7 +409,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     let h = (yOffset - y);
     if (extra === 'bubble') {
       if (!preview)
-        drawColoredRectangle(ctx, x - 10, y - fontSize * 1.1 + h, pre_width, yOffset - y, 'bubble');
+        drawColoredRectangle(ctx, x - 10, y - fontSize * 1.1 + h, pre_width + fontSize, yOffset - y, 'bubble');
     }
     if (extra === "dna") {
       if (!preview) {
@@ -495,7 +512,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
           }
 
           if (word.length > 0) {
-//            console.log(334, lastX, word);
+            //            console.log(334, lastX, word);
 
             // First, draw the black stroke
             ctx.lineWidth = width; // Thicker stroke

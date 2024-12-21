@@ -35,10 +35,11 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.18.3"; // when digivolviong; overflow number in text; fix restore of old cards
-const latest = "ace frames and alignment fixed; overflow text; fix restore; when digivolving"
+const version = "0.6.19.0"; 
+const latest = "black outline on colored text; improved bubble; when digivolviong; overflow number in text; fix restore of old cards"
 
-// versiom 0.6.18 ace frames and alignment fixed
+// version 0.6.19 black outline on colored text; improved bubble; when digivolviong; overflow number in text; fix restore of old cards
+// version 0.6.18 ace frames and alignment fixed
 // version 0.6.17 fontsize in JSON
 // version 0.6.16 disabling scaling, neue warning
 // version 0.6.15 HelveticaNeue instead of AyarKasone for costs

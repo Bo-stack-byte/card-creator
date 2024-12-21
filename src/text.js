@@ -62,6 +62,7 @@ const magicWords = [
   "On Deletion",
   "When Attacking",
   "When Evolving",
+  "When Digivolving",
   "End of Attack",
   "End of Opponent's Turn",
   "End of Your Turn",

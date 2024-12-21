@@ -35,8 +35,8 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.18.2"; // overflow number in text; fix restore of old cards
-const latest = "ace frames and alignment fixed; overflow text; fix restore"
+const version = "0.6.18.3"; // when digivolviong; overflow number in text; fix restore of old cards
+const latest = "ace frames and alignment fixed; overflow text; fix restore; when digivolving"
 
 // versiom 0.6.18 ace frames and alignment fixed
 // version 0.6.17 fontsize in JSON

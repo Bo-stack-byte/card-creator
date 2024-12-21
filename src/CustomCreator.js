@@ -35,9 +35,11 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.16.4" // fontsize in json
-const latest = "preserve spacing around [words in brackets]"
+const version = "0.6.18.0"
+const latest = "ace frames and alignment fixed"
 
+// versiom 0.6.18 ace frames and alignment fixed
+// version 0.6.17 fontsize in JSON
 // version 0.6.16 disabling scaling, neue warning
 // version 0.6.15 HelveticaNeue instead of AyarKasone for costs
 // version 0.6.14 DP number width
@@ -365,21 +367,42 @@ const decodeAndDecompress = (encodedString) => {
   }*/
 
 // show i of len piece, scaled by scale, start at x,y
-function scalePartialImage(ctx, img, i, len, scale, start_x, start_y, crop_top = 0, y_scale = 1) {
+function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top = 0, y_scale = 1) {
+
+  let len = 1;
+  let i = 0;
+
+  // stupid to hardcode tihis
+  let width = 2977;
+  let height = 4158 - 17;
+  let i_width = width / _len;
 
   if (!img) return;
+
+
+  ctx.save(); // Save the current state
+  ctx.beginPath();
+  ctx.rect(i_width * _i, 0, i_width * (_i + 1), height);
+  ctx.clip();
+
+  i -= 0.0
   let y = scale; let x = y * (img.width / img.height);
   let fw = x / len; // smaller frame length here
   let ww = img.width / len;
   let top = 0; let bottom = 0;
   if (crop_top > 0) top = crop_top;
   if (crop_top < 0) bottom = crop_top;
+
+
+
   ctx.drawImage(img,
     i * ww, top, // crop x,y
     ww * 1.0, img.height + bottom, // crop w,h
     start_x + i * fw, start_y, // place x,y
-    x / len * 1.0, y * y_scale// place w,h
+    x / len, y * y_scale// place w,h
   );
+
+  ctx.restore(); // Restore the previous state
 
 }
 
@@ -446,7 +469,7 @@ function CustomCreator() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [effectBox, setEffectBox] = useState(false);
   const [drawFrame, setDrawFrame] = useState(true);
-  const [aceFrame, setAceFrame] = useState(false);
+  const [aceFrame, setAceFrame] = useState(true);
   const [drawOutline, setDrawOutline] = useState(true);
   const [skipDraw, setSkipDraw] = useState(false);
   const [addFoil, setAddFoil] = useState(false);
@@ -815,7 +838,7 @@ Cost: 3
 
     let t;
     let array = basics;
-    let background = mon_background;
+    let backgrounds = [mon_background];
     if (modern) array = outlines;
     let type = selectedOption;
     let overflow = undefined;
@@ -843,16 +866,16 @@ Cost: 3
     const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
 
     switch (type) {
-      case "MEGA": background = mega_background; break;
-      case "OPTION": background = option_background; break;
+      case "MEGA": backgrounds = [mega_background]; break;
+      case "OPTION": backgrounds = [option_background]; break;
       case "TAMER":
       case "TAMERINHERIT":
-        background = tamer_background; break;
-      case "EGG": background = egg_background; break;
+        backgrounds = [tamer_background]; break;
+      case "EGG": backgrounds = [egg_background]; break;
       case "MONSTER": break;
       case "ACE":
         if (aceFrame) {
-          if (ace_backgrounds[colors[0]]) background = ace_backgrounds[colors[0]];
+          if (ace_backgrounds[colors[0]]) backgrounds = colors.map(c => ace_backgrounds[c] || mon_background);
         }
         let match = json.aceEffect && json.aceEffect.match(/Overflow\s*.-(\d+)/i);
         if (match) {
@@ -872,7 +895,7 @@ Cost: 3
     const baseImg = new Image();
     // baseImg.loaded = false;
     baseImg.src = egg; // default to get started
-    const shellImg = new Image();
+    const shellImages = [];
 
     const _evos = json.evolveCondition || json.digivolveCondition;
     const afterLoad = async () => {
@@ -948,10 +971,9 @@ Cost: 3
         // new style background
         // we know shellimg is loaded because of pre-flight
 
-
         if (addFoil) {
 
-          const baseImage = shellImg;
+          const baseImage = shellImages[0];
           //          const overlayImage = foil;
 
           const offScreenCanvas = document.createElement('canvas');
@@ -998,13 +1020,16 @@ Cost: 3
           offScreenCtx.putImageData(baseImageData, 0, 0);
           // Draw the composite image on the main canvas
           let ace_scale = 1; // aceFrame ? .: 0.95;
-          ctx.drawImage(shellImg, 0, 0, canvas.width * ace_scale, canvas.height * ace_scale);
+          ctx.drawImage(shellImages[0], 0, 0, canvas.width * ace_scale, canvas.height * ace_scale);
           ctx.drawImage(offScreenCanvas, 0, 0, canvas.width, canvas.height);
 
         } else {
-          let ace_scale = aceFrame ? 1 : 1;
+          let len = shellImages.length;
+          for (let i = 0; i < len; i++) {
+            scalePartialImage(ctx, shellImages[i], i, len, 4141, 0, 0)
+          }
 
-          ctx.drawImage(shellImg, 0, 0, canvas.width * ace_scale, canvas.height * ace_scale);
+          //          ctx.drawImage(shellImages[0], 0, 0, canvas.width * ace_scale, canvas.height * ace_scale);
         }
       }
 
@@ -1104,17 +1129,23 @@ Cost: 3
               // and left is 166
             }
 
+            let start_x = 164;
             // name block
             if (true) {
+              let scale = 364.2;
               let y = 3550 - 365;
               if (type === "EGG" || type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y -= 90;
               if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y += 0; // 40;
               if (type === "MEGA") y += 500;
-              let img_name = name_field[col];
-              let scale = 364.2;
-              if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") scale = 305;
-              scalePartialImage(ctx, img_name, i, len, scale, 164, y);
+              if (type === "ACE" && aceFrame) {
+                y += 30;
+                start_x -= 4
+                scale = 368
+              }
 
+              let img_name = name_field[col];
+              if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") scale = 305;
+              scalePartialImage(ctx, img_name, i, len, scale, start_x, y);
 
               // do the black (white) bar on anything with a trait, or anything with "Lv.*" text
               if (i === len - 1) {
@@ -1133,10 +1164,10 @@ Cost: 3
                   let bar_img = (colors[0] === "black") ? bottom_property_white : bottom_property_black;
 
                   let scale = 4.015;
-                  ctx.drawImage(bar_img,
-                    162, y + bar_offset,
-                    bar_img.width * scale,
-                    bar_img.height * scale * 1.06) // stretch a little
+                  if (true) ctx.drawImage(bar_img,
+                    162, y + bar_offset - 0,
+                    bar_img.width * scale * 1.006,
+                    bar_img.height * scale * 1.08) // stretch a little
                 }
               }
             }
@@ -1404,7 +1435,8 @@ Cost: 3
         case "TAMERINHERIT": delta_y -= 125; if (!has_traits) delta_y += 30; break;
         case "EGG": delta_y -= 90; break;
         case "MEGA": delta_y += 500; break;
-        case "MONSTER": case "ACE": break;
+        case "MONSTER": break;
+        case "ACE": if (aceFrame) delta_y += 30; break;
         default: alert(1);
       }
 
@@ -1443,6 +1475,7 @@ Cost: 3
         ctx.lineWidth = 2; // Border width
         ctx.fillText(name, (1480 + ace_offset) / scale, name_line + delta_y);
         ctx.restore();
+
 
         if (type === "ACE") {
           let end = endWidth / 2;
@@ -1587,8 +1620,8 @@ Cost: 3
 
 
 
-    // 1 for basic style frame, 1 for custom image, 1 per color, 2 per evo circle
-    let imagesToLoad = 2 + frameImages.length + 2 * (_evos ? _evos.length : 0);
+    // N for basic style frame, 1 for custom image, 1 per color, 2 per evo circle
+    let imagesToLoad = backgrounds.length + 1 + frameImages.length + 2 * (_evos ? _evos.length : 0);
     console.log(817, frameImages.length, _evos && _evos.length);
     let imagesLoaded = 0;
     const checkAllImagesLoaded = (e) => {
@@ -1612,8 +1645,14 @@ Cost: 3
     } else {
 
     }
-    shellImg.src = background;
-    shellImg.onload = shellImg.onerror = function () { checkAllImagesLoaded(shellImg); }
+
+    for (let i in backgrounds) {
+      shellImages[i] = new Image();
+      shellImages[i].src = backgrounds[i];
+      shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(shellImages[i]); }
+    }
+
+
     switch (type) {
       case "OPTION": array = options; break;
       // how is outlines_tamer different from outlines_egg??

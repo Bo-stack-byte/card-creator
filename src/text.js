@@ -90,7 +90,7 @@ function splitTextIntoParts(text) {
   //  const words = text.split(/((\[＜).*?(\]＞))/);
   //const words = text.split(/((\[).*?(\]))/);
   const words = text.split(/(\[.*?\])/);
-  console.log(93, words);
+  //console.log(93, words);
   let all_words = [];
   for (let i = 0; i < words.length; i++) {
     if (words[i].includes("[")) {
@@ -100,8 +100,6 @@ function splitTextIntoParts(text) {
       all_words.push(...words[i].split(/(?<=\s)(?=\S)|(?<=\S)(?=\s)/));
     }
   }
-  console.log(89, `for {${text}}`);
-  all_words.forEach(word => console.log(90, "{" + word + "}"));
   while (all_words[0] === '') all_words.shift(); // trim empty elements
 
   return all_words;
@@ -292,12 +290,10 @@ function _2drawDiamondRectangle(ctx, x, y, width, height) {
 function replaceBracketsAtStart(line) {
   // Tokenize the input string to handle both types of brackets
 
-//  const tokens = line.match(/(\[[^\]]+\]|＜[^＞]+＞|\S+)/g);
-  
-const tokens = line.match(/( \[[^\] ]+\] |＜[^＞]+＞|\S+|\s+)/g);
+  //  const tokens = line.match(/(\[[^\]]+\]|＜[^＞]+＞|\S+)/g);
 
+  const tokens = line.match(/( \[[^\] ]+\] |＜[^＞]+＞|\S+|\s+)/g);
 
-console.log(295, tokens);
   if (!tokens) return line;
 
 
@@ -324,7 +320,6 @@ function prepareKeywords(str, replaceBrackets) {
     replaceBracketsAtStart(str) :
     str);
 
-  console.log(321, output);
   return output.replace(/(＜[^＞]*?＞)/g, (match) => {
     return match.replace(/ /g, '_');
   });
@@ -345,15 +340,14 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   let yOffset = y;
   let lines = [];
   text = text.replaceAll(/</ig, "＜").replaceAll(/>/ig, "＞");
-  console.log(341, text);
+ // console.log(341, text);
   let right_limit = horizontal_limit;
   const dna_colors = countColors(text);
   if (extra === "dna") text = colorReplace(text);
-  console.log(345, text);
+  //console.log(345, text);
   const paragraphs = text.split("\n");
   for (let p = 0; p < paragraphs.length; p++) {
     let graf = prepareKeywords(paragraphs[p], extra.startsWith("effect"));
-    console.log(348, graf);
     const words = splitTextIntoParts(graf);
     let line = '';
     const italics = (extra === "bubble" || extra === "dna") ? "italic" : "100";
@@ -382,9 +376,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
       }
     }
 
-    console.log(375, line);
     line = line.trim();
-    console.log(377, line);
     // wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
     lines.push({ ctx, line, x, yOffset });
     yOffset += lineHeight; // use 117.5
@@ -453,7 +445,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
     ) {
       // Calculate the width of the bracketed text
       let color = getColor(cleanPhrase);
-      console.log(292, cleanPhrase);
+      //console.log(292, cleanPhrase);
       if (cleanPhrase.startsWith("(") && cleanPhrase.endsWith(")")) {
         color = "purple";
         cleanPhrase = cleanPhrase.slice(1, -1);
@@ -482,7 +474,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
           ctx.font = `100 ${(fontSize - 10)}px ${boxfont}`;
 
           const wordWidth = ctx.measureText(cleanWord).width;
-          console.log(314, wordWidth, cardWidth, lastX, cleanWord);
+          //console.log(314, wordWidth, cardWidth, lastX, cleanWord);
           let h = Number(fontSize);
           if (!preview) drawDiamondRectangle(ctx, lastX, y - 8, scale * wordWidth + 10, h);
           //    ctx.scale(scale, 1);
@@ -502,7 +494,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
           }
 
           if (word.length > 0) {
-            console.log(334, lastX, word);
+//            console.log(334, lastX, word);
 
             // First, draw the black stroke
             ctx.lineWidth = width; // Thicker stroke

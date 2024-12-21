@@ -51,14 +51,14 @@ export const enterPlainText = (lines) => {
         "dnaEvolve": "-",
         "burstEvolve": "-",
         "cardNumber": "",
-        "imageOptions":  {    
-                url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
-        
-                "ess_x_pos": "37",
-    "ess_y_pos": "10",
-    "ess_x_end": "74",
-    "ess_y_end": 50,
-              "fontSize": 90.5}
+        "imageOptions": {
+            url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
+            "ess_x_pos": 37,
+            "ess_y_pos": 10,
+            "ess_x_end": 74,
+            "ess_y_end": 50,
+            "fontSize": 90.5
+        }
 
     }
 

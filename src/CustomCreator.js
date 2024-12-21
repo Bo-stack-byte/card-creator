@@ -35,7 +35,7 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.18.0"
+const version = "0.6.18.1"; // fix restore of old cards
 const latest = "ace frames and alignment fixed"
 
 // versiom 0.6.18 ace frames and alignment fixed
@@ -436,11 +436,17 @@ function CustomCreator() {
         jsonObject = JSON.parse(jsonText);
       }
       console.log(415, jsonText, jsonObject);
+
+      jsonObject.imageOptions = initObject(jsonObject.imageOptions, initImageOptions);
+      
+
       if ("fontSize" in cardState) {
         jsonObject.imageOptions.fontSize = cardState.fontSize;
         console.log(418, jsonText, jsonObject);
       }
-      // handle all other new options here
+      // handle all other new options here before getting text back
+
+      
       jsonText = JSON.stringify(jsonObject, null, 2);
       console.log(422, jsonText);
       updateJson(jsonText); // this must be first

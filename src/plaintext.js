@@ -4,7 +4,22 @@
 
 let all_colors = ["Red", "Blue", "Yellow", "Green", "Black", "Purpler", "White", "Rainbow"]; //rainbow unsupported right now
 
+// return color based on abbreviations
+function get_color(input) {
+    if (!input) return undefined;
+    input = input.toLowerCase().substring(0,3);
+    console.log(11, input);
+    const candidate = all_colors.find( x => x.substring(0,3).toLowerCase() === input );
+    if (candidate) return candidate;
+    console.log(14, input);
+    if (input === "blk") return "Black";
+    if (input === "grn") return "Black";
+    return undefined;
+    
+}
+
 function split_colors(input) {
+    
     if (input.includes("/")) {
         return input.split("/").map(c => c.trim());
     }
@@ -15,16 +30,11 @@ function split_colors(input) {
 }
 
 function abbr_parse_color(text) {
-    let ret = [];
-    // gets colors in wrong order, sorry
-    if (text)
-        for (let c of all_colors) {
-            let abbr = c.substring(0, 3);
-            if (text.includes(abbr)) {
-                ret.push(c);
-            }
-        }
-    return ret.join("/");
+    if (!text) return "";
+    const regex = /[a-zA-Z]{3,}/g;
+    const colors = text.match(regex); 
+    if (!colors) return "";
+    return colors.map( c => get_color(c) ).filter(c=>c).join("/")
 }
 
 export const enterPlainText = (lines) => {
@@ -95,14 +105,15 @@ export const enterPlainText = (lines) => {
             if (m[1].trim().length > 2) {
                 json.name.english = m[1].trim();
             }
-        } else if ((m = line.match(/^\s*(\[Rule.*:.*)/))) {
+        } else if ((m = line.match(/^\s*(\[Rule.*:.*)/i))) {
             // [Rule] Trait: Has the [Insectoid] type.
             json.rule = m[1];
-        } else if ((m = line.match(/^\s*\[(.*?)\|(.*?)\|(.*?)\]( \[(.*)\])?/))) {
             // [Champion | Data | Shield] [Yel.]
+        } else if ((m = line.match(/^\s*\[(.*?)\|(.*?)\|(.*?)\]( \[(.*)\])?/))) {
             json.form = m[1].trim();
             json.attribute = m[2].trim();
             json.type = m[3].trim();
+
             json.color = abbr_parse_color(m[4]);
             //  Purple/Red | Lv.6
         } else if ((m = line.match(/^\s*(.*)\s+\|\s+Lv.(\d+)/i))) {
@@ -114,8 +125,11 @@ export const enterPlainText = (lines) => {
         } else if ((m = line.match(/^\s*(level|Lv\.|lvl)\s*(\d+)\s+(.*)/i))) {
             json.cardLv = "Lv." + m[2];
             json.color = m[3];
-        } else if ((m = line.match(/^\s*Play cost: (\d+)\s*\|\s*(E|Digi)volution: (\d+) from Lv.(\d+) \[(.*)\]/))) {
+        } else if ((m = line.match(/^\s*Play cost: (\d+)\s*\|\s*(E|Digi)vol(?:ve|ution):\s*(\d+) from Lv.\s*(\d+)\s*\[(.*)\]/i))) {
+            console.log(130, m);
             // Play cost: (6) | Evolution: (3) from Lv.(3) [Yel.]
+            // Play Cost: 11 | Digivolve: 4 from Lv.5 [Blk.] [Blu.]
+
             json.playCost = (m[1]);
             let evo = {}
             evo.level = (m[4]);
@@ -153,7 +167,7 @@ export const enterPlainText = (lines) => {
 
             }
             // [[Digivolve] [Imperialdramon: Dragon Mode]: Cost 2] 
-        } else if ((m = line.match(/.?.?.?(?:Evolve|Digivolve).*\d+/))) {
+        } else if ((m = line.match(/^.?.?.?(?:Evolve|Digivolve).*\d+/i))) {
             console.log(147, m);
             json.specialEvolve = m[0];
         } else if ((m = line.match(/security effect\s*:\s*(.*\w+.*)/i))) {
@@ -165,7 +179,7 @@ export const enterPlainText = (lines) => {
         } else if ((m = line.match(/inherited effect\s*:\s*(.*\w+.*)/i))) {
             console.log(124, m);
             json.evolveEffect += m[1] + "\n";
-        } else if ((m = line.match(/Inherited Effect/))) {
+        } else if ((m = line.match(/Inherited Effect/i))) {
             mode = "inherited";
             // translator format
         } else {
@@ -182,6 +196,11 @@ export const enterPlainText = (lines) => {
             }
         }
     }
+    if (json.evolveCondition.length === 0) {
+     json.evolveCondition.push ({ color: "", cost: "", level: ""});
+    }
+    
+
     return JSON.stringify(json, null, 2);
     //   return JSON.stringify(json);
 }

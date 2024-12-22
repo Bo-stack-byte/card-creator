@@ -21,6 +21,7 @@ import { enterPlainText } from './plaintext';
 import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
+import placeholder from './placeholder.png';
 import shieldsmasher from './shieldsmasher.png';
 import rampager from './rampager.png'
 import doublebind from './double-bind.png'
@@ -35,9 +36,10 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.19.0"; 
-const latest = "black outline on colored text; improved bubble; when digivolviong; overflow number in text; fix restore of old cards"
+const version = "0.6.20.0";
+const latest = "fix evo circle not loading bug; improve freeform parsing to help out bane"
 
+// version 0.6.20 fix evo circle not loading bug; improve freeform parsing to help out bane
 // version 0.6.19 black outline on colored text; improved bubble; when digivolviong; overflow number in text; fix restore of old cards
 // version 0.6.18 ace frames and alignment fixed
 // version 0.6.17 fontsize in JSON
@@ -901,9 +903,11 @@ Cost: 3
     const frameImages = Array.from({ length: len }, () => new Image());
     const baseImg = new Image();
     // baseImg.loaded = false;
-    baseImg.src = egg; // default to get started
-    const shellImages = [];
 
+    baseImg.src = placeholder; // default to get started
+    const shellImages = [];
+    const evoImages = [];
+    const wedgeImages = [];
     const _evos = json.evolveCondition || json.digivolveCondition;
     const afterLoad = async () => {
       console.log(document.fred);
@@ -1221,18 +1225,20 @@ Cost: 3
       // EVO CIRCLES: only monsters (and tamers, why not) can have evo circles
       if (type === "MONSTER" || type === "MEGA" || type === "ACE" ||
         type === "TAMER" || type === "TAMERINHERIT") {
-        if (_evos && _evos.length > 0) {
+        if (_evos && _evos.length > 0 && (
+          _evos[0].color || _evos[0].level || _evos[0].cost)) {
 
           // BT-14 and up, there is never two evo circles any more (until direct on tamers).
           // This assumes that all circle evos are from the same level and for the same cost, just different colors.
           // Post BT-14 alterate conditions were handled via special digivolve lines.
           // For now there is just one circle. Ask in feedback if you want more. 
 
+
           console.log(1096, _evos);
           let evo1_level = "Lv." + _evos[0].level;
           console.log(1098, _evos[0]);
           console.log(1099, _evos[0].level);
-          if (_evos[0].level.toUpperCase() === "TAMER") evo1_level = "TAMER";
+          if (_evos[0].level && _evos[0].level.toUpperCase() === "TAMER") evo1_level = "TAMER";
           let evo1_cost = _evos[0].cost;
           let index = 0 // just 1 circle 
           let evo1_colors = _evos.map(e => e.color.toLowerCase().split("/"))
@@ -1243,24 +1249,20 @@ Cost: 3
           let each = 360 / (evo1_colors.length);
 
           for (let i in evo1_colors) {
-            const evo_color = evo1_colors[i];
-            const circle = new Image();
+            i = Number(i);
             let X = offset_x + 130;
             let Y = offset_y + 125 + 600;
 
-            const wedge = new Image();
-            wedge.src = new_evo_wedges[evo_color];
-            let circles = new_evo_circles;
-            circle.src = circles[evo_color];
             const imgWidth = 310;
             const imgHeight = 310;
 
+            const circle = evoImages[i]
+            const wedge = wedgeImages[i];
             const radius = imgWidth / 2;
             // TODO: wait for .onLoad()? Or did we.
             let start = base + i * each
             const startAngle = (start * Math.PI) / 180;
             const sweepAngle = (each * Math.PI) / 180;
-
             ctx.save();
             ctx.beginPath();
             ctx.moveTo(X + radius, Y + radius);
@@ -1640,16 +1642,18 @@ Cost: 3
         */
 
 
-
-
+    let evo_circle_colors = [];
+    if (_evos) {
+      evo_circle_colors = _evos.map(e => e.color.toLowerCase().split("/"))
+        .reduce((acc, curr) => acc.concat(curr), []);
+    }
     // N for basic style frame, 1 for custom image, 1 per color, 2 per evo circle
-    let imagesToLoad = backgrounds.length + 1 + frameImages.length + 2 * (_evos ? _evos.length : 0);
+    let imagesToLoad = backgrounds.length + 1 + frameImages.length + 2 * (evo_circle_colors.length);
     console.log(817, frameImages.length, _evos && _evos.length);
     let imagesLoaded = 0;
     const checkAllImagesLoaded = (e) => {
-      //      console.log(770, e);
       imagesLoaded++;
-      //console.log(771, "image loaded", imagesLoaded, imagesToLoad);
+    //  console.log(771, "image loaded", imagesLoaded, imagesToLoad);
       if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
         // Set the canvas dimensions  
         afterLoad();
@@ -1668,6 +1672,17 @@ Cost: 3
 
     }
 
+    for (let i in evo_circle_colors) {
+      let evoI = new Image();
+      evoImages[i] = evoI;
+      evoI.src = new_evo_circles[evo_circle_colors[i]]
+      console.log(1688, new_evo_circles[evo_circle_colors[i]]);
+      evoI.onload = evoI.onerror = function () { checkAllImagesLoaded(evoI); }
+      let wedgeI = new Image();
+      wedgeImages[i] = wedgeI;
+      wedgeI.src = new_evo_wedges[evo_circle_colors[i]]
+      wedgeI.onload = wedgeI.onerror = function () { checkAllImagesLoaded(wedgeI); }
+    }
     for (let i in backgrounds) {
       shellImages[i] = new Image();
       shellImages[i].src = backgrounds[i];
@@ -1694,26 +1709,6 @@ Cost: 3
         frameImages[i].src = array[colors[i]];
       }
     }
-    console.log(803, frameImages);
-    if (_evos) {
-      for (let n = _evos.length; n--; n >= 0) {
-
-        const evo_color = _evos[n].color?.toLowerCase();
-        // will declaring the same image still have it loaded?
-        {
-          const circle = new Image();
-          circle.onerror = circle.onload = () => checkAllImagesLoaded(circle);
-          circle.src = new_evo_circles[evo_color];
-        }
-        {
-          const wedge = new Image();
-          wedge.onerror = wedge.onload = () => checkAllImagesLoaded(wedge);
-          wedge.src = new_evo_wedges[evo_color];
-        }
-
-      }
-    }
-
     console.log(906, `sources set ${imagesToLoad} loaded ${imagesLoaded} base: ${!!baseImg.complete}`);
 
     //  setTimeout(() => afterLoad(), 100); // bad wat to sycnrhoncoursly load 

@@ -107,6 +107,7 @@ function splitTextIntoParts(text) {
 }
 
 export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
+  fontSize = Number(fontSize);
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
   ctx.fillStyle = 'white';
@@ -361,6 +362,7 @@ function prepareKeywords(str, replaceBrackets) {
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
 // _maxWidth is unused :(
 export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, preview = false) {
+  fontSize = Number(fontSize);
   let maxWidth = horizontal_limit - x;
   if (extra === "bubble") maxWidth -= 150;
   console.debug(308, "calling with", fontSize, text, y, "XXX", lineHeight);

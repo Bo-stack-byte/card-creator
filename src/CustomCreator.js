@@ -36,9 +36,10 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.21.3";
-const latest = "spacing around blue keyword boxes; get rid of right-hand oerflow; force fields into place"
+const version = "0.6.22";
+const latest = "json recovery; fontSize as number; spacing around blue keyword boxes; get rid of right-hand oerflow; force fields into place"
 
+// spacing around blue keyword boxes; get rid of right-hand oerflow; force fields into place
 // version 0.6.21 optioninherit made, and tamerinherit improved
 // version 0.6.20 fix evo circle not loading bug; improve freeform parsing 
 // version 0.6.19 black outline on colored text; improved bubble; when digivolviong; overflow number in text; fix restore of old cards
@@ -657,30 +658,36 @@ Cost: 3
       json = JSON.parse(text);
       imageOptions = json.imageOptions;
     } catch { }
-    if (!json) {
-      json = {}
-    }
-    //console.log(598, json);
-    imageOptions = initObject(imageOptions, initImageOptions);
-    json.imageOptions = imageOptions;
-    for (let field of ["name", "color", "cardType", "playCost",
-      "dp", "cardLv", "form", "attribute", "type", "rarity",
-      "specialEvolve", "effect", "evolveEffect", "securityEffect",
-      "rule", "digiXros", "burstEvolve", "cardNumber"]) {
-      if (!(field in json)) {
-        console.log("Missing field added " + field);
-        json[field] = "";
+    if (json) {
+      if (Array.isArray(json)) { //  || typeof json !== 'object') {
+        json = {};
       }
-    }
-    if (!("english" in json.name)) {
-      json.name.english = "Mon";
-    }
-    if (!("evolveCondition" in json)) {
-      json.evolveCondition = [];
-    }
-    //console.log(681, json);
-    if (json.evolveCondition.length === 0) {
-      json.evolveCondition.push({ color: "", cost: "", level: "" });
+      //console.log(598, json);
+      if (!("name" in json)) {
+        json.name = {};
+      }
+      for (let field of ["color", "cardType", "playCost",
+        "dp", "cardLv", "form", "attribute", "type", "rarity",
+        "specialEvolve", "effect", "evolveEffect", "securityEffect",
+        "rule", "digiXros", "burstEvolve", "cardNumber"]) {
+        if (!(field in json)) {
+          console.log("Missing field added " + field);
+          json[field] = "";
+        }
+      }
+      if (!("evolveCondition" in json)) {
+        json.evolveCondition = [];
+      }
+
+      if (!("english" in json.name)) {
+        json.name.english = "Mon";
+      }
+      //console.log(681, json);
+      if (json.evolveCondition.length === 0) {
+        json.evolveCondition.push({ color: "", cost: "", level: "" });
+      }
+      imageOptions = initObject(imageOptions, initImageOptions);
+      json.imageOptions = imageOptions;
     }
     text = JSON.stringify(json, null, 2);
     console.log(599, json);

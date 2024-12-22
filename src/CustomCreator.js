@@ -36,10 +36,10 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.22";
-const latest = "json recovery; fontSize as number; spacing around blue keyword boxes; get rid of right-hand oerflow; force fields into place"
+const version = "0.6.22.1"
+const latest = "digixros multiline"
 
-// spacing around blue keyword boxes; get rid of right-hand oerflow; force fields into place
+// version 0.6.22 spacing around blue keyword boxes; get rid of right-hand image overflowing by 20 pixels; force missing fields into JSON
 // version 0.6.21 optioninherit made, and tamerinherit improved
 // version 0.6.20 fix evo circle not loading bug; improve freeform parsing 
 // version 0.6.19 black outline on colored text; improved bubble; when digivolviong; overflow number in text; fix restore of old cards
@@ -1245,25 +1245,35 @@ Cost: 3
       bottom += 800;
       const rule = json.rule;
       const xros = json.digiXros;
-      const fontSize = json.imageOptions.fontSize || 90.5
+      const fontSize = Number(json.imageOptions.fontSize) || 90.5
       let rule_offset = 0;
+      let xros_offset = 0;
+
+      if (!empty(xros)) {
+        let preview = drawBracketedText(ctx, fontSize, xros, 300, bottom, 
+        3000, Number(fontSize) + Number(lineSpacing), "bubble", true);
+        // our text should end at roughly bottom + 
+        xros_offset = preview - (bottom + fontSize * 2);       
+        console.log(1254, 'x', preview, bottom);
+      }
       if (rule && xros) {
         let rule_start = writeRuleText(ctx, rule, fontSize, bottom, true);
         let xros_length = ctx.measureText(xros).width;
-        let fudge = 300;
+        let fudge = 260;
+
         if (300 + xros_length + fudge > rule_start) {
           rule_offset = (Number(fontSize) * 1.2 + Number(lineSpacing) * 2.0);
         }
       }
       if (!empty(rule)) {
-        console.log(1069, "bottom is " + (bottom - rule_offset));
-        writeRuleText(ctx, rule, fontSize, bottom - rule_offset);
+        console.log(1069, "bottom is " + (bottom - xros_offset - rule_offset));
+        writeRuleText(ctx, rule, fontSize, bottom - xros_offset - rule_offset);
       }
 
       if (xros && xros !== "-") {
         // BT10-009 EX3-014: shaded box
         // st19-10 solid box
-        drawBracketedText(ctx, fontSize, xros, 300, bottom, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
+        drawBracketedText(ctx, fontSize, xros, 300, bottom - xros_offset, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
       }
 
 
@@ -1455,7 +1465,6 @@ Cost: 3
             ctx.fillText(dp_char, dp_x, y - 25);
             dp_x += (ctx.measureText(dp_char).width + letterSpacing);
             // left-to-right for dp_m
-            console.log(1292, dp_char, dp_x);
           }
         }
         ctx.font = `100px 'Helvetica'`;

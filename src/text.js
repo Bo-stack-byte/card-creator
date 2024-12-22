@@ -247,12 +247,12 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
   if (width > (cardWidth - x)) width = cardWidth - x;
   //let radius = (color === 'bubble') ? height / 2 : 0;
   //  ctx.fillRect(x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, false);
-  drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, false);
+  drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 0 + 2 * d, height + 2 * d, height / 3, false);
   ctx.globalAlpha = 1;
   if (color === 'bubble') { // dead code
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 8;
-    drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, true);
+    drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 0 + 2 * d, height + 2 * d, height / 3, true);
     //  ctx.strokeRect(x - d, y - height - 10 - d, width + 10 + d * 2, height + d * 2);
   }
   ctx.strokeStyle = '';
@@ -490,7 +490,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
       if (!preview) ctx.fillText(cleanPhrase, start + width / 2 + 5, y - 10, cardWidth - lastX - 5, phraseWidth);
       ctx.textAlign = 'left';
 
-      lastX += width; // phraseWidth + fontSize;
+      lastX += width + 2; // phraseWidth + fontSize;
       ctx.font = `${italics} ${(fontSize)}px ${font}`;
 
     } else {

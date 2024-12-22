@@ -36,8 +36,8 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.21.2";
-const latest = "get rid of right-hand oerflow; force fields into place"
+const version = "0.6.21.3";
+const latest = "spacing around blue keyword boxes; get rid of right-hand oerflow; force fields into place"
 
 // version 0.6.21 optioninherit made, and tamerinherit improved
 // version 0.6.20 fix evo circle not loading bug; improve freeform parsing 

@@ -36,10 +36,11 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.21.0";
-const latest = "optioninherit made, and tamerinherit improved"
+const version = "0.6.21.1";
+const latest = "force fields into place"
 
-// version 0.6.20 fix evo circle not loading bug; improve freeform parsing to help out bane
+// version 0.6.21 optioninherit made, and tamerinherit improved
+// version 0.6.20 fix evo circle not loading bug; improve freeform parsing 
 // version 0.6.19 black outline on colored text; improved bubble; when digivolviong; overflow number in text; fix restore of old cards
 // version 0.6.18 ace frames and alignment fixed
 // version 0.6.17 fontsize in JSON
@@ -656,13 +657,34 @@ Cost: 3
       json = JSON.parse(text);
       imageOptions = json.imageOptions;
     } catch { }
-    if (json) {
-      console.log(598, json);
-      imageOptions = initObject(imageOptions, initImageOptions);
-      json.imageOptions = imageOptions;
-      text = JSON.stringify(json, null, 2);
-      console.log(599, json);
+    if (!json) {
+      json = {}
     }
+    //console.log(598, json);
+    imageOptions = initObject(imageOptions, initImageOptions);
+    json.imageOptions = imageOptions;
+    for (let field of ["name", "color", "cardType", "playCost",
+      "dp", "cardLv", "form", "attribute", "type", "rarity",
+      "specialEvolve", "effect", "evolveEffect", "securityEffect",
+      "rule", "digiXros", "burstEvolve", "cardNumber"]) {
+      if (!(field in json)) {
+        console.log("Missing field added " + field);
+        json[field] = "";
+      }
+    }
+    if (!("english" in json.name)) {
+      json.name.english = "Mon";
+    }
+    if (!("evolveCondition" in json)) {
+      json.evolveCondition = [];
+    }
+    //console.log(681, json);
+    if (json.evolveCondition.length === 0) {
+      json.evolveCondition.push ({ color: "", cost: "", level: ""});
+    } 
+    text = JSON.stringify(json, null, 2);
+    console.log(599, json);
+
 
     const newHistory = jsonText.slice(0, currentIndex + 1);
     setJsonText([...newHistory, text]);

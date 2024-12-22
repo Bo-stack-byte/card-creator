@@ -316,12 +316,33 @@ function _2drawDiamondRectangle(ctx, x, y, width, height) {
   ctx.stroke();
 }
 
+function splitByBrackets(input) {
+  const regex = /\[[^\]]*\]/g;
+  const matches = input.match(regex) || [];
+  const parts = input.split(regex);
+
+  let result = [];
+  for (let i = 0; i < parts.length; i++) {
+    result.push(parts[i]);
+    if (i < matches.length) {
+      result.push(matches[i]);
+    }
+  }
+  return result;
+}
+
 function replaceBracketsAtStart(line) {
   // Tokenize the input string to handle both types of brackets
 
+  const _tokens = splitByBrackets(line);
   //  const tokens = line.match(/(\[[^\]]+\]|＜[^＞]+＞|\S+)/g);
+  console.log(339, _tokens);
+  const tokens = _tokens.filter(l => l).flatMap( 
+    l => l.startsWith("[") ? l : l.match(/( \[[^\] ]+\] |＜[^＞]+＞|\S+|\s+)/g)
+  );
+//  const _tokens = line.match(/( \[[^\] ]+\] |＜[^＞]+＞|\S+|\s+)/g);
 
-  const tokens = line.match(/( \[[^\] ]+\] |＜[^＞]+＞|\S+|\s+)/g);
+
 
   if (!tokens) return line;
 
@@ -329,11 +350,14 @@ function replaceBracketsAtStart(line) {
   let replacing = true;
 
   for (let i = 0; i < tokens.length; i++) {
+    console.log(332, i, tokens[i]);
     // Check for brackets at the start of the line
     if (replacing && tokens[i].startsWith('[') && tokens[i].endsWith(']')) {
       tokens[i] = tokens[i].replace('[', '⟦').replace(']', '⟧');
     } else if (replacing && tokens[i].startsWith('＜') && tokens[i].endsWith('＞')) {
       // don't replace <＞ yet
+    } else if (tokens[i].trim().length < 1) {
+      // empty space is fine
     } else {
       // Stop replacing when a token is not in brackets
       replacing = false;

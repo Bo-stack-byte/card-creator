@@ -36,8 +36,8 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.21.1";
-const latest = "force fields into place"
+const version = "0.6.21.2";
+const latest = "get rid of right-hand oerflow; force fields into place"
 
 // version 0.6.21 optioninherit made, and tamerinherit improved
 // version 0.6.20 fix evo circle not loading bug; improve freeform parsing 
@@ -680,8 +680,8 @@ Cost: 3
     }
     //console.log(681, json);
     if (json.evolveCondition.length === 0) {
-      json.evolveCondition.push ({ color: "", cost: "", level: ""});
-    } 
+      json.evolveCondition.push({ color: "", cost: "", level: "" });
+    }
     text = JSON.stringify(json, null, 2);
     console.log(599, json);
 
@@ -985,9 +985,14 @@ Cost: 3
       let i_height = canvas.height * Number(imageOptions.y_scale) / 100;
       let i_x_pct = (100 - Number(imageOptions.x_scale)) / 2 + Number(imageOptions.x_pos);
       let i_y_pct = (100 - Number(imageOptions.y_scale)) / 2 + Number(imageOptions.y_pos);
-      ctx.drawImage(back_img, i_x_pct * canvas.width / 100, i_y_pct * canvas.height / 100, i_width, i_height);
-
-
+      // path to verify we don't overwrite right-most edge
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, canvas.width - 30, canvas.height);
+      ctx.clip();
+      ctx.drawImage(back_img,
+        i_x_pct * canvas.width / 100, i_y_pct * canvas.height / 100, i_width, i_height / 1);
+      ctx.restore();
       //   let w = canvas.width;
       //      let h = canvas.height;
       let len = colors.length;

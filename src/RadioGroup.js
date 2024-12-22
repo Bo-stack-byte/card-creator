@@ -70,6 +70,15 @@ const RadioGroup = ({ selectedOption, handleOptionChange }) => {
             <span className="radio-label"><label>
                 <input
                     type="radio"
+                    value="OPTIONINHERIT"
+                    checked={selectedOption === 'OPTIONINHERIT'}
+                    onChange={handleOptionChange}
+                />
+                OPTIONINHERIT
+            </label> </span>
+            <span className="radio-label"><label>
+                <input
+                    type="radio"
                     value="TAMER"
                     checked={selectedOption === 'TAMER'}
                     onChange={handleOptionChange}

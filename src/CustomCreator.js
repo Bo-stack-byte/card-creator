@@ -36,8 +36,8 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.20.0";
-const latest = "fix evo circle not loading bug; improve freeform parsing to help out bane"
+const version = "0.6.21.0";
+const latest = "optioninherit made, and tamerinherit improved"
 
 // version 0.6.20 fix evo circle not loading bug; improve freeform parsing to help out bane
 // version 0.6.19 black outline on colored text; improved bubble; when digivolviong; overflow number in text; fix restore of old cards
@@ -187,7 +187,6 @@ const setupRoundedCorners = (ctx, width, height, radius) => {
   ctx.clip();
 };
 
-
 const starter_text_empty = `{
     "name": {  "english": "Tama"  },
     "color": "Red",
@@ -201,6 +200,12 @@ const starter_text_empty = `{
     "attribute": "",
     "type": "",
     "rarity": "C",
+    "specialEvolve": "-",
+    "securityEffect": "-",
+    "rule": "",
+    "digiXros": "",
+    "dnaEvolve": "-",
+    "burstEvolve": "-",
     "evolveEffect": "-", 
     "rule": "",
     "cardNumber": "X-01",
@@ -314,6 +319,10 @@ const starter_text_2 = `  {
   "effect": "[Main] Suspend 2 of your opponent's Monsters. Then, return 1 of your opponent's suspended Monster to its owner's hand.",
   "securityEffect": "[Security] Activate this card's [Main] effect.",
   "rarity": "Rare",
+  "evolveEffect": "-",
+  "digiXros": "-",
+  "rarity": "Secret Rare",
+  "rule": "",
   "cardNumber": "CS1-13",
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
@@ -330,7 +339,10 @@ const starter_text_3 = `   {
     "type": "Data",
     "effect": "[Start of Your Main Phase] If you have a monster, gain 1 memory.\\n[Main] By suspending this Tamer, until the end of your opponent's turn, 1 of your opponent's Monsters gains \\"[Start of Your Main Phase] Attack with this Monster\\".",
     "securityEffect": "[Security] Play this card without paying the cost.",
-    "rarity": "Rare",
+    "evolveEffect": "-",
+    "digiXros": "-",
+    "rarity": "Secret Rare",
+    "rule": "",
     "cardNumber": "CS2-17",
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
@@ -862,11 +874,15 @@ Cost: 3
         type = "ACE";
       }
       if ((t = json.cardType)) {
-        if (t.match(/option/i)) { type = "OPTION"; }
+        if (t.match(/option/i)) {
+          type = "OPTION";
+          if (!empty(evo_effect))
+            type = "OPTIONINHERIT";
+        }
         if (t.match(/tamer/i)) {
           type = "TAMER";
           if (!empty(evo_effect))
-            type = "TAMERWITHINHERIT";
+            type = "TAMERINHERIT";
         }
         if (t.match(/egg/i) || t.match(/tama/i)) { type = "EGG"; }
       }
@@ -876,7 +892,8 @@ Cost: 3
 
     switch (type) {
       case "MEGA": backgrounds = [mega_background]; break;
-      case "OPTION": backgrounds = [option_background]; break;
+      case "OPTION":
+      case "OPTIONINHERIT": backgrounds = [option_background]; break;
       case "TAMER":
       case "TAMERINHERIT":
         backgrounds = [tamer_background]; break;
@@ -899,7 +916,7 @@ Cost: 3
     }
 
     // options don't need to load frames
-    const len = (type === "OPTION") ? 1 : colors.length;
+    const len = (type === "OPTION" || type === "OPTIONINHERIT") ? 1 : colors.length;
     const frameImages = Array.from({ length: len }, () => new Image());
     const baseImg = new Image();
     // baseImg.loaded = false;
@@ -961,7 +978,7 @@ Cost: 3
       if (type === "EGG") bottom -= 640;
       if (type === "MONSTER") bottom -= 500;
       if (type === "ACE") bottom -= 480;
-      if (type === "TAMER" || type === "TAMERINHERIT" || type === "OPTION") bottom -= 640;
+      if (type.startsWith("TAMER") || type.startsWith("OPTION")) bottom -= 640;
 
       if (skipDraw) return;
 
@@ -1049,7 +1066,7 @@ Cost: 3
       let ess_x = Number(imageOptions.ess_x_pos) * back_img.width / 100
       let ess_y = Number(imageOptions.ess_y_pos) * back_img.height / 100
       let ess_height = 3700;
-      if (type === "MEGA" || type === "OPTION") ess_height = 0;
+      if (type === "MEGA" || type.startsWith("OPTION")) ess_height = 0;
       if (type === "TAMERINHERIT") ess_height -= 105
       if (ess_height) {
         ctx.drawImage(back_img,
@@ -1062,7 +1079,7 @@ Cost: 3
       ctx.textAlign = 'center';
       ctx.fillStyle = 'white';
       ctx.font = `bold 84px Roboto`;
-      if (type !== "OPTION") {
+      if (!type.startsWith("OPTION")) {
         ctx.fillStyle = 'black';
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 6
@@ -1092,13 +1109,13 @@ Cost: 3
         let frame = frameImages[i];
         if (modern) {
           let name_field = bottoms; // i'm so sorry this is named 'bottom'
-          if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") name_field = bottoms_plain;
+          if (type.startsWith("OPTION") || type.startsWith("TAMER")) name_field = bottoms_plain;
           let col = colors[i];
 
           if (outlines[col]) {
 
             if (frame && drawOutline) {
-              let l = (type === "OPTION") ? 1 : len; // just 1 option "outline"
+              let l = (type.startsWith("OPTION")) ? 1 : len; // just 1 option "outline"
               let fudge = (type === "OPTION" || !i) ? 0 : 0.04;
               fudge = 0;
               // 1.05 is fudge factor because our frames aren't all left-justified the same
@@ -1122,7 +1139,7 @@ Cost: 3
                 scale = 740;
                 height = 3450;
               }
-              if (type === "TAMERINHERIT") {
+              if (type === "TAMERINHERIT" || type === "OPTIONINHERIT") {
                 // tamer inherit has ESS box but raised height
                 height = 3450;
               }
@@ -1145,8 +1162,8 @@ Cost: 3
             if (true) {
               let scale = 364.2;
               let y = 3550 - 365;
-              if (type === "EGG" || type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y -= 90;
-              if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") y += 0; // 40;
+              if (type === "EGG" || type.startsWith("OPTION") || type.startsWith("TAMER")) y -= 90;
+              //  if (type.startsWith("OPTION") || type.startsWith("TAMER")) y += 0; // 40;
               if (type === "MEGA") y += 500;
               if (type === "ACE" && aceFrame) {
                 y += 30;
@@ -1155,7 +1172,7 @@ Cost: 3
               }
 
               let img_name = name_field[col];
-              if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") scale = 305;
+              if (type.startsWith("OPTION") || type.startsWith("TAMER")) scale = 305;
               scalePartialImage(ctx, img_name, i, len, scale, start_x, y);
 
               // do the black (white) bar on anything with a trait, or anything with "Lv.*" text
@@ -1163,7 +1180,7 @@ Cost: 3
                 let skip = false;
                 let bar_offset = 273;
 
-                if (type === "OPTION" || type === "TAMER" || type === "TAMERINHERIT") {
+                if (type.startsWith("OPTION") || type.startsWith("TAMER")) {
                   skip = true;
                   bar_offset = 242;
                 }
@@ -1318,7 +1335,7 @@ Cost: 3
       if (type === "MONSTER" || type === "EGG" || true) {
         if (modern) {
           let img = playcost >= 0 ? cost : cost_egg;
-          if (type === "OPTION") img = cost_option;
+          if (type.startsWith("OPTION")) img = cost_option;
           ctx.drawImage(img, offset_x, offset_y, 500, 500);
           for (let color of colors) {
             let i = costs[color];
@@ -1455,6 +1472,7 @@ Cost: 3
       let delta_y = 0;
       switch (type) {
         case "OPTION":
+        case "OPTIONINHERIT":
         case "TAMER":
         case "TAMERINHERIT": delta_y -= 125; if (!has_traits) delta_y += 30; break;
         case "EGG": delta_y -= 90; break;
@@ -1538,7 +1556,7 @@ Cost: 3
       }
       //console.log("Traits", traits)
       ctx.fillStyle = whiteColor(colors[0]);
-      if (type === "TAMER" || type === "TAMERINHERIT" || type === "OPTION") {
+      if (type.startsWith("OPTION") || type.startsWith("TAMER")) {
         delta_y += 10;
       }
       if (type === "MEGA") {
@@ -1595,7 +1613,7 @@ Cost: 3
           //wrapText(ctx, effect, // + effect, 
           250, y_line,
           2455,
-          Number(fontSize) + Number(lineSpacing), type === "OPTION" ? "effect-option" : "effect",
+          Number(fontSize) + Number(lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
           false
         );
       }
@@ -1614,7 +1632,7 @@ Cost: 3
       let delta_x = delta_y;
       if (type === "ACE") {
         delta_x -= 60; delta_y += 100;
-      } else if (type === "TAMER" || type === "TAMERINHERIT" || type === "OPTION") {
+      } else if (type.startsWith("OPTION") || type.startsWith("TAMER")) {
         delta_x = 0; delta_y = -50;
       } else {
         delta_x = 0; delta_y = 0;
@@ -1653,7 +1671,7 @@ Cost: 3
     let imagesLoaded = 0;
     const checkAllImagesLoaded = (e) => {
       imagesLoaded++;
-    //  console.log(771, "image loaded", imagesLoaded, imagesToLoad);
+      //  console.log(771, "image loaded", imagesLoaded, imagesToLoad);
       if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
         // Set the canvas dimensions  
         afterLoad();
@@ -1691,7 +1709,8 @@ Cost: 3
 
 
     switch (type) {
-      case "OPTION": array = options; break;
+      case "OPTION":
+      case "OPTIONINHERIT": array = options; break;
       // how is outlines_tamer different from outlines_egg??
       case "TAMER":
       case "TAMERINHERIT": array = modern ? outlines_tamer : tamers; break;
@@ -1702,7 +1721,7 @@ Cost: 3
       default: alert(4);
     }
 
-    if (type === "OPTION") {
+    if (type.startsWith("OPTION")) {
       frameImages[0].src = outline_option;
     } else {
       for (let i = 0; i < frameImages.length; i++) {

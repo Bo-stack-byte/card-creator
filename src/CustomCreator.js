@@ -36,8 +36,8 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.23.0"
-const latest = "text inside <tags> isn't broken up; [brackets] at start of line are blue again; digixros multiline"
+const version = "0.6.23.1"
+const latest = "egg logo for eggs; empty for no play cost"
 
 // version 0.6.23 text inside <tags> isn't broken up; [brackets] at start of line are blue again; digixros multiline
 // version 0.6.22 spacing around blue keyword boxes; get rid of right-hand image overflowing by 20 pixels; force missing fields into JSON
@@ -1251,10 +1251,10 @@ Cost: 3
       let xros_offset = 0;
 
       if (!empty(xros)) {
-        let preview = drawBracketedText(ctx, fontSize, xros, 300, bottom, 
-        3000, Number(fontSize) + Number(lineSpacing), "bubble", true);
+        let preview = drawBracketedText(ctx, fontSize, xros, 300, bottom,
+          3000, Number(fontSize) + Number(lineSpacing), "bubble", true);
         // our text should end at roughly bottom + 
-        xros_offset = preview - (bottom + fontSize * 2);       
+        xros_offset = preview - (bottom + fontSize * 2);
         console.log(1254, 'x', preview, bottom);
       }
       if (rule && xros) {
@@ -1377,10 +1377,14 @@ Cost: 3
       let x = 355;
       //playcost. If 0 or more, show that number. Else show egg symbol.
       const playcost = parseInt(json.playCost)
-      if (type === "MONSTER" || type === "EGG" || true) {
-        if (modern) {
-          let img = playcost >= 0 ? cost : cost_egg;
+      if (true) {
+        let img = undefined;
+        if (type === "EGG") img = cost_egg;
+        if (playcost >= 0) {
+          img = cost;
           if (type.startsWith("OPTION")) img = cost_option;
+        }
+        if (img) {
           ctx.drawImage(img, offset_x, offset_y, 500, 500);
           for (let color of colors) {
             let i = costs[color];

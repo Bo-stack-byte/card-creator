@@ -36,9 +36,10 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.22.2"
-const latest = "[brackets] at start of line are blue again; digixros multiline"
+const version = "0.6.23.0"
+const latest = "text inside <tags> isn't broken up; [brackets] at start of line are blue again; digixros multiline"
 
+// version 0.6.23 text inside <tags> isn't broken up; [brackets] at start of line are blue again; digixros multiline
 // version 0.6.22 spacing around blue keyword boxes; get rid of right-hand image overflowing by 20 pixels; force missing fields into JSON
 // version 0.6.21 optioninherit made, and tamerinherit improved
 // version 0.6.20 fix evo circle not loading bug; improve freeform parsing 

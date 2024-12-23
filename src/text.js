@@ -489,9 +489,9 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
   //  ctx.save();
   // ctx.scale(scale, 1);
 
-
   // console.log(313, `is ${testWidth} bigger than ${cardWidth}`);
-  text.split(/([[⟦].*?[\]⟧])/).forEach(phrase => {
+  let phrases = text.startsWith("＜") ? [text] : text.split(/([[⟦].*?[\]⟧])/);
+  phrases.forEach(phrase => {
     let cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
     if (
       (phrase.startsWith("⟦") && phrase.endsWith("⟧")) ||

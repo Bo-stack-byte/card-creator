@@ -11,7 +11,7 @@ import {
   bottoms, bottoms_plain, borders, effectboxes,
 
   // inherits at bottom:
-  bottom_evos,
+  bottom_evos, bottom_egg_evos,
   bottom_aces, inherited_security,
   bottom_property_white, bottom_property_black
 
@@ -36,9 +36,10 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.23.1"
-const latest = "egg logo for eggs; empty for no play cost"
+const version = "0.6.24.0"
+const latest = "fix offsets for black bar on eggs; not quite pixel perfect"
 
+// version 0.6.24 fix offsets for black bar on eggs; not quite pixel perfect
 // version 0.6.23 text inside <tags> isn't broken up; [brackets] at start of line are blue again; digixros multiline
 // version 0.6.22 spacing around blue keyword boxes; get rid of right-hand image overflowing by 20 pixels; force missing fields into JSON
 // version 0.6.21 optioninherit made, and tamerinherit improved
@@ -587,15 +588,36 @@ Cost: 3
 
      · Security Effect: [Security] <Draw 1>, then add this card to the hand.`;
 
+  
+     let custom_5 = `Arresterdramon X MetalTyrannomon
+Lv.5 🟣 / ⚫
+Playcost: 8
+Digivolve: 4 from Lv.4 ⚫ / 🟣
+{Digivolve from Lv.4 w/<Save> in text: 3 cost}
+Type: Enhancement/Dragonkin/Cyborg
+Attribute: Virus
+Level: Perfect
+7000 DP
+
+<Blocker>
+[On Play][When Digivolving] Until the end of your opponent's turn, 1 of their Digimon gains "[Start of Main] Forced attack." If digixrossed with 2 materials, <De-Digivolve 1> 1 of their Digimon.
+
+{Digixros -1} [Arresterdramon] x [MetalTyrannomon]
+
+Inheritable: [Opponent's Turn] This Digimon with <Save> in its text gains <Reboot>.
+Author: MuqRei
+`
+
   const customs = [
     custom_1,
-    custom_2, custom_3, custom_4
+    custom_2, custom_3, custom_4, 
+    custom_5
   ];
   const custom_starter = `# This is a sample custom text.
 # Start typing to watch it update.
 # (Undo and updates to the other forms won't propagate here.)
 
-` + customs[Math.floor(Math.random() * customs.length)];
+` + customs[Math.floor(Math.random() * (customs.length -1))];
   // if a shared card, default to the fields list
   const [showJson, setShowJson] = useState(ref ? 0 : 2);
   const [formData, setFormData] = useState({}); // redundant
@@ -1169,11 +1191,20 @@ Cost: 3
                 img = bottom_aces[col];
                 scale = 606;
               }
-              if (type === "OPTION" || type === "TAMER") {
+              if (type === "OPTION" || type === "TAMER" || type === "EgjgjGG") {
                 img = inherited_security[col];
                 scale = 740;
                 height = 3450;
               }
+              console.log(1199, type);
+              // egg doesn't change inherited but does change scale and height 
+              if (type === "EGG") {
+              img = bottom_egg_evos[col];
+              scale = 720;
+              height = 3470;
+
+              }
+            
               if (type === "TAMERINHERIT" || type === "OPTIONINHERIT") {
                 // tamer inherit has ESS box but raised height
                 height = 3450;
@@ -1205,10 +1236,17 @@ Cost: 3
                 start_x -= 4
                 scale = 368
               }
-
+              let y_scale = 1;
               let img_name = name_field[col];
               if (type.startsWith("OPTION") || type.startsWith("TAMER")) scale = 305;
-              scalePartialImage(ctx, img_name, i, len, scale, start_x, y);
+              if (type === "EGG") {
+                // egg is weirder, needs so much special case 
+                y -= 34;
+                scale = 365;
+                y_scale = 1.03;
+              }
+
+              scalePartialImage(ctx, img_name, i, len, scale, start_x, y, 0, y_scale);
 
               // do the black (white) bar on anything with a trait, or anything with "Lv.*" text
               if (i === len - 1) {
@@ -1217,7 +1255,12 @@ Cost: 3
 
                 if (type.startsWith("OPTION") || type.startsWith("TAMER")) {
                   skip = true;
-                  bar_offset = 242;
+                  bar_offset = 252;
+                }
+                // more special cases for egg, this sucks
+                if (type === "EGG") {
+                  skip = true;
+                  bar_offset = 292;
                 }
 
                 if (has_traits) skip = false;
@@ -1228,8 +1271,8 @@ Cost: 3
 
                   let scale = 4.015;
                   if (true) ctx.drawImage(bar_img,
-                    162, y + bar_offset - 0,
-                    bar_img.width * scale * 1.006,
+                    162, y + bar_offset ,
+                    bar_img.width * scale * 0.999,
                     bar_img.height * scale * 1.08) // stretch a little
                 }
               }
@@ -1296,10 +1339,7 @@ Cost: 3
           // For now there is just one circle. Ask in feedback if you want more. 
 
 
-          console.log(1096, _evos);
           let evo1_level = "Lv." + _evos[0].level;
-          console.log(1098, _evos[0]);
-          console.log(1099, _evos[0].level);
           if (_evos[0].level && _evos[0].level.toUpperCase() === "TAMER") evo1_level = "TAMER";
           let evo1_cost = _evos[0].cost;
           let index = 0 // just 1 circle 
@@ -1315,8 +1355,8 @@ Cost: 3
             let X = offset_x + 130;
             let Y = offset_y + 125 + 600;
 
-            const imgWidth = 310;
-            const imgHeight = 310;
+            const imgWidth = 310; // height, too
+            const imgHeight = 310; // height, too
 
             const circle = evoImages[i]
             const wedge = wedgeImages[i];
@@ -1433,7 +1473,7 @@ Cost: 3
 
       }
 
-      if (type === "MONSTER" || type === "MEGA" || type === "ACE") {
+      if (type === "MONSTER" || type === "MEGA") {
 
         // dp
         ctx.fillStyle = 'black';
@@ -1491,7 +1531,7 @@ Cost: 3
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
 
-        if (type === "EGG") y -= 100;
+        if (type === "EGG") y -= 110;
         if (type === "MEGA") y += 500;
         y += 100
         ctx.font = '900 200px "Big Shoulders Text"'
@@ -1522,8 +1562,8 @@ Cost: 3
         case "OPTION":
         case "OPTIONINHERIT":
         case "TAMER":
+          case "EGG":
         case "TAMERINHERIT": delta_y -= 125; if (!has_traits) delta_y += 30; break;
-        case "EGG": delta_y -= 90; break;
         case "MEGA": delta_y += 500; break;
         case "MONSTER": break;
         case "ACE": if (aceFrame) delta_y += 30; break;
@@ -1604,7 +1644,7 @@ Cost: 3
       }
       //console.log("Traits", traits)
       ctx.fillStyle = whiteColor(colors[0]);
-      if (type.startsWith("OPTION") || type.startsWith("TAMER")) {
+      if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
         delta_y += 10;
       }
       if (type === "MEGA") {
@@ -1680,7 +1720,7 @@ Cost: 3
       let delta_x = delta_y;
       if (type === "ACE") {
         delta_x -= 60; delta_y += 100;
-      } else if (type.startsWith("OPTION") || type.startsWith("TAMER")) {
+      } else if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG")  {
         delta_x = 0; delta_y = -50;
       } else {
         delta_x = 0; delta_y = 0;
@@ -1717,9 +1757,9 @@ Cost: 3
     let imagesToLoad = backgrounds.length + 1 + frameImages.length + 2 * (evo_circle_colors.length);
     console.log(817, frameImages.length, _evos && _evos.length);
     let imagesLoaded = 0;
-    const checkAllImagesLoaded = (e) => {
+    const checkAllImagesLoaded = (text, failure) => {
       imagesLoaded++;
-      //  console.log(771, "image loaded", imagesLoaded, imagesToLoad);
+     //console.log(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
       if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
         // Set the canvas dimensions  
         afterLoad();
@@ -1727,10 +1767,12 @@ Cost: 3
     };
 
     for (let f of frameImages) {
-      f.onload = f.onerror = function () { checkAllImagesLoaded(f); }
+      f.onload = function () { checkAllImagesLoaded(f.src); }
+      f.onerror = function () { checkAllImagesLoaded(f.src, true); }
     }
     // this has a race condition    
-    baseImg.onload = baseImg.onerror = function () { checkAllImagesLoaded(baseImg); }
+    baseImg.onload = function () { checkAllImagesLoaded("baseimage"); }
+    baseImg.onerror = function () { checkAllImagesLoaded("baseimage", true); }
     if (baseImg.complete) {
       console.log("base img already loaded");
       //    baseImg.src = baseImg.src; // reload
@@ -1739,20 +1781,23 @@ Cost: 3
     }
 
     for (let i in evo_circle_colors) {
+      let my_color = evo_circle_colors[i];
       let evoI = new Image();
       evoImages[i] = evoI;
-      evoI.src = new_evo_circles[evo_circle_colors[i]]
-      console.log(1688, new_evo_circles[evo_circle_colors[i]]);
-      evoI.onload = evoI.onerror = function () { checkAllImagesLoaded(evoI); }
+      evoI.src = new_evo_circles[my_color]
+      console.log(1688, new_evo_circles[my_color]);
+      evoI.onload = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`); }
+      evoI.onerror = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`, true); }
       let wedgeI = new Image();
       wedgeImages[i] = wedgeI;
-      wedgeI.src = new_evo_wedges[evo_circle_colors[i]]
-      wedgeI.onload = wedgeI.onerror = function () { checkAllImagesLoaded(wedgeI); }
+      wedgeI.src = new_evo_wedges[my_color]
+      wedgeI.onload = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`); }
+      wedgeI.onerror = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`, true); }
     }
     for (let i in backgrounds) {
       shellImages[i] = new Image();
       shellImages[i].src = backgrounds[i];
-      shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(shellImages[i]); }
+      shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(`shell src  ${i} ${shellImages[i].src}`); }
     }
 
 

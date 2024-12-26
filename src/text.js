@@ -95,7 +95,6 @@ function splitTextIntoParts(text) {
   let all_words = [];
   for (let i = 0; i < words.length; i++) {
     if (words[i].includes("[")) {
-      console.log(97, words[i]);
       all_words.push(words[i]);
     } else {
       all_words.push(...words[i].split(/(?<=\s)(?=\S)|(?<=\S)(?=\s)/));
@@ -210,7 +209,7 @@ function drawDnaBox(ctx, x, y, w, h, colors) {
 
 //x,y is upper left
 function drawColoredRectangle(ctx, x, y, width, height, color) {
-  console.log(195, x, y, width, height, color);
+  //console.log(195, x, y, width, height, color);
   //#922969 darker ois lower
   if (color === 'bubble') {
 
@@ -336,7 +335,7 @@ function replaceBracketsAtStart(line) {
 
   const _tokens = splitByBrackets(line);
   //  const tokens = line.match(/(\[[^\]]+\]|＜[^＞]+＞|\S+)/g);
-  console.log(339, _tokens);
+  //console.log(339, _tokens);
   const tokens = _tokens.filter(l => l).flatMap( 
     l => l.startsWith("[") ? l : l.match(/( \[[^\] ]+\] |＜[^＞]+＞|\S+|\s+)/g)
   );
@@ -350,7 +349,6 @@ function replaceBracketsAtStart(line) {
   let replacing = true;
 
   for (let i = 0; i < tokens.length; i++) {
-    console.log(332, i, tokens[i]);
     // Check for brackets at the start of the line
     if (replacing && tokens[i].startsWith('[') && tokens[i].endsWith(']')) {
       tokens[i] = tokens[i].replace('[', '⟦').replace(']', '⟧');

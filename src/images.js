@@ -47,6 +47,14 @@ import _bottom_evo_purple from './frames/inherits/bottom_purple_evo_tamer.png';
 import _bottom_evo_black from './frames/inherits/bottom_black_evo_tamer.png';
 import _bottom_evo_white from './frames/inherits/bottom_white_evo_tamer.png';
 
+import _bottom_evo_egg_red from './frames/inherits/bottom_red_digitama.png';
+import _bottom_evo_egg_blue from './frames/inherits/bottom_blue_digitama.png';
+import _bottom_evo_egg_yellow from './frames/inherits/bottom_yellow_digitama.png';
+import _bottom_evo_egg_green from './frames/inherits/bottom_green_digitama.png';
+import _bottom_evo_egg_purple from './frames/inherits/bottom_purple_digitama.png';
+import _bottom_evo_egg_black from './frames/inherits/bottom_black_digitama.png';
+import _bottom_evo_egg_white from './frames/inherits/bottom_white_digitama.png';
+
 
 import _bottom_red from './frames/bottom_red.png';
 import _bottom_blue from './frames/bottom_blue.png';
@@ -407,6 +415,15 @@ let bottom_evo_purple = new Image(); bottom_evo_purple.src = _bottom_evo_purple;
 let bottom_evo_black = new Image(); bottom_evo_black.src = _bottom_evo_black;
 let bottom_evo_white = new Image(); bottom_evo_white.src = _bottom_evo_white;
 
+let bottom_evo_egg_red = new Image(); bottom_evo_egg_red.src = _bottom_evo_egg_red;
+let bottom_evo_egg_blue = new Image(); bottom_evo_egg_blue.src = _bottom_evo_egg_blue;
+let bottom_evo_egg_yellow = new Image(); bottom_evo_egg_yellow.src = _bottom_evo_egg_yellow;
+let bottom_evo_egg_green = new Image(); bottom_evo_egg_green.src = _bottom_evo_egg_green;
+let bottom_evo_egg_purple = new Image(); bottom_evo_egg_purple.src = _bottom_evo_egg_purple;
+let bottom_evo_egg_black = new Image(); bottom_evo_egg_black.src = _bottom_evo_egg_black;
+let bottom_evo_egg_white = new Image(); bottom_evo_egg_white.src = _bottom_evo_egg_white;
+
+
 let bottom_red = new Image(); bottom_red.src = _bottom_red;
 let bottom_blue = new Image(); bottom_blue.src = _bottom_blue;
 let bottom_yellow = new Image(); bottom_yellow.src = _bottom_yellow;
@@ -460,6 +477,17 @@ export const bottom_evos = {
   'black': bottom_evo_black,
   'white': bottom_evo_white,
 }
+
+export const bottom_egg_evos = {
+  'red': bottom_evo_egg_red,
+  'blue': bottom_evo_egg_blue,
+  'yellow': bottom_evo_egg_yellow,
+  'green': bottom_evo_egg_green,
+  'purple': bottom_evo_egg_purple,
+  'black': bottom_evo_egg_black,
+  'white': bottom_evo_egg_white,
+}
+
 
 export const bottoms = {
   'red': bottom_red,
@@ -576,6 +604,19 @@ export function countColors(str) {
   const matches = [...str.matchAll(regex)].map(match => match[0]);
   return matches;
 }
+
+export function getDot(input) {
+
+      if (input.includes("🔴")) return "Red";
+      if (input.includes("🔵")) return "Blue";
+      if (input.includes("🟡")) return "Yellow";
+      if (input.includes("🟢")) return "Green";
+      if (input.includes("🟣")) return "Purple";
+      if (input.includes("⚫")) return "Black";
+      if (input.includes("⚪")) return "White";
+      return undefined;
+}
+
 
 export function colorReplace(str, strict) {
   if (!str) return "";

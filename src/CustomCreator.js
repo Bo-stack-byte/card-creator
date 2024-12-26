@@ -36,7 +36,7 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 
-const version = "0.6.24.0"
+const version = "0.6.24.1" ; make all ace headlines blank
 const latest = "fix offsets for black bar on eggs; not quite pixel perfect"
 
 // version 0.6.24 fix offsets for black bar on eggs; not quite pixel perfect

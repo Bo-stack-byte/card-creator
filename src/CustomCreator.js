@@ -1473,7 +1473,7 @@ Author: MuqRei
 
       }
 
-      if (type === "MONSTER" || type === "MEGA") {
+      if (type === "MONSTER" || type === "MEGA" || type === "ACE") {
 
         // dp
         ctx.fillStyle = 'black';

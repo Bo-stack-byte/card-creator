@@ -35,12 +35,12 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
+const version = "0.6.25"; 
+const latest = "effect box improvements; black (white) attribute bar improvements"
 
-const version = "0.6.24.1" ; // make all ace headlines blank
-const latest = "fix offsets for black bar on eggs; not quite pixel perfect"
-
+// versioj 0.6.25 effect box improvements; black (white) attribute bar improvements
 // version 0.6.24 fix offsets for black bar on eggs; not quite pixel perfect
-// version 0.6.23 text inside <tags> isn't broken up; [brackets] at start of line are blue again; digixros multiline
+// version 0.6.23 text inside <tags> isn't broken up; [brackets] at start of line are blue again; digixros multiline; egg logo on eggs
 // version 0.6.22 spacing around blue keyword boxes; get rid of right-hand image overflowing by 20 pixels; force missing fields into JSON
 // version 0.6.21 optioninherit made, and tamerinherit improved
 // version 0.6.20 fix evo circle not loading bug; improve freeform parsing 
@@ -588,8 +588,8 @@ Cost: 3
 
      · Security Effect: [Security] <Draw 1>, then add this card to the hand.`;
 
-  
-     let custom_5 = `Arresterdramon X MetalTyrannomon
+
+  let custom_5 = `Arresterdramon X MetalTyrannomon
 Lv.5 🟣 / ⚫
 Playcost: 8
 Digivolve: 4 from Lv.4 ⚫ / 🟣
@@ -610,14 +610,14 @@ Author: MuqRei
 
   const customs = [
     custom_1,
-    custom_2, custom_3, custom_4, 
+    custom_2, custom_3, custom_4,
     custom_5
   ];
   const custom_starter = `# This is a sample custom text.
 # Start typing to watch it update.
 # (Undo and updates to the other forms won't propagate here.)
 
-` + customs[Math.floor(Math.random() * (customs.length -1))];
+` + customs[Math.floor(Math.random() * (customs.length - 1))];
   // if a shared card, default to the fields list
   const [showJson, setShowJson] = useState(ref ? 0 : 2);
   const [formData, setFormData] = useState({}); // redundant
@@ -1041,14 +1041,18 @@ Author: MuqRei
 
       if (effectBox) {
         for (let i = 0; i < len; i++) {
-          let col = colors[i];
+          /*let col = colors[i];
           if (!col) continue;
           let box = new Image();
-          box.src = effectboxes[col];
+          box.src = effectboxes[col];*/
           //          let true_bottom = 4000;
           //        let y_scale = ((true_bottom) - (bottom + 60 - baselineOffset)) / box.height;
-          let y_scale = effectBoxScale(box.height, baselineOffset);
-          scalePartialImage(ctx, box, i, len, 825, offset_x + 100, bottom + 60 - baselineOffset, 0, y_scale);
+          const box = effectFrames[i];
+          if (box.complete) {
+            console.log(1051, box, box.height);
+            let y_scale = effectBoxScale(box.height, baselineOffset);
+            scalePartialImage(ctx, box, i, len, 825, offset_x + 100, bottom + 60 - baselineOffset, 0, y_scale);
+          }
         }
       }
 
@@ -1199,12 +1203,12 @@ Author: MuqRei
               console.log(1199, type);
               // egg doesn't change inherited but does change scale and height 
               if (type === "EGG") {
-              img = bottom_egg_evos[col];
-              scale = 720;
-              height = 3470;
+                img = bottom_egg_evos[col];
+                scale = 720;
+                height = 3470;
 
               }
-            
+
               if (type === "TAMERINHERIT" || type === "OPTIONINHERIT") {
                 // tamer inherit has ESS box but raised height
                 height = 3450;
@@ -1260,7 +1264,7 @@ Author: MuqRei
                 // more special cases for egg, this sucks
                 if (type === "EGG") {
                   skip = true;
-                  bar_offset = 292;
+                  bar_offset = 292 - 14;
                 }
 
                 if (has_traits) skip = false;
@@ -1271,9 +1275,9 @@ Author: MuqRei
 
                   let scale = 4.015;
                   if (true) ctx.drawImage(bar_img,
-                    162, y + bar_offset ,
+                    162, y + bar_offset,
                     bar_img.width * scale * 0.999,
-                    bar_img.height * scale * 1.08) // stretch a little
+                    bar_img.height * scale * 1.17) // stretch a little
                 }
               }
             }
@@ -1562,7 +1566,7 @@ Author: MuqRei
         case "OPTION":
         case "OPTIONINHERIT":
         case "TAMER":
-          case "EGG":
+        case "EGG":
         case "TAMERINHERIT": delta_y -= 125; if (!has_traits) delta_y += 30; break;
         case "MEGA": delta_y += 500; break;
         case "MONSTER": break;
@@ -1720,7 +1724,7 @@ Author: MuqRei
       let delta_x = delta_y;
       if (type === "ACE") {
         delta_x -= 60; delta_y += 100;
-      } else if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG")  {
+      } else if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
         delta_x = 0; delta_y = -50;
       } else {
         delta_x = 0; delta_y = 0;
@@ -1753,18 +1757,27 @@ Author: MuqRei
       evo_circle_colors = _evos.map(e => e.color.toLowerCase().split("/"))
         .reduce((acc, curr) => acc.concat(curr), []);
     }
-    // N for basic style frame, 1 for custom image, 1 per color, 2 per evo circle
-    let imagesToLoad = backgrounds.length + 1 + frameImages.length + 2 * (evo_circle_colors.length);
+    const effectFrames = effectBox ? Array.from({ length: len }, () => new Image()) : [];
+
+    // N for basic style frame, 1 for custom image, 1 per color, 2 per evo circle, 1 per effect box
+    let imagesToLoad = backgrounds.length + 1 + frameImages.length + 2 * (evo_circle_colors.length) + effectFrames.length;
     console.log(817, frameImages.length, _evos && _evos.length);
     let imagesLoaded = 0;
     const checkAllImagesLoaded = (text, failure) => {
       imagesLoaded++;
-     //console.log(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
+      console.log(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
       if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
         // Set the canvas dimensions  
         afterLoad();
       }
     };
+
+    for (let i = 0; i < effectFrames.length; i++) {
+      effectFrames[i].src = effectboxes[colors[i]];
+      effectFrames[i].onload = function () { checkAllImagesLoaded("box" + i); }
+      effectFrames[i].onerror = function () { checkAllImagesLoaded("box" + i, true); }
+
+    }
 
     for (let f of frameImages) {
       f.onload = function () { checkAllImagesLoaded(f.src); }
@@ -1879,7 +1892,7 @@ Author: MuqRei
     }
   };
 
-  const invite = 'https://discord.gg/FY3TYNMu';
+  const invite = 'https://discord.gg/THzb53dTDW';
   let button = (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
       <button

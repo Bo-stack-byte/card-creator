@@ -35,8 +35,8 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.25"; 
-const latest = "effect box improvements; black (white) attribute bar improvements"
+const version = "0.6.25.1";
+const latest = "fix white inherit boxes; effect box improvements; black (white) attribute bar improvements"
 
 // versioj 0.6.25 effect box improvements; black (white) attribute bar improvements
 // version 0.6.24 fix offsets for black bar on eggs; not quite pixel perfect

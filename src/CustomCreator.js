@@ -35,8 +35,8 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.26.0";
-const latest = "make egg ESS transparent again"
+const version = "0.6.26.1";
+const latest = "make ACE ESS transparent; make egg ESS transparent again"
 
 // versioj 0.6.25.x fix white inherit boxes;effect box improvements; black (white) attribute bar improvements
 // version 0.6.24 fix offsets for black bar on eggs; not quite pixel perfect
@@ -1126,13 +1126,21 @@ Author: MuqRei
       let ess_i_height = (Number(imageOptions.ess_y_end) - Number(imageOptions.ess_y_pos)) * back_img.height / 100
       let ess_x = Number(imageOptions.ess_x_pos) * back_img.width / 100
       let ess_y = Number(imageOptions.ess_y_pos) * back_img.height / 100
-      let ess_height = 3700;
-      if (type === "MEGA" || type.startsWith("OPTION")) ess_height = 0;
-      if (type === "TAMERINHERIT") ess_height -= 105
-      if (ess_height) {
+      let ess_pos_y = 3700;
+      let ess_pos_x = 240;
+      let size = 350;
+      if (type === "MEGA" || type === "OPTION" || type === "TAMER") ess_pos_y = 0;
+      if (type.endsWith("INHERIT")) ess_pos_y -= 105;
+      if (type === "EGG") ess_pos_y -= 80;
+      if (type === "ACE") {
+          ess_pos_y += 135;
+          ess_pos_x += 30;
+          size = 250;
+      }
+      if (ess_pos_y) {
         ctx.drawImage(back_img,
           ess_x, ess_y, ess_i_width, ess_i_height,
-          240, ess_height, 350, 350,
+          ess_pos_x, ess_pos_y, size, size
         );
       }
 

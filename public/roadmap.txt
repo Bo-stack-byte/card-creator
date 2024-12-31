@@ -9,15 +9,20 @@ BUGS
 * Keyword scrunching (try sample ACE with fontsize 140)
 * (maybe same issue) Keywords that appear far along the line may be mis-aligned. So do [] symbols
 * Report of scaling broken on Safari (unable to reproduce so far)
-* "Effect box" doesn't always show up right away when clicking check box and it's making me angry
 * digixros field goes nuts if it doesn't start with [digixros -x]
+* the black color isn't quite black; try black/green egg and look closely at attribute bar
+* some timings [in brackets] not blue, again
 
-VAGUE TO DO LIST:
+VAGUE TO DO LIST, SOONER:
+
+* put all variables into json blob
+* pen for creator name (should credit both artist and author)
+
+VAGUE TO DO LIST, LATER:
 
 * option for smaller download (4 MB can be a lot for 1 card)
-* default font for level text (before remote font loads) is really ugly
+* make default font for level text (before remote font loads) is really ugly
 * for remote fonts, delay first rendering or re-render when it loads
-* pen for creator name (should credit both artist and author)
 * handle too-large text in a better way
 * get faint white glow in playcost circle
 * dual-layer art (user supplies background and foreground: foreground gets drawn over background)
@@ -34,7 +39,8 @@ VAGUE TO DO LIST:
 * new security icons
 * add/remove digivolve condition button
 * add triangle to "Rule" text
-* for white mon, use 
+* for options, use black text (with optional white outline)
+* for white cards, make text black with white outlines white cards
 * black level box not quite right in shape and size if you look really closely
 
 NOMINALLY FIXED BUGS / FEATURES
@@ -48,5 +54,7 @@ NOMINALLY FIXED BUGS / FEATURES
 * rounded corners not quite working on download
 * ACE frames with the fancy lines (sort of working already but not really)
 * sometimes the evo circle colors don't populate
+* "Effect box" doesn't always show up right away when clicking check box and it's making me angry
+* make squares transparent for all inherits
 
 

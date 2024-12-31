@@ -35,10 +35,10 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.25.1";
-const latest = "fix white inherit boxes; effect box improvements; black (white) attribute bar improvements"
+const version = "0.6.26.0";
+const latest = "make egg ESS transparent again"
 
-// versioj 0.6.25 effect box improvements; black (white) attribute bar improvements
+// versioj 0.6.25.x fix white inherit boxes;effect box improvements; black (white) attribute bar improvements
 // version 0.6.24 fix offsets for black bar on eggs; not quite pixel perfect
 // version 0.6.23 text inside <tags> isn't broken up; [brackets] at start of line are blue again; digixros multiline; egg logo on eggs
 // version 0.6.22 spacing around blue keyword boxes; get rid of right-hand image overflowing by 20 pixels; force missing fields into JSON

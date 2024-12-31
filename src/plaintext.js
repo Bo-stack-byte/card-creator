@@ -4,6 +4,75 @@
 
 let all_colors = ["Red", "Blue", "Yellow", "Green", "Black", "Purpler", "White", "Rainbow"]; //rainbow unsupported right now
 
+  // copied from the customs channel
+
+export const custom_1 = `     ʟᴠ.3 — ScrapBacomon
+[Rookie | Data | Mutant/ʟᴍᴡ] [Gre.]
+Play cost: 3 | Digivolution: 0 from Lv.2 [Gre.]
+     1000 DP
+
+[Rule] Trait: Has the [Free] type.
+[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mutant] traut and 1 card with the [ʟᴍᴡ] trait among them to the hand. Return the rest to the bottom of the deck.
+
+     · Inherited Effect:
+[All Turns] [Once Per Turn] When 1 other Digimon digivolves, <Draw 1>.
+`;
+
+export const custom_2 = `Imperialdramon: Fighter Mode 
+Purple/Red | Lv.6
+13000 DP
+Play cost: 13
+Digivolution cost: 5 from purple or red Lv.5
+[[Digivolve] [Imperialdramon: Dragon Mode]: Cost 2]
+Mega | Virus | Ancient Dragonkin 
+
+<Security A. +1> <Piercing>
+[When Digivolving] By returning 1 Multicolor Digimon card from this Digimon's digivolution cards to the hand, return all digivolution cards of 1 of your opponent's Digimon with as high or lower level as returned card to the bottom of the deck. Then, delete it.
+[Your Turn] This Digimon doesn't activate [Security] effects of the cards it checks.
+`;
+
+export const custom_3 = `Patamon
+Level 3 yellow/purple
+Playcost: 3
+Digivolve: 1 from lvl 2 yellow/purple
+Rookie | Data | Mammal
+1000 DP
+[Digivolve] [Tokomon]: Cost 0
+
+[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mythical Beast] trait and 1 card with the [LIBERATOR] trait among them to the hand. Return the rest to the bottom of the deck. 
+
+[Rule] Trait: Also has [Mythical Beast] Type.
+-----
+Inherited Effect: [On Deletion] You may place 1 card from either player's trash face down in the battle area.
+
+`;
+
+export const custom_4 = `Steal!!!! — [Option]
+[Gre.]
+Cost: 3
+
+     [Main] <Draw 1> for every Tamer your opponent has in play.
+
+     · Security Effect: [Security] <Draw 1>, then add this card to the hand.`;
+
+export const custom_5 = `Arresterdramon X MetalTyrannomon
+Lv.5 🟣 / ⚫
+Playcost: 8
+Digivolve: 4 from Lv.4 ⚫ / 🟣
+{Digivolve from Lv.4 w/<Save> in text: 3 cost}
+Type: Enhancement/Dragonkin/Cyborg
+Attribute: Virus
+7000 DP
+
+<Blocker>
+[On Play][When Digivolving] Until the end of your opponent's turn, 1 of their Digimon gains "[Start of Main] Forced attack." If digixrossed with 2 materials, <De-Digivolve 1> 1 of their Digimon.
+
+{Digixros -1} [Arresterdramon] x [MetalTyrannomon]
+
+Inheritable: [Opponent's Turn] This Digimon with <Save> in its text gains <Reboot>.
+Author: MuqRei
+`
+
 // return color based on abbreviations
 function get_color(input) {
     if (!input) return undefined;
@@ -61,6 +130,8 @@ export const enterPlainText = (lines) => {
         "dnaEvolve": "-",
         "burstEvolve": "-",
         "cardNumber": "",
+        "author": "",
+        "artist": "",
         "imageOptions": {
             url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
             "ess_x_pos": 37,
@@ -87,7 +158,7 @@ export const enterPlainText = (lines) => {
 
             let fields = line.split(/ [-—] /i);
             console.log(47, fields);
-            json.name.english = fields[1] && fields[1].trim();
+            if (fields[1]) json.name.english = fields[1].trim();
             if (fields[2]) json.cardNumber = fields[2].trim();
 
             //\s+[-—]\s+(.*)(\s+[-—]\s+(.*)-(\d+))?/i))) {
@@ -167,26 +238,36 @@ export const enterPlainText = (lines) => {
 
             }
             // [[Digivolve] [Imperialdramon: Dragon Mode]: Cost 2] 
-        } else if ((m = line.match(/^.?.?.?(?:Evolve|Digivolve).*\d+/i))) {
+        } else if ((m = line.match(/^.?.?.?(Evolve|Digivolve).{0,3}\s+(.*\d[\w\s]*)/i))) {
             console.log(147, m);
-            json.specialEvolve = m[0];
+            json.specialEvolve = `[${m[1]}] ${m[2]}`;
         } else if ((m = line.match(/security effect\s*:\s*(.*\w+.*)/i))) {
             console.log(124, m);
             json.securityEffect += m[1] + "\n";
+       //     {Digixros -1} [Arresterdramon] x [MetalTyrannomon]
+        } else if ((m = line.match(/^.{0,3}(DigiXros -\d+).{0,3}\s+(.*)/i))) {
+            json.digiXros = `[${m[1]}] ${m[2]}`;
         } else if ((m = line.match(/Security Effect/))) {
             mode = "security";
             // translator format
-        } else if ((m = line.match(/inherited effect\s*:\s*(.*\w+.*)/i))) {
+        } else if ((m = line.match(/(?:inherited effect|inheritable)\s*:\s*(.*\w+.*)/i))) {
             console.log(124, m);
             json.evolveEffect += m[1] + "\n";
-        } else if ((m = line.match(/Inherited Effect/i))) {
+        } else if (line.match(/Inherited Effect/i) || line.match(/^-{3,}$/)) {
             mode = "inherited";
-            // translator format
+            // Type:X for arbitrary Key:Value pairs
+        } else if ((m = line.match(/^(.*)\s*:\s*(.*)$/)) && (m[1].toLowerCase() in json)) {
+            let [key,value] = m;
+            key = key.toLowerCase();
+            if (key in json) {
+                json[key] = value;
+            }
         } else {
-            console.log(69, line);
+            console.log(69, line, json.name.english);
             // first line assumed to be plain name if no match
             if (!json.name.english) {
                 json.name.english = line.trim();
+                console.log(69, "after", json.name.english);
             } else if (mode === "inherited") {
                 json.evolveEffect += line + "\n";
             } else if (mode === "inherited") {
@@ -204,3 +285,19 @@ export const enterPlainText = (lines) => {
     return JSON.stringify(json, null, 2);
     //   return JSON.stringify(json);
 }
+
+
+
+/*
+const exports =  { 
+    enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5
+ };*/
+ 
+/*  
+
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = exports;
+  } else {
+    export default exports;
+  }
+  */

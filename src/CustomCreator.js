@@ -17,7 +17,7 @@ import {
 
 } from './images';
 
-import { enterPlainText } from './plaintext';
+import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5 } from './plaintext';
 import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
@@ -35,9 +35,11 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.27.0";
-const latest = "fix some slices not drawing; fix some bracketed text not appearing in blue"
+const version = "0.7.0"
+const latest = "free form parsing becoming more formal"
 
+// version 0.7.0    free form parsing becoming more formal
+// version 0.6.27   fix some slices not drawing; fix some bracketed text not appearing in blue
 // version 0.6.26.x make ACE ESS transparent; make egg ESS transparent again
 // version 0.6.25.x fix white inherit boxes; effect box improvements; black (white) attribute bar improvements
 // version 0.6.24 fix offsets for black bar on eggs; not quite pixel perfect
@@ -547,73 +549,6 @@ function CustomCreator() {
     let fontwidth = Math.round(_ctx.measureText("AAAaaa423434i").width);
     neue = (fontwidth === correct);
   }
-  // copied from the customs channel
-
-  let custom_1 = `     ʟᴠ.3 — ScrapBacomon
-[Rookie | Data | Mutant/ʟᴍᴡ] [Gre.]
-Play cost: 3 | Digivolution: 0 from Lv.2 [Gre.]
-     1000 DP
-
-[Rule] Trait: Has the [Free] type.
-[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mutant] traut and 1 card with the [ʟᴍᴡ] trait among them to the hand. Return the rest to the bottom of the deck.
-
-     · Inherited Effect:
-[All Turns] [Once Per Turn] When 1 other Digimon digivolves, <Draw 1>.
-`;
-  let custom_2 = `Imperialdramon: Fighter Mode 
-Purple/Red | Lv.6
-13000 DP
-Play cost: 13
-Digivolution cost: 5 from purple or red Lv.5
-[[Digivolve] [Imperialdramon: Dragon Mode]: Cost 2]
-Mega | Virus | Ancient Dragonkin 
-
-<Security A. +1> <Piercing>
-[When Digivolving] By returning 1 Multicolor Digimon card from this Digimon's digivolution cards to the hand, return all digivolution cards of 1 of your opponent's Digimon with as high or lower level as returned card to the bottom of the deck. Then, delete it.
-[Your Turn] This Digimon doesn't activate [Security] effects of the cards it checks.
-`;
-  let custom_3 = `Patamon
-Level 3 yellow/purple
-Playcost: 3
-Digivolve: 1 from lvl 2 yellow/purple
-Rookie | Data | Mammal
-1000 DP
-[Digivolve] [Tokomon]: Cost 0
-
-[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mythical Beast] trait and 1 card with the [LIBERATOR] trait among them to the hand. Return the rest to the bottom of the deck. 
-
-[Rule] Trait: Also has [Mythical Beast] Type.
------
-Inherited Effect: [On Deletion] You may place 1 card from either player's trash face down in the battle area.
-
-`;
-  let custom_4 = `Steal!!!! — [Option]
-[Gre.]
-Cost: 3
-
-     [Main] <Draw 1> for every Tamer your opponent has in play.
-
-     · Security Effect: [Security] <Draw 1>, then add this card to the hand.`;
-
-
-  let custom_5 = `Arresterdramon X MetalTyrannomon
-Lv.5 🟣 / ⚫
-Playcost: 8
-Digivolve: 4 from Lv.4 ⚫ / 🟣
-{Digivolve from Lv.4 w/<Save> in text: 3 cost}
-Type: Enhancement/Dragonkin/Cyborg
-Attribute: Virus
-Level: Perfect
-7000 DP
-
-<Blocker>
-[On Play][When Digivolving] Until the end of your opponent's turn, 1 of their Digimon gains "[Start of Main] Forced attack." If digixrossed with 2 materials, <De-Digivolve 1> 1 of their Digimon.
-
-{Digixros -1} [Arresterdramon] x [MetalTyrannomon]
-
-Inheritable: [Opponent's Turn] This Digimon with <Save> in its text gains <Reboot>.
-Author: MuqRei
-`
 
   const customs = [
     custom_1,
@@ -624,7 +559,7 @@ Author: MuqRei
 # Start typing to watch it update.
 # (Undo and updates to the other forms won't propagate here.)
 
-` + customs[Math.floor(Math.random() * (customs.length - 1))];
+` + customs[4]; // customs[Math.floor(Math.random() * (customs.length - 0))];
   // if a shared card, default to the fields list
   const [showJson, setShowJson] = useState(ref ? 0 : 2);
   const [formData, setFormData] = useState({}); // redundant
@@ -1390,9 +1325,13 @@ Author: MuqRei
             ctx.arc(X + radius, Y + radius, radius, startAngle, startAngle + sweepAngle);
             ctx.lineTo(X + radius, Y + radius);
             ctx.clip();
-            ctx.drawImage(circle, 0, 0, 291, 291, X, Y, imgWidth, imgHeight);
+            try {
+              ctx.drawImage(circle, 0, 0, 291, 291, X, Y, imgWidth, imgHeight);
+              ctx.drawImage(wedge, 0, 0, 291, 291, X - 130, Y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
+            } catch (e) {
+              console.log(1329, "no circle", e);
+            }
             ctx.restore();
-            ctx.drawImage(wedge, 0, 0, 291, 291, X - 130, Y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
           }
 
           ctx.font = `bold 90px Roboto, Helvetica`; //  Roboto`;

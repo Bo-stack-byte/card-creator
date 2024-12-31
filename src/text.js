@@ -334,8 +334,8 @@ function replaceBracketsAtStart(line) {
   // Tokenize the input string to handle both types of brackets
 
   const _tokens = splitByBrackets(line);
-  //  const tokens = line.match(/(\[[^\]]+\]|＜[^＞]+＞|\S+)/g);
-  //console.log(339, _tokens);
+  // const tokens = line.match(/(\[[^\]]+\]|＜[^＞]+＞|\S+)/g);
+ // console.log(339, _tokens);
   const tokens = _tokens.filter(l => l).flatMap( 
     l => l.startsWith("[") ? l : l.match(/( \[[^\] ]+\] |＜[^＞]+＞|\S+|\s+)/g)
   );
@@ -487,8 +487,8 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
   //  ctx.save();
   // ctx.scale(scale, 1);
 
-  // console.log(313, `is ${testWidth} bigger than ${cardWidth}`);
-  let phrases = text.startsWith("＜") ? [text] : text.split(/([[⟦].*?[\]⟧])/);
+  //let phrases = text.startsWith("93408234094＜") ? [text] : text.split(/([[⟦].*?[\]⟧])/);
+  let phrases = text.split(/([[⟦].*?[\]⟧])/);
   phrases.forEach(phrase => {
     let cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
     if (

@@ -35,10 +35,11 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.6.26.1";
-const latest = "make ACE ESS transparent; make egg ESS transparent again"
+const version = "0.6.27.0";
+const latest = "fix some slices not drawing; fix some bracketed text not appearing in blue"
 
-// versioj 0.6.25.x fix white inherit boxes;effect box improvements; black (white) attribute bar improvements
+// version 0.6.26.x make ACE ESS transparent; make egg ESS transparent again
+// version 0.6.25.x fix white inherit boxes; effect box improvements; black (white) attribute bar improvements
 // version 0.6.24 fix offsets for black bar on eggs; not quite pixel perfect
 // version 0.6.23 text inside <tags> isn't broken up; [brackets] at start of line are blue again; digixros multiline; egg logo on eggs
 // version 0.6.22 spacing around blue keyword boxes; get rid of right-hand image overflowing by 20 pixels; force missing fields into JSON
@@ -401,6 +402,7 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
 
   ctx.save(); // Save the current state
   ctx.beginPath();
+  //console.log(405, "clipping to ", i_width * _i, 0, i_width * (_i + 1), height);
   ctx.rect(i_width * _i, 0, i_width * (_i + 1), height);
   ctx.clip();
 
@@ -413,13 +415,18 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
   if (crop_top < 0) bottom = crop_top;
 
 
+  try {
+    ctx.drawImage(img,
+      i * ww, top, // crop x,y
+      ww * 1.0, img.height + bottom, // crop w,h
+      start_x + i * fw, start_y, // place x,y
+      x / len, y * y_scale// place w,h
+    );
+  } catch (e) {
+    console.log(426, "couldn't draw partial " + _i);
+  }
 
-  ctx.drawImage(img,
-    i * ww, top, // crop x,y
-    ww * 1.0, img.height + bottom, // crop w,h
-    start_x + i * fw, start_y, // place x,y
-    x / len, y * y_scale// place w,h
-  );
+
 
   ctx.restore(); // Restore the previous state
 
@@ -1048,7 +1055,7 @@ Author: MuqRei
           //          let true_bottom = 4000;
           //        let y_scale = ((true_bottom) - (bottom + 60 - baselineOffset)) / box.height;
           const box = effectFrames[i];
-          if (box.complete) {
+          if (box && box.complete) {
             console.log(1051, box, box.height);
             let y_scale = effectBoxScale(box.height, baselineOffset);
             scalePartialImage(ctx, box, i, len, 825, offset_x + 100, bottom + 60 - baselineOffset, 0, y_scale);
@@ -1133,9 +1140,9 @@ Author: MuqRei
       if (type.endsWith("INHERIT")) ess_pos_y -= 105;
       if (type === "EGG") ess_pos_y -= 80;
       if (type === "ACE") {
-          ess_pos_y += 135;
-          ess_pos_x += 30;
-          size = 250;
+        ess_pos_y += 135;
+        ess_pos_x += 30;
+        size = 250;
       }
       if (ess_pos_y) {
         ctx.drawImage(back_img,

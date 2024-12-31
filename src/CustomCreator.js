@@ -35,7 +35,7 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.7.0"
+const version = "0.7.0.1"; // fix dot
 const latest = "free form parsing becoming more formal, and more crash bugs fixed"
 
 // version 0.7.0    free form parsing becoming more formal, and more crash bugs fixed

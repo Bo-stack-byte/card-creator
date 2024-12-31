@@ -1,8 +1,9 @@
 
 
 // shared from the tcg-sim project, un-typescripted
+import { getDot } from './images';
 
-let all_colors = ["Red", "Blue", "Yellow", "Green", "Black", "Purpler", "White", "Rainbow"]; //rainbow unsupported right now
+let all_colors = ["Red", "Blue", "Yellow", "Green", "Black", "Purple", "White", "Rainbow"]; //rainbow unsupported right now
 
   // copied from the customs channel
 
@@ -76,6 +77,8 @@ Author: MuqRei
 // return color based on abbreviations
 function get_color(input) {
     if (!input) return undefined;
+    let dot = getDot(input);
+    if (dot) return dot;
     input = input.toLowerCase().substring(0,3);
     console.log(11, input);
     const candidate = all_colors.find( x => x.substring(0,3).toLowerCase() === input );
@@ -98,12 +101,15 @@ function split_colors(input) {
     return input;
 }
 
+// 🔴🔵🟡🟢🟣⚫⚪
+
 function abbr_parse_color(text) {
     if (!text) return "";
-    const regex = /[a-zA-Z]{3,}/g;
-    const colors = text.match(regex); 
+    const regex = /[a-zA-Z]{3,}|[🔴🔵🟡🟢🟣⚫⚪]/g;
+    const colors = text.match(regex);
+    console.log(45, text, colors);
     if (!colors) return "";
-    return colors.map( c => get_color(c) ).filter(c=>c).join("/")
+    return colors.map(c => get_color(c)).filter(c => c).join("/")
 }
 
 export const enterPlainText = (lines) => {
@@ -232,7 +238,7 @@ export const enterPlainText = (lines) => {
             }
             let colors = split_colors(from);
             for (let c of colors) {
-                evo.color = c;
+                evo.color = get_color(c);
                 json.evolveCondition.push(evo);
                 evo = { ...evo }; // make copy
 

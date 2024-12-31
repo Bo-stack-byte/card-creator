@@ -67,8 +67,8 @@ let answer =  [
     rarity: '',
     specialEvolve: '[Digivolve] [Imperialdramon: Dragon Mode]: Cost 2',
     evolveCondition: [
-      { cost: '5', level: '5', color: 'purple' },
-      { cost: '5', level: '5', color: 'red' }
+      { cost: '5', level: '5', color: 'Purple' },
+      { cost: '5', level: '5', color: 'Red' }
     ],
     effect: '<Security A. +1> <Piercing>\n' +
       "[When Digivolving] By returning 1 Multicolor Digimon card from this Digimon's digivolution cards to the hand, return all digivolution cards of 1 of your opponent's Digimon with as high or lower level as returned card to the bottom of the deck. Then, delete it.\n" +
@@ -108,8 +108,8 @@ let answer =  [
     rarity: '',
     specialEvolve: '[Digivolve] [Tokomon]: Cost 0',
     evolveCondition: [
-      { cost: '1', level: '2', color: 'yellow' },
-      { cost: '1', level: '2', color: 'purple' }
+      { cost: '1', level: '2', color: 'Yellow' },
+      { cost: '1', level: '2', color: 'Purple' }
     ],
     effect: '[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mythical Beast] trait and 1 card with the [LIBERATOR] trait among them to the hand. Return the rest to the bottom of the deck. \n',
     evolveEffect: "[On Deletion] You may place 1 card from either player's trash face down in the battle area.\n",
@@ -183,8 +183,8 @@ let answer =  [
     rarity: '',
     specialEvolve: '[Digivolve] from Lv.4 w/<Save> in text: 3 cost',
     evolveCondition: [
-      { cost: '4', level: '4', color: '⚫' },
-      { cost: '4', level: '4', color: '🟣' }
+      { cost: '4', level: '4', color: 'Black' },
+      { cost: '4', level: '4', color: 'Purple' }
     ],
     effect: '<Blocker>\n' +
       `[On Play][When Digivolving] Until the end of your opponent's turn, 1 of their Digimon gains "[Start of Main] Forced attack." If digixrossed with 2 materials, <De-Digivolve 1> 1 of their Digimon.\n`,
@@ -231,12 +231,12 @@ let extra =
     {
       "cost": "4",
       "level": "4",
-      "color": "⚫"
+      "color": "black"
     },
     {
       "cost": "4",
       "level": "4",
-      "color": "🟣"
+      "color": "purple"
     }
   ],
   "effect": "Attribute: Virus\nLevel: Perfect\n<Blocker>\n[On Play][When Digivolving] Until the end of your opponent's turn, 1 of their Digimon gains \"[Start of Main] Forced attack.\" If digixrossed with 2 materials, <De-Digivolve 1> 1 of their Digimon.\n{Digixros -1} [Arresterdramon] x [MetalTyrannomon]\nInheritable: [Opponent's Turn] This Digimon with <Save> in its text gains <Reboot>.\nAuthor: MuqRei\n",

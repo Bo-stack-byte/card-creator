@@ -36,9 +36,9 @@ import { Base64 } from 'js-base64';
 import pako from 'pako';
 
 const version = "0.7.0"
-const latest = "free form parsing becoming more formal"
+const latest = "free form parsing becoming more formal, and more crash bugs fixed"
 
-// version 0.7.0    free form parsing becoming more formal
+// version 0.7.0    free form parsing becoming more formal, and more crash bugs fixed
 // version 0.6.27   fix some slices not drawing; fix some bracketed text not appearing in blue
 // version 0.6.26.x make ACE ESS transparent; make egg ESS transparent again
 // version 0.6.25.x fix white inherit boxes; effect box improvements; black (white) attribute bar improvements
@@ -555,11 +555,11 @@ function CustomCreator() {
     custom_2, custom_3, custom_4,
     custom_5
   ];
-  const custom_starter = `# This is a sample custom text.
+  const custom_starter = `# This is a sample custom text taken from the customs channel.
 # Start typing to watch it update.
 # (Undo and updates to the other forms won't propagate here.)
 
-` + customs[4]; // customs[Math.floor(Math.random() * (customs.length - 0))];
+` + customs[Math.floor(Math.random() * (customs.length - 0))];
   // if a shared card, default to the fields list
   const [showJson, setShowJson] = useState(ref ? 0 : 2);
   const [formData, setFormData] = useState({}); // redundant

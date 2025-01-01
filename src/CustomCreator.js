@@ -35,8 +35,9 @@ import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 
-const version = "0.7.0.1"; // fix dot
-const latest = "free form parsing becoming more formal, and more crash bugs fixed"
+const version = "0.7.1.0"; // fix dot
+const latest = "have both diamond text and blue brackets at same time"
+
 
 // version 0.7.0    free form parsing becoming more formal, and more crash bugs fixed
 // version 0.6.27   fix some slices not drawing; fix some bracketed text not appearing in blue

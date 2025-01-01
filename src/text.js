@@ -171,7 +171,7 @@ function drawBubble(ctx, x, y, w, h) {
 function drawDnaBox(ctx, x, y, w, h, colors) {
   let alpha = 1.0
   if (colors.length === 0) {
-    colors = ['white']; 
+    colors = ['white'];
     alpha = 0.6;
   };
   if (colors.length === 1) {
@@ -202,8 +202,8 @@ function drawDnaBox(ctx, x, y, w, h, colors) {
   // draw right-most box
   ctx.drawImage(right, hw, 0, hw, right.height,
     x + per_width * (len - 1), y, per_width, h);
-  ctx.globalAlpha = 1.0 
-    return;
+  ctx.globalAlpha = 1.0
+  return;
 
 };
 
@@ -335,11 +335,11 @@ function replaceBracketsAtStart(line) {
 
   const _tokens = splitByBrackets(line);
   // const tokens = line.match(/(\[[^\]]+\]|＜[^＞]+＞|\S+)/g);
- // console.log(339, _tokens);
-  const tokens = _tokens.filter(l => l).flatMap( 
+  // console.log(339, _tokens);
+  const tokens = _tokens.filter(l => l).flatMap(
     l => l.startsWith("[") ? l : l.match(/( \[[^\] ]+\] |＜[^＞]+＞|\S+|\s+)/g)
   );
-//  const _tokens = line.match(/( \[[^\] ]+\] |＜[^＞]+＞|\S+|\s+)/g);
+  //  const _tokens = line.match(/( \[[^\] ]+\] |＜[^＞]+＞|\S+|\s+)/g);
 
 
 
@@ -447,7 +447,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     }
     if (extra === "dna") {
       if (!preview) {
-        drawDnaBox(ctx, x - fontSize * 0.5, y - fontSize * 1.3 , pre_width + fontSize, (yOffset - y) * 1.1 + 20, dna_colors);
+        drawDnaBox(ctx, x - fontSize * 0.5, y - fontSize * 1.3, pre_width + fontSize, (yOffset - y) * 1.1 + 20, dna_colors);
       }
     }
   }
@@ -487,8 +487,17 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
   //  ctx.save();
   // ctx.scale(scale, 1);
 
-  //let phrases = text.startsWith("93408234094＜") ? [text] : text.split(/([[⟦].*?[\]⟧])/);
-  let phrases = text.split(/([[⟦].*?[\]⟧])/);
+
+  // split by <> first
+  let angle_phrases = text.split(/([<＜].*?[>＞])/);
+  let phrases = [];
+  console.log(494, angle_phrases);
+  for (let ap of angle_phrases) {
+    let temp = ap.startsWith("＜") ? [ap] : ap.split(/([[⟦].*?[\]⟧])/);
+    console.log(4941, temp);
+    phrases.push(...temp);
+  }
+  //let phrases = text.split(/([[⟦].*?[\]⟧])/);
   phrases.forEach(phrase => {
     let cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
     if (

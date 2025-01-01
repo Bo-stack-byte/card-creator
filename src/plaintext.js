@@ -73,6 +73,17 @@ Attribute: Virus
 Inheritable: [Opponent's Turn] This Digimon with <Save> in its text gains <Reboot>.
 Author: MuqRei
 `
+export const custom_6 = `Kentaurosmon (X Antibody)
+Yellow/Blue | Lv.6
+12000 DP
+Play cost: 12
+Digivolution cost: 4 from yellow or blue Lv.5
+[[Digivolve] [Kentaurosmon]: Cost 1]
+Mega | Vaccine | Holy Warrior/X Antibody/Royal Knight 
+
+[When Digivolving] [When Attacking] (Once Per Turn) By trashing your top security card, 1 of your opponent's Digimon gets -10000 DP until the end of their turn. Then, until the end of their turn, 1 of their Digimon or Tamers can't suspend.
+[All Turns] (Once Per Turn) When an effect would trash your security stack, If there're 6 or fewer security cards and [Kentaurosmon] or [X Antibody] is in this Digimon's digivolution cards, you may trash your opponent's top security card and place 1 yellow card from your hand as your top security card instead.
+Author: Vansjoo`;
 
 // return color based on abbreviations
 function get_color(input) {

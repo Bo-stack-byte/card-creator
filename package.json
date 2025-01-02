@@ -1,14 +1,16 @@
 {
   "name": "Digi Viz Card Creator",
   "homepage": "/card-creator",
-  "version": "0.7.0.1",
+  "version": "0.7.2.0",
   "private": true,
   "dependencies": {
     "@fontsource/roboto": "^5.1.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "file-saver": "^2.0.5",
     "js-base64": "^3.7.7",
+    "jszip": "^3.10.1",
     "pako": "^2.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

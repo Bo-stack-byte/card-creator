@@ -34,11 +34,14 @@ import { restoreState, SaveState } from './SaveState';
 import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
-const version = "0.7.1.0"; // fix dot
-const latest = "have both diamond text and blue brackets at same time"
+const version = "0.7.2.0"; // fix dot
+const latest = "generate multiple images in a row?"
 
-
+// version 0.7.2    generate multiple images in a row
+// version 0.7.1    have both diamond text and blue brackets at same time
 // version 0.7.0    free form parsing becoming more formal, and more crash bugs fixed
 // version 0.6.27   fix some slices not drawing; fix some bracketed text not appearing in blue
 // version 0.6.26.x make ACE ESS transparent; make egg ESS transparent again
@@ -437,6 +440,11 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
 
 
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
 
 
 
@@ -502,6 +510,7 @@ function CustomCreator() {
   const [zoom, setZoom] = useState(100);
   const [jsonText, setJsonText] = useState([start]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [jsonIndex, setJsonIndex] = useState(0);
   const [effectBox, setEffectBox] = useState(false);
   const [drawFrame, setDrawFrame] = useState(true);
   const [aceFrame, setAceFrame] = useState(true);
@@ -598,7 +607,14 @@ function CustomCreator() {
 
 
     try {
-      parsedJson = JSON.parse(text);
+      let temp_parsedJson = JSON.parse(text);
+      if (Array.isArray(temp_parsedJson)) {
+        // if an array of objects, only show the first in text fields
+        parsedJson = temp_parsedJson[0];
+      } else {
+        parsedJson = temp_parsedJson;
+      }
+      //
       if (!parsedJson.imageOptions) parsedJson.imageOptions = imageOptions;
       parsedJson.imageOptions = initObject(parsedJson.imageOptioons, initImageOptions);
       flattenedJson = flattenJson(parsedJson);
@@ -617,6 +633,37 @@ function CustomCreator() {
 
   let jsonerror = "none";
 
+  // any missing fields are added
+  const addAllFields = (json) => {
+    if (!("name" in json)) {
+      json.name = {};
+    }
+    for (let field of ["color", "cardType", "playCost",
+      "dp", "cardLv", "form", "attribute", "type", "rarity",
+      "specialEvolve", "effect", "evolveEffect", "securityEffect",
+      "rule", "digiXros", "burstEvolve", "cardNumber",
+      "author", "artist"]) {
+      if (!(field in json)) {
+        console.log("Missing field added " + field);
+        json[field] = "";
+      }
+    }
+    if (!("evolveCondition" in json)) {
+      json.evolveCondition = [];
+    }
+
+    if (!("english" in json.name)) {
+      json.name.english = "Mon";
+    }
+    //console.log(681, json);
+    if (json.evolveCondition.length === 0) {
+      json.evolveCondition.push({ color: "", cost: "", level: "" });
+    }
+    imageOptions = initObject(imageOptions, initImageOptions);
+    json.imageOptions = imageOptions;
+    return json;
+  }
+
   const updateJson = (text) => {
 
     let json;
@@ -624,40 +671,25 @@ function CustomCreator() {
       json = JSON.parse(text);
       imageOptions = json.imageOptions;
     } catch { }
+    // only fix things if we've got a valid json
     if (json) {
-      if (Array.isArray(json)) { //  || typeof json !== 'object') {
-        json = {};
-      }
-      //console.log(598, json);
-      if (!("name" in json)) {
-        json.name = {};
-      }
-      for (let field of ["color", "cardType", "playCost",
-        "dp", "cardLv", "form", "attribute", "type", "rarity",
-        "specialEvolve", "effect", "evolveEffect", "securityEffect",
-        "rule", "digiXros", "burstEvolve", "cardNumber"]) {
-        if (!(field in json)) {
-          console.log("Missing field added " + field);
-          json[field] = "";
+      if (Array.isArray(json)) {
+        if (json.length === 0) {
+          // empty array? set to 1-array of empty object
+          json = [{}]
         }
-      }
-      if (!("evolveCondition" in json)) {
-        json.evolveCondition = [];
+        for (let subImage of json) {
+          subImage = addAllFields(subImage);
+        }
+      } else {
+        json = addAllFields(json);
       }
 
-      if (!("english" in json.name)) {
-        json.name.english = "Mon";
-      }
-      //console.log(681, json);
-      if (json.evolveCondition.length === 0) {
-        json.evolveCondition.push({ color: "", cost: "", level: "" });
-      }
-      imageOptions = initObject(imageOptions, initImageOptions);
-      json.imageOptions = imageOptions;
+      // f
     }
+    console.log(670, json);
     text = JSON.stringify(json, null, 2);
     console.log(599, json);
-
 
     const newHistory = jsonText.slice(0, currentIndex + 1);
     setJsonText([...newHistory, text]);
@@ -842,12 +874,21 @@ function CustomCreator() {
     let json;
     try {
       json = JSON.parse(jsonText[currentIndex]);
+      if (Array.isArray(json)) {
+        let arrayIndex = Number(jsonIndex);
+        if (arrayIndex >= json.length) arrayIndex = json.length - 1;
+        json = json[arrayIndex];
+      }
     } catch {
       console.log("json error");
       return;
     }
 
-    if (document.fred === 72) return;
+    // if given an array, only draw first object
+    if (Array.isArray(json)) {
+      json = json[0];
+    }
+
 
     let modern = 1;
 
@@ -951,6 +992,7 @@ function CustomCreator() {
       } catch { }
       imageOptions = initObject(imageOptions, initImageOptions);
 
+      console.log(986, json);
       // background image
       let back_img = userImg || baseImg;
       //      console.log("imageOptions", imageOptions);
@@ -1707,300 +1749,337 @@ function CustomCreator() {
         */
 
 
-    let evo_circle_colors = [];
-    if (_evos) {
-      evo_circle_colors = _evos.map(e => e.color.toLowerCase().split("/"))
-        .reduce((acc, curr) => acc.concat(curr), []);
-    }
-    const effectFrames = effectBox ? Array.from({ length: len }, () => new Image()) : [];
+      let evo_circle_colors = [];
+      if (_evos) {
+        evo_circle_colors = _evos.map(e => e.color.toLowerCase().split("/"))
+          .reduce((acc, curr) => acc.concat(curr), []);
+      }
+      const effectFrames = effectBox ? Array.from({ length: len }, () => new Image()) : [];
 
-    // N for basic style frame, 1 for custom image, 1 per color, 2 per evo circle, 1 per effect box
-    let imagesToLoad = backgrounds.length + 1 + frameImages.length + 2 * (evo_circle_colors.length) + effectFrames.length;
-    console.log(817, frameImages.length, _evos && _evos.length);
-    let imagesLoaded = 0;
-    const checkAllImagesLoaded = (text, failure) => {
-      imagesLoaded++;
-      console.log(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
-      if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
-        // Set the canvas dimensions  
-        afterLoad();
+      // N for basic style frame, 1 for custom image, 1 per color, 2 per evo circle, 1 per effect box
+      let imagesToLoad = backgrounds.length + 1 + frameImages.length + 2 * (evo_circle_colors.length) + effectFrames.length;
+      console.log(817, frameImages.length, _evos && _evos.length);
+      let imagesLoaded = 0;
+
+      await new Promise((resolve) => {
+        const checkAllImagesLoaded = (text, failure) => {
+          imagesLoaded++;
+          console.log(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
+          if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
+            // Set the canvas dimensions  
+            afterLoad();
+            console.log(1765,   "RESOLVING...");
+            resolve();  
+            console.log(1765, "... resolved");
+          }
+        };
+
+        for (let i = 0; i < effectFrames.length; i++) {
+          effectFrames[i].src = effectboxes[colors[i]];
+          effectFrames[i].onload = function () { checkAllImagesLoaded("box" + i); }
+          effectFrames[i].onerror = function () { checkAllImagesLoaded("box" + i, true); }
+
+        }
+
+        for (let f of frameImages) {
+          f.onload = function () { checkAllImagesLoaded(f.src); }
+          f.onerror = function () { checkAllImagesLoaded(f.src, true); }
+        }
+        // this has a race condition    
+        baseImg.onload = function () { checkAllImagesLoaded("baseimage"); }
+        baseImg.onerror = function () { checkAllImagesLoaded("baseimage", true); }
+        if (baseImg.complete) {
+          console.log("base img already loaded");
+          //    baseImg.src = baseImg.src; // reload
+        } else {
+
+        }
+
+        for (let i in evo_circle_colors) {
+          let my_color = evo_circle_colors[i];
+          let evoI = new Image();
+          evoImages[i] = evoI;
+          evoI.src = new_evo_circles[my_color]
+          console.log(1688, new_evo_circles[my_color]);
+          evoI.onload = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`); }
+          evoI.onerror = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`, true); }
+          let wedgeI = new Image();
+          wedgeImages[i] = wedgeI;
+          wedgeI.src = new_evo_wedges[my_color]
+          wedgeI.onload = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`); }
+          wedgeI.onerror = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`, true); }
+        }
+        for (let i in backgrounds) {
+          shellImages[i] = new Image();
+          shellImages[i].src = backgrounds[i];
+          shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(`shell src  ${i} ${shellImages[i].src}`); }
+        }
+
+
+        switch (type) {
+          case "OPTION":
+          case "OPTIONINHERIT": array = options; break;
+          // how is outlines_tamer different from outlines_egg??
+          case "TAMER":
+          case "TAMERINHERIT": array = modern ? outlines_tamer : tamers; break;
+          case "EGG": array = modern ? outlines_egg : eggs; break;
+          case "MONSTER": break;
+          case "MEGA": break;
+          case "ACE": break;
+          default: alert(4);
+        }
+
+        if (type.startsWith("OPTION")) {
+          frameImages[0].src = outline_option;
+        } else {
+          for (let i = 0; i < frameImages.length; i++) {
+            frameImages[i].src = array[colors[i]];
+          }
+        }
+        console.log(906, `sources set ${imagesToLoad} loaded ${imagesLoaded} base: ${!!baseImg.complete}`);
+
+      });
+      //  setTimeout(() => afterLoad(), 100); // bad wat to sycnrhoncoursly load 
+      //leftImg.onload = () => {
+      // console.log("loading left...");
+      //ightImg.onload = () => {
+
+
+    }, [userImg, jsonText, selectedOption, doDraw, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing,
+      initImageOptions, jsonIndex,
+      //, endY, isSelecting, startX, startY, 
+      neue,
+      aceFrame, drawOutline
+    ]);
+
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      if (canvas.width !== 2977) {
+        canvas.width = 2977;
+        canvas.height = 4158 - 17;
+      }
+      setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
+
+      if (doDraw)
+        draw(canvas, ctx);
+
+    }, [
+      userImg,
+      jsonText,
+      imageOptions, selectedOption,
+      doDraw,
+      draw]);
+
+
+
+    const handleExport = async () => {
+      let name = 'custom-card.png';
+      let json = {};
+      try {
+        json = JSON.parse(jsonText[currentIndex]);
+      } catch (e) {
+        console.error(e);
+        return;
+      }
+      if (Array.isArray(json)) {
+        const zip = new JSZip();
+        for (let i = 0; i < json.length; i++) {
+          setJsonIndex(i);
+          console.log(1879, i);
+          await draw(0, 0, false)
+          await sleep(2000);
+          console.log(1879, i);
+          const canvas = canvasRef.current;
+          const dataUrl = canvas.toDataURL('image/png');
+          const base64Data = dataUrl.split(',')[1]; // Get base64 part
+          zip.file(`image${i + 1}.png`, base64Data, { base64: true });
+        }
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        saveAs(zipBlob, 'images.zip');
+      } else {
+        try {
+          name = json.name.english;
+          name = name.replace(/[^a-zA-Z0-9]+/g, '-') + ".png";
+          exportOneImage(name);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+
+    const exportOneImage = (name) => {
+      if (!name) name = 'custom-card.png';
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = name;
+      link.click();
+    };
+
+    const handleUndo = () => {
+      if (currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
       }
     };
 
-    for (let i = 0; i < effectFrames.length; i++) {
-      effectFrames[i].src = effectboxes[colors[i]];
-      effectFrames[i].onload = function () { checkAllImagesLoaded("box" + i); }
-      effectFrames[i].onerror = function () { checkAllImagesLoaded("box" + i, true); }
+    const invite = 'https://discord.gg/THzb53dTDW';
+    let button = (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+        <button
+          onClick={handleUndo}
+          style={{ backgroundColor: showJson === 1 ? 'lightblue' : 'white', marginRight: 'auto' }}
+        >
+          Undo
+        </button>
 
-    }
+        <button
+          onClick={() => setShowJson(1)}
+          style={{ backgroundColor: showJson === 1 ? 'lightblue' : 'white' }}
+        >
+          Raw
+        </button>
+        <button
+          onClick={() => setShowJson(0)}
+          style={{ backgroundColor: showJson === 0 ? 'lightblue' : 'white' }}
+        >
+          Text Fields
+        </button>
+        <button
+          onClick={() => setShowJson(2)}
+          style={{ backgroundColor: showJson === 2 ? 'lightblue' : 'white' }}
+        >
+          Free Form
+        </button>
 
-    for (let f of frameImages) {
-      f.onload = function () { checkAllImagesLoaded(f.src); }
-      f.onerror = function () { checkAllImagesLoaded(f.src, true); }
-    }
-    // this has a race condition    
-    baseImg.onload = function () { checkAllImagesLoaded("baseimage"); }
-    baseImg.onerror = function () { checkAllImagesLoaded("baseimage", true); }
-    if (baseImg.complete) {
-      console.log("base img already loaded");
-      //    baseImg.src = baseImg.src; // reload
-    } else {
+      </div>
+    );
+    let z = zoom;
+    if (!z) z = 100;
+    if (z < 25) z = 25;
+    if (z > 300) z = 300;
+    const width = (355 * z / 100) || 355;
+    const height = (499 * z / 100) || 499;
 
-    }
+    /*
+    const handleMouseDown = (e) => {
+      setIsSelecting(true);
+      const rect = canvasRef.current.getBoundingClientRect();
+      setStartX(e.clientX - rect.left);
+      setStartY(e.clientY - rect.top);
+    };
+  
+    const handleMouseMove = (e) => {
+      if (!isSelecting) return;
+      const rect = canvasRef.current.getBoundingClientRect();
+      setEndX(e.clientX - rect.left);
+      setEndY(e.clientY - rect.top);
+    };
+  
+    const handleMouseUp = () => {
+      if (!isSelecting) return;
+      setIsSelecting(false);
+      const width = ((endX - startX) / 355) * 100;
+      const height = ((endY - startY) / 499) * 100;
+      const x = (startX / 355) * 100;
+      const y = (startY / 499) * 100;
+  
+      setImageOptions(prev => ({
+        ...prev,
+        ess_x_pos: x,
+        ess_y_pos: y,
+        ess_x_end: x + width,
+        ess_y_end: y + height
+        //        rectangleCoordinates: { x, y, width, height }
+      }));
+      console.log(1768, 'Rectangle Coordinates (%):', { x, y, width, height });
+    };
+  
+    removed from <canvas />?
+    onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+  
+  */
 
-    for (let i in evo_circle_colors) {
-      let my_color = evo_circle_colors[i];
-      let evoI = new Image();
-      evoImages[i] = evoI;
-      evoI.src = new_evo_circles[my_color]
-      console.log(1688, new_evo_circles[my_color]);
-      evoI.onload = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`); }
-      evoI.onerror = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`, true); }
-      let wedgeI = new Image();
-      wedgeImages[i] = wedgeI;
-      wedgeI.src = new_evo_wedges[my_color]
-      wedgeI.onload = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`); }
-      wedgeI.onerror = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`, true); }
-    }
-    for (let i in backgrounds) {
-      shellImages[i] = new Image();
-      shellImages[i].src = backgrounds[i];
-      shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(`shell src  ${i} ${shellImages[i].src}`); }
-    }
+    console.log(52799, imageOptions);
 
+    let json_t = jsonText[currentIndex];
 
-    switch (type) {
-      case "OPTION":
-      case "OPTIONINHERIT": array = options; break;
-      // how is outlines_tamer different from outlines_egg??
-      case "TAMER":
-      case "TAMERINHERIT": array = modern ? outlines_tamer : tamers; break;
-      case "EGG": array = modern ? outlines_egg : eggs; break;
-      case "MONSTER": break;
-      case "MEGA": break;
-      case "ACE": break;
-      default: alert(4);
-    }
+    return (
+      <table>
+        <tbody>
+          <tr>
+            <td width={"25%"} valign={"top"}>
+              <div style={{ overflowY: "scroll", maxHeight: "600px" }}>
+                <RadioGroup selectedOption={selectedOption} handleOptionChange={handleOptionChange} />
+                {button}
+                <br />
+                {(showJson === 1) ? (
 
-    if (type.startsWith("OPTION")) {
-      frameImages[0].src = outline_option;
-    } else {
-      for (let i = 0; i < frameImages.length; i++) {
-        frameImages[i].src = array[colors[i]];
-      }
-    }
-    console.log(906, `sources set ${imagesToLoad} loaded ${imagesLoaded} base: ${!!baseImg.complete}`);
+                  <textarea cols={40} rows={25}
+                    value={jsonText[currentIndex]}
+                    onChange={handleTextareaChange}
 
-    //  setTimeout(() => afterLoad(), 100); // bad wat to sycnrhoncoursly load 
-    //leftImg.onload = () => {
-    // console.log("loading left...");
-    //ightImg.onload = () => {
-
-
-  }, [userImg, jsonText, selectedOption, doDraw, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing,
-    initImageOptions,
-    //, endY, isSelecting, startX, startY, 
-    neue,
-    aceFrame, drawOutline
-  ]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (canvas.width !== 2977) {
-      canvas.width = 2977;
-      canvas.height = 4158 - 17;
-    }
-    setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
-
-    if (doDraw)
-      draw(canvas, ctx);
-
-  }, [
-    userImg,
-    jsonText,
-    imageOptions, selectedOption,
-    doDraw,
-    draw]);
-
-
-
-  const handleExport = () => {
-    let name = 'custom-card.png';
-    try {
-      let json = JSON.parse(jsonText[currentIndex]);
-      name = json.name.english;
-      name = name.replace(/[^a-zA-Z0-9]+/g, '-') + ".png";
-    } catch { }
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
-    const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
-    link.download = name;
-    link.click();
-  };
-
-  const handleUndo = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
-
-  const invite = 'https://discord.gg/THzb53dTDW';
-  let button = (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
-      <button
-        onClick={handleUndo}
-        style={{ backgroundColor: showJson === 1 ? 'lightblue' : 'white', marginRight: 'auto' }}
-      >
-        Undo
-      </button>
-
-      <button
-        onClick={() => setShowJson(1)}
-        style={{ backgroundColor: showJson === 1 ? 'lightblue' : 'white' }}
-      >
-        Raw
-      </button>
-      <button
-        onClick={() => setShowJson(0)}
-        style={{ backgroundColor: showJson === 0 ? 'lightblue' : 'white' }}
-      >
-        Text Fields
-      </button>
-      <button
-        onClick={() => setShowJson(2)}
-        style={{ backgroundColor: showJson === 2 ? 'lightblue' : 'white' }}
-      >
-        Free Form
-      </button>
-
-    </div>
-  );
-  let z = zoom;
-  if (!z) z = 100;
-  if (z < 25) z = 25;
-  if (z > 300) z = 300;
-  const width = (355 * z / 100) || 355;
-  const height = (499 * z / 100) || 499;
-
-  /*
-  const handleMouseDown = (e) => {
-    setIsSelecting(true);
-    const rect = canvasRef.current.getBoundingClientRect();
-    setStartX(e.clientX - rect.left);
-    setStartY(e.clientY - rect.top);
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isSelecting) return;
-    const rect = canvasRef.current.getBoundingClientRect();
-    setEndX(e.clientX - rect.left);
-    setEndY(e.clientY - rect.top);
-  };
-
-  const handleMouseUp = () => {
-    if (!isSelecting) return;
-    setIsSelecting(false);
-    const width = ((endX - startX) / 355) * 100;
-    const height = ((endY - startY) / 499) * 100;
-    const x = (startX / 355) * 100;
-    const y = (startY / 499) * 100;
-
-    setImageOptions(prev => ({
-      ...prev,
-      ess_x_pos: x,
-      ess_y_pos: y,
-      ess_x_end: x + width,
-      ess_y_end: y + height
-      //        rectangleCoordinates: { x, y, width, height }
-    }));
-    console.log(1768, 'Rectangle Coordinates (%):', { x, y, width, height });
-  };
-
-  removed from <canvas />?
-  onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-
-*/
-
-  console.log(52799, imageOptions);
+                  //           onChange={(e) => handleTextAreaChange(e.target.value)}
+                  />
+                ) : (showJson === 0) ? (
+                  <div>
+                    <table style={{ maxWidth: "300px" }}>
+                      {!flattenedJson ? (<tr><td>Error in JSON, try again <br /> {jsonerror} </td></tr>
+                      ) :
+                        Object.entries(flattenedJson).filter(([key, value]) => !key.includes("imageOptions")).map(([key, value]) =>
+                          <tr>
+                            <td key={key}>
+                              <label>{key}: </label>
+                            </td>
+                            <td>
+                              {key.match(/effect/i) ? (
+                                <textarea
+                                  value={formData[key] ?? value}
+                                  onChange={(e) => handleInputChange(key, e.target.value)} />) : (
+                                <input
+                                  value={formData[key] ?? value}
+                                  onChange={(e) => handleInputChange(key, e.target.value)} />)
+                              }
+                            </td>
+                          </tr>
+                        )}
+                    </table>
+                  </div>
+                ) : (<form>
+                  <textarea onChange={handleFreeformChange} defaultValue={freeform} name="free" cols={40} rows={25} /><br />
+                </form>)}
+              </div>
+            </td>
+            <td width={"25%"} valign={"top"}>
+              <div>
+                <canvas id="cardImage" ref={canvasRef}
+                  style={{
+                    width: width + 'px', // traditional cards are roughly 300 x 416, let's zoom in
+                    height: height + 'px',
+                    backgroundColor: '#eef',
+                    borderRadius: '20px',  // this radius is scaled differently than the one in the function
+                    overflow: 'hidden'
+                  }}>
+                </canvas>
+                <br />
+                <label>Zoom: <input type="number" style={{ width: "50px" }} name="zoom" value={zoom} onChange={updateZoom} />% </label>
 
 
-  return (
-    <table>
-      <tbody>
-        <tr>
-          <td width={"25%"} valign={"top"}>
-            <div style={{ overflowY: "scroll", maxHeight: "600px" }}>
-              <RadioGroup selectedOption={selectedOption} handleOptionChange={handleOptionChange} />
-              {button}
+              </div>
+            </td>
+            <td width={"25%"} valign={"top"}>
+              {
+                neue || (<p>HelveticaNeue may not be loaded.</p>)
+              }
+
+              Choose image:
+              <input type="file" onChange={loadUserImage} />
               <br />
-              {(showJson === 1) ? (
-
-                <textarea cols={40} rows={25}
-                  value={jsonText[currentIndex]}
-                  onChange={handleTextareaChange}
-
-                //           onChange={(e) => handleTextAreaChange(e.target.value)}
-                />
-              ) : (showJson === 0) ? (
-                <div>
-                  <table style={{ maxWidth: "300px" }}>
-                    {!flattenedJson ? (<tr><td>Error in JSON, try again <br /> {jsonerror} </td></tr>
-                    ) :
-                      Object.entries(flattenedJson).filter(([key, value]) => !key.includes("imageOptions")).map(([key, value]) =>
-                        <tr>
-                          <td key={key}>
-                            <label>{key}: </label>
-                          </td>
-                          <td>
-                            {key.match(/effect/i) ? (
-                              <textarea
-                                value={formData[key] ?? value}
-                                onChange={(e) => handleInputChange(key, e.target.value)} />) : (
-                              <input
-                                value={formData[key] ?? value}
-                                onChange={(e) => handleInputChange(key, e.target.value)} />)
-                            }
-                          </td>
-                        </tr>
-                      )}
-                  </table>
-                </div>
-              ) : (<form>
-                <textarea onChange={handleFreeformChange} defaultValue={freeform} name="free" cols={40} rows={25} /><br />
-              </form>)}
-            </div>
-          </td>
-          <td width={"25%"} valign={"top"}>
-            <div>
-              <canvas id="cardImage" ref={canvasRef}
-                style={{
-                  width: width + 'px', // traditional cards are roughly 300 x 416, let's zoom in
-                  height: height + 'px',
-                  backgroundColor: '#eef',
-                  borderRadius: '20px',  // this radius is scaled differently than the one in the function
-                  overflow: 'hidden'
-                }}>
-              </canvas>
-              <br />
-              <label>Zoom: <input type="number" style={{ width: "50px" }} name="zoom" value={zoom} onChange={updateZoom} />% </label>
-
-
-            </div>
-          </td>
-          <td width={"25%"} valign={"top"}>
-            {
-              neue || (<p>HelveticaNeue may not be loaded.</p>)
-            }
-
-            Choose image:
-            <input type="file" onChange={loadUserImage} />
-            <br />
-            {/*          --- OR ---
+              {/*          --- OR ---
           <br />
           <input
             type="text"
@@ -2013,29 +2092,29 @@ function CustomCreator() {
           <br />
           <button onClick={loadImageFromUrl}>Load Image from that URL</button>
           */}
-            <br />
-            {
-              flattenedJson && Object.entries(flattenedJson).filter(([key, value]) => key.includes("imageOptions.")).map(([k, v]) => [k, v, k.split(".")[1]]).map(([key, value, label]) =>
-                <tr>
-                  <td key={label}>
-                    <label>{label}: </label>
-                  </td>
-                  <td>
-                    {key.match(/effect/i) ? (
-                      <textarea
-                        value={formData[key] ?? value}
-                        onChange={(e) => handleInputChange(key, e.target.value)} />) : (
-                      <input type={label === "url" ? "text" : "number"}
-                        value={formData[key] ?? value}
-                        onChange={(e) => handleInputChange(key, e.target.value)} />)
-                    }
-                  </td>
-                </tr>
-              )}
-            xy_pos, xy_scale are positing & scale for main image, in percent
-            <br />
-            ess_xy_pos ess_xy_end are corners of box for ess image,
-            { /*
+              <br />
+              {
+                flattenedJson && Object.entries(flattenedJson).filter(([key, value]) => key.includes("imageOptions.")).map(([k, v]) => [k, v, k.split(".")[1]]).map(([key, value, label]) =>
+                  <tr>
+                    <td key={label}>
+                      <label>{label}: </label>
+                    </td>
+                    <td>
+                      {key.match(/effect/i) ? (
+                        <textarea
+                          value={formData[key] ?? value}
+                          onChange={(e) => handleInputChange(key, e.target.value)} />) : (
+                        <input type={label === "url" ? "text" : "number"}
+                          value={formData[key] ?? value}
+                          onChange={(e) => handleInputChange(key, e.target.value)} />)
+                      }
+                    </td>
+                  </tr>
+                )}
+              xy_pos, xy_scale are positing & scale for main image, in percent
+              <br />
+              ess_xy_pos ess_xy_end are corners of box for ess image,
+              { /*
             Offset (in percent):
             X: <input type="number" style={{ width: "50px" }} name="x_pos" value={imageOptions.x_pos} onChange={updateImg} />
             Y: <input type="number" style={{ width: "50px" }} name="y_pos" value={imageOptions.y_pos} onChange={updateImg} />
@@ -2053,90 +2132,92 @@ function CustomCreator() {
             Y: <input type="number" style={{ width: "50px" }} name="ess_y_end" value={stringRound(imageOptions.ess_y_end)} onChange={updateImg} />
             <br />
                 */}
-            {/* isSelecting ? "TRACE" : "(dragging  rectangle temporarily disabled)" */}
-            <hr />
-            <button onClick={draw2}>Force Draw</button>
+              {/* isSelecting ? "TRACE" : "(dragging  rectangle temporarily disabled)" */}
+              <hr />
+              <button onClick={draw2}>Force Draw</button>
 
-            <hr />
+              <hr />
 
-            <button onClick={handleExport}>Save Image Locally</button>
-            <hr />
-            <SaveState jsonText={jsonText[currentIndex]} drawFrame={drawFrame}
-              addFoil={addFoil} drawOutline={drawOutline} aceFrame={aceFrame}
-              effectBox={effectBox} baselineOffset={baselineOffset} specialOffset={specialOffset} lineSpacing={lineSpacing}
-            />
-            <hr />
-            <span>
-              <label>Line spacing: <input type="number" style={{ width: "50px" }} name="lineSpacing" value={lineSpacing} onChange={(e) => { setLineSpacing(e.target.value) }} /> </label>
+              <button onClick={handleExport}>Save Image Locally</button>
+              <hr />
+              <SaveState jsonText={jsonText[currentIndex]} drawFrame={drawFrame}
+                addFoil={addFoil} drawOutline={drawOutline} aceFrame={aceFrame}
+                effectBox={effectBox} baselineOffset={baselineOffset} specialOffset={specialOffset} lineSpacing={lineSpacing}
+              />
+              <hr />
+              <span>
+                <label>Line spacing: <input type="number" style={{ width: "50px" }} name="lineSpacing" value={lineSpacing} onChange={(e) => { setLineSpacing(e.target.value) }} /> </label>
+                {json_t && json_t.length > 0 && json_t[0] === '[' && (
+                  <label>index: <input type="number" style={{ width: "50px" }} name="jsonIndex" value={jsonIndex} onChange={(e) => { setJsonIndex(Number(e.target.value)) }} /> </label>)}
+                <br />
+                <label>Move effect baseline up by: <input type="number" style={{ width: "50px" }} name="baseline" value={baselineOffset} onChange={(e) => setBaselineOffset(e.target.value)} /> </label>
+                <br />
+                <label>Move special evo text up by: <input type="number" style={{ width: "50px" }} name="specialOffset" value={specialOffset} onChange={(e) => setSpecialOffset(e.target.value)} /> </label>
+                <br />
+                <label>
+                  <input type="checkbox" checked={effectBox} onChange={(e) => { setEffectBox(e.target.checked) }} />
+                  Effect box </label>  <br />
+                <label>
+                  <input type="checkbox" checked={drawFrame} onChange={(e) => { setDrawFrame(e.target.checked) }} />
+                  Card Frame </label>
+                <label>
+                  <input type="checkbox" checked={addFoil} onChange={(e) => { setAddFoil(e.target.checked) }} />
+                  Add Foil </label>
+                <label>
+                  <input type="checkbox" checked={aceFrame} onChange={(e) => { setAceFrame(e.target.checked) }} />
+                  ACE Frame (beta) </label>
+                <br />
+                <label>
+                  <input type="checkbox" checked={drawOutline} onChange={(e) => { setDrawOutline(e.target.checked) }} />
+                  Outline </label>  <br />
+                <label style={{ display: "xxx" }} >
+                  <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
+                  Skip Draw </label>  <br />
+                <span> &nbsp; &nbsp; </span>
+                <br /> Unimplemented:  burst, rarity <br />
+              </span>
+            </td>
+            <td width={"25%"} valign={"top"}>
+              <button onClick={() => sample(0)}> Sample Egg </button><br />
+              <button onClick={() => sample(5)}> Sample Monster </button><br />
+              <button onClick={() => sample(1)}> Sample Mega </button><br />
+              <button onClick={() => sample(2)}> Sample ACE </button><br />
+              <button onClick={() => sample(3)}> Sample Option </button><br />
+              <button onClick={() => sample(4)}> Sample Tamer </button><br />
+              <p />
+              <span>For now using these formatting hints while we figure out the best way:</span>
+              <p>
+                To have colors replaced by circles, put the color in parentheses.
+              </p>
+              <p> Put ⟦text⟧ in these crazy brackets to force the text to blue.</p>
+              <p> Put text that would otherwise be blue in parens to make it purple, like ⟦(test)⟧ or [(Five Times Per Turn)].</p>
+              <p> "Force Draw" may be needed in weird circumstances. </p>
+            </td>
+          </tr>
+          <tr style={{ fontSize: "smaller" }} >
+            <td width={"30%"} style={{ fontSize: "smaller" }}>
+              Version {version} {latest}
+              <p style={{ fontFamily: "ToppanBunkyExtraBold" }}>Ask support or request features over on <a href={invite}>Discord</a>.</p>
+              <p style={{ fontFamily: "ProhibitionRough" }}><a href="./fontguide.html">FONT GUIDE</a> &nbsp; &nbsp;  <a href="./roadmap.txt">roadmap</a></p>
+              <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
+              <p style={{ fontFamily: "AyarKasone" }}> More templates from <a href="https://digi-lov.tumblr.com/post/748763635923435520/digimon-card-template">Digi-Lov</a></p>
+              <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba, Zaffy, and Digimoncard.io who kept this dream alive in previous years.</p>
+              <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
+              Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
               <br />
-              <label>Move effect baseline up by: <input type="number" style={{ width: "50px" }} name="baseline" value={baselineOffset} onChange={(e) => setBaselineOffset(e.target.value)} /> </label>
               <br />
-              <label>Move special evo text up by: <input type="number" style={{ width: "50px" }} name="specialOffset" value={specialOffset} onChange={(e) => setSpecialOffset(e.target.value)} /> </label>
               <br />
-              <label>
-                <input type="checkbox" checked={effectBox} onChange={(e) => { setEffectBox(e.target.checked) }} />
-                Effect box </label>  <br />
-              <label>
-                <input type="checkbox" checked={drawFrame} onChange={(e) => { setDrawFrame(e.target.checked) }} />
-                Card Frame </label>
-              <label>
-                <input type="checkbox" checked={addFoil} onChange={(e) => { setAddFoil(e.target.checked) }} />
-                Add Foil </label>
-              <label>
-                <input type="checkbox" checked={aceFrame} onChange={(e) => { setAceFrame(e.target.checked) }} />
-                ACE Frame (beta) </label>
               <br />
-              <label>
-                <input type="checkbox" checked={drawOutline} onChange={(e) => { setDrawOutline(e.target.checked) }} />
-                Outline </label>  <br />
-              <label style={{ display: "xxx" }} >
-                <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
-                Skip Draw </label>  <br />
-              <span> &nbsp; &nbsp; </span>
-              <br /> Unimplemented:  burst, rarity <br />
-            </span>
-          </td>
-          <td width={"25%"} valign={"top"}>
-            <button onClick={() => sample(0)}> Sample Egg </button><br />
-            <button onClick={() => sample(5)}> Sample Monster </button><br />
-            <button onClick={() => sample(1)}> Sample Mega </button><br />
-            <button onClick={() => sample(2)}> Sample ACE </button><br />
-            <button onClick={() => sample(3)}> Sample Option </button><br />
-            <button onClick={() => sample(4)}> Sample Tamer </button><br />
-            <p />
-            <span>For now using these formatting hints while we figure out the best way:</span>
-            <p>
-              To have colors replaced by circles, put the color in parentheses.
-            </p>
-            <p> Put ⟦text⟧ in these crazy brackets to force the text to blue.</p>
-            <p> Put text that would otherwise be blue in parens to make it purple, like ⟦(test)⟧ or [(Five Times Per Turn)].</p>
-            <p> "Force Draw" may be needed in weird circumstances. </p>
-          </td>
-        </tr>
-        <tr style={{ fontSize: "smaller" }} >
-          <td width={"30%"} style={{ fontSize: "smaller" }}>
-            Version {version} {latest}
-            <p style={{ fontFamily: "ToppanBunkyExtraBold" }}>Ask support or request features over on <a href={invite}>Discord</a>.</p>
-            <p style={{ fontFamily: "ProhibitionRough" }}><a href="./fontguide.html">FONT GUIDE</a> &nbsp; &nbsp;  <a href="./roadmap.txt">roadmap</a></p>
-            <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
-            <p style={{ fontFamily: "AyarKasone" }}> More templates from <a href="https://digi-lov.tumblr.com/post/748763635923435520/digimon-card-template">Digi-Lov</a></p>
-            <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba, Zaffy, and Digimoncard.io who kept this dream alive in previous years.</p>
-            <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
-            Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
-            <br />
-            <br />
-            <br />
-            <br />
 
-          </td>
-          <td colSpan={3}>
-            <img src={banner} alt={"Digi Viz Card Creator"} style={{ width: "700", height: "224px", transform: "rotate(-1deg)", zIndex: -3 }} />
-          </td></tr>
-      </tbody>
-    </table>
+            </td>
+            <td colSpan={3}>
+              <img src={banner} alt={"Digi Viz Card Creator"} style={{ width: "700", height: "224px", transform: "rotate(-1deg)", zIndex: -3 }} />
+            </td></tr>
+        </tbody>
+      </table>
 
-  );
-}
+    );
+  }
 
 export default CustomCreator;
 

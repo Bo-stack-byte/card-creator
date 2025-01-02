@@ -306,7 +306,6 @@ function _2drawDiamondRectangle(ctx, x, y, width, height) {
   ctx.lineTo(x + halfHeight / 2, y + height); // Bottom-left corner
   ctx.closePath(); // Close the path
 
-  // Fill the shape with gradient
   ctx.fillStyle = gradient;
   ctx.fill();
 
@@ -491,10 +490,8 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
   // split by <> first
   let angle_phrases = text.split(/([<＜].*?[>＞])/);
   let phrases = [];
-  console.log(494, angle_phrases);
   for (let ap of angle_phrases) {
     let temp = ap.startsWith("＜") ? [ap] : ap.split(/([[⟦].*?[\]⟧])/);
-    console.log(4941, temp);
     phrases.push(...temp);
   }
   //let phrases = text.split(/([[⟦].*?[\]⟧])/);

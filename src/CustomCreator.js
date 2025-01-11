@@ -652,6 +652,7 @@ function CustomCreator() {
     }
     for (let field of ["color", "cardType", "playCost",
       "dp", "cardLv", "form", "attribute", "type", "rarity",
+      "linkdp",
       "specialEvolve", "effect", "evolveEffect", "securityEffect",
       "rule", "digiXros", "burstEvolve", "cardNumber",
       "author", "artist"]) {
@@ -918,6 +919,9 @@ function CustomCreator() {
       if (json.cardLv === "Lv.6" || json.cardLv === "Lv.7") {
         type = "MEGA";
       }
+      if (json.linkdp) {
+        type = "LINK";
+      }
       if (json.aceEffect && json.aceEffect.length > 5) {
         type = "ACE";
       }
@@ -1031,7 +1035,7 @@ function CustomCreator() {
 
       let bottom = offset_y + 2760;
       if (type === "EGG") bottom -= 640;
-      if (type === "MONSTER") bottom -= 500;
+      if (type === "MONSTER" || type === "LINK") bottom -= 500;
       if (type === "ACE") bottom -= 480;
       if (type.startsWith("TAMER") || type.startsWith("OPTION")) bottom -= 640;
 
@@ -1120,29 +1124,6 @@ function CustomCreator() {
         }
       }
 
-      let ess_i_width = (Number(imageOptions.ess_x_end) - Number(imageOptions.ess_x_pos)) * back_img.width / 100
-      let ess_i_height = (Number(imageOptions.ess_y_end) - Number(imageOptions.ess_y_pos)) * back_img.height / 100
-      let ess_x = Number(imageOptions.ess_x_pos) * back_img.width / 100
-      let ess_y = Number(imageOptions.ess_y_pos) * back_img.height / 100
-      let ess_pos_y = 3700;
-      let ess_pos_x = 240;
-      let size = 350;
-
-      if (type === "MEGA" || type === "OPTION" || type === "TAMER") ess_pos_y = 0;
-      if (type.endsWith("INHERIT")) ess_pos_y -= 105;
-      if (type === "EGG") ess_pos_y -= 80;
-      if (type === "ACE") {
-        ess_pos_y += 135;
-        ess_pos_x += 30;
-        size = 250;
-      }
-      if (ess_pos_y) {
-        ctx.drawImage(back_img,
-          ess_x, ess_y, ess_i_width, ess_i_height,
-          ess_pos_x, ess_pos_y, size, size
-        );
-      }
-
 
 
       //// DRAW TOP TEXT
@@ -1184,6 +1165,7 @@ function CustomCreator() {
           if (type.startsWith("OPTION") || type.startsWith("TAMER")) name_field = bottoms_plain;
           let col = colors[i];
 
+
           if (outlines[col]) {
 
             if (frame && drawOutline) {
@@ -1197,7 +1179,7 @@ function CustomCreator() {
             }
 
             let y_scale = 1;
-            /// EVO BOX AT BOTTOM
+            ///// EVO BOX AT BOTTOM (OR LINK BOX)
             if (type !== "MEGA") {
               let img = bottom_evos[col];
               // scale = 606 specifically for bottom_evo_${color}.png
@@ -1233,6 +1215,76 @@ function CustomCreator() {
               }
               scalePartialImage(ctx, img, i, len, scale, 164, height, undefined, y_scale);
             }
+
+
+            // DRAW ESS BOX
+            let ess_i_width = (Number(imageOptions.ess_x_end) - Number(imageOptions.ess_x_pos)) * back_img.width / 100
+            let ess_i_height = (Number(imageOptions.ess_y_end) - Number(imageOptions.ess_y_pos)) * back_img.height / 100
+            let ess_x = Number(imageOptions.ess_x_pos) * back_img.width / 100
+            let ess_y = Number(imageOptions.ess_y_pos) * back_img.height / 100
+            let ess_pos_y = 3700;
+            let ess_pos_x = 240;
+            let size_x = 350;
+            let size_y = 350;
+
+            if (type === "MEGA" || type === "OPTION" || type === "TAMER") ess_pos_y = 0;
+            if (type.endsWith("INHERIT")) ess_pos_y -= 105;
+            if (type === "LINK") {
+              ess_pos_y -= 280;
+              ess_pos_x += 2200;
+              size_y = 150;
+              ctx.save();
+              ctx.translate(ess_pos_x + size_x / 2, ess_pos_y + size_y / 2);
+              ctx.rotate(Math.PI / 2)
+              ess_pos_x = -size_x / 2 
+              ess_pos_y = -size_y / 2; // i've translated to where i need to be
+
+            }
+            if (type === "EGG") ess_pos_y -= 80;
+            if (type === "ACE") {
+              ess_pos_y += 135;
+              ess_pos_x += 30;
+              size_x = size_y = 250;
+            }
+            if (ess_pos_y) {
+              ctx.drawImage(back_img,
+                ess_x, ess_y, ess_i_width, ess_i_height,
+                ess_pos_x, ess_pos_y, size_x, size_y
+              );
+            }
+            if (type === "LINK") {
+              ctx.restore();
+            }
+
+            // DP LINK BOX
+            if (type === "LINK") {
+              console.log(linkdp);
+              console.error(1276, type);
+              let w = linkdp.width; let h = linkdp.height;
+              let s = 4.6
+              ctx.drawImage(linkdp,
+                2530, 3250, w * s, h * s);
+
+              ctx.save();
+              ctx.translate(2680, 3650);
+              ctx.rotate(Math.PI / 2);
+              ctx.font = "bold 90px HelveticaNeue-CondensedBold, AyarKasone, Helvetica";
+              ctx.fillStyle = "white";
+              ctx.textAlign = "right";
+              ctx.textBaseline = "bottom";
+              ctx.fillText(json.linkdp, 0, 0);
+
+              ctx.font = `60px 'Helvetica'`;
+              ctx.textAlign = "center";
+              ctx.fillText("DP", -250, -60);
+              ctx.font = `100px 'Helvetica'`;
+
+              ctx.fillText("+", -250, 0);
+              ctx.restore();
+
+              
+
+              }
 
             // DRAW BOTTOM OF BOX?
             if (drawOutline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE")) {
@@ -1272,14 +1324,7 @@ function CustomCreator() {
 
               scalePartialImage(ctx, img_name, i, len, scale, start_x, y, 0, y_scale);
 
-              if (type === "LINK") {
-                console.log(linkdp);
-                console.error(1276, type);
-                let w = linkdp.width; let h = linkdp.height;
-                let s = 4.6
-                ctx.drawImage(linkdp,
-                  2530, 3250, w * s, h * s);
-              }
+
               // do the black (white) bar on anything with a trait, or anything with "Lv.*" text
               if (i === len - 1) {
                 let skip = false;
@@ -1865,7 +1910,7 @@ function CustomCreator() {
         case "LINK": break;
         default: alert(4);
       }
-      
+
 
       if (type.startsWith("OPTION")) {
         frameImages[0].src = outline_option;

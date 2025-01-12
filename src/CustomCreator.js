@@ -24,7 +24,10 @@ import banner from './banner.png';
 import egg from './egg.png';
 import placeholder from './placeholder.png';
 import shieldsmasher from './shieldsmasher.png';
-import rampager from './rampager.png'
+import rampager from './rampager.png';
+import featherbackground from './feather-background.png';
+import featherling from './featherling.png';
+
 import doublebind from './double-bind.png'
 import amy from './amy.png';
 import armor_cat from './armorcat.png';
@@ -38,11 +41,11 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.3.0"; // fix dot
-const latest = "link monster?"
+const version = "0.7.3.1"; 
+const latest = "link monster stuff, fix evo wedges"
 
-// version 0.7.3    link monster
-// version 0.7.2    generate multiple images in a row
+// version 0.7.3.x  link monster, BETA, fix evo wedges
+// version 0.7.2    generate multiple images in a row, BETA, try using a JSON array to see how
 // version 0.7.1    have both diamond text and blue brackets at same time
 // version 0.7.0    free form parsing becoming more formal, and more crash bugs fixed
 // version 0.6.27   fix some slices not drawing; fix some bracketed text not appearing in blue
@@ -191,6 +194,13 @@ const levelHeight = (type) => {
   if (type === "MEGA" || type === "LINK") return 500;
   return 0;
 }
+const hasEvo = (type) => {
+  return (type === "MONSTER" || type === "MEGA" || type === "ACE" ||
+    type === "TAMER" || type === "TAMERINHERIT" || type === "LINK");    
+}
+const hasDP = (type) => {
+  return (type === "MONSTER" || type === "MEGA" || type === "ACE" || type === "LINK");
+}
 
 
 // not using radius
@@ -235,7 +245,8 @@ const starter_text_empty = `{
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5
+      "fontSize": 90.5,
+      "foregroundImage": 0
     }
   }`;
 
@@ -331,8 +342,63 @@ const starter_text_1b = `  {
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
       "fontSize": 90.5
     }
-  }
-`
+  }`;
+
+const starter_text_1c = `{
+  "name": {
+    "english": "FairyFeatherlink"
+  },
+  "aceEffect": "-",
+  "attribute": "Bird",
+  "block": [
+    "01"
+  ],
+  "burstEvolve": "-",
+  "cardLv": "Lv.3",
+  "cardNumber": "CS3-02",
+  "cardType": "Monster",
+  "color": "Green",
+  "digiXros": "-",
+  "evolveCondition": [
+    {
+      "color": "Green",
+      "cost": "0",
+      "level": "2"
+    }
+  ],
+  "evolveEffect": "[Link][Bird] rait: Cost 1",
+  "dnaEvolve": "-",
+  "dp": "2000",
+  "effect": "-",
+  "form": "Rookie",
+  "id": "CS3-02",
+  "link": "[Link]: [Bird] trait: Cost 1",
+  "linkdp": "1500",
+  "linkeffect": "＜Dodge＞ (When this Monster would be deleted, you may\\nsuspend it to prevent that deletion.)",
+  "playCost": "3",
+  "rarity": "Special",
+  "securityEffect": "-",
+  "specialEvolve": "-",
+  "type": "Spellcaster",
+  "version": "Normal",
+  "imageOptions": {
+    "url": "",
+    "x_pos": "9",
+    "y_pos": "-16",
+    "x_scale": "84",
+    "y_scale": "84",
+    "ess_x_pos": "12",
+    "ess_y_pos": "24",
+    "ess_x_end": 50,
+    "ess_y_end": 50,
+    "fontSize": 90.5,
+    "foregroundImage": "1"
+  },
+  "rule": "",
+  "author": "",
+  "artist": ""
+}`;
+
 const starter_text_2 = `  {
   "name": {      "english": "Double Bind"    },
   "color": "Yellow/Green",
@@ -517,6 +583,7 @@ function CustomCreator() {
   let start = share ? decodeAndDecompress(share) : "";
   start ||= starter_text;
   const canvasRef = useRef(null);
+  const [backImg, setBackImg] = useState(null);
   const [userImg, setUserImg] = useState(null);
   const [doDraw, setDoDraw] = useState(true);
   const [zoom, setZoom] = useState(100);
@@ -547,6 +614,7 @@ function CustomCreator() {
       url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
       ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50,
       fontSize: 90.5,
+      foregroundImage: 0
     };
   }, []);
 
@@ -611,24 +679,33 @@ function CustomCreator() {
   const jsonToFields = (text) => {
 
     let imageOptions = "";
+    console.log(6871, text);
+    let json;
     try {
-      let json = JSON.parse(text);
+      json = JSON.parse(text);
+      console.log(687, "first parse", json);
       imageOptions = json.imageOptions;
-    } catch { }
+    } catch { 
+      return; // no json to parse, don't populate fields...
+      // what if array?
+    }
     imageOptions = initObject(imageOptions, initImageOptions);
-
-
+    console.log(6872, "img object", JSON.stringify(imageOptions));
+    console.log(687, "pre-json", JSON.stringify(json));
+    json.imageOptions = {...imageOptions };
+    console.log(687, "postjson", JSON.stringify(json));
     try {
-      let temp_parsedJson = JSON.parse(text);
+      let temp_parsedJson = json; // JSON.parse(text);
       if (Array.isArray(temp_parsedJson)) {
         // if an array of objects, only show the first in text fields
         parsedJson = temp_parsedJson[0];
       } else {
         parsedJson = temp_parsedJson;
       }
+      console.log(6873, parsedJson);
       //
-      if (!parsedJson.imageOptions) parsedJson.imageOptions = imageOptions;
-      parsedJson.imageOptions = initObject(parsedJson.imageOptioons, initImageOptions);
+     // if (!parsedJson.imageOptions) parsedJson.imageOptions = imageOptions;
+     // parsedJson.imageOptions = initObject(parsedJson.imageOptioons, initImageOptions);
       flattenedJson = flattenJson(parsedJson);
 
       console.log(445, flattenedJson);
@@ -683,7 +760,10 @@ function CustomCreator() {
     try {
       json = JSON.parse(text);
       imageOptions = json.imageOptions;
-    } catch { }
+    } catch (e) {
+      console.error("incomplete json:", e);
+
+    }
     // only fix things if we've got a valid json
     if (json) {
       if (Array.isArray(json)) {
@@ -698,6 +778,7 @@ function CustomCreator() {
         json = addAllFields(json);
       }
 
+      jsonToFields(text);
       // f
     }
     console.log(670, json);
@@ -807,10 +888,12 @@ function CustomCreator() {
     console.log("UPDATING TO " + number);
     let text = '';
     let img_src = '';
+    let back_src = '';
     switch (number) {
       case 0: text = starter_text_0;; img_src = egg; break;
       case 1: text = starter_text_1a; img_src = shieldsmasher; break;
       case 2: text = starter_text_1b; img_src = rampager; break;
+      case 6: text = starter_text_1c; img_src = featherling; back_src = featherbackground; break;
       case 3: text = starter_text_2; img_src = doublebind; break;
       case 4: text = starter_text_3; img_src = amy; break;
       case 5: text = starter_text_1; img_src = armor_cat; break;
@@ -835,12 +918,28 @@ function CustomCreator() {
     }
     console.log("SETTING JSON TEXT", text);
     jsonToFields(text);
+    console.error(889, img_src);
     if (img_src) {
+
       const img = new Image();
       img.src = img_src;
       img.onload = () => {
+        console.error("foreground");
         setUserImg(img);
       };
+    }
+    console.error(896, back_src);
+    if (back_src) {
+      console.error("settings back");
+      const img2 = new Image();
+      img2.src = back_src;
+      img2.onload = () => {
+        console.error(901, img2);
+        setBackImg(img2);
+      }
+      img2.onerror = () => {
+        console.error(908, img2);      
+      }
     }
     console.log(433, "making true");
     setDoDraw(true);
@@ -905,10 +1004,9 @@ function CustomCreator() {
 
     let modern = 1;
 
-
     let t;
     let array = basics;
-    let backgrounds = [mon_background];
+    let cardframes = [mon_background];
     if (modern) array = outlines;
     let type = selectedOption;
     let overflow = undefined;
@@ -943,18 +1041,18 @@ function CustomCreator() {
     const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
 
     switch (type) {
-      case "MEGA": backgrounds = [mega_background]; break;
+      case "MEGA": cardframes = [mega_background]; break;
       case "OPTION":
-      case "OPTIONINHERIT": backgrounds = [option_background]; break;
+      case "OPTIONINHERIT": cardframes = [option_background]; break;
       case "TAMER":
       case "TAMERINHERIT":
-        backgrounds = [tamer_background]; break;
-      case "EGG": backgrounds = [egg_background]; break;
+        cardframes = [tamer_background]; break;
+      case "EGG": cardframes = [egg_background]; break;
       case "LINK":
       case "MONSTER": break;
       case "ACE":
         if (aceFrame) {
-          if (ace_backgrounds[colors[0]]) backgrounds = colors.map(c => ace_backgrounds[c] || mon_background);
+          if (ace_backgrounds[colors[0]]) cardframes = colors.map(c => ace_backgrounds[c] || mon_background);
         }
         let match = json.aceEffect && json.aceEffect.match(/Overflow\s*.-(\d+)/i);
         if (match) {
@@ -974,6 +1072,8 @@ function CustomCreator() {
     const baseImg = new Image();
     // baseImg.loaded = false;
 
+
+
     baseImg.src = placeholder; // default to get started
     const shellImages = [];
     const evoImages = [];
@@ -983,6 +1083,26 @@ function CustomCreator() {
       console.log(document.fred);
       console.log("LOADING2");
       console.log(json);
+
+      const drawMon = (mon_img) => {
+        console.log(986, json);
+        // mon image
+        //      console.log("imageOptions", imageOptions);
+        let i_width = canvas.width * Number(imageOptions.x_scale) / 100;
+        let i_height = canvas.height * Number(imageOptions.y_scale) / 100;
+        let i_x_pct = (100 - Number(imageOptions.x_scale)) / 2 + Number(imageOptions.x_pos);
+        let i_y_pct = (100 - Number(imageOptions.y_scale)) / 2 + Number(imageOptions.y_pos);
+        // path to verify we don't overwrite right-most edge
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, canvas.width - 30, canvas.height);
+        ctx.clip();
+        ctx.drawImage(mon_img,
+          i_x_pct * canvas.width / 100, i_y_pct * canvas.height / 100, i_width, i_height / 1);
+        ctx.restore();
+        //   let w = canvas.width;
+  
+      }
 
 
       if (document.fonts.check('bold 60px Roboto')) {
@@ -1009,23 +1129,22 @@ function CustomCreator() {
       } catch { }
       imageOptions = initObject(imageOptions, initImageOptions);
 
-      console.log(986, json);
-      // background image
-      let back_img = userImg || baseImg;
-      //      console.log("imageOptions", imageOptions);
-      let i_width = canvas.width * Number(imageOptions.x_scale) / 100;
-      let i_height = canvas.height * Number(imageOptions.y_scale) / 100;
-      let i_x_pct = (100 - Number(imageOptions.x_scale)) / 2 + Number(imageOptions.x_pos);
-      let i_y_pct = (100 - Number(imageOptions.y_scale)) / 2 + Number(imageOptions.y_pos);
-      // path to verify we don't overwrite right-most edge
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(0, 0, canvas.width - 30, canvas.height);
-      ctx.clip();
-      ctx.drawImage(back_img,
-        i_x_pct * canvas.width / 100, i_y_pct * canvas.height / 100, i_width, i_height / 1);
-      ctx.restore();
-      //   let w = canvas.width;
+      // DRAW BACKGROUND, IF WE HAVE IT
+      let background_img = backImg;
+      console.log(1073, background_img);
+      if (background_img && background_img.src) {
+        console.log("DRAWING");
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, canvas.width - 30, canvas.height);
+        ctx.clip();
+        ctx.drawImage(background_img, 0,0, canvas.width, canvas.height);
+        ctx.restore();
+
+      }
+
+      let mon_img = userImg || baseImg;
+      if (Number(imageOptions.foregroundImage) === 0)    drawMon(mon_img);
       //      let h = canvas.height;
       let len = colors.length;
       // multicolor
@@ -1124,7 +1243,7 @@ function CustomCreator() {
         }
       }
 
-
+      if (Number(imageOptions.foregroundImage) === 1)    drawMon(mon_img); 
 
       //// DRAW TOP TEXT
       ctx.textAlign = 'center';
@@ -1187,8 +1306,8 @@ function CustomCreator() {
               let height = 3550;
               if (type === "LINK") {
                 img = bottoms_plain[col];
-                scale = 300;
-                height = 3250;
+                scale = 305;
+                height = 3210;
                 y_scale = 1.5;
               }
               if (type === "ACE") {
@@ -1218,10 +1337,10 @@ function CustomCreator() {
 
 
             // DRAW ESS BOX
-            let ess_i_width = (Number(imageOptions.ess_x_end) - Number(imageOptions.ess_x_pos)) * back_img.width / 100
-            let ess_i_height = (Number(imageOptions.ess_y_end) - Number(imageOptions.ess_y_pos)) * back_img.height / 100
-            let ess_x = Number(imageOptions.ess_x_pos) * back_img.width / 100
-            let ess_y = Number(imageOptions.ess_y_pos) * back_img.height / 100
+            let ess_i_width = (Number(imageOptions.ess_x_end) - Number(imageOptions.ess_x_pos)) * mon_img.width / 100
+            let ess_i_height = (Number(imageOptions.ess_y_end) - Number(imageOptions.ess_y_pos)) * mon_img.height / 100
+            let ess_x = Number(imageOptions.ess_x_pos) * mon_img.width / 100
+            let ess_y = Number(imageOptions.ess_y_pos) * mon_img.height / 100
             let ess_pos_y = 3700;
             let ess_pos_x = 240;
             let size_x = 350;
@@ -1230,7 +1349,7 @@ function CustomCreator() {
             if (type === "MEGA" || type === "OPTION" || type === "TAMER") ess_pos_y = 0;
             if (type.endsWith("INHERIT")) ess_pos_y -= 105;
             if (type === "LINK") {
-              ess_pos_y -= 280;
+              ess_pos_y -= 310;
               ess_pos_x += 2200;
               size_y = 150;
               ctx.save();
@@ -1247,7 +1366,7 @@ function CustomCreator() {
               size_x = size_y = 250;
             }
             if (ess_pos_y) {
-              ctx.drawImage(back_img,
+              ctx.drawImage(mon_img,
                 ess_x, ess_y, ess_i_width, ess_i_height,
                 ess_pos_x, ess_pos_y, size_x, size_y
               );
@@ -1258,15 +1377,13 @@ function CustomCreator() {
 
             // DP LINK BOX
             if (type === "LINK") {
-              console.log(linkdp);
-              console.error(1276, type);
               let w = linkdp.width; let h = linkdp.height;
-              let s = 4.6
+              let s = 4.72
               ctx.drawImage(linkdp,
-                2530, 3250, w * s, h * s);
+                2530, 3210, w * s, h * s);
 
               ctx.save();
-              ctx.translate(2680, 3650);
+              ctx.translate(2680, 3610);
               ctx.rotate(Math.PI / 2);
               ctx.font = "bold 90px HelveticaNeue-CondensedBold, AyarKasone, Helvetica";
               ctx.fillStyle = "white";
@@ -1405,8 +1522,7 @@ function CustomCreator() {
       const height = 390;
 
       // EVO CIRCLES: only monsters (and tamers, why not) can have evo circles
-      if (type === "MONSTER" || type === "MEGA" || type === "ACE" ||
-        type === "TAMER" || type === "TAMERINHERIT") {
+      if (hasEvo(type)) {
         if (_evos && _evos.length > 0 && (
           _evos[0].color || _evos[0].level || _evos[0].cost)) {
 
@@ -1420,7 +1536,7 @@ function CustomCreator() {
           if (_evos[0].level && _evos[0].level.toUpperCase() === "TAMER") evo1_level = "TAMER";
           let evo1_cost = _evos[0].cost;
           let index = 0 // just 1 circle 
-          let evo1_colors = _evos.map(e => e.color.toLowerCase().split("/"))
+          let evo1_colors = _evos.map(e => e.color ? e.color.toLowerCase().split("/"): [] )
             .reduce((acc, curr) => acc.concat(curr), []);
           ctx.drawImage(cost_evo, offset_x, offset_y + 600, 500, 500);
 
@@ -1450,11 +1566,15 @@ function CustomCreator() {
             ctx.clip();
             try {
               ctx.drawImage(circle, 0, 0, 291, 291, X, Y, imgWidth, imgHeight);
-              ctx.drawImage(wedge, 0, 0, 291, 291, X - 130, Y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
             } catch (e) {
-              console.log(1329, "no circle", e);
+              console.error(1329, "no circle", e);
             }
             ctx.restore();
+            try {
+            ctx.drawImage(wedge, 0, 0, 291, 291, X - 130, Y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
+            } catch (e) {
+              console.error(1576, "no wedge", e);
+            }
           }
 
           ctx.font = `bold 90px Roboto, Helvetica`; //  Roboto`;
@@ -1554,8 +1674,7 @@ function CustomCreator() {
 
       }
 
-      if (type === "MONSTER" || type === "MEGA" || type === "ACE") {
-
+      if (hasDP(type)) {
         // dp
         ctx.fillStyle = 'black';
         x = 2540;
@@ -1794,23 +1913,28 @@ function CustomCreator() {
 
       console.log("a", evo_effect);
       let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
+      if (json.link) {
+        sec_effect = json.link + "\n\n" + json.linkeffect;
+      }
       sec_effect = colorReplace(sec_effect, true);
 
       //ctx.fillStyle = 'red';
       let delta_x = delta_y;
+      let shrink = 0;
       if (type === "ACE") {
         delta_x -= 60; delta_y += 100;
       } else if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
         delta_x = 0; delta_y = -50;
       } else if (type === "LINK") {
-        delta_x = -200; delta_y = -150;
+        delta_x = -220; delta_y = -200; shrink = 1000;
       } else {
         delta_x = 0; delta_y = 0;
       }
+      let max_width = 2500 - 400 - delta_x * 2 - shrink;
       if (sec_effect && type !== "MEGA") {
         drawBracketedText(ctx, fontSize, sec_effect,
           700 + delta_x * 2, 3740 + delta_y * 2,
-          2500 - 400 - delta_x * 2, Number(fontSize) + Number(lineSpacing), "effect");
+          max_width, Number(fontSize) + Number(lineSpacing), "effect");
       }
     }
 
@@ -1832,13 +1956,13 @@ function CustomCreator() {
 
     let evo_circle_colors = [];
     if (_evos) {
-      evo_circle_colors = _evos.map(e => e.color.toLowerCase().split("/"))
+      evo_circle_colors = _evos.map(e => e.color ? e.color.toLowerCase().split("/") : [] )
         .reduce((acc, curr) => acc.concat(curr), []);
     }
     const effectFrames = effectBox ? Array.from({ length: len }, () => new Image()) : [];
 
     // N for basic style frame, 1 for custom image, 1 per color, 2 per evo circle, 1 per effect box
-    let imagesToLoad = backgrounds.length + 1 + frameImages.length + 2 * (evo_circle_colors.length) + effectFrames.length;
+    let imagesToLoad = cardframes.length + 1 + frameImages.length + 2 * (evo_circle_colors.length) + effectFrames.length;
     console.log(817, frameImages.length, _evos && _evos.length);
     let imagesLoaded = 0;
 
@@ -1890,9 +2014,9 @@ function CustomCreator() {
         wedgeI.onload = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`); }
         wedgeI.onerror = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`, true); }
       }
-      for (let i in backgrounds) {
+      for (let i in cardframes) {
         shellImages[i] = new Image();
-        shellImages[i].src = backgrounds[i];
+        shellImages[i].src = cardframes[i];
         shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(`shell src  ${i} ${shellImages[i].src}`); }
       }
 
@@ -1928,8 +2052,9 @@ function CustomCreator() {
     //ightImg.onload = () => {
 
 
-  }, [userImg, jsonText, selectedOption, doDraw, currentIndex, effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset, lineSpacing,
-    initImageOptions, jsonIndex,
+  }, [userImg, backImg, jsonText, selectedOption, doDraw, currentIndex,
+    effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset,
+    lineSpacing, initImageOptions, jsonIndex,
     //, endY, isSelecting, startX, startY, 
     neue,
     aceFrame, drawOutline
@@ -2265,6 +2390,7 @@ function CustomCreator() {
             <button onClick={() => sample(5)}> Sample Monster </button><br />
             <button onClick={() => sample(1)}> Sample Mega </button><br />
             <button onClick={() => sample(2)}> Sample ACE </button><br />
+            <button onClick={() => sample(6)}> Sample Link </button><br />
             <button onClick={() => sample(3)}> Sample Option </button><br />
             <button onClick={() => sample(4)}> Sample Tamer </button><br />
             <p />

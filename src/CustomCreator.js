@@ -1550,7 +1550,6 @@ function CustomCreator() {
             let evo1_level = "Lv." + level;
             if (level === "TAMER") evo1_level = "Tamer";
             let evo1_cost = _evos[0].cost;
-            let index = 0 // just 1 circle 
             let ring = cost_evo;
             if (j > 0) ring = cost_evo_plain;
             ctx.drawImage(ring, offset_x, offset_y + 600 + circle_offset, 500, 500);

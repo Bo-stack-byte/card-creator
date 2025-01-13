@@ -41,7 +41,7 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.4"
+const version = "0.7.4.1" // fix numemon ace bug
 const latest = "multi evo circles back, not multiple bars for 1 trait"
 
 // version 0.7.4    multi evo circles back, not multiple bars for 1 trait
@@ -1538,7 +1538,7 @@ function CustomCreator() {
           // having two circles with different costs or different colors isn't supported,
           // and no card since BT14 has had such a thing. honest, go check.
 
-          let evo1_levels = _evos.map(e => e.level ? e.level.toUpperCase().split("/") : [])
+          let evo1_levels = _evos.map(e => e.level ? String(e.level).toUpperCase().split("/") : [])
             .reduce((acc, curr) => acc.concat(curr), []);
           evo1_levels = [...new Set(evo1_levels)];
 

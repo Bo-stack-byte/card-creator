@@ -200,6 +200,7 @@ import evo_white from './frames/evo-white_out.png';
 
 // new evo
 import _cost_evo from './frames/evos/evolution.png';
+import _cost_evo_plain from './frames/evos/evolution_plain.png';
 
 // circle
 import new_evo_red from './frames/evos/evo_red.png';
@@ -321,6 +322,7 @@ let cost = new Image(); cost.src = _cost;
 let cost_egg = new Image(); cost_egg.src = _cost_egg;
 let cost_option = new Image(); cost_option.src = _cost_option;
 let cost_evo = new Image(); cost_evo.src = _cost_evo;
+let cost_evo_plain = new Image(); cost_evo_plain.src = _cost_evo_plain;
 
 let ace_logo = new Image(); ace_logo.src = _ace_logo;
 
@@ -352,7 +354,7 @@ let bottom_property_black = new Image(); bottom_property_black.src = _bottom_pro
 // these backgrounds are used all the time and should be pre-loaded
 export {
   mon_background, mega_background, egg_background, option_background, tamer_background,
-  cost, cost_egg, cost_option, cost_evo,
+  cost, cost_egg, cost_option, cost_evo, cost_evo_plain,
   outline_option, ace_logo,
   bottom_property_white, bottom_property_black,
   foil, bubble, linkdp

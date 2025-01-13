@@ -5,7 +5,7 @@ import {
   ace_backgrounds,
   outlines, outlines_egg, outlines_tamer, outline_option,
 
-  cost, cost_egg, cost_option, cost_evo, costs,
+  cost, cost_egg, cost_option, cost_evo, cost_evo_plain, costs,
   ace_logo, foil, linkdp,
   new_evo_circles, /* new_evo2_circles, */
   new_evo_wedges,
@@ -41,10 +41,11 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.3.1"; 
-const latest = "link monster stuff, fix evo wedges"
+const version = "0.7.4"
+const latest = "multi evo circles back, not multiple bars for 1 trait"
 
-// version 0.7.3.x  link monster, BETA, fix evo wedges
+// version 0.7.4    multi evo circles back, not multiple bars for 1 trait
+// version 0.7.3.x  link monster BETA, fix evo wedges
 // version 0.7.2    generate multiple images in a row, BETA, try using a JSON array to see how
 // version 0.7.1    have both diamond text and blue brackets at same time
 // version 0.7.0    free form parsing becoming more formal, and more crash bugs fixed
@@ -196,7 +197,7 @@ const levelHeight = (type) => {
 }
 const hasEvo = (type) => {
   return (type === "MONSTER" || type === "MEGA" || type === "ACE" ||
-    type === "TAMER" || type === "TAMERINHERIT" || type === "LINK");    
+    type === "TAMER" || type === "TAMERINHERIT" || type === "LINK");
 }
 const hasDP = (type) => {
   return (type === "MONSTER" || type === "MEGA" || type === "ACE" || type === "LINK");
@@ -685,14 +686,14 @@ function CustomCreator() {
       json = JSON.parse(text);
       console.log(687, "first parse", json);
       imageOptions = json.imageOptions;
-    } catch { 
+    } catch {
       return; // no json to parse, don't populate fields...
       // what if array?
     }
     imageOptions = initObject(imageOptions, initImageOptions);
     console.log(6872, "img object", JSON.stringify(imageOptions));
     console.log(687, "pre-json", JSON.stringify(json));
-    json.imageOptions = {...imageOptions };
+    json.imageOptions = { ...imageOptions };
     console.log(687, "postjson", JSON.stringify(json));
     try {
       let temp_parsedJson = json; // JSON.parse(text);
@@ -704,8 +705,8 @@ function CustomCreator() {
       }
       console.log(6873, parsedJson);
       //
-     // if (!parsedJson.imageOptions) parsedJson.imageOptions = imageOptions;
-     // parsedJson.imageOptions = initObject(parsedJson.imageOptioons, initImageOptions);
+      // if (!parsedJson.imageOptions) parsedJson.imageOptions = imageOptions;
+      // parsedJson.imageOptions = initObject(parsedJson.imageOptioons, initImageOptions);
       flattenedJson = flattenJson(parsedJson);
 
       console.log(445, flattenedJson);
@@ -938,7 +939,7 @@ function CustomCreator() {
         setBackImg(img2);
       }
       img2.onerror = () => {
-        console.error(908, img2);      
+        console.error(908, img2);
       }
     }
     console.log(433, "making true");
@@ -1101,7 +1102,7 @@ function CustomCreator() {
           i_x_pct * canvas.width / 100, i_y_pct * canvas.height / 100, i_width, i_height / 1);
         ctx.restore();
         //   let w = canvas.width;
-  
+
       }
 
 
@@ -1138,13 +1139,13 @@ function CustomCreator() {
         ctx.beginPath();
         ctx.rect(0, 0, canvas.width - 30, canvas.height);
         ctx.clip();
-        ctx.drawImage(background_img, 0,0, canvas.width, canvas.height);
+        ctx.drawImage(background_img, 0, 0, canvas.width, canvas.height);
         ctx.restore();
 
       }
 
       let mon_img = userImg || baseImg;
-      if (Number(imageOptions.foregroundImage) === 0)    drawMon(mon_img);
+      if (Number(imageOptions.foregroundImage) === 0) drawMon(mon_img);
       //      let h = canvas.height;
       let len = colors.length;
       // multicolor
@@ -1243,7 +1244,7 @@ function CustomCreator() {
         }
       }
 
-      if (Number(imageOptions.foregroundImage) === 1)    drawMon(mon_img); 
+      if (Number(imageOptions.foregroundImage) === 1) drawMon(mon_img);
 
       //// DRAW TOP TEXT
       ctx.textAlign = 'center';
@@ -1355,7 +1356,7 @@ function CustomCreator() {
               ctx.save();
               ctx.translate(ess_pos_x + size_x / 2, ess_pos_y + size_y / 2);
               ctx.rotate(Math.PI / 2)
-              ess_pos_x = -size_x / 2 
+              ess_pos_x = -size_x / 2
               ess_pos_y = -size_y / 2; // i've translated to where i need to be
 
             }
@@ -1399,9 +1400,9 @@ function CustomCreator() {
               ctx.fillText("+", -250, 0);
               ctx.restore();
 
-              
 
-              }
+
+            }
 
             // DRAW BOTTOM OF BOX?
             if (drawOutline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE")) {
@@ -1519,10 +1520,9 @@ function CustomCreator() {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      const height = 390;
-
       // EVO CIRCLES: only monsters (and tamers, why not) can have evo circles
       if (hasEvo(type)) {
+
         if (_evos && _evos.length > 0 && (
           _evos[0].color || _evos[0].level || _evos[0].cost)) {
 
@@ -1531,77 +1531,98 @@ function CustomCreator() {
           // Post BT-14 alterate conditions were handled via special digivolve lines.
           // For now there is just one circle. Ask in feedback if you want more. 
 
-
-          let evo1_level = "Lv." + _evos[0].level;
-          if (_evos[0].level && _evos[0].level.toUpperCase() === "TAMER") evo1_level = "TAMER";
-          let evo1_cost = _evos[0].cost;
-          let index = 0 // just 1 circle 
-          let evo1_colors = _evos.map(e => e.color ? e.color.toLowerCase().split("/"): [] )
+          let evo1_colors = _evos.map(e => e.color ? e.color.toLowerCase().split("/") : [])
             .reduce((acc, curr) => acc.concat(curr), []);
-          ctx.drawImage(cost_evo, offset_x, offset_y + 600, 500, 500);
 
-          let base = -135; // degrees
-          let each = 360 / (evo1_colors.length);
+          // we collect all the different colors, and all the different levels (to allow for "tamer")
+          // having two circles with different costs or different colors isn't supported,
+          // and no card since BT14 has had such a thing. honest, go check.
 
-          for (let i in evo1_colors) {
-            i = Number(i);
-            let X = offset_x + 130;
-            let Y = offset_y + 125 + 600;
+          let evo1_levels = _evos.map(e => e.level ? e.level.toUpperCase().split("/") : [])
+            .reduce((acc, curr) => acc.concat(curr), []);
+          evo1_levels = [...new Set(evo1_levels)];
 
-            const imgWidth = 310; // height, too
-            const imgHeight = 310; // height, too
+          for (let j = evo1_levels.length - 1; j >= 0; j--) {
+            j = Number(j);
+            let circle_offset = (j) * 420;
 
-            const circle = evoImages[i]
-            const wedge = wedgeImages[i];
-            const radius = imgWidth / 2;
-            // TODO: wait for .onLoad()? Or did we.
-            let start = base + i * each
-            const startAngle = (start * Math.PI) / 180;
-            const sweepAngle = (each * Math.PI) / 180;
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(X + radius, Y + radius);
-            ctx.arc(X + radius, Y + radius, radius, startAngle, startAngle + sweepAngle);
-            ctx.lineTo(X + radius, Y + radius);
-            ctx.clip();
-            try {
-              ctx.drawImage(circle, 0, 0, 291, 291, X, Y, imgWidth, imgHeight);
-            } catch (e) {
-              console.error(1329, "no circle", e);
+            let level = evo1_levels[j];
+            let evo1_level = "Lv." + level;
+            if (level === "TAMER") evo1_level = "Tamer";
+            let evo1_cost = _evos[0].cost;
+            let index = 0 // just 1 circle 
+            let ring = cost_evo;
+            if (j > 0) ring = cost_evo_plain;
+            ctx.drawImage(ring, offset_x, offset_y + 600 + circle_offset, 500, 500);
+
+            let base = -135; // degrees
+            let each = 360 / (evo1_colors.length);
+
+            for (let i in evo1_colors) {
+              i = Number(i);
+              let X = offset_x + 130;
+              let Y = offset_y + 125 + 600 + circle_offset;
+
+              const imgWidth = 310; // height, too
+              const imgHeight = 310; // height, too
+
+              const circle = evoImages[i]
+              const wedge = wedgeImages[i];
+              const radius = imgWidth / 2;
+              // TODO: wait for .onLoad()? Or did we.
+              let start = base + i * each
+              const startAngle = (start * Math.PI) / 180;
+              const sweepAngle = (each * Math.PI) / 180;
+              ctx.save();
+              ctx.beginPath();
+              ctx.moveTo(X + radius, Y + radius);
+              ctx.arc(X + radius, Y + radius, radius, startAngle, startAngle + sweepAngle);
+              ctx.lineTo(X + radius, Y + radius);
+              ctx.clip();
+              try {
+                ctx.drawImage(circle, 0, 0, 291, 291, X, Y, imgWidth, imgHeight);
+              } catch (e) {
+                console.error(1329, "no circle", e);
+              }
+              ctx.restore();
+              try {
+                ctx.drawImage(wedge, 0, 0, 291, 291, X - 130, Y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
+              } catch (e) {
+                console.error(1576, "no wedge", e);
+              }
             }
-            ctx.restore();
-            try {
-            ctx.drawImage(wedge, 0, 0, 291, 291, X - 130, Y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
-            } catch (e) {
-              console.error(1576, "no wedge", e);
+
+            ctx.font = `90px Roboto, Helvetica`; //  Roboto`;
+            ctx.font = `90px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
+            ctx.font = `80px AyarKasone, Helvetica`;
+            ctx.font = `80px Helvetica`;
+            //    ctx.font = `80px MyriadProBold`;
+            ctx.font = `85px Roboto, Helggggvetica`; //  Roboto`;
+            // this font might be right for "tamer" but isn't for "Lv.3"
+
+            ctx.lineWidth = 10;
+
+            let [fillColor, strokeColor, border] = textColor(evo1_colors);
+            if (evo1_colors.length === 1 && (evo1_colors[0] === 'yellow' || evo1_colors[0] === 'white')) {
+              fillColor = 'black';
+              border = false;
             }
-          }
+            if (border) {
+              ctx.strokeStyle = strokeColor;
+              ctx.lineWidth = 10;
+              ctx.strokeText(evo1_level, 375, 870 + circle_offset, 200);
+            }
+            ctx.fillStyle = fillColor; // contrastColor(evo_color);
+            ctx.fillText(evo1_level, 375, 870 + circle_offset, 200);
 
-          ctx.font = `bold 90px Roboto, Helvetica`; //  Roboto`;
-          ctx.font = `bold 90px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
-
-          ctx.lineWidth = 10;
-
-          let [fillColor, strokeColor, border] = textColor(evo1_colors);
-          if (evo1_colors.length === 1 && (evo1_colors[0] === 'yellow' || evo1_colors[0] === 'white')) {
-            fillColor = 'black';
-            border = false;
+            // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
+            ctx.font = `bold 220px HelveticaNeue-CondensedBold, Helvetica, AyarKasone`;
+            if (border) {
+              ctx.lineWidth = 10;
+              ctx.strokeText(evo1_cost, 375, 1010 + circle_offset);
+            }
+            ctx.fillText(evo1_cost, 375, 1010 + circle_offset);
           }
-          if (border) {
-            ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = 10;
-            ctx.strokeText(evo1_level, 375, 870 + height * index, 140);
-          }
-          ctx.fillStyle = fillColor; // contrastColor(evo_color);
-          ctx.fillText(evo1_level, 375, 870 + height * index, 140);
-
-          // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
-          ctx.font = `bold 220px HelveticaNeue-CondensedBold, Helvetica, AyarKasone`;
-          if (border) {
-            ctx.lineWidth = 10;
-            ctx.strokeText(evo1_cost, 375, 1010 + height * index);
-          }
-          ctx.fillText(evo1_cost, 375, 1010 + height * index);
         }
       }
 
@@ -1836,13 +1857,11 @@ function CustomCreator() {
       let attribute = json.attribute || '';
       let c_type = json.type || '';
       // todo don't show when all blank
-      let traits = ` ${c_type}   `;
+      let a_traits = [` ${c_type}  `];
 
-
-      if (form || attribute) {
-        traits = ` ${center(form)} | ${center(attribute)} | ${center(c_type)}`;
-      }
-      //console.log("Traits", traits)
+      if (form) a_traits.push(` ${center(form)} `);
+      if (attribute) a_traits.push(` ${center(attribute)} `);
+      let traits = a_traits.join("|");
       ctx.fillStyle = whiteColor(colors[0]);
       if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
         delta_y += 10;
@@ -1944,7 +1963,7 @@ function CustomCreator() {
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 30;
         console.log(1026, "x", startX, startY, endX - startX, endY - startY);
-
+ 
         ctx.strokeRect(startX * 2977 / 355,
           startY * canvas.height / 499,
           (endX - startX) * 2977 / 355,
@@ -1956,7 +1975,7 @@ function CustomCreator() {
 
     let evo_circle_colors = [];
     if (_evos) {
-      evo_circle_colors = _evos.map(e => e.color ? e.color.toLowerCase().split("/") : [] )
+      evo_circle_colors = _evos.map(e => e.color ? e.color.toLowerCase().split("/") : [])
         .reduce((acc, curr) => acc.concat(curr), []);
     }
     const effectFrames = effectBox ? Array.from({ length: len }, () => new Image()) : [];
@@ -2046,10 +2065,6 @@ function CustomCreator() {
       console.log(906, `sources set ${imagesToLoad} loaded ${imagesLoaded} base: ${!!baseImg.complete}`);
 
     });
-    //  setTimeout(() => afterLoad(), 100); // bad wat to sycnrhoncoursly load 
-    //leftImg.onload = () => {
-    // console.log("loading left...");
-    //ightImg.onload = () => {
 
 
   }, [userImg, backImg, jsonText, selectedOption, doDraw, currentIndex,

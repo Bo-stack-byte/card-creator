@@ -140,7 +140,9 @@ export const enterPlainText = (lines) => {
         "evolveCondition": [],
         "effect": "",
         "evolveEffect": "",
-        "applinkdp": "",
+        "linkDP": "-",
+        "linkRequirements": "-",
+        "linkEffect": "-",
         "securityEffect": "-",
 
         "rule": "",

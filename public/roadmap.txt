@@ -3,15 +3,14 @@ Feedback on this list appreciated. Just a few people asking for a feature makes 
 BUGS
 
 * bubble around digixros wrong length
-* assumes only 1 digivolve circle ever needed, mangled art if they're mixed (and can't handle "tamer")
 * digimon name for pure yellow/pure white should be solid black, not white with black border
 * fix those extra pixels at intersections where angles jut out
 * Keyword scrunching (try sample ACE with fontsize 140)
 * (maybe same issue) Keywords that appear far along the line may be mis-aligned. So do [] symbols
-* Report of scaling broken on Safari (unable to reproduce so far)
 * digixros field goes nuts if it doesn't start with [digixros -x]
 * the black color isn't quite black; try black/green egg and look closely at attribute bar
 * some timings [in brackets] not blue, again
+* multiple users reporting Safari issues (bad scaling, bad font on mon name). if this includes you, please reach out
 
 VAGUE TO DO LIST, SOONER:
 
@@ -20,6 +19,7 @@ VAGUE TO DO LIST, SOONER:
 
 VAGUE TO DO LIST, LATER:
 
+* squeeze rule text
 * option for smaller download (4 MB can be a lot for 1 card)
 * make default font for level text (before remote font loads) is really ugly
 * for remote fonts, delay first rendering or re-render when it loads
@@ -56,5 +56,6 @@ NOMINALLY FIXED BUGS / FEATURES
 * sometimes the evo circle colors don't populate
 * "Effect box" doesn't always show up right away when clicking check box and it's making me angry
 * make squares transparent for all inherits
+* assumes only 1 digivolve circle ever needed, mangled art if they're mixed (and can't handle "tamer")
 
 

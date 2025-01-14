@@ -41,9 +41,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.4.1" // fix numemon ace bug
-const latest = "multi evo circles back, not multiple bars for 1 trait"
+const version = "0.7.5" 
+const latest = "fix numemon ace bug, trait ordering bug; link fields update"
 
+// version 0.7.5    fix numemon ace bug, trait ordering bug; link fields update
 // version 0.7.4    multi evo circles back, not multiple bars for 1 trait
 // version 0.7.3.x  link monster BETA, fix evo wedges
 // version 0.7.2    generate multiple images in a row, BETA, try using a JSON array to see how
@@ -367,15 +368,15 @@ const starter_text_1c = `{
       "level": "2"
     }
   ],
-  "evolveEffect": "[Link][Bird] rait: Cost 1",
+  "evolveEffect": "-",
   "dnaEvolve": "-",
-  "dp": "2000",
-  "effect": "-",
+  "dp": "1000",
+  "effect": "[Your Turn] [Once Per Turn] When this Monster gets linked, You may suspend 1 other Monster with DP less than or equal to this Monster.",
   "form": "Rookie",
   "id": "CS3-02",
-  "link": "[Link]: [Bird] trait: Cost 1",
-  "linkdp": "1500",
-  "linkeffect": "＜Dodge＞ (When this Monster would be deleted, you may\\nsuspend it to prevent that deletion.)",
+  "linkRequirement": "[Link] [Bird] trait: Cost 1",
+  "linkDP": "1500",
+  "linkEffect": "＜Dodge＞ (When this Monster would leave the field, you may\\nsuspend it to prevent that deletion.)",
   "playCost": "3",
   "rarity": "Special",
   "securityEffect": "-",
@@ -730,7 +731,7 @@ function CustomCreator() {
     }
     for (let field of ["color", "cardType", "playCost",
       "dp", "cardLv", "form", "attribute", "type", "rarity",
-      "linkdp",
+      "linkDP", "linkRequirement", "linkEffect",
       "specialEvolve", "effect", "evolveEffect", "securityEffect",
       "rule", "digiXros", "burstEvolve", "cardNumber",
       "author", "artist"]) {
@@ -904,8 +905,6 @@ function CustomCreator() {
     setDoDraw(false);
     console.log(411, doDraw);
 
-    //  this.state.selectedOption = "AUTO";
-    //    if (selectedOption !== "AUTO") 
     setSelectedOption("AUTO");
     if (number === 5) {
       setShowJson(2);
@@ -1018,7 +1017,7 @@ function CustomCreator() {
       if (json.cardLv === "Lv.6" || json.cardLv === "Lv.7") {
         type = "MEGA";
       }
-      if (json.linkdp) {
+      if (json.linkDP) {
         type = "LINK";
       }
       if (json.aceEffect && json.aceEffect.length > 5) {
@@ -1390,7 +1389,7 @@ function CustomCreator() {
               ctx.fillStyle = "white";
               ctx.textAlign = "right";
               ctx.textBaseline = "bottom";
-              ctx.fillText(json.linkdp, 0, 0);
+              ctx.fillText(json.linkDP, 0, 0);
 
               ctx.font = `60px 'Helvetica'`;
               ctx.textAlign = "center";
@@ -1509,7 +1508,7 @@ function CustomCreator() {
         writeRuleText(ctx, rule, fontSize, bottom - xros_offset - rule_offset);
       }
 
-      if (xros && xros !== "-") {
+      if (!empty(xros)) {
         // BT10-009 EX3-014: shaded box
         // st19-10 solid box
         drawBracketedText(ctx, fontSize, xros, 300, bottom - xros_offset, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
@@ -1856,10 +1855,11 @@ function CustomCreator() {
       let attribute = json.attribute || '';
       let c_type = json.type || '';
       // todo don't show when all blank
-      let a_traits = [` ${c_type}  `];
+      let a_traits = [];
 
-      if (form) a_traits.push(` ${center(form)} `);
-      if (attribute) a_traits.push(` ${center(attribute)} `);
+      if (!empty(form)) a_traits.push(` ${center(form)} `);
+      if (!empty(c_type)) a_traits.push(` ${c_type}  `);
+      if (!empty(attribute)) a_traits.push(` ${center(attribute)} `);
       let traits = a_traits.join("|");
       ctx.fillStyle = whiteColor(colors[0]);
       if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
@@ -1930,26 +1930,37 @@ function CustomCreator() {
 
 
       console.log("a", evo_effect);
-      let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
-      if (json.link) {
-        sec_effect = json.link + "\n\n" + json.linkeffect;
-      }
-      sec_effect = colorReplace(sec_effect, true);
-
-      //ctx.fillStyle = 'red';
-      let delta_x = delta_y;
-      let shrink = 0;
-      if (type === "ACE") {
-        delta_x -= 60; delta_y += 100;
-      } else if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
-        delta_x = 0; delta_y = -50;
+      if (type === "MEGA") {
+        // no security text
       } else if (type === "LINK") {
-        delta_x = -220; delta_y = -200; shrink = 1000;
+        let req = json.linkRequirement;
+        let effect = json.linkEffect;
+        let delta_x = -220; let delta_y = -200; let shrink = 1000;
+        if (!empty(req)) {
+          drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
+        }
+        // shrink is not working, we're ignoring max_width
+        let max_width = 2500 - 400 - delta_x * 2 - shrink;
+        drawBracketedText(ctx, fontSize, effect,
+          700 + delta_x * 2, 3740 + delta_y * 2 + 150,
+          max_width, Number(fontSize) + Number(lineSpacing), "effect");
       } else {
-        delta_x = 0; delta_y = 0;
-      }
-      let max_width = 2500 - 400 - delta_x * 2 - shrink;
-      if (sec_effect && type !== "MEGA") {
+        let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
+        if (json.linkDP) {
+        }
+        sec_effect = colorReplace(sec_effect, true);
+
+        //ctx.fillStyle = 'red';
+        let delta_x = delta_y;
+        let shrink = 0;
+        if (type === "ACE") {
+          delta_x -= 60; delta_y += 100;
+        } else if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
+          delta_x = 0; delta_y = -50;
+        } else {
+          delta_x = 0; delta_y = 0;
+        }
+        let max_width = 2500 - 400 - delta_x * 2 - shrink;
         drawBracketedText(ctx, fontSize, sec_effect,
           700 + delta_x * 2, 3740 + delta_y * 2,
           max_width, Number(fontSize) + Number(lineSpacing), "effect");

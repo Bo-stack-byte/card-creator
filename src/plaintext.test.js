@@ -11,15 +11,14 @@ function getObj() {
         const json = JSON.parse(_json);
         ret.push(json);
     }
-  //  console.dir(ret, { depth: null} );
+    // uncomment this line to get the output
+    //console.dir(ret, { depth: null} );
     return ret;
 }
 
-let answer =  [
+let answer =     [
   {
     name: { english: 'ScrapBacomon' },
-    artist: '',
-    author: '',
     color: 'Green',
     cardType: 'Digimon',
     playCost: '3',
@@ -33,12 +32,17 @@ let answer =  [
     evolveCondition: [ { level: '2', cost: '0', color: 'Green' } ],
     effect: '[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mutant] traut and 1 card with the [ʟᴍᴡ] trait among them to the hand. Return the rest to the bottom of the deck.\n',
     evolveEffect: '[All Turns] [Once Per Turn] When 1 other Digimon digivolves, <Draw 1>.\n',
+    linkDP: '-',
+    linkRequirements: '-',
+    linkEffect: '-',
     securityEffect: '-',
     rule: '[Rule] Trait: Has the [Free] type.',
     digiXros: '',
     dnaEvolve: '-',
     burstEvolve: '-',
     cardNumber: '',
+    author: '',
+    artist: '',
     imageOptions: {
       url: '',
       x_pos: 0,
@@ -54,8 +58,6 @@ let answer =  [
   },
   {
     name: { english: 'Imperialdramon: Fighter Mode' },
-    artist: '',
-    author: '',
     color: 'Purple/Red',
     cardType: 'Digimon',
     playCost: '13',
@@ -74,12 +76,17 @@ let answer =  [
       "[When Digivolving] By returning 1 Multicolor Digimon card from this Digimon's digivolution cards to the hand, return all digivolution cards of 1 of your opponent's Digimon with as high or lower level as returned card to the bottom of the deck. Then, delete it.\n" +
       "[Your Turn] This Digimon doesn't activate [Security] effects of the cards it checks.\n",
     evolveEffect: '',
+    linkDP: '-',
+    linkRequirements: '-',
+    linkEffect: '-',
     securityEffect: '-',
     rule: '',
     digiXros: '',
     dnaEvolve: '-',
     burstEvolve: '-',
     cardNumber: '',
+    author: '',
+    artist: '',
     imageOptions: {
       url: '',
       x_pos: 0,
@@ -95,8 +102,6 @@ let answer =  [
   },
   {
     name: { english: 'Patamon' },
-    artist: '',
-    author: '',
     color: 'yellow/purple',
     cardType: 'Digimon',
     playCost: '3',
@@ -113,12 +118,17 @@ let answer =  [
     ],
     effect: '[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mythical Beast] trait and 1 card with the [LIBERATOR] trait among them to the hand. Return the rest to the bottom of the deck. \n',
     evolveEffect: "[On Deletion] You may place 1 card from either player's trash face down in the battle area.\n",
+    linkDP: '-',
+    linkRequirements: '-',
+    linkEffect: '-',
     securityEffect: '-',
     rule: '[Rule] Trait: Also has [Mythical Beast] Type.',
     digiXros: '',
     dnaEvolve: '-',
     burstEvolve: '-',
     cardNumber: '',
+    author: '',
+    artist: '',
     imageOptions: {
       url: '',
       x_pos: 0,
@@ -134,8 +144,6 @@ let answer =  [
   },
   {
     name: { english: 'Steal!!!!' },
-    artist: '',
-    author: '',
     color: '',
     cardType: 'Option',
     playCost: '3',
@@ -149,12 +157,17 @@ let answer =  [
     evolveCondition: [ { color: '', cost: '', level: '' } ],
     effect: '     [Main] <Draw 1> for every Tamer your opponent has in play.\n',
     evolveEffect: '',
+    linkDP: '-',
+    linkRequirements: '-',
+    linkEffect: '-',
     securityEffect: '-[Security] <Draw 1>, then add this card to the hand.\n',
     rule: '',
     digiXros: '',
     dnaEvolve: '-',
     burstEvolve: '-',
     cardNumber: '',
+    author: '',
+    artist: '',
     imageOptions: {
       url: '',
       x_pos: 0,
@@ -170,8 +183,6 @@ let answer =  [
   },
   {
     name: { english: 'Arresterdramon X MetalTyrannomon' },
-    artist: '',
-    author: '',
     color: '',
     cardType: 'Digimon',
     playCost: '8',
@@ -189,6 +200,9 @@ let answer =  [
     effect: '<Blocker>\n' +
       `[On Play][When Digivolving] Until the end of your opponent's turn, 1 of their Digimon gains "[Start of Main] Forced attack." If digixrossed with 2 materials, <De-Digivolve 1> 1 of their Digimon.\n`,
     evolveEffect: "[Opponent's Turn] This Digimon with <Save> in its text gains <Reboot>.\n",
+    linkDP: '-',
+    linkRequirements: '-',
+    linkEffect: '-',
     securityEffect: '-',
     rule: '',
     digiXros: '[Digixros -1] [Arresterdramon] x [MetalTyrannomon]',
@@ -211,6 +225,8 @@ let answer =  [
     }
   }
 ]
+
+
 
 let extra = 
 {

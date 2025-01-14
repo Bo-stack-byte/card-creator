@@ -41,7 +41,7 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.5" 
+const version = "0.7.5.1" 
 const latest = "fix numemon ace bug, trait ordering bug; link fields update"
 
 // version 0.7.5    fix numemon ace bug, trait ordering bug; link fields update
@@ -1858,8 +1858,8 @@ function CustomCreator() {
       let a_traits = [];
 
       if (!empty(form)) a_traits.push(` ${center(form)} `);
-      if (!empty(c_type)) a_traits.push(` ${c_type}  `);
       if (!empty(attribute)) a_traits.push(` ${center(attribute)} `);
+      if (!empty(c_type)) a_traits.push(` ${c_type}  `);
       let traits = a_traits.join("|");
       ctx.fillStyle = whiteColor(colors[0]);
       if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {

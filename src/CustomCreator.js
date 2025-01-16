@@ -41,8 +41,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.5.1" 
-const latest = "fix numemon ace bug, trait ordering bug; link fields update"
+const version = "0.7.5.2" 
+const latest = "fix numemon ace bug, trait ordering bug; link fields update; better linkDP checking"
 
 // version 0.7.5    fix numemon ace bug, trait ordering bug; link fields update
 // version 0.7.4    multi evo circles back, not multiple bars for 1 trait
@@ -1017,7 +1017,7 @@ function CustomCreator() {
       if (json.cardLv === "Lv.6" || json.cardLv === "Lv.7") {
         type = "MEGA";
       }
-      if (json.linkDP) {
+      if (!empty(json.linkDP)) {
         type = "LINK";
       }
       if (json.aceEffect && json.aceEffect.length > 5) {

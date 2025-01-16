@@ -386,7 +386,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   fontSize = Number(fontSize);
   let maxWidth = horizontal_limit - x;
   if (extra === "bubble") maxWidth -= 150;
-  console.debug(308, "calling with", fontSize, text, y, "XXX", lineHeight);
+  //console.debug(308, "calling with", fontSize, text, y, "XXX", lineHeight);
   lineHeight = Number(lineHeight);
   let yOffset = y;
   let lines = [];
@@ -451,7 +451,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     }
   }
 
-  console.log(372, lines);
+  //console.log(372, lines);
   for (let line of lines) {
 
     wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra, right_limit, preview);

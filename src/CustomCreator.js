@@ -41,10 +41,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.5.2" 
-const latest = "fix numemon ace bug, trait ordering bug; link fields update; better linkDP checking"
+const version = "0.7.6.0" 
+const latest = "trying to properly cache updates so just 1 happens at a time, and 1 always happens at the end"
 
-// version 0.7.5    fix numemon ace bug, trait ordering bug; link fields update
+// version 0.7.5    fix numemon ace bug, trait ordering bug; link fields update; better linkDP checking
 // version 0.7.4    multi evo circles back, not multiple bars for 1 trait
 // version 0.7.3.x  link monster BETA, fix evo wedges
 // version 0.7.2    generate multiple images in a row, BETA, try using a JSON array to see how
@@ -588,6 +588,13 @@ function CustomCreator() {
   const [backImg, setBackImg] = useState(null);
   const [userImg, setUserImg] = useState(null);
   const [doDraw, setDoDraw] = useState(true);
+
+  const [newRedraw, setNewRedraw] = useState(0);
+  const pauseDraw = useRef(-1);
+  // 0: no pause, 1: we're doing an update, 2: we're doing 
+  // an update and will need to do at least one more 
+  // at the end, if 1, set to 0. if 2, set to 0 but do draw
+
   const [zoom, setZoom] = useState(100);
   const [jsonText, setJsonText] = useState([start]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -681,21 +688,21 @@ function CustomCreator() {
   const jsonToFields = (text) => {
 
     let imageOptions = "";
-    console.log(6871, text);
+//    console.log(6871, text);
     let json;
     try {
       json = JSON.parse(text);
-      console.log(687, "first parse", json);
+  //    console.log(687, "first parse", json);
       imageOptions = json.imageOptions;
     } catch {
       return; // no json to parse, don't populate fields...
       // what if array?
     }
     imageOptions = initObject(imageOptions, initImageOptions);
-    console.log(6872, "img object", JSON.stringify(imageOptions));
-    console.log(687, "pre-json", JSON.stringify(json));
+   // console.log(6872, "img object", JSON.stringify(imageOptions));
+   // console.log(687, "pre-json", JSON.stringify(json));
     json.imageOptions = { ...imageOptions };
-    console.log(687, "postjson", JSON.stringify(json));
+   // console.log(687, "postjson", JSON.stringify(json));
     try {
       let temp_parsedJson = json; // JSON.parse(text);
       if (Array.isArray(temp_parsedJson)) {
@@ -952,8 +959,22 @@ function CustomCreator() {
   //  const draw = async (x, y, clear) => {
 
   const draw = useCallback(async (x, y, clear) => {
-    if (!doDraw) return false;
-    console.log(643, "START DRAW");
+
+    if (pauseDraw.current <= 0) {
+      pauseDraw.current = 1; // drawing, continue
+    } else if (pauseDraw.current === 1) {
+      pauseDraw.current = 2; // drawing, but do one more after we're done
+      return;
+    } else if (pauseDraw.current >= 2) {
+      pauseDraw.current = 2; // drawing, but do one more after we're done
+      return;
+    }
+
+    if (!doDraw) {
+      console.error(964, "NOT DRAWING");
+      return false;
+    }
+    console.debug(643, "START DRAW", pauseDraw.current);
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
@@ -993,6 +1014,13 @@ function CustomCreator() {
       }
     } catch {
       console.log("json error");
+      let b4 = pauseDraw.current;
+      if (pauseDraw.current > 1) {
+        pauseDraw.current = 0;
+        setSkipDraw(skipDraw); 
+      } else {
+        pauseDraw.current = -1;
+      }
       return;
     }
 
@@ -1000,7 +1028,6 @@ function CustomCreator() {
     if (Array.isArray(json)) {
       json = json[0];
     }
-
 
     let modern = 1;
 
@@ -1080,9 +1107,7 @@ function CustomCreator() {
     const wedgeImages = [];
     const _evos = json.evolveCondition || json.digivolveCondition;
     const afterLoad = async () => {
-      console.log(document.fred);
       console.log("LOADING2");
-      console.log(json);
 
       const drawMon = (mon_img) => {
         console.log(986, json);
@@ -1125,7 +1150,6 @@ function CustomCreator() {
       try {
         let json = JSON.parse(jsonText[currentIndex]);
         imageOptions = json.imageOptions;
-        console.log(527, 222, imageOptions);
       } catch { }
       imageOptions = initObject(imageOptions, initImageOptions);
 
@@ -1158,8 +1182,16 @@ function CustomCreator() {
       if (type === "ACE") bottom -= 480;
       if (type.startsWith("TAMER") || type.startsWith("OPTION")) bottom -= 640;
 
-      if (skipDraw) return;
-
+      if (skipDraw) {
+        let b4 = pauseDraw.current;
+        if (pauseDraw.current > 1) {
+          pauseDraw.current = 0;
+          setSkipDraw(skipDraw); 
+        } else {
+          pauseDraw.current = -1;
+        }
+        return;
+      }
       if (effectBox) {
         for (let i = 0; i < len; i++) {
           /*let col = colors[i];
@@ -1319,7 +1351,6 @@ function CustomCreator() {
                 scale = 740;
                 height = 3450;
               }
-              console.log(1199, type);
               // egg doesn't change inherited but does change scale and height 
               if (type === "EGG") {
                 img = bottom_egg_evos[col];
@@ -1965,7 +1996,7 @@ function CustomCreator() {
           700 + delta_x * 2, 3740 + delta_y * 2,
           max_width, Number(fontSize) + Number(lineSpacing), "effect");
       }
-    }
+    } /// end afterLoad
 
     /*
     if (false)
@@ -1998,13 +2029,11 @@ function CustomCreator() {
     await new Promise((resolve) => {
       const checkAllImagesLoaded = (text, failure) => {
         imagesLoaded++;
-        console.log(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
+        //console.log(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
         if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
           // Set the canvas dimensions  
           afterLoad();
-          console.log(1765, "RESOLVING...");
           resolve();
-          console.log(1765, "... resolved");
         }
       };
 
@@ -2034,7 +2063,6 @@ function CustomCreator() {
         let evoI = new Image();
         evoImages[i] = evoI;
         evoI.src = new_evo_circles[my_color]
-        console.log(1688, new_evo_circles[my_color]);
         evoI.onload = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`); }
         evoI.onerror = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`, true); }
         let wedgeI = new Image();
@@ -2076,10 +2104,20 @@ function CustomCreator() {
 
     });
 
-
+    let b4 = pauseDraw.current;
+    if (pauseDraw.current > 1) {
+      console.debug("triggering redraw " + newRedraw);
+      pauseDraw.current = 0;
+      setNewRedraw(newRedraw + 1);
+      console.debug("triggered redraw " + newRedraw);
+    } else {
+      pauseDraw.current = -1;
+    }
+    // end draw
   }, [userImg, backImg, jsonText, selectedOption, doDraw, currentIndex,
     effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset,
     lineSpacing, initImageOptions, jsonIndex,
+    newRedraw,
     //, endY, isSelecting, startX, startY, 
     neue,
     aceFrame, drawOutline
@@ -2236,9 +2274,6 @@ function CustomCreator() {
                 onMouseUp={handleMouseUp}
  
 */
-
-  console.log(52799, imageOptions);
-
   let json_t = jsonText[currentIndex];
 
   return (

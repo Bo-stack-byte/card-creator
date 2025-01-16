@@ -41,7 +41,7 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.6.0" 
+const version = "0.7.6.1"
 const latest = "trying to properly cache updates so just 1 happens at a time, and 1 always happens at the end"
 
 // version 0.7.5    fix numemon ace bug, trait ordering bug; link fields update; better linkDP checking
@@ -1014,7 +1014,6 @@ function CustomCreator() {
       }
     } catch {
       console.log("json error");
-      let b4 = pauseDraw.current;
       if (pauseDraw.current > 1) {
         pauseDraw.current = 0;
         setSkipDraw(skipDraw); 
@@ -1183,7 +1182,6 @@ function CustomCreator() {
       if (type.startsWith("TAMER") || type.startsWith("OPTION")) bottom -= 640;
 
       if (skipDraw) {
-        let b4 = pauseDraw.current;
         if (pauseDraw.current > 1) {
           pauseDraw.current = 0;
           setSkipDraw(skipDraw); 
@@ -2104,7 +2102,6 @@ function CustomCreator() {
 
     });
 
-    let b4 = pauseDraw.current;
     if (pauseDraw.current > 1) {
       console.debug("triggering redraw " + newRedraw);
       pauseDraw.current = 0;

@@ -41,9 +41,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.6.1"
-const latest = "trying to properly cache updates so just 1 happens at a time, and 1 always happens at the end"
+const version = "0.7.7.0"
+const latest = "increase Lv.N text size; don't wait for fonts for first load"
 
+// version 0.7.6.x  trying to properly cache updates so just 1 happens at a time, and 1 always happens at the end"
 // version 0.7.5    fix numemon ace bug, trait ordering bug; link fields update; better linkDP checking
 // version 0.7.4    multi evo circles back, not multiple bars for 1 trait
 // version 0.7.3.x  link monster BETA, fix evo wedges
@@ -988,7 +989,8 @@ function CustomCreator() {
     } else {
     }
 
-    await document.fonts.ready;
+    //await document.fonts.ready;
+    // just load the page, fonts will come in soon enough
     console.log(745, neue);
 
     if (document.fonts.check('bold 60px Roboto')) {
@@ -1782,23 +1784,23 @@ function CustomCreator() {
         y += levelHeight(type);
         y += 100
         ctx.font = '900 200px "Big Shoulders Text"'
-        ctx.font = '900 150px "ProhibitionRough", "Big Shoulders Text"'
+        ctx.font = '900 170px "ProhibitionRough", "Big Shoulders Text"'
         let x = 250;
 
         level = (level + "    ").substring(0, 4);
-        ctx.font = '150px "ProhibitionRough", "Big Shoulders Text"'
+        ctx.font = '170px "ProhibitionRough", "Big Shoulders Text"'
         ctx.fillText(level[0], x, y - 10);
         x += ctx.measureText(level[0]).width;
 
-        ctx.font = '900 110px "ProhibitionRough", "Big Shoulders Text"'
+        ctx.font = '900 130px "ProhibitionRough", "Big Shoulders Text"'
         ctx.fillText(level[1], x, y - 13);
         x += ctx.measureText(level[1]).width;
 
-        ctx.font = '900 110px "ProhibitionRough", "Big Shoulders Text"'
+        ctx.font = '900 143px "ProhibitionRough", "Big Shoulders Text"'
         ctx.fillText(level[2], x, y - 18);
         x += ctx.measureText(level[2]).width + 10;
 
-        ctx.font = '220px "ProhibitionRough", "Big Shoulders Text"'
+        ctx.font = '250px "ProhibitionRough", "Big Shoulders Text"'
         ctx.fillText(level.substring(3), x, y);
         x += ctx.measureText(level[0]).width;
 

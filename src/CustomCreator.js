@@ -41,9 +41,11 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.7.0"
-const latest = "increase Lv.N text size; don't wait for fonts for first load"
+const version = "0.7.8.0"
+const latest = "bigsize DP in link DP, too"
 
+// version 0.7.8    bigsize DP in link DP, too
+// version 0.7.7.x  increase Lv.N text size; don't wait for fonts for first load
 // version 0.7.6.x  trying to properly cache updates so just 1 happens at a time, and 1 always happens at the end"
 // version 0.7.5    fix numemon ace bug, trait ordering bug; link fields update; better linkDP checking
 // version 0.7.4    multi evo circles back, not multiple bars for 1 trait
@@ -526,6 +528,59 @@ function sleep(ms) {
 }
 
 
+function writeDP(ctx, _dp, args) {
+  
+  const { x, y, size, bigsize, stroke, color } = args;
+//  let [x, y, size, stroke, color] = args[x, y,x = 2540, y = 410, size = 175, stroke = "white", color = "black") {
+
+
+  ctx.fillStyle = color;
+  ctx.font = `bold ${bigsize}px 'HelveticaNeue-CondensedBold', 'Helvetica`;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+
+
+  _dp = parseInt(_dp);
+  let dp_k, dp_m;
+  if (isNaN(_dp)) {
+  } else {
+    dp_k = parseInt(_dp / 1000);
+    if (dp_k === 0) dp_k = "";
+    dp_m = (_dp % 1000).toString().padStart(3, '0');
+  }
+  let dp_x = x - 5;
+  // big num
+  while (dp_k > 0) {
+    // right-to-left for dp_k
+    let letterSpacing = -25;
+    let dp_char = dp_k % 10;
+    ctx.lineWidth = 20;
+    ctx.strokeStyle = stroke;
+    if (stroke) ctx.strokeText(dp_char, dp_x, y);
+    ctx.fillText(dp_char, dp_x, y);
+    dp_x -= (ctx.measureText(dp_char).width + letterSpacing);
+    dp_k = Math.floor(dp_k / 10);
+  }
+
+  ctx.font = `bold ${size}px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'bottom';
+  dp_x = x + 10; // size / 15;
+  // little num
+  let y_offset = (bigsize / 12);
+  if (dp_m) {
+    for (let dp_char of dp_m) {
+      let letterSpacing = 5;
+      ctx.lineWidth = 15;
+      ctx.strokeStyle = stroke;
+      if (stroke) ctx.strokeText(dp_char, dp_x, y - y_offset);
+      ctx.fillText(dp_char, dp_x, y - y_offset);
+      dp_x += (ctx.measureText(dp_char).width + letterSpacing);
+      // left-to-right for dp_m
+    }
+  }
+
+}
 
 
 
@@ -689,21 +744,21 @@ function CustomCreator() {
   const jsonToFields = (text) => {
 
     let imageOptions = "";
-//    console.log(6871, text);
+    //    console.log(6871, text);
     let json;
     try {
       json = JSON.parse(text);
-  //    console.log(687, "first parse", json);
+      //    console.log(687, "first parse", json);
       imageOptions = json.imageOptions;
     } catch {
       return; // no json to parse, don't populate fields...
       // what if array?
     }
     imageOptions = initObject(imageOptions, initImageOptions);
-   // console.log(6872, "img object", JSON.stringify(imageOptions));
-   // console.log(687, "pre-json", JSON.stringify(json));
+    // console.log(6872, "img object", JSON.stringify(imageOptions));
+    // console.log(687, "pre-json", JSON.stringify(json));
     json.imageOptions = { ...imageOptions };
-   // console.log(687, "postjson", JSON.stringify(json));
+    // console.log(687, "postjson", JSON.stringify(json));
     try {
       let temp_parsedJson = json; // JSON.parse(text);
       if (Array.isArray(temp_parsedJson)) {
@@ -1018,7 +1073,7 @@ function CustomCreator() {
       console.log("json error");
       if (pauseDraw.current > 1) {
         pauseDraw.current = 0;
-        setSkipDraw(skipDraw); 
+        setSkipDraw(skipDraw);
       } else {
         pauseDraw.current = -1;
       }
@@ -1186,7 +1241,7 @@ function CustomCreator() {
       if (skipDraw) {
         if (pauseDraw.current > 1) {
           pauseDraw.current = 0;
-          setSkipDraw(skipDraw); 
+          setSkipDraw(skipDraw);
         } else {
           pauseDraw.current = -1;
         }
@@ -1416,18 +1471,25 @@ function CustomCreator() {
               ctx.save();
               ctx.translate(2680, 3610);
               ctx.rotate(Math.PI / 2);
+
+              
+//              ctx.fillText(json.linkDP, 0, 0);
+//              writeDP(ctx, json.linkDP, 0, 0, 90); 
+              writeDP(ctx, json.linkDP, {x:-150, y:20, size:100, bigsize:140, stroke:false, color:"white"});
               ctx.font = "bold 90px HelveticaNeue-CondensedBold, AyarKasone, Helvetica";
               ctx.fillStyle = "white";
               ctx.textAlign = "right";
               ctx.textBaseline = "bottom";
-              ctx.fillText(json.linkDP, 0, 0);
 
-              ctx.font = `60px 'Helvetica'`;
+
+              ctx.font = `40px 'Helvetica'`;
               ctx.textAlign = "center";
-              ctx.fillText("DP", -250, -60);
-              ctx.font = `100px 'Helvetica'`;
+              ctx.fillText("DP", -300, -60);
+              // how do i make the plys skinnier
+              ctx.font = `100 120px 'Helvetica'`;
 
-              ctx.fillText("+", -250, 0);
+              ctx.fillText("+", -300, 40);
+
               ctx.restore();
 
 
@@ -1655,14 +1717,6 @@ function CustomCreator() {
         }
       }
 
-      let _dp = parseInt(json.dp);
-      let dp_k, dp_m;
-      if (isNaN(_dp)) {
-      } else {
-        dp_k = parseInt(_dp / 1000);
-        if (dp_k === 0) dp_k = "";
-        dp_m = (_dp % 1000).toString().padStart(3, '0');
-      }
 
 
       let x = 355;
@@ -1726,401 +1780,368 @@ function CustomCreator() {
 
       if (hasDP(type)) {
         // dp
-        ctx.fillStyle = 'black';
         x = 2540;
         y = 410;
-        ctx.font = `bold 350px 'HelveticaNeue-CondensedBold', 'Helvetica`;
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'bottom';
 
-
-        let dp_x = x - 5;
-        while (dp_k > 0) {
-          // right-to-left for dp_k
-          let letterSpacing = -25;
-          let dp_char = dp_k % 10;
-          ctx.lineWidth = 20;
-          ctx.strokeStyle = 'white';
-          ctx.strokeText(dp_char, dp_x, y);
-          ctx.fillText(dp_char, dp_x, y);
-          dp_x -= (ctx.measureText(dp_char).width + letterSpacing);
-          dp_k = Math.floor(dp_k / 10);
-        }
-
-        ctx.font = `bold 175px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'bottom';
-        dp_x = x + 10;
-        if (dp_m) {
-          for (let dp_char of dp_m) {
-            let letterSpacing = 5;
-            ctx.lineWidth = 15;
-            ctx.strokeStyle = 'white';
-            ctx.strokeText(dp_char, dp_x, y - 25);
-            ctx.fillText(dp_char, dp_x, y - 25);
-            dp_x += (ctx.measureText(dp_char).width + letterSpacing);
-            // left-to-right for dp_m
-          }
-        }
+        writeDP(ctx, json.dp, {x:x, y:y, size:150, bigsize:300,  stroke:"white", color:"black"});
         ctx.font = `100px 'Helvetica'`;
         ctx.lineWidth = 15;
         ctx.strokeStyle = 'white';
         ctx.strokeText("DP", x + 130, y - 200);
         ctx.fillText("DP", x + 130, y - 200);
+      
       }
+        /////// LEVEL
+        if (hasLevel(type)) {
+          let level = (json.cardLv === "-" || json.cardLv === undefined) ? "Lv.-" : json.cardLv;
+          // roboto preferred
+          //        ctx.font = '900 200px "Roboto"'
+
+          ctx.fillStyle = whiteColor(colors[0]);
+          let y = 3400;
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'bottom';
+
+          y += levelHeight(type);
+          y += 100
+          ctx.font = '900 200px "Big Shoulders Text"'
+          ctx.font = '900 170px "ProhibitionRough", "Big Shoulders Text"'
+          let x = 250;
+
+          level = (level + "    ").substring(0, 4);
+          ctx.font = '170px "ProhibitionRough", "Big Shoulders Text"'
+          ctx.fillText(level[0], x, y - 10);
+          x += ctx.measureText(level[0]).width;
+
+          ctx.font = '900 130px "ProhibitionRough", "Big Shoulders Text"'
+          ctx.fillText(level[1], x, y - 13);
+          x += ctx.measureText(level[1]).width;
+
+          ctx.font = '900 143px "ProhibitionRough", "Big Shoulders Text"'
+          ctx.fillText(level[2], x, y - 18);
+          x += ctx.measureText(level[2]).width + 10;
+
+          ctx.font = '250px "ProhibitionRough", "Big Shoulders Text"'
+          ctx.fillText(level.substring(3), x, y);
+          x += ctx.measureText(level[0]).width;
+
+        }
+
+        //// NAME 
+        let delta_y = 0;
+        switch (type) {
+          case "OPTION":
+          case "OPTIONINHERIT":
+          case "TAMER":
+          case "EGG":
+          case "TAMERINHERIT": delta_y -= 125; if (!has_traits) delta_y += 30; break;
+          case "LINK":
+          case "MEGA": delta_y += 500; break;
+          case "MONSTER": break;
+          case "ACE": if (aceFrame) delta_y += 30; break;
+          default: alert(1);
+        }
+
+        // name
+        try {
+          const name = json.name.english;
+          let ace_offset = (type === "ACE") ? -ace_logo.width / 2 : 0;
+          const maxWidth = 1600 + ace_offset * 2;
+
+          const initialFontSize = 200;
+          const namefontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize, 180);
+          // PF Das Grotesk Pro Bold is the actual font but $$
+          //ctx.font = `bold ${fontSize}px Roboto`; // better looking I
+          //        ctx.font = `700 ${fontSize}px Schibsted Grotesk`; // has curved lowercase l
+          ctx.font = `700 ${namefontSize}px ToppanBunkyExtraBold`; // has curved lowercase l
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = 'white';
+
+          ctx.lineWidth = 30; // Border width
+          let bc = borderColor(colors);
+          ctx.strokeStyle = bc;
+
+          let actualWidth = ctx.measureText(name).width;
+          let scale = (maxWidth) / actualWidth;
+          let endWidth = Math.min(maxWidth, actualWidth);
+          if (scale > 1) scale = 1;
+          // at  a certain point we should do multiple lines
+          ctx.save();
+          ctx.scale(scale, 1);
+          let name_line = 3328
+          if (bc !== "") {
+            ctx.lineWidth = 20; // Border width
+            ctx.strokeText(name, (1480 + ace_offset) / scale, name_line + delta_y);
+          }
+          ctx.lineWidth = 2; // Border width
+          ctx.fillText(name, (1480 + ace_offset) / scale, name_line + delta_y);
+          ctx.restore();
 
 
-      /////// LEVEL
-      if (hasLevel(type)) {
-        let level = (json.cardLv === "-" || json.cardLv === undefined) ? "Lv.-" : json.cardLv;
-        // roboto preferred
-        //        ctx.font = '900 200px "Roboto"'
+          if (type === "ACE") {
+            let end = endWidth / 2;
+            ctx.drawImage(ace_logo, 1480 + ace_offset + end + 10, name_line + delta_y - 95);
+          }
+        } catch { };
 
+        // card number
+        const id = json.cardNumber;
+        ctx.textAlign = 'right';
+        ctx.fillStyle = contrastColor(colors[colors.length - 1]);
+        ctx.font = `bold 100px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
+
+        // Helvetica seems basically right but needs to be made skinny
+        // ToppanBunkyExtraBold has serifs on 1 now??
+        // myriadprobold wrong on 7 6 1
+        // asimov has wrong 6
+        // ayarkasone has the right 1 but the wrong 5
+        // levetica and arial may be too plain? or not.
+        // not roboto because the 6 needs a hook
+        // fallingsky ihas the wrong 1
+
+        ctx.fillText(id, 2740, 3300 + delta_y);
+
+        // traits: form, attribute, type
+        let form = json.form || '';
+        let attribute = json.attribute || '';
+        let c_type = json.type || '';
+        // todo don't show when all blank
+        let a_traits = [];
+
+        if (!empty(form)) a_traits.push(` ${center(form)} `);
+        if (!empty(attribute)) a_traits.push(` ${center(attribute)} `);
+        if (!empty(c_type)) a_traits.push(` ${c_type}  `);
+        let traits = a_traits.join("|");
         ctx.fillStyle = whiteColor(colors[0]);
-        let y = 3400;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'bottom';
-
-        y += levelHeight(type);
-        y += 100
-        ctx.font = '900 200px "Big Shoulders Text"'
-        ctx.font = '900 170px "ProhibitionRough", "Big Shoulders Text"'
-        let x = 250;
-
-        level = (level + "    ").substring(0, 4);
-        ctx.font = '170px "ProhibitionRough", "Big Shoulders Text"'
-        ctx.fillText(level[0], x, y - 10);
-        x += ctx.measureText(level[0]).width;
-
-        ctx.font = '900 130px "ProhibitionRough", "Big Shoulders Text"'
-        ctx.fillText(level[1], x, y - 13);
-        x += ctx.measureText(level[1]).width;
-
-        ctx.font = '900 143px "ProhibitionRough", "Big Shoulders Text"'
-        ctx.fillText(level[2], x, y - 18);
-        x += ctx.measureText(level[2]).width + 10;
-
-        ctx.font = '250px "ProhibitionRough", "Big Shoulders Text"'
-        ctx.fillText(level.substring(3), x, y);
-        x += ctx.measureText(level[0]).width;
-
-      }
-
-      //// NAME 
-      let delta_y = 0;
-      switch (type) {
-        case "OPTION":
-        case "OPTIONINHERIT":
-        case "TAMER":
-        case "EGG":
-        case "TAMERINHERIT": delta_y -= 125; if (!has_traits) delta_y += 30; break;
-        case "LINK":
-        case "MEGA": delta_y += 500; break;
-        case "MONSTER": break;
-        case "ACE": if (aceFrame) delta_y += 30; break;
-        default: alert(1);
-      }
-
-      // name
-      try {
-        const name = json.name.english;
-        let ace_offset = (type === "ACE") ? -ace_logo.width / 2 : 0;
-        const maxWidth = 1600 + ace_offset * 2;
-
-        const initialFontSize = 200;
-        const namefontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize, 180);
-        // PF Das Grotesk Pro Bold is the actual font but $$
-        //ctx.font = `bold ${fontSize}px Roboto`; // better looking I
-        //        ctx.font = `700 ${fontSize}px Schibsted Grotesk`; // has curved lowercase l
-        ctx.font = `700 ${namefontSize}px ToppanBunkyExtraBold`; // has curved lowercase l
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = 'white';
-
-        ctx.lineWidth = 30; // Border width
-        let bc = borderColor(colors);
-        ctx.strokeStyle = bc;
-
-        let actualWidth = ctx.measureText(name).width;
-        let scale = (maxWidth) / actualWidth;
-        let endWidth = Math.min(maxWidth, actualWidth);
-        if (scale > 1) scale = 1;
-        // at  a certain point we should do multiple lines
-        ctx.save();
-        ctx.scale(scale, 1);
-        let name_line = 3328
-        if (bc !== "") {
-          ctx.lineWidth = 20; // Border width
-          ctx.strokeText(name, (1480 + ace_offset) / scale, name_line + delta_y);
+        if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
+          delta_y += 10;
         }
-        ctx.lineWidth = 2; // Border width
-        ctx.fillText(name, (1480 + ace_offset) / scale, name_line + delta_y);
-        ctx.restore();
-
-
-        if (type === "ACE") {
-          let end = endWidth / 2;
-          ctx.drawImage(ace_logo, 1480 + ace_offset + end + 10, name_line + delta_y - 95);
+        if (type === "MEGA") {
+          //        delta_y += 50;
         }
-      } catch { };
-
-      // card number
-      const id = json.cardNumber;
-      ctx.textAlign = 'right';
-      ctx.fillStyle = contrastColor(colors[colors.length - 1]);
-      ctx.font = `bold 100px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
-
-      // Helvetica seems basically right but needs to be made skinny
-      // ToppanBunkyExtraBold has serifs on 1 now??
-      // myriadprobold wrong on 7 6 1
-      // asimov has wrong 6
-      // ayarkasone has the right 1 but the wrong 5
-      // levetica and arial may be too plain? or not.
-      // not roboto because the 6 needs a hook
-      // fallingsky ihas the wrong 1
-
-      ctx.fillText(id, 2740, 3300 + delta_y);
-
-      // traits: form, attribute, type
-      let form = json.form || '';
-      let attribute = json.attribute || '';
-      let c_type = json.type || '';
-      // todo don't show when all blank
-      let a_traits = [];
-
-      if (!empty(form)) a_traits.push(` ${center(form)} `);
-      if (!empty(attribute)) a_traits.push(` ${center(attribute)} `);
-      if (!empty(c_type)) a_traits.push(` ${c_type}  `);
-      let traits = a_traits.join("|");
-      ctx.fillStyle = whiteColor(colors[0]);
-      if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
-        delta_y += 10;
-      }
-      if (type === "MEGA") {
-        //        delta_y += 50;
-      }
-      if (type === "EGG") {
-        delta_y += 0;
-      }
-
-      ctx.font = `bold 60px "FallifngSky", "MyrggiadProBold", "RepoMedium", "Robgoto"`;
-      ctx.font = `60px MyriadProBold`;
-      ctx.fillText(traits, 2750, 3490 + delta_y)// * 0.9);
-
-      ///// MAIN TEXT 
-      let y_line = bottom - 640; // set above for effectbox / rule
-
-      //      let b = Number(baselineOffset);
-      let so = Number(specialOffset);
-      y_line -= Number(baselineOffset);
-
-      //console.log(1149, b, baselineOffset, y_line);
-      ctx.font = `bold 90px Arial`;
-      ctx.textAlign = 'start';
-      ctx.textBaseline = 'bottom'; // Align text to the bottom
-
-
-      const fontSize_n = Number(fontSize);
-      // DNA evo and special evo appear above the effect line
-      const dna_evo = json.dnaEvolve || json.dnaDigivolve; // colorReplace is inside drawBracketedText
-      const spec_temp = json.specialEvolve || json.specialDigivolve;
-      const spec_evo = colorReplace(spec_temp, true);
-      const delta = fontSize_n + so;
-      let special_baseline = y_line;
-      console.log(1277, special_baseline, y_line, (fontSize_n + so))
-      if (!empty(spec_evo)) {
-        special_baseline -= (delta);
-        drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(lineSpacing), "bubble");
-      }
-      if (!empty(dna_evo)) {
-        special_baseline -= (delta);
-        drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(lineSpacing), "dna");
-      }
-
-      let effect = json.effect;
-      ctx.fillStyle = 'black';
-
-      y_line += 80;
-      //      if (type === "MONSTER") y_line += 180;
-
-      if (effect && effect !== "-") {
-        effect = colorReplace(effect, true);
-        y_line = drawBracketedText(ctx, fontSize, effect,
-          //wrapText(ctx, effect, // + effect, 
-          250, y_line,
-          2455,
-          Number(fontSize) + Number(lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
-          false
-        );
-      }
-
-
-      // evo effect
-      ctx.textAlign = 'start';
-      ctx.textBaseline = 'bottom'; // Align text to the bottom
-
-
-      console.log("a", evo_effect);
-      if (type === "MEGA") {
-        // no security text
-      } else if (type === "LINK") {
-        let req = json.linkRequirement;
-        let effect = json.linkEffect;
-        let delta_x = -220; let delta_y = -200; let shrink = 1000;
-        if (!empty(req)) {
-          drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
+        if (type === "EGG") {
+          delta_y += 0;
         }
-        // shrink is not working, we're ignoring max_width
-        let max_width = 2500 - 400 - delta_x * 2 - shrink;
-        drawBracketedText(ctx, fontSize, effect,
-          700 + delta_x * 2, 3740 + delta_y * 2 + 150,
-          max_width, Number(fontSize) + Number(lineSpacing), "effect");
-      } else {
-        let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
-        if (json.linkDP) {
-        }
-        sec_effect = colorReplace(sec_effect, true);
 
-        //ctx.fillStyle = 'red';
-        let delta_x = delta_y;
-        let shrink = 0;
-        if (type === "ACE") {
-          delta_x -= 60; delta_y += 100;
-        } else if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
-          delta_x = 0; delta_y = -50;
+        ctx.font = `bold 60px "FallifngSky", "MyrggiadProBold", "RepoMedium", "Robgoto"`;
+        ctx.font = `60px MyriadProBold`;
+        ctx.fillText(traits, 2750, 3490 + delta_y)// * 0.9);
+
+        ///// MAIN TEXT 
+        let y_line = bottom - 640; // set above for effectbox / rule
+
+        //      let b = Number(baselineOffset);
+        let so = Number(specialOffset);
+        y_line -= Number(baselineOffset);
+
+        //console.log(1149, b, baselineOffset, y_line);
+        ctx.font = `bold 90px Arial`;
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'bottom'; // Align text to the bottom
+
+
+        const fontSize_n = Number(fontSize);
+        // DNA evo and special evo appear above the effect line
+        const dna_evo = json.dnaEvolve || json.dnaDigivolve; // colorReplace is inside drawBracketedText
+        const spec_temp = json.specialEvolve || json.specialDigivolve;
+        const spec_evo = colorReplace(spec_temp, true);
+        const delta = fontSize_n + so;
+        let special_baseline = y_line;
+        console.log(1277, special_baseline, y_line, (fontSize_n + so))
+        if (!empty(spec_evo)) {
+          special_baseline -= (delta);
+          drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(lineSpacing), "bubble");
+        }
+        if (!empty(dna_evo)) {
+          special_baseline -= (delta);
+          drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(lineSpacing), "dna");
+        }
+
+        let effect = json.effect;
+        ctx.fillStyle = 'black';
+
+        y_line += 80;
+        //      if (type === "MONSTER") y_line += 180;
+
+        if (effect && effect !== "-") {
+          effect = colorReplace(effect, true);
+          y_line = drawBracketedText(ctx, fontSize, effect,
+            //wrapText(ctx, effect, // + effect, 
+            250, y_line,
+            2455,
+            Number(fontSize) + Number(lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
+            false
+          );
+        }
+
+
+        // evo effect
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'bottom'; // Align text to the bottom
+
+
+        console.log("a", evo_effect);
+        if (type === "MEGA") {
+          // no security text
+        } else if (type === "LINK") {
+          let req = json.linkRequirement;
+          let effect = json.linkEffect;
+          let delta_x = -220; let delta_y = -200; let shrink = 1000;
+          if (!empty(req)) {
+            drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
+          }
+          // shrink is not working, we're ignoring max_width
+          let max_width = 2500 - 400 - delta_x * 2 - shrink;
+          drawBracketedText(ctx, fontSize, effect,
+            700 + delta_x * 2, 3740 + delta_y * 2 + 150,
+            max_width, Number(fontSize) + Number(lineSpacing), "effect");
         } else {
-          delta_x = 0; delta_y = 0;
+          let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
+          if (json.linkDP) {
+          }
+          sec_effect = colorReplace(sec_effect, true);
+
+          //ctx.fillStyle = 'red';
+          let delta_x = delta_y;
+          let shrink = 0;
+          if (type === "ACE") {
+            delta_x -= 60; delta_y += 100;
+          } else if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
+            delta_x = 0; delta_y = -50;
+          } else {
+            delta_x = 0; delta_y = 0;
+          }
+          let max_width = 2500 - 400 - delta_x * 2 - shrink;
+          drawBracketedText(ctx, fontSize, sec_effect,
+            700 + delta_x * 2, 3740 + delta_y * 2,
+            max_width, Number(fontSize) + Number(lineSpacing), "effect");
         }
-        let max_width = 2500 - 400 - delta_x * 2 - shrink;
-        drawBracketedText(ctx, fontSize, sec_effect,
-          700 + delta_x * 2, 3740 + delta_y * 2,
-          max_width, Number(fontSize) + Number(lineSpacing), "effect");
-      }
-    } /// end afterLoad
+      } /// end afterLoad
 
-    /*
-    if (false)
-      if (isSelecting) {
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 30;
-        console.log(1026, "x", startX, startY, endX - startX, endY - startY);
- 
-        ctx.strokeRect(startX * 2977 / 355,
-          startY * canvas.height / 499,
-          (endX - startX) * 2977 / 355,
-          (endY - startY) * canvas.height / 499
-        )
-      }
-        */
-
-
-    let evo_circle_colors = [];
-    if (_evos) {
-      evo_circle_colors = _evos.map(e => e.color ? e.color.toLowerCase().split("/") : [])
-        .reduce((acc, curr) => acc.concat(curr), []);
-    }
-    const effectFrames = effectBox ? Array.from({ length: len }, () => new Image()) : [];
-
-    // N for basic style frame, 1 for custom image, 1 per color, 2 per evo circle, 1 per effect box
-    let imagesToLoad = cardframes.length + 1 + frameImages.length + 2 * (evo_circle_colors.length) + effectFrames.length;
-    console.log(817, frameImages.length, _evos && _evos.length);
-    let imagesLoaded = 0;
-
-    await new Promise((resolve) => {
-      const checkAllImagesLoaded = (text, failure) => {
-        imagesLoaded++;
-        //console.log(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
-        if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
-          // Set the canvas dimensions  
-          afterLoad();
-          resolve();
+      /*
+      if (false)
+        if (isSelecting) {
+          ctx.strokeStyle = 'red';
+          ctx.lineWidth = 30;
+          console.log(1026, "x", startX, startY, endX - startX, endY - startY);
+   
+          ctx.strokeRect(startX * 2977 / 355,
+            startY * canvas.height / 499,
+            (endX - startX) * 2977 / 355,
+            (endY - startY) * canvas.height / 499
+          )
         }
-      };
+          */
 
-      for (let i = 0; i < effectFrames.length; i++) {
-        effectFrames[i].src = effectboxes[colors[i]];
-        effectFrames[i].onload = function () { checkAllImagesLoaded("box" + i); }
-        effectFrames[i].onerror = function () { checkAllImagesLoaded("box" + i, true); }
 
+      let evo_circle_colors = [];
+      if (_evos) {
+        evo_circle_colors = _evos.map(e => e.color ? e.color.toLowerCase().split("/") : [])
+          .reduce((acc, curr) => acc.concat(curr), []);
       }
+      const effectFrames = effectBox ? Array.from({ length: len }, () => new Image()) : [];
 
-      for (let f of frameImages) {
-        f.onload = function () { checkAllImagesLoaded(f.src); }
-        f.onerror = function () { checkAllImagesLoaded(f.src, true); }
-      }
-      // this has a race condition    
-      baseImg.onload = function () { checkAllImagesLoaded("baseimage"); }
-      baseImg.onerror = function () { checkAllImagesLoaded("baseimage", true); }
-      if (baseImg.complete) {
-        console.log("base img already loaded");
-        //    baseImg.src = baseImg.src; // reload
+      // N for basic style frame, 1 for custom image, 1 per color, 2 per evo circle, 1 per effect box
+      let imagesToLoad = cardframes.length + 1 + frameImages.length + 2 * (evo_circle_colors.length) + effectFrames.length;
+      console.log(817, frameImages.length, _evos && _evos.length);
+      let imagesLoaded = 0;
+
+      await new Promise((resolve) => {
+        const checkAllImagesLoaded = (text, failure) => {
+          imagesLoaded++;
+          //console.log(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
+          if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
+            // Set the canvas dimensions  
+            afterLoad();
+            resolve();
+          }
+        };
+
+        for (let i = 0; i < effectFrames.length; i++) {
+          effectFrames[i].src = effectboxes[colors[i]];
+          effectFrames[i].onload = function () { checkAllImagesLoaded("box" + i); }
+          effectFrames[i].onerror = function () { checkAllImagesLoaded("box" + i, true); }
+
+        }
+
+        for (let f of frameImages) {
+          f.onload = function () { checkAllImagesLoaded(f.src); }
+          f.onerror = function () { checkAllImagesLoaded(f.src, true); }
+        }
+        // this has a race condition    
+        baseImg.onload = function () { checkAllImagesLoaded("baseimage"); }
+        baseImg.onerror = function () { checkAllImagesLoaded("baseimage", true); }
+        if (baseImg.complete) {
+          console.log("base img already loaded");
+          //    baseImg.src = baseImg.src; // reload
+        } else {
+
+        }
+
+        for (let i in evo_circle_colors) {
+          let my_color = evo_circle_colors[i];
+          let evoI = new Image();
+          evoImages[i] = evoI;
+          evoI.src = new_evo_circles[my_color]
+          evoI.onload = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`); }
+          evoI.onerror = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`, true); }
+          let wedgeI = new Image();
+          wedgeImages[i] = wedgeI;
+          wedgeI.src = new_evo_wedges[my_color]
+          wedgeI.onload = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`); }
+          wedgeI.onerror = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`, true); }
+        }
+        for (let i in cardframes) {
+          shellImages[i] = new Image();
+          shellImages[i].src = cardframes[i];
+          shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(`shell src  ${i} ${shellImages[i].src}`); }
+        }
+
+
+        switch (type) {
+          case "OPTION":
+          case "OPTIONINHERIT": array = options; break;
+          // how is outlines_tamer different from outlines_egg??
+          case "TAMER":
+          case "TAMERINHERIT": array = modern ? outlines_tamer : tamers; break;
+          case "EGG": array = modern ? outlines_egg : eggs; break;
+          case "MONSTER": break;
+          case "MEGA": break;
+          case "ACE": break;
+          case "LINK": break;
+          default: alert(4);
+        }
+
+
+        if (type.startsWith("OPTION")) {
+          frameImages[0].src = outline_option;
+        } else {
+          for (let i = 0; i < frameImages.length; i++) {
+            frameImages[i].src = array[colors[i]];
+          }
+        }
+        console.log(906, `sources set ${imagesToLoad} loaded ${imagesLoaded} base: ${!!baseImg.complete}`);
+
+      });
+
+      if (pauseDraw.current > 1) {
+        console.debug("triggering redraw " + newRedraw);
+        pauseDraw.current = 0;
+        setNewRedraw(newRedraw + 1);
+        console.debug("triggered redraw " + newRedraw);
       } else {
-
+        pauseDraw.current = -1;
       }
-
-      for (let i in evo_circle_colors) {
-        let my_color = evo_circle_colors[i];
-        let evoI = new Image();
-        evoImages[i] = evoI;
-        evoI.src = new_evo_circles[my_color]
-        evoI.onload = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`); }
-        evoI.onerror = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`, true); }
-        let wedgeI = new Image();
-        wedgeImages[i] = wedgeI;
-        wedgeI.src = new_evo_wedges[my_color]
-        wedgeI.onload = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`); }
-        wedgeI.onerror = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`, true); }
-      }
-      for (let i in cardframes) {
-        shellImages[i] = new Image();
-        shellImages[i].src = cardframes[i];
-        shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(`shell src  ${i} ${shellImages[i].src}`); }
-      }
-
-
-      switch (type) {
-        case "OPTION":
-        case "OPTIONINHERIT": array = options; break;
-        // how is outlines_tamer different from outlines_egg??
-        case "TAMER":
-        case "TAMERINHERIT": array = modern ? outlines_tamer : tamers; break;
-        case "EGG": array = modern ? outlines_egg : eggs; break;
-        case "MONSTER": break;
-        case "MEGA": break;
-        case "ACE": break;
-        case "LINK": break;
-        default: alert(4);
-      }
-
-
-      if (type.startsWith("OPTION")) {
-        frameImages[0].src = outline_option;
-      } else {
-        for (let i = 0; i < frameImages.length; i++) {
-          frameImages[i].src = array[colors[i]];
-        }
-      }
-      console.log(906, `sources set ${imagesToLoad} loaded ${imagesLoaded} base: ${!!baseImg.complete}`);
-
-    });
-
-    if (pauseDraw.current > 1) {
-      console.debug("triggering redraw " + newRedraw);
-      pauseDraw.current = 0;
-      setNewRedraw(newRedraw + 1);
-      console.debug("triggered redraw " + newRedraw);
-    } else {
-      pauseDraw.current = -1;
-    }
-    // end draw
-  }, [userImg, backImg, jsonText, selectedOption, doDraw, currentIndex,
-    effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset,
-    lineSpacing, initImageOptions, jsonIndex,
-    newRedraw,
-    //, endY, isSelecting, startX, startY, 
-    neue,
-    aceFrame, drawOutline
-  ]);
+      // end draw
+    }, [userImg, backImg, jsonText, selectedOption, doDraw, currentIndex,
+      effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset,
+      lineSpacing, initImageOptions, jsonIndex,
+      newRedraw,
+      //, endY, isSelecting, startX, startY, 
+      neue,
+      aceFrame, drawOutline
+    ]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

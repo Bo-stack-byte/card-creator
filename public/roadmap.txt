@@ -6,7 +6,6 @@ KNOWN BUGS
 
 * multiple users reporting Safari issues (bad scaling, bad font on mon name). if this includes you, please reach out
 * bubble around digixros wrong length
-* digimon name for pure yellow/pure white should be solid black, not white with black border
 * fix those extra pixels at intersections where angles jut out
 * Keyword scrunching (try sample ACE with fontsize 140)
 * (maybe same issue) Keywords that appear far along the line may be mis-aligned. So do [] symbols
@@ -18,7 +17,7 @@ VAGUE TO DO LIST, SOONER:
 
 * put all variables into json blob
 * pen for creator name (should credit both artist and author)
-* auto-generate all images (for testing)
+* auto-generate all images with one click (for testing)
 * standalone binary, so local images can be accessed
 
 VAGUE TO DO LIST, LATER:
@@ -33,7 +32,6 @@ VAGUE TO DO LIST, LATER:
 * for remote fonts, delay first rendering or re-render when it loads
 * handle too-large text in a better way
 * get faint white glow in playcost circle
-* dual-layer art (user supplies background and foreground: foreground gets drawn over background)
 * save final art and user art with link
 * browseable gallery of all saves
 * user accounts
@@ -53,6 +51,8 @@ VAGUE TO DO LIST, LATER:
 
 NOMINALLY FIXED BUGS / FEATURES
 
+* dual-layer art (user supplies background and foreground: foreground gets drawn over background)
+* digimon name for pure yellow/pure white should be solid black, not white with black border
 * Digixros and "rule" text overlaps.
 * lower name on options/tamers when no traits
 * the same way you set color to "green/red" people expect to be able to set the digivolve for a level to be "green/red" instead of needing 2 separate lines

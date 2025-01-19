@@ -43,10 +43,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.10.0"
-const latest = "reorder fields a bit to move up evo conditions" 
+const version = "0.7.10.2"
+const latest = "reorder fields a bit to move up evo conditions; move lineSpacing, skipdraw, baselineoffset and specialoffset into blob"
 
-// version 0.7.10   reorder fields a bit to move up evo conditions
+// version 0.7.10.x reorder fields a bit to move up evo conditions
 // version 0.7.9.x  set background image, put all checkboxes into JSON blob, white/yellow name now pure black, fix Lv.X text w/Ace frames, new reminder text
 // version 0.7.8    bigsize DP in link DP, too
 // version 0.7.7.x  increase Lv.N text size; don't wait for fonts for first load
@@ -121,11 +121,13 @@ const settingsText = {
   "addFoil": "add foil to edge",
   "aceFrame": "for ACEs use new frame",
   "outline": "include border line",
-  "skipDraw": "don't update card",
+  "skipDraw": "disabling drawing",
   "lineSpacing": "line spacing",
+  "baselineOffset": "move effect baseline up by",
+  "specialOffset": "move special evos up by",
 }
 const settingText = (s) => {
-  return settingsText[s] ||  s;
+  return settingsText[s] || s;
 }
 
 const empty = (s) => {
@@ -166,7 +168,7 @@ const textColor = (colors) => {
   let fillColor = 'white';
   let strokeColor = 'black';
   // if only white and/or yellow, pure black with no border
-  if (colors.filter( c =>  c !== "yellow" && c !== "white" ).length === 0) {
+  if (colors.filter(c => c !== "yellow" && c !== "white").length === 0) {
     fillColor = 'black';
     strokeColor = 'white';
     border = false; // may not draw border at all
@@ -226,6 +228,7 @@ const starter_text_empty = `{
     "cardLv": "Lv.2",
     "cardNumber": "",
     "dp": "-",
+    "evolveCondition": [],
     "effect": "-",
     "form": "In-Training",
     "attribute": "",
@@ -239,11 +242,15 @@ const starter_text_empty = `{
     "burstEvolve": "-",
     "evolveEffect": "-", 
     "rule": "",
-    "cardNumber": "X-01",
+    "cardNumber": "X-01", 
+    "linkRequirement": "-",
+    "linkDP": "-",
+    "linkEffect": "-",
+
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
       "foregroundOnTop": false,
                   "cardFrame": true,
             "effectBox": false,
@@ -274,7 +281,7 @@ const starter_text_0 = `  {
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -321,7 +328,7 @@ const starter_text_1a = `  {
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -361,7 +368,7 @@ const starter_text_1b = `  {
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -409,7 +416,7 @@ const starter_text_1c = `{
     "ess_y_pos": "24",
     "ess_x_end": 50,
     "ess_y_end": 50,
-    "fontSize": 90.5,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
             "foregroundOnTop": true,
             "cardFrame": true,
             "effectBox": false,
@@ -436,10 +443,13 @@ const starter_text_2 = `  {
   "rarity": "Secret Rare",
   "rule": "",
   "cardNumber": "CS1-13",
+  "linkRequirement": "-",
+  "linkDP": "-",
+  "linkEffect": "-",
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -466,16 +476,14 @@ const starter_text_3 = `   {
     "cardNumber": "CS2-17",
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
-      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5,
+      "ess_x_pos": 40, "ess_y_pos": 0, "ess_x_end": 80, "ess_y_end": 40,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
             "addFoil": false,
             "aceFrame": true,
-            "outline": true,
-            "skipDraw": false
-
+            "outline": true
     }
     }`;
 
@@ -653,13 +661,12 @@ function CustomCreator() {
       // handle all other new options here before getting text back
 
       // legacy options that weren't in JSON blob are in it now
-      if ("drawFrame" in cardState) jsonObject.imageOptions.drawFrame = cardState.drawFrame;
-      if ("effectBox" in cardState) jsonObject.imageOptions.effectBox = cardState.effectBox;
-      if ("baselineOffset" in cardState) setBaselineOffset(cardState.baselineOffset);
-      if ("specialOffset" in cardState) setSpecialOffset(cardState.specialOffset);
-      if ("lineSpacing" in cardState) setLineSpacing(cardState.lineSpacing);
+      for (let obj in ["drawFrame", "effectBox", "baselineOffset", "specialOffset",
+        "lineSpacing"]) {
+        if (obj in cardState) jsonObject.imageOptions[obj] = cardState[obj];
+      }
       jsonText = JSON.stringify(jsonObject, null, 2);
-      updateJson(jsonText); // this must be first
+      updateJson(jsonText);
     } catch (e) {
       console.error("restore error: " + e);
     }
@@ -694,9 +701,6 @@ function CustomCreator() {
     const [endX, setEndX] = useState(0);
     const [endY, setEndY] = useState(0);
   */
-  const [baselineOffset, setBaselineOffset] = useState(0);
-  const [specialOffset, setSpecialOffset] = useState(0);
-  const [lineSpacing, setLineSpacing] = useState(10);
   const [selectedOption, setSelectedOption] = useState('AUTO'); // radio buttons 
 
   useEffect(() => {
@@ -721,13 +725,16 @@ function CustomCreator() {
       url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
       ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50,
       fontSize: 90.5,
+      lineSpacing: 10,
+      baselineOffset: 0,
+      specialOffset: 0,
       foregroundOnTop: false,
       cardFrame: true,
       effectBox: false,
       addFoil: false,
       aceFrame: true,
       outline: true,
-      skipDraw: false
+      skipDraw: false,
 
     };
   }, []);
@@ -1246,7 +1253,7 @@ function CustomCreator() {
     // options don't need to load frames
     const len = (type === "OPTION" || type === "OPTIONINHERIT") ? 1 : colors.length;
     const frameImages = Array.from({ length: len }, () => new Image());
-    const baseImg = backImg; 
+    const baseImg = backImg;
 
     const shellImages = [];
     const evoImages = [];
@@ -1315,10 +1322,10 @@ function CustomCreator() {
       let bottom_y = 3550 - 440
       if (type === "MEGA") bottom_y += 500;
       if (type === "ACE") bottom_y += 1;
-      
-      let mon_img = foreImg; 
+
+      let mon_img = foreImg;
       // bottom doesn't matter for under draw
-      if (! imageOptions.foregroundOnTop) drawMon(mon_img, bottom_y + 2000);
+      if (!imageOptions.foregroundOnTop) drawMon(mon_img, bottom_y + 2000);
       //      let h = canvas.height;
       let len = colors.length;
       // multicolor
@@ -1342,7 +1349,7 @@ function CustomCreator() {
       }
       console.log(1323, imageOptions);
       console.log(1324, imageOptions.effectBox);
-      
+
       if (imageOptions.effectBox) {
         for (let i = 0; i < len; i++) {
           /*let col = colors[i];
@@ -1355,8 +1362,8 @@ function CustomCreator() {
           console.log(1335, box);
           if (box && box.complete) {
             console.log(1051, box, box.height);
-            let y_scale = effectBoxScale(box.height, baselineOffset);
-            scalePartialImage(ctx, box, i, len, 825, offset_x + 100, bottom + 60 - baselineOffset, 0, y_scale);
+            let y_scale = effectBoxScale(box.height, imageOptions.baselineOffset);
+            scalePartialImage(ctx, box, i, len, 825, offset_x + 100, bottom + 60 - imageOptions.baselineOffset, 0, y_scale);
           }
         }
       }
@@ -1598,7 +1605,7 @@ function CustomCreator() {
             if (imageOptions.outline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE")) {
               // bottom of frame
               let border = borders[col];
-             scalePartialImage(ctx, border, i, len, 67.3, 166, bottom_y);
+              scalePartialImage(ctx, border, i, len, 67.3, 166, bottom_y);
 
               // todo: play with these numbers some more. scale is 67.2-67.5,
               // and left is 166
@@ -1677,7 +1684,7 @@ function CustomCreator() {
 
       if (!empty(xros)) {
         let preview = drawBracketedText(ctx, fontSize, xros, 300, bottom,
-          3000, Number(fontSize) + Number(lineSpacing), "bubble", true);
+          3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble", true);
         // our text should end at roughly bottom + 
         xros_offset = preview - (bottom + fontSize * 2);
         console.log(1254, 'x', preview, bottom);
@@ -1688,7 +1695,7 @@ function CustomCreator() {
         let fudge = 260;
 
         if (300 + xros_length + fudge > rule_start) {
-          rule_offset = (Number(fontSize) * 1.2 + Number(lineSpacing) * 2.0);
+          rule_offset = (Number(fontSize) * 1.2 + Number(imageOptions.lineSpacing) * 2.0);
         }
       }
       if (!empty(rule)) {
@@ -1699,7 +1706,7 @@ function CustomCreator() {
       if (!empty(xros)) {
         // BT10-009 EX3-014: shaded box
         // st19-10 solid box
-        drawBracketedText(ctx, fontSize, xros, 300, bottom - xros_offset, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
+        drawBracketedText(ctx, fontSize, xros, 300, bottom - xros_offset, 3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble");
       }
 
 
@@ -2026,11 +2033,11 @@ function CustomCreator() {
       ///// MAIN TEXT 
       let y_line = bottom - 640; // set above for effectbox / rule
 
-      //      let b = Number(baselineOffset);
-      let so = Number(specialOffset);
-      y_line -= Number(baselineOffset);
+      //      let b = Number(imageOptions.baselineOffset);
+      let so = Number(imageOptions.specialOffset);
+      y_line -= Number(imageOptions.baselineOffset);
 
-      //console.log(1149, b, baselineOffset, y_line);
+      //console.log(1149, b, imageOptions.baselineOffset, y_line);
       ctx.font = `bold 90px Arial`;
       ctx.textAlign = 'start';
       ctx.textBaseline = 'bottom'; // Align text to the bottom
@@ -2046,11 +2053,11 @@ function CustomCreator() {
       console.log(1277, special_baseline, y_line, (fontSize_n + so))
       if (!empty(spec_evo)) {
         special_baseline -= (delta);
-        drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(lineSpacing), "bubble");
+        drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(imageOptions.lineSpacing), "bubble");
       }
       if (!empty(dna_evo)) {
         special_baseline -= (delta);
-        drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(lineSpacing), "dna");
+        drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(imageOptions.lineSpacing), "dna");
       }
 
       let effect = json.effect;
@@ -2065,7 +2072,7 @@ function CustomCreator() {
           //wrapText(ctx, effect, // + effect, 
           250, y_line,
           2455,
-          Number(fontSize) + Number(lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
+          Number(fontSize) + Number(imageOptions.lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
           false
         );
       }
@@ -2084,13 +2091,13 @@ function CustomCreator() {
         let effect = json.linkEffect;
         let delta_x = -220; let delta_y = -200; let shrink = 1000;
         if (!empty(req)) {
-          drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
+          drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(imageOptions.lineapacing), "bubble");
         }
         // shrink is not working, we're ignoring max_width
         let max_width = 2500 - 400 - delta_x * 2 - shrink;
         drawBracketedText(ctx, fontSize, effect,
           700 + delta_x * 2, 3740 + delta_y * 2 + 150,
-          max_width, Number(fontSize) + Number(lineSpacing), "effect");
+          max_width, Number(fontSize) + Number(imageOptions.lineapacing), "effect");
       } else {
         let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
         if (json.linkDP) {
@@ -2110,7 +2117,7 @@ function CustomCreator() {
         let max_width = 2500 - 400 - delta_x * 2 - shrink;
         drawBracketedText(ctx, fontSize, sec_effect,
           700 + delta_x * 2, 3740 + delta_y * 2,
-          max_width, Number(fontSize) + Number(lineSpacing), "effect");
+          max_width, Number(fontSize) + Number(imageOptions.lineapacing), "effect");
       }
     } /// end afterLoad
     console.log(2150, "3");
@@ -2223,8 +2230,7 @@ function CustomCreator() {
     }
     // end draw
   }, [foreImg, backImg, jsonText, selectedOption, doDraw, currentIndex,
-    baselineOffset, specialOffset,
-    lineSpacing, initImageOptions, jsonIndex,
+    initImageOptions, jsonIndex,
     newRedraw,
     //, endY, isSelecting, startX, startY, 
     neue
@@ -2450,7 +2456,6 @@ function CustomCreator() {
             {
               neue || (<p>HelveticaNeue may not be loaded.</p>)
             }
-
             Choose background image:
             <input type="file" onChange={(e) => loadUserImage(e, false)} />
             <button onClick={setWhite}>Solid White</button>
@@ -2459,7 +2464,18 @@ function CustomCreator() {
 
             Choose foreground image:
             <input type="file" onChange={(e) => loadUserImage(e, true)} />
+            <hr />
+            <button onClick={draw2}>Force Draw</button>
+            <br/>
+            <button onClick={handleExport}>Download Image</button>
             <br />
+            <SaveState jsonText={jsonText[currentIndex]} />
+            <br />
+              {json_t && json_t.length > 0 && json_t[0] === '[' && (
+                <span>
+                  <label>index: <input type="number" style={{ width: "50px" }} name="jsonIndex" value={jsonIndex} onChange={(e) => { setJsonIndex(Number(e.target.value)) }} /> </label>
+                  </span>
+                  )}
             {/*          --- OR ---
           <br />
           <input
@@ -2473,7 +2489,6 @@ function CustomCreator() {
           <br />
           <button onClick={loadImageFromUrl}>Load Image from that URL</button>
           */}
-            <br />
             {
               flattenedJson && Object.entries(flattenedJson).filter(([key, value]) => key.includes("imageOptions.")).map(([k, v]) => [k, v, k.split(".")[1]]).map(([key, value, label]) =>
                 <tr>
@@ -2481,17 +2496,17 @@ function CustomCreator() {
                     <label for={label}>{settingText(label)}: </label>
                   </td>
                   <td>
-                      <input type={(typeof(value) === "boolean") ? "checkbox" : "number"}
-                        value={formData[key] ?? value}
-                        checked={value}
-                        id={label}
-                        onChange={(e) => handleInputChange(key, e.target.value, typeof(value), e.target.checked)} />
+                    <input type={(typeof (value) === "boolean") ? "checkbox" : "number"}
+                      value={formData[key] ?? value}
+                      checked={value}
+                      id={label}
+                      onChange={(e) => handleInputChange(key, e.target.value, typeof (value), e.target.checked)} />
                   </td>
                 </tr>
               )}
-            xy_pos, xy_scale are positing & scale for main image, in percent
+            {   /*         xy_pos, xy_scale are positing & scale for main image, in percent
             <br />
-            ess_xy_pos ess_xy_end are corners of box for ess image,
+            ess_xy_pos ess_xy_end are corners of box for ess image,*/}
             { /*
             Offset (in percent):
             X: <input type="number" style={{ width: "50px" }} name="x_pos" value={imageOptions.x_pos} onChange={updateImg} />
@@ -2512,27 +2527,6 @@ function CustomCreator() {
                 */}
             {/* isSelecting ? "TRACE" : "(dragging  rectangle temporarily disabled)" */}
             <hr />
-            <button onClick={draw2}>Force Draw</button>
-
-            <hr />
-
-            <button onClick={handleExport}>Save Image Locally</button>
-            <hr />
-            <SaveState jsonText={jsonText[currentIndex]} baselineOffset={baselineOffset} specialOffset={specialOffset} lineSpacing={lineSpacing}
-            />
-            <hr />
-            <span>
-              <label>Line spacing: <input type="number" style={{ width: "50px" }} name="lineSpacing" value={lineSpacing} onChange={(e) => { setLineSpacing(e.target.value) }} /> </label>
-              {json_t && json_t.length > 0 && json_t[0] === '[' && (
-                <label>index: <input type="number" style={{ width: "50px" }} name="jsonIndex" value={jsonIndex} onChange={(e) => { setJsonIndex(Number(e.target.value)) }} /> </label>)}
-              <br />
-              <label>Move effect baseline up by: <input type="number" style={{ width: "50px" }} name="baseline" value={baselineOffset} onChange={(e) => setBaselineOffset(e.target.value)} /> </label>
-              <br />
-              <label>Move special evo text up by: <input type="number" style={{ width: "50px" }} name="specialOffset" value={specialOffset} onChange={(e) => setSpecialOffset(e.target.value)} /> </label>
-              <br />
-              <span> &nbsp; &nbsp; </span>
-              <br /> Unimplemented:  burst, rarity <br />
-            </span>
           </td>
           <td width={"25%"} valign={"top"}>
             <button onClick={() => sample(0)}> Sample Egg </button><br />

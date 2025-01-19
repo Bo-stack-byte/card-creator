@@ -43,10 +43,11 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.9.4"
-const latest = "set background image, put all checkboxes into JSON blob, white/yellow name now pure black, fix Lv.X text w/Ace frames, new reminder text"
+const version = "0.7.10.0"
+const latest = "reorder fields a bit to move up evo conditions" 
 
-// version 0.7.9.1  set background image, put all checkboxes into JSON blob
+// version 0.7.10   reorder fields a bit to move up evo conditions
+// version 0.7.9.x  set background image, put all checkboxes into JSON blob, white/yellow name now pure black, fix Lv.X text w/Ace frames, new reminder text
 // version 0.7.8    bigsize DP in link DP, too
 // version 0.7.7.x  increase Lv.N text size; don't wait for fonts for first load
 // version 0.7.6.x  trying to properly cache updates so just 1 happens at a time, and 1 always happens at the end"
@@ -261,13 +262,13 @@ const starter_text_0 = `  {
     "cardLv": "Lv.2",
     "cardNumber": "CS2-01",
     "dp": "-",
+    "evolveCondition": [],
     "effect": "-",
     "playCost": "-",
     "form": "In-Training",
     "attribute": "Data",
     "type": "Sword",
     "rarity": "C",
-    "evolveCondition": [],
     "evolveEffect": "[Your Turn] While you have a red Monster or Tamer in play, all your Monsters gain +1000 DP.",
     "cardNumber": "CS-01",
     "imageOptions":{
@@ -301,12 +302,12 @@ const starter_text_1a = `  {
     "cardType": "Digimon",
     "playCost": "12",
     "dp": "9000",
+    "evolveCondition": 
+      [{ "color": "Blue/Red", "cost": "4", "level": "5" }],
     "cardLv": "Lv.6",
     "form": "Ultimate",
     "attribute": "Data",
     "type": "Sword",
-    "evolveCondition": 
-      [{ "color": "Blue/Red", "cost": "4", "level": "5" }],
     "effect": "＜Vortex＞ \uff1cSecurity Attack +1\uff1e [Your Turn] When this monster attacks a Monster with [Shield] in its name, this Monster gets +5000 DP until the end of your opponent's turn.\\n[(Security)] [All Turns] Your Monsters get +1000 DP.",
     "evolveEffect": "-",
     "securityEffect": "-",
@@ -338,15 +339,15 @@ const starter_text_1b = `  {
     "cardType": "Monster",
     "playCost": "14",
     "dp": "14000",
+    "evolveCondition": 
+      [{ "color": "Yellow", "cost": "5", "level": "6" },
+       { "color": "Blue", "cost": "5", "level": "6" },
+       { "color": "Green", "cost": "5", "level": "6" } ],
     "cardLv": "Lv.7",
     "securityEffect": "-",
     "form": "Ultimate",
     "attribute": "Virus",
     "type": "Sword/Shield",
-    "evolveCondition": 
-      [{ "color": "Yellow", "cost": "5", "level": "6" },
-       { "color": "Blue", "cost": "5", "level": "6" },
-       { "color": "Green", "cost": "5", "level": "6" } ],
     "specialEvolve": "-",
     "effect": "\uff1cBlast DNA Digivolve (Colossal Sword + Onyx Shield)\uff1e\\n＜Resurrect＞ ＜Piercing＞ \\n [When Thinking] Delete all of your opponent's Monsters with the biggest level. Then delete all of your opponent's Monsters with the smallest DP.",
     "evolveEffect": "-",
@@ -376,39 +377,28 @@ const starter_text_1c = `{
   "name": {
     "english": "FairyFeatherlink"
   },
-  "aceEffect": "-",
-  "attribute": "Bird",
-  "block": [
-    "01"
-  ],
-  "burstEvolve": "-",
-  "cardLv": "Lv.3",
-  "cardNumber": "CS3-02",
-  "cardType": "Monster",
   "color": "Green",
-  "digiXros": "-",
-  "evolveCondition": [
-    {
-      "color": "Green",
-      "cost": "0",
-      "level": "2"
-    }
-  ],
-  "evolveEffect": "-",
-  "dnaEvolve": "-",
+  "cardType": "Monster",
+  "playCost": "3",
   "dp": "1000",
-  "effect": "[Your Turn] [Once Per Turn] When this Monster gets linked, You may suspend 1 other Monster with DP less than or equal to this Monster.",
+  "evolveCondition":
+        [{ "color": "Green", "cost": 1, "level": "2" }],
+  "cardLv": "Lv.3",
   "form": "Rookie",
-  "id": "CS3-02",
+  "attribute": "Bird",
+  "type": "Spellcaster",
+  "rarity": "Special",
+  "specialEvolve": "-",
+  "effect": "[Your Turn] [Once Per Turn] When this Monster gets linked, You may suspend 1 other Monster with DP less than or equal to this Monster.",
   "linkRequirement": "[Link] [Bird] trait: Cost 1",
   "linkDP": "1500",
   "linkEffect": "＜Dodge＞ (When this Monster would leave the field, you may\\nsuspend it to prevent that deletion.)",
-  "playCost": "3",
-  "rarity": "Special",
   "securityEffect": "-",
-  "specialEvolve": "-",
-  "type": "Spellcaster",
-  "version": "Normal",
+  "rule": "",
+  "digiXros": "-",
+  "dnaEvolve": "-",
+  "burstEvolve": "-",
+  "cardNumber": "CS3-02",
   "imageOptions": {
     "url": "",
     "x_pos": "9",
@@ -420,7 +410,7 @@ const starter_text_1c = `{
     "ess_x_end": 50,
     "ess_y_end": 50,
     "fontSize": 90.5,
-            "foregroundOnTop": false,
+            "foregroundOnTop": true,
             "cardFrame": true,
             "effectBox": false,
             "addFoil": false,
@@ -428,7 +418,6 @@ const starter_text_1c = `{
             "outline": true,
             "skipDraw": false
   },
-  "rule": "",
   "author": "",
   "artist": ""
 }`;
@@ -868,16 +857,16 @@ function CustomCreator() {
     }
     // falses
     for (let field of ["foregroundOnTop", "effectBox", "addFoil", "skipDraw"]) {
-      if (!(field in json)) {
+      if (!(field in json.imageOptions)) {
         console.log("Missing field added" + field);
-        json[field] = false;
+        json.imageOptions[field] = false;
       }
     }
     // trues
     for (let field of ["cardFrame", "aceFrame", "outline"]) {
-      if (!(field in json)) {
+      if (!(field in json.imageOptions)) {
         console.log("Missing field added" + field);
-        json[field] = true;
+        json.imageOptions[field] = true;
       }
     }
     if (!("english" in json.name)) {

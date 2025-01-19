@@ -141,6 +141,7 @@ export const enterPlainText = (lines) => {
         "cardType": "Digimon",
         "playCost": "-",
         "dp": "-",
+        "evolveCondition": [],
         "cardLv": "",
         "form": "",
         "attribute": "",
@@ -148,7 +149,6 @@ export const enterPlainText = (lines) => {
         "rarity": "",
 
         "specialEvolve": "-",
-        "evolveCondition": [],
         "effect": "",
         "evolveEffect": "",
         "linkDP": "-",

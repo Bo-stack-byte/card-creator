@@ -22,6 +22,8 @@ import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5 } from
 import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
+import white from './white.png';
+import field from './field.png';
 import placeholder from './placeholder.png';
 import shieldsmasher from './shieldsmasher.png';
 import rampager from './rampager.png';
@@ -41,9 +43,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.8.0"
-const latest = "bigsize DP in link DP, too"
+const version = "0.7.9.1"
+const latest = "set background image, put all checkboxes into JSON blob"
 
+// version 0.7.9    set background image
 // version 0.7.8    bigsize DP in link DP, too
 // version 0.7.7.x  increase Lv.N text size; don't wait for fonts for first load
 // version 0.7.6.x  trying to properly cache updates so just 1 happens at a time, and 1 always happens at the end"
@@ -251,7 +254,14 @@ const starter_text_empty = `{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
       "fontSize": 90.5,
-      "foregroundImage": 0
+      "foregroundOnTop": false,
+                  "cardFrame": true,
+            "effectBox": false,
+            "addFoil": false,
+            "aceFrame": true,
+            "outline": true,
+            "skipDraw": false
+
     }
   }`;
 
@@ -274,7 +284,15 @@ const starter_text_0 = `  {
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5
+      "fontSize": 90.5,
+            "foregroundOnTop": false,
+            "cardFrame": true,
+            "effectBox": false,
+            "addFoil": false,
+            "aceFrame": true,
+            "outline": true,
+            "skipDraw": false
+
     }
 }`;
 
@@ -313,7 +331,15 @@ const starter_text_1a = `  {
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5
+      "fontSize": 90.5,
+            "foregroundOnTop": false,
+            "cardFrame": true,
+            "effectBox": false,
+            "addFoil": false,
+            "aceFrame": true,
+            "outline": true,
+            "skipDraw": false
+
     }
   }`;
 
@@ -345,7 +371,15 @@ const starter_text_1b = `  {
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5
+      "fontSize": 90.5,
+            "foregroundOnTop": false,
+            "cardFrame": true,
+            "effectBox": false,
+            "addFoil": false,
+            "aceFrame": true,
+            "outline": true,
+            "skipDraw": false
+
     }
   }`;
 
@@ -397,7 +431,13 @@ const starter_text_1c = `{
     "ess_x_end": 50,
     "ess_y_end": 50,
     "fontSize": 90.5,
-    "foregroundImage": "1"
+            "foregroundOnTop": false,
+            "cardFrame": true,
+            "effectBox": false,
+            "addFoil": false,
+            "aceFrame": true,
+            "outline": true,
+            "skipDraw": false
   },
   "rule": "",
   "author": "",
@@ -421,7 +461,15 @@ const starter_text_2 = `  {
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5
+      "fontSize": 90.5,
+            "foregroundOnTop": false,
+            "cardFrame": true,
+            "effectBox": false,
+            "addFoil": false,
+            "aceFrame": true,
+            "outline": true,
+            "skipDraw": false
+
     }
   }`;
 
@@ -441,7 +489,15 @@ const starter_text_3 = `   {
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5
+      "fontSize": 90.5,
+            "foregroundOnTop": false,
+            "cardFrame": true,
+            "effectBox": false,
+            "addFoil": false,
+            "aceFrame": true,
+            "outline": true,
+            "skipDraw": false
+
     }
     }`;
 
@@ -529,9 +585,9 @@ function sleep(ms) {
 
 
 function writeDP(ctx, _dp, args) {
-  
+
   const { x, y, size, bigsize, stroke, color } = args;
-//  let [x, y, size, stroke, color] = args[x, y,x = 2540, y = 410, size = 175, stroke = "white", color = "black") {
+  //  let [x, y, size, stroke, color] = args[x, y,x = 2540, y = 410, size = 175, stroke = "white", color = "black") {
 
 
   ctx.fillStyle = color;
@@ -615,20 +671,17 @@ function CustomCreator() {
 
       if ("fontSize" in cardState) {
         jsonObject.imageOptions.fontSize = cardState.fontSize;
-        console.log(418, jsonText, jsonObject);
       }
       // handle all other new options here before getting text back
 
-
-      jsonText = JSON.stringify(jsonObject, null, 2);
-      console.log(422, jsonText);
-      updateJson(jsonText); // this must be first
-
-      if ("drawFrame" in cardState) setDrawFrame(cardState.drawFrame);
-      if ("effectBox" in cardState) setEffectBox(cardState.effectBox);
+      // legacy options that weren't in JSON blob are in it now
+      if ("drawFrame" in cardState) jsonObject.imageOptions.drawFrame = cardState.drawFrame;
+      if ("effectBox" in cardState) jsonObject.imageOptions.effectBox = cardState.effectBox;
       if ("baselineOffset" in cardState) setBaselineOffset(cardState.baselineOffset);
       if ("specialOffset" in cardState) setSpecialOffset(cardState.specialOffset);
       if ("lineSpacing" in cardState) setLineSpacing(cardState.lineSpacing);
+      jsonText = JSON.stringify(jsonObject, null, 2);
+      updateJson(jsonText); // this must be first
     } catch (e) {
       console.error("restore error: " + e);
     }
@@ -642,7 +695,7 @@ function CustomCreator() {
   start ||= starter_text;
   const canvasRef = useRef(null);
   const [backImg, setBackImg] = useState(null);
-  const [userImg, setUserImg] = useState(null);
+  const [foreImg, setForeImg] = useState(null);
   const [doDraw, setDoDraw] = useState(true);
 
   const [newRedraw, setNewRedraw] = useState(0);
@@ -655,12 +708,6 @@ function CustomCreator() {
   const [jsonText, setJsonText] = useState([start]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [jsonIndex, setJsonIndex] = useState(0);
-  const [effectBox, setEffectBox] = useState(false);
-  const [drawFrame, setDrawFrame] = useState(true);
-  const [aceFrame, setAceFrame] = useState(true);
-  const [drawOutline, setDrawOutline] = useState(true);
-  const [skipDraw, setSkipDraw] = useState(false);
-  const [addFoil, setAddFoil] = useState(false);
   /*
     const [isSelecting, setIsSelecting] = useState(false);
   
@@ -674,12 +721,36 @@ function CustomCreator() {
   const [lineSpacing, setLineSpacing] = useState(10);
   const [selectedOption, setSelectedOption] = useState('AUTO'); // radio buttons 
 
+  useEffect(() => {
+    const img = new Image();
+    img.src = placeholder;
+    img.onload = () => {
+      setBackImg(img);
+    };
+  }, []);
+
+  /*  useEffect(() => {
+      const img = new Image();
+      img.src = white;
+      img.onload = () => {
+        setForeImg(img);
+      };
+    }, []);
+    */
+
   const initImageOptions = useMemo(() => {
     return {
       url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
       ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50,
       fontSize: 90.5,
-      foregroundImage: 0
+      foregroundOnTop: false,
+      cardFrame: true,
+      effectBox: false,
+      addFoil: false,
+      aceFrame: true,
+      outline: true,
+      skipDraw: false
+
     };
   }, []);
 
@@ -806,7 +877,20 @@ function CustomCreator() {
     if (!("evolveCondition" in json)) {
       json.evolveCondition = [];
     }
-
+    // falses
+    for (let field of ["foregroundOnTop", "effectBox", "addFoil", "skipDraw"]) {
+      if (!(field in json)) {
+        console.log("Missing field added" + field);
+        json[field] = false;
+      }
+    }
+    // trues
+    for (let field of ["cardFrame", "aceFrame", "outline"]) {
+      if (!(field in json)) {
+        console.log("Missing field added" + field);
+        json[field] = true;
+      }
+    }
     if (!("english" in json.name)) {
       json.name.english = "Mon";
     }
@@ -894,7 +978,12 @@ function CustomCreator() {
     setZoom(z);
   }
 
-  const handleInputChange = (key, value) => {
+  const handleInputChange = (key, value, type, checked) => {
+    console.log(918, key);
+    console.log(919, value);
+    console.log(920, type);
+    if (type === "boolean") { value = checked; }
+    console.log(921, value);
     console.log("form data", formData);
     const newFormData = { ...formData, [key]: value };
     setFormData(newFormData);
@@ -926,14 +1015,27 @@ function CustomCreator() {
     //  console.error("json error");
   }
 
-  const loadUserImage = (event) => {
+  //    const whitePixel = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/ovfdKgAAAAASUVORK5CYII=';
+
+  const setWhite = () => {
+    const img = new Image();
+    img.onload = () => {
+      setBackImg(img);
+    };
+    img.src = white;
+  }
+
+  const loadUserImage = (event, foreground) => {
     const file = event.target.files[0];
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.src = e.target.result;
       img.onload = () => {
-        setUserImg(img);
+        if (foreground)
+          setForeImg(img);
+        else
+          setBackImg(img);
       };
     };
     reader.readAsDataURL(file);
@@ -961,7 +1063,7 @@ function CustomCreator() {
       case 6: text = starter_text_1c; img_src = featherling; back_src = featherbackground; break;
       case 3: text = starter_text_2; img_src = doublebind; break;
       case 4: text = starter_text_3; img_src = amy; break;
-      case 5: text = starter_text_1; img_src = armor_cat; break;
+      case 5: text = starter_text_1; img_src = armor_cat; back_src = field; break;
       default: alert(3); return;
     }
     console.log(409, "omg");
@@ -988,7 +1090,7 @@ function CustomCreator() {
       img.src = img_src;
       img.onload = () => {
         console.error("foreground");
-        setUserImg(img);
+        setForeImg(img);
       };
     }
     console.error(896, back_src);
@@ -1016,6 +1118,8 @@ function CustomCreator() {
 
   const draw = useCallback(async (x, y, clear) => {
 
+    console.log(1043, backImg);
+    if (!backImg) return;
     if (pauseDraw.current <= 0) {
       pauseDraw.current = 1; // drawing, continue
     } else if (pauseDraw.current === 1) {
@@ -1073,7 +1177,6 @@ function CustomCreator() {
       console.log("json error");
       if (pauseDraw.current > 1) {
         pauseDraw.current = 0;
-        setSkipDraw(skipDraw);
       } else {
         pauseDraw.current = -1;
       }
@@ -1094,6 +1197,19 @@ function CustomCreator() {
     let type = selectedOption;
     let overflow = undefined;
     const evo_effect = json.evolveEffect || json.digivolveEffect;
+
+
+    let imageOptions = "";
+    try {
+      let json = JSON.parse(jsonText[currentIndex]);
+      console.log(132400, json);
+      imageOptions = json.imageOptions;
+    } catch { }
+    console.log(1327, JSON.stringify(imageOptions));
+    imageOptions = initObject(imageOptions, initImageOptions);
+    console.log(1329, JSON.stringify(imageOptions));
+
+
 
     if (type === "AUTO") {
       type = "MONSTER";
@@ -1134,7 +1250,7 @@ function CustomCreator() {
       case "LINK":
       case "MONSTER": break;
       case "ACE":
-        if (aceFrame) {
+        if (imageOptions.aceFrame) {
           if (ace_backgrounds[colors[0]]) cardframes = colors.map(c => ace_backgrounds[c] || mon_background);
         }
         let match = json.aceEffect && json.aceEffect.match(/Overflow\s*.-(\d+)/i);
@@ -1152,12 +1268,12 @@ function CustomCreator() {
     // options don't need to load frames
     const len = (type === "OPTION" || type === "OPTIONINHERIT") ? 1 : colors.length;
     const frameImages = Array.from({ length: len }, () => new Image());
-    const baseImg = new Image();
+    const baseImg = backImg; //  new Image();
     // baseImg.loaded = false;
 
 
 
-    baseImg.src = placeholder; // default to get started
+    //baseImg.src = placeholder; // default to get started
     const shellImages = [];
     const evoImages = [];
     const wedgeImages = [];
@@ -1165,8 +1281,11 @@ function CustomCreator() {
     const afterLoad = async () => {
       console.log("LOADING2");
 
-      const drawMon = (mon_img) => {
+      const drawMon = (mon_img, height) => {
+        height = 4000; // don't try this now
         console.log(986, json);
+        console.log(1204, mon_img);
+        if (!mon_img) return;
         // mon image
         //      console.log("imageOptions", imageOptions);
         let i_width = canvas.width * Number(imageOptions.x_scale) / 100;
@@ -1176,7 +1295,7 @@ function CustomCreator() {
         // path to verify we don't overwrite right-most edge
         ctx.save();
         ctx.beginPath();
-        ctx.rect(0, 0, canvas.width - 30, canvas.height);
+        ctx.rect(0, 0, canvas.width - 30, height);
         ctx.clip();
         ctx.drawImage(mon_img,
           i_x_pct * canvas.width / 100, i_y_pct * canvas.height / 100, i_width, i_height / 1);
@@ -1202,29 +1321,30 @@ function CustomCreator() {
 
       // Set the canvas dimensions
 
-      let imageOptions = "";
-      try {
-        let json = JSON.parse(jsonText[currentIndex]);
-        imageOptions = json.imageOptions;
-      } catch { }
-      imageOptions = initObject(imageOptions, initImageOptions);
+
 
       // DRAW BACKGROUND, IF WE HAVE IT
       let background_img = backImg;
       console.log(1073, background_img);
       if (background_img && background_img.src) {
-        console.log("DRAWING");
+        console.log(1227, "DRAWING BACKGROUND");
         ctx.save();
         ctx.beginPath();
         ctx.rect(0, 0, canvas.width - 30, canvas.height);
         ctx.clip();
         ctx.drawImage(background_img, 0, 0, canvas.width, canvas.height);
         ctx.restore();
-
+      } else {
+        console.log(1227, "NOT DRAWING BACKGROUND");
       }
 
-      let mon_img = userImg || baseImg;
-      if (Number(imageOptions.foregroundImage) === 0) drawMon(mon_img);
+      let bottom_y = 3550 - 440
+      if (type === "MEGA") bottom_y += 500;
+      if (type === "ACE") bottom_y += 1;
+      
+      let mon_img = foreImg; 
+      // bottom doesn't matter for under draw
+      if (! imageOptions.foregroundOnTop) drawMon(mon_img, bottom_y + 2000);
       //      let h = canvas.height;
       let len = colors.length;
       // multicolor
@@ -1238,16 +1358,18 @@ function CustomCreator() {
       if (type === "ACE") bottom -= 480;
       if (type.startsWith("TAMER") || type.startsWith("OPTION")) bottom -= 640;
 
-      if (skipDraw) {
+      if (imageOptions.skipDraw) {
         if (pauseDraw.current > 1) {
           pauseDraw.current = 0;
-          setSkipDraw(skipDraw);
         } else {
           pauseDraw.current = -1;
         }
         return;
       }
-      if (effectBox) {
+      console.log(1323, imageOptions);
+      console.log(1324, imageOptions.effectBox);
+      
+      if (imageOptions.effectBox) {
         for (let i = 0; i < len; i++) {
           /*let col = colors[i];
           if (!col) continue;
@@ -1256,6 +1378,7 @@ function CustomCreator() {
           //          let true_bottom = 4000;
           //        let y_scale = ((true_bottom) - (bottom + 60 - baselineOffset)) / box.height;
           const box = effectFrames[i];
+          console.log(1335, box);
           if (box && box.complete) {
             console.log(1051, box, box.height);
             let y_scale = effectBoxScale(box.height, baselineOffset);
@@ -1264,11 +1387,11 @@ function CustomCreator() {
         }
       }
 
-      if (drawFrame) {
+      if (imageOptions.cardFrame) {
         // new style background
         // we know shellimg is loaded because of pre-flight
 
-        if (addFoil) {
+        if (imageOptions.addFoil) {
 
           const baseImage = shellImages[0];
           //          const overlayImage = foil;
@@ -1330,7 +1453,7 @@ function CustomCreator() {
         }
       }
 
-      if (Number(imageOptions.foregroundImage) === 1) drawMon(mon_img);
+      if (imageOptions.foregroundOnTop) drawMon(mon_img, bottom_y + 45);
 
       //// DRAW TOP TEXT
       ctx.textAlign = 'center';
@@ -1339,7 +1462,7 @@ function CustomCreator() {
       if (!type.startsWith("OPTION")) {
         ctx.fillStyle = 'black';
         ctx.strokeStyle = 'white';
-        ctx.lineWidth = 6
+        ctx.lineWidth = 12
         ctx.strokeText(json.cardType.toUpperCase(), 1490, 180);
       }
       ctx.fillText(json.cardType.toUpperCase(), 1490, 180);
@@ -1347,7 +1470,7 @@ function CustomCreator() {
 
       // OUTLINE?
 
-      if (type === "MEGA" && drawOutline) {
+      if (type === "MEGA" && imageOptions.outline) {
         console.log(602, frameImages.length);
         // draw the left and right line all the way down. crop off the top 1000 pixels
         try {
@@ -1374,7 +1497,7 @@ function CustomCreator() {
 
           if (outlines[col]) {
 
-            if (frame && drawOutline) {
+            if (frame && imageOptions.outline) {
               let l = (type.startsWith("OPTION")) ? 1 : len; // just 1 option "outline"
               let fudge = (type === "OPTION" || !i) ? 0 : 0.04;
               fudge = 0;
@@ -1423,39 +1546,40 @@ function CustomCreator() {
 
 
             // DRAW ESS BOX
-            let ess_i_width = (Number(imageOptions.ess_x_end) - Number(imageOptions.ess_x_pos)) * mon_img.width / 100
-            let ess_i_height = (Number(imageOptions.ess_y_end) - Number(imageOptions.ess_y_pos)) * mon_img.height / 100
-            let ess_x = Number(imageOptions.ess_x_pos) * mon_img.width / 100
-            let ess_y = Number(imageOptions.ess_y_pos) * mon_img.height / 100
-            let ess_pos_y = 3700;
-            let ess_pos_x = 240;
-            let size_x = 350;
-            let size_y = 350;
+            if (mon_img) {
+              let ess_i_width = (Number(imageOptions.ess_x_end) - Number(imageOptions.ess_x_pos)) * mon_img.width / 100
+              let ess_i_height = (Number(imageOptions.ess_y_end) - Number(imageOptions.ess_y_pos)) * mon_img.height / 100
+              let ess_x = Number(imageOptions.ess_x_pos) * mon_img.width / 100
+              let ess_y = Number(imageOptions.ess_y_pos) * mon_img.height / 100
+              let ess_pos_y = 3700;
+              let ess_pos_x = 240;
+              let size_x = 350;
+              let size_y = 350;
 
-            if (type === "MEGA" || type === "OPTION" || type === "TAMER") ess_pos_y = 0;
-            if (type.endsWith("INHERIT")) ess_pos_y -= 105;
-            if (type === "LINK") {
-              ess_pos_y -= 310;
-              ess_pos_x += 2200;
-              size_y = 150;
-              ctx.save();
-              ctx.translate(ess_pos_x + size_x / 2, ess_pos_y + size_y / 2);
-              ctx.rotate(Math.PI / 2)
-              ess_pos_x = -size_x / 2
-              ess_pos_y = -size_y / 2; // i've translated to where i need to be
-
-            }
-            if (type === "EGG") ess_pos_y -= 80;
-            if (type === "ACE") {
-              ess_pos_y += 135;
-              ess_pos_x += 30;
-              size_x = size_y = 250;
-            }
-            if (ess_pos_y) {
-              ctx.drawImage(mon_img,
-                ess_x, ess_y, ess_i_width, ess_i_height,
-                ess_pos_x, ess_pos_y, size_x, size_y
-              );
+              if (type === "MEGA" || type === "OPTION" || type === "TAMER") ess_pos_y = 0;
+              if (type.endsWith("INHERIT")) ess_pos_y -= 105;
+              if (type === "LINK") {
+                ess_pos_y -= 310;
+                ess_pos_x += 2200;
+                size_y = 150;
+                ctx.save();
+                ctx.translate(ess_pos_x + size_x / 2, ess_pos_y + size_y / 2);
+                ctx.rotate(Math.PI / 2)
+                ess_pos_x = -size_x / 2
+                ess_pos_y = -size_y / 2; // i've translated to where i need to be
+              }
+              if (type === "EGG") ess_pos_y -= 80;
+              if (type === "ACE") {
+                ess_pos_y += 135;
+                ess_pos_x += 30;
+                size_x = size_y = 250;
+              }
+              if (ess_pos_y) {
+                ctx.drawImage(mon_img,
+                  ess_x, ess_y, ess_i_width, ess_i_height,
+                  ess_pos_x, ess_pos_y, size_x, size_y
+                );
+              }
             }
             if (type === "LINK") {
               ctx.restore();
@@ -1472,10 +1596,10 @@ function CustomCreator() {
               ctx.translate(2680, 3610);
               ctx.rotate(Math.PI / 2);
 
-              
-//              ctx.fillText(json.linkDP, 0, 0);
-//              writeDP(ctx, json.linkDP, 0, 0, 90); 
-              writeDP(ctx, json.linkDP, {x:-150, y:20, size:100, bigsize:140, stroke:false, color:"white"});
+
+              //              ctx.fillText(json.linkDP, 0, 0);
+              //              writeDP(ctx, json.linkDP, 0, 0, 90); 
+              writeDP(ctx, json.linkDP, { x: -150, y: 20, size: 100, bigsize: 140, stroke: false, color: "white" });
               ctx.font = "bold 90px HelveticaNeue-CondensedBold, AyarKasone, Helvetica";
               ctx.fillStyle = "white";
               ctx.textAlign = "right";
@@ -1497,13 +1621,10 @@ function CustomCreator() {
             }
 
             // DRAW BOTTOM OF BOX?
-            if (drawOutline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE")) {
+            if (imageOptions.outline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE")) {
               // bottom of frame
               let border = borders[col];
-              let y = 3550 - 440;
-              if (type === "MEGA") y += 500;
-              if (type === "ACE") y += 1;
-              scalePartialImage(ctx, border, i, len, 67.3, 166, y);
+             scalePartialImage(ctx, border, i, len, 67.3, 166, bottom_y);
 
               // todo: play with these numbers some more. scale is 67.2-67.5,
               // and left is 166
@@ -1517,7 +1638,7 @@ function CustomCreator() {
               if (type === "EGG" || type.startsWith("OPTION") || type.startsWith("TAMER")) y -= 90;
               //  if (type.startsWith("OPTION") || type.startsWith("TAMER")) y += 0; // 40;
               if (type === "MEGA" || type === "LINK") y += 500;
-              if (type === "ACE" && aceFrame) {
+              if (type === "ACE" && imageOptions.aceFrame) {
                 y += 30;
                 start_x -= 4
                 scale = 368
@@ -1783,365 +1904,357 @@ function CustomCreator() {
         x = 2540;
         y = 410;
 
-        writeDP(ctx, json.dp, {x:x, y:y, size:150, bigsize:300,  stroke:"white", color:"black"});
+        writeDP(ctx, json.dp, { x: x, y: y, size: 150, bigsize: 300, stroke: "white", color: "black" });
         ctx.font = `100px 'Helvetica'`;
         ctx.lineWidth = 15;
         ctx.strokeStyle = 'white';
         ctx.strokeText("DP", x + 130, y - 200);
         ctx.fillText("DP", x + 130, y - 200);
-      
+
       }
-        /////// LEVEL
-        if (hasLevel(type)) {
-          let level = (json.cardLv === "-" || json.cardLv === undefined) ? "Lv.-" : json.cardLv;
-          // roboto preferred
-          //        ctx.font = '900 200px "Roboto"'
+      /////// LEVEL
+      if (hasLevel(type)) {
+        let level = (json.cardLv === "-" || json.cardLv === undefined) ? "Lv.-" : json.cardLv;
+        // roboto preferred
+        //        ctx.font = '900 200px "Roboto"'
 
-          ctx.fillStyle = whiteColor(colors[0]);
-          let y = 3400;
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'bottom';
-
-          y += levelHeight(type);
-          y += 100
-          ctx.font = '900 200px "Big Shoulders Text"'
-          ctx.font = '900 170px "ProhibitionRough", "Big Shoulders Text"'
-          let x = 250;
-
-          level = (level + "    ").substring(0, 4);
-          ctx.font = '170px "ProhibitionRough", "Big Shoulders Text"'
-          ctx.fillText(level[0], x, y - 10);
-          x += ctx.measureText(level[0]).width;
-
-          ctx.font = '900 130px "ProhibitionRough", "Big Shoulders Text"'
-          ctx.fillText(level[1], x, y - 13);
-          x += ctx.measureText(level[1]).width;
-
-          ctx.font = '900 143px "ProhibitionRough", "Big Shoulders Text"'
-          ctx.fillText(level[2], x, y - 18);
-          x += ctx.measureText(level[2]).width + 10;
-
-          ctx.font = '250px "ProhibitionRough", "Big Shoulders Text"'
-          ctx.fillText(level.substring(3), x, y);
-          x += ctx.measureText(level[0]).width;
-
-        }
-
-        //// NAME 
-        let delta_y = 0;
-        switch (type) {
-          case "OPTION":
-          case "OPTIONINHERIT":
-          case "TAMER":
-          case "EGG":
-          case "TAMERINHERIT": delta_y -= 125; if (!has_traits) delta_y += 30; break;
-          case "LINK":
-          case "MEGA": delta_y += 500; break;
-          case "MONSTER": break;
-          case "ACE": if (aceFrame) delta_y += 30; break;
-          default: alert(1);
-        }
-
-        // name
-        try {
-          const name = json.name.english;
-          let ace_offset = (type === "ACE") ? -ace_logo.width / 2 : 0;
-          const maxWidth = 1600 + ace_offset * 2;
-
-          const initialFontSize = 200;
-          const namefontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize, 180);
-          // PF Das Grotesk Pro Bold is the actual font but $$
-          //ctx.font = `bold ${fontSize}px Roboto`; // better looking I
-          //        ctx.font = `700 ${fontSize}px Schibsted Grotesk`; // has curved lowercase l
-          ctx.font = `700 ${namefontSize}px ToppanBunkyExtraBold`; // has curved lowercase l
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = 'white';
-
-          ctx.lineWidth = 30; // Border width
-          let bc = borderColor(colors);
-          ctx.strokeStyle = bc;
-
-          let actualWidth = ctx.measureText(name).width;
-          let scale = (maxWidth) / actualWidth;
-          let endWidth = Math.min(maxWidth, actualWidth);
-          if (scale > 1) scale = 1;
-          // at  a certain point we should do multiple lines
-          ctx.save();
-          ctx.scale(scale, 1);
-          let name_line = 3328
-          if (bc !== "") {
-            ctx.lineWidth = 20; // Border width
-            ctx.strokeText(name, (1480 + ace_offset) / scale, name_line + delta_y);
-          }
-          ctx.lineWidth = 2; // Border width
-          ctx.fillText(name, (1480 + ace_offset) / scale, name_line + delta_y);
-          ctx.restore();
-
-
-          if (type === "ACE") {
-            let end = endWidth / 2;
-            ctx.drawImage(ace_logo, 1480 + ace_offset + end + 10, name_line + delta_y - 95);
-          }
-        } catch { };
-
-        // card number
-        const id = json.cardNumber;
-        ctx.textAlign = 'right';
-        ctx.fillStyle = contrastColor(colors[colors.length - 1]);
-        ctx.font = `bold 100px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
-
-        // Helvetica seems basically right but needs to be made skinny
-        // ToppanBunkyExtraBold has serifs on 1 now??
-        // myriadprobold wrong on 7 6 1
-        // asimov has wrong 6
-        // ayarkasone has the right 1 but the wrong 5
-        // levetica and arial may be too plain? or not.
-        // not roboto because the 6 needs a hook
-        // fallingsky ihas the wrong 1
-
-        ctx.fillText(id, 2740, 3300 + delta_y);
-
-        // traits: form, attribute, type
-        let form = json.form || '';
-        let attribute = json.attribute || '';
-        let c_type = json.type || '';
-        // todo don't show when all blank
-        let a_traits = [];
-
-        if (!empty(form)) a_traits.push(` ${center(form)} `);
-        if (!empty(attribute)) a_traits.push(` ${center(attribute)} `);
-        if (!empty(c_type)) a_traits.push(` ${c_type}  `);
-        let traits = a_traits.join("|");
         ctx.fillStyle = whiteColor(colors[0]);
-        if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
-          delta_y += 10;
-        }
-        if (type === "MEGA") {
-          //        delta_y += 50;
-        }
-        if (type === "EGG") {
-          delta_y += 0;
-        }
+        let y = 3400;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
 
-        ctx.font = `bold 60px "FallifngSky", "MyrggiadProBold", "RepoMedium", "Robgoto"`;
-        ctx.font = `60px MyriadProBold`;
-        ctx.fillText(traits, 2750, 3490 + delta_y)// * 0.9);
+        y += levelHeight(type);
+        y += 100
+        ctx.font = '900 200px "Big Shoulders Text"'
+        ctx.font = '900 170px "ProhibitionRough", "Big Shoulders Text"'
+        let x = 250;
 
-        ///// MAIN TEXT 
-        let y_line = bottom - 640; // set above for effectbox / rule
+        level = (level + "    ").substring(0, 4);
+        ctx.font = '170px "ProhibitionRough", "Big Shoulders Text"'
+        ctx.fillText(level[0], x, y - 10);
+        x += ctx.measureText(level[0]).width;
 
-        //      let b = Number(baselineOffset);
-        let so = Number(specialOffset);
-        y_line -= Number(baselineOffset);
+        ctx.font = '900 130px "ProhibitionRough", "Big Shoulders Text"'
+        ctx.fillText(level[1], x, y - 13);
+        x += ctx.measureText(level[1]).width;
 
-        //console.log(1149, b, baselineOffset, y_line);
-        ctx.font = `bold 90px Arial`;
-        ctx.textAlign = 'start';
-        ctx.textBaseline = 'bottom'; // Align text to the bottom
+        ctx.font = '900 143px "ProhibitionRough", "Big Shoulders Text"'
+        ctx.fillText(level[2], x, y - 18);
+        x += ctx.measureText(level[2]).width + 10;
 
+        ctx.font = '250px "ProhibitionRough", "Big Shoulders Text"'
+        ctx.fillText(level.substring(3), x, y);
+        x += ctx.measureText(level[0]).width;
 
-        const fontSize_n = Number(fontSize);
-        // DNA evo and special evo appear above the effect line
-        const dna_evo = json.dnaEvolve || json.dnaDigivolve; // colorReplace is inside drawBracketedText
-        const spec_temp = json.specialEvolve || json.specialDigivolve;
-        const spec_evo = colorReplace(spec_temp, true);
-        const delta = fontSize_n + so;
-        let special_baseline = y_line;
-        console.log(1277, special_baseline, y_line, (fontSize_n + so))
-        if (!empty(spec_evo)) {
-          special_baseline -= (delta);
-          drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(lineSpacing), "bubble");
-        }
-        if (!empty(dna_evo)) {
-          special_baseline -= (delta);
-          drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(lineSpacing), "dna");
-        }
-
-        let effect = json.effect;
-        ctx.fillStyle = 'black';
-
-        y_line += 80;
-        //      if (type === "MONSTER") y_line += 180;
-
-        if (effect && effect !== "-") {
-          effect = colorReplace(effect, true);
-          y_line = drawBracketedText(ctx, fontSize, effect,
-            //wrapText(ctx, effect, // + effect, 
-            250, y_line,
-            2455,
-            Number(fontSize) + Number(lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
-            false
-          );
-        }
-
-
-        // evo effect
-        ctx.textAlign = 'start';
-        ctx.textBaseline = 'bottom'; // Align text to the bottom
-
-
-        console.log("a", evo_effect);
-        if (type === "MEGA") {
-          // no security text
-        } else if (type === "LINK") {
-          let req = json.linkRequirement;
-          let effect = json.linkEffect;
-          let delta_x = -220; let delta_y = -200; let shrink = 1000;
-          if (!empty(req)) {
-            drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
-          }
-          // shrink is not working, we're ignoring max_width
-          let max_width = 2500 - 400 - delta_x * 2 - shrink;
-          drawBracketedText(ctx, fontSize, effect,
-            700 + delta_x * 2, 3740 + delta_y * 2 + 150,
-            max_width, Number(fontSize) + Number(lineSpacing), "effect");
-        } else {
-          let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
-          if (json.linkDP) {
-          }
-          sec_effect = colorReplace(sec_effect, true);
-
-          //ctx.fillStyle = 'red';
-          let delta_x = delta_y;
-          let shrink = 0;
-          if (type === "ACE") {
-            delta_x -= 60; delta_y += 100;
-          } else if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
-            delta_x = 0; delta_y = -50;
-          } else {
-            delta_x = 0; delta_y = 0;
-          }
-          let max_width = 2500 - 400 - delta_x * 2 - shrink;
-          drawBracketedText(ctx, fontSize, sec_effect,
-            700 + delta_x * 2, 3740 + delta_y * 2,
-            max_width, Number(fontSize) + Number(lineSpacing), "effect");
-        }
-      } /// end afterLoad
-
-      /*
-      if (false)
-        if (isSelecting) {
-          ctx.strokeStyle = 'red';
-          ctx.lineWidth = 30;
-          console.log(1026, "x", startX, startY, endX - startX, endY - startY);
-   
-          ctx.strokeRect(startX * 2977 / 355,
-            startY * canvas.height / 499,
-            (endX - startX) * 2977 / 355,
-            (endY - startY) * canvas.height / 499
-          )
-        }
-          */
-
-
-      let evo_circle_colors = [];
-      if (_evos) {
-        evo_circle_colors = _evos.map(e => e.color ? e.color.toLowerCase().split("/") : [])
-          .reduce((acc, curr) => acc.concat(curr), []);
       }
-      const effectFrames = effectBox ? Array.from({ length: len }, () => new Image()) : [];
 
-      // N for basic style frame, 1 for custom image, 1 per color, 2 per evo circle, 1 per effect box
-      let imagesToLoad = cardframes.length + 1 + frameImages.length + 2 * (evo_circle_colors.length) + effectFrames.length;
-      console.log(817, frameImages.length, _evos && _evos.length);
-      let imagesLoaded = 0;
+      //// NAME 
+      let delta_y = 0;
+      switch (type) {
+        case "OPTION":
+        case "OPTIONINHERIT":
+        case "TAMER":
+        case "EGG":
+        case "TAMERINHERIT": delta_y -= 125; if (!has_traits) delta_y += 30; break;
+        case "LINK":
+        case "MEGA": delta_y += 500; break;
+        case "MONSTER": break;
+        case "ACE": if (imageOptions.aceFrame) delta_y += 30; break;
+        default: alert(1);
+      }
 
-      await new Promise((resolve) => {
-        const checkAllImagesLoaded = (text, failure) => {
-          imagesLoaded++;
-          //console.log(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
-          if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
-            // Set the canvas dimensions  
-            afterLoad();
-            resolve();
-          }
-        };
+      // name
+      try {
+        const name = json.name.english;
+        let ace_offset = (type === "ACE") ? -ace_logo.width / 2 : 0;
+        const maxWidth = 1600 + ace_offset * 2;
 
-        for (let i = 0; i < effectFrames.length; i++) {
-          effectFrames[i].src = effectboxes[colors[i]];
-          effectFrames[i].onload = function () { checkAllImagesLoaded("box" + i); }
-          effectFrames[i].onerror = function () { checkAllImagesLoaded("box" + i, true); }
+        const initialFontSize = 200;
+        const namefontSize = fitTextToWidth(ctx, name, maxWidth, initialFontSize, 180);
+        // PF Das Grotesk Pro Bold is the actual font but $$
+        //ctx.font = `bold ${fontSize}px Roboto`; // better looking I
+        //        ctx.font = `700 ${fontSize}px Schibsted Grotesk`; // has curved lowercase l
+        ctx.font = `700 ${namefontSize}px ToppanBunkyExtraBold`; // has curved lowercase l
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = 'white';
 
+        ctx.lineWidth = 30; // Border width
+        let bc = borderColor(colors);
+        ctx.strokeStyle = bc;
+
+        let actualWidth = ctx.measureText(name).width;
+        let scale = (maxWidth) / actualWidth;
+        let endWidth = Math.min(maxWidth, actualWidth);
+        if (scale > 1) scale = 1;
+        // at  a certain point we should do multiple lines
+        ctx.save();
+        ctx.scale(scale, 1);
+        let name_line = 3328
+        if (bc !== "") {
+          ctx.lineWidth = 20; // Border width
+          ctx.strokeText(name, (1480 + ace_offset) / scale, name_line + delta_y);
         }
+        ctx.lineWidth = 2; // Border width
+        ctx.fillText(name, (1480 + ace_offset) / scale, name_line + delta_y);
+        ctx.restore();
 
-        for (let f of frameImages) {
-          f.onload = function () { checkAllImagesLoaded(f.src); }
-          f.onerror = function () { checkAllImagesLoaded(f.src, true); }
+
+        if (type === "ACE") {
+          let end = endWidth / 2;
+          ctx.drawImage(ace_logo, 1480 + ace_offset + end + 10, name_line + delta_y - 95);
         }
-        // this has a race condition    
-        baseImg.onload = function () { checkAllImagesLoaded("baseimage"); }
-        baseImg.onerror = function () { checkAllImagesLoaded("baseimage", true); }
-        if (baseImg.complete) {
-          console.log("base img already loaded");
-          //    baseImg.src = baseImg.src; // reload
-        } else {
+      } catch { };
 
+      // card number
+      const id = json.cardNumber;
+      ctx.textAlign = 'right';
+      ctx.fillStyle = contrastColor(colors[colors.length - 1]);
+      ctx.font = `bold 100px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
+
+      // Helvetica seems basically right but needs to be made skinny
+      // ToppanBunkyExtraBold has serifs on 1 now??
+      // myriadprobold wrong on 7 6 1
+      // asimov has wrong 6
+      // ayarkasone has the right 1 but the wrong 5
+      // levetica and arial may be too plain? or not.
+      // not roboto because the 6 needs a hook
+      // fallingsky ihas the wrong 1
+
+      ctx.fillText(id, 2740, 3300 + delta_y);
+
+      // traits: form, attribute, type
+      let form = json.form || '';
+      let attribute = json.attribute || '';
+      let c_type = json.type || '';
+      // todo don't show when all blank
+      let a_traits = [];
+
+      if (!empty(form)) a_traits.push(` ${center(form)} `);
+      if (!empty(attribute)) a_traits.push(` ${center(attribute)} `);
+      if (!empty(c_type)) a_traits.push(` ${c_type}  `);
+      let traits = a_traits.join("|");
+      ctx.fillStyle = whiteColor(colors[0]);
+      if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
+        delta_y += 10;
+      }
+      if (type === "MEGA") {
+        //        delta_y += 50;
+      }
+      if (type === "EGG") {
+        delta_y += 0;
+      }
+
+      ctx.font = `bold 60px "FallifngSky", "MyrggiadProBold", "RepoMedium", "Robgoto"`;
+      ctx.font = `60px MyriadProBold`;
+      ctx.fillText(traits, 2750, 3490 + delta_y)// * 0.9);
+
+      ///// MAIN TEXT 
+      let y_line = bottom - 640; // set above for effectbox / rule
+
+      //      let b = Number(baselineOffset);
+      let so = Number(specialOffset);
+      y_line -= Number(baselineOffset);
+
+      //console.log(1149, b, baselineOffset, y_line);
+      ctx.font = `bold 90px Arial`;
+      ctx.textAlign = 'start';
+      ctx.textBaseline = 'bottom'; // Align text to the bottom
+
+
+      const fontSize_n = Number(fontSize);
+      // DNA evo and special evo appear above the effect line
+      const dna_evo = json.dnaEvolve || json.dnaDigivolve; // colorReplace is inside drawBracketedText
+      const spec_temp = json.specialEvolve || json.specialDigivolve;
+      const spec_evo = colorReplace(spec_temp, true);
+      const delta = fontSize_n + so;
+      let special_baseline = y_line;
+      console.log(1277, special_baseline, y_line, (fontSize_n + so))
+      if (!empty(spec_evo)) {
+        special_baseline -= (delta);
+        drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(lineSpacing), "bubble");
+      }
+      if (!empty(dna_evo)) {
+        special_baseline -= (delta);
+        drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(lineSpacing), "dna");
+      }
+
+      let effect = json.effect;
+      ctx.fillStyle = 'black';
+
+      y_line += 80;
+      //      if (type === "MONSTER") y_line += 180;
+
+      if (effect && effect !== "-") {
+        effect = colorReplace(effect, true);
+        y_line = drawBracketedText(ctx, fontSize, effect,
+          //wrapText(ctx, effect, // + effect, 
+          250, y_line,
+          2455,
+          Number(fontSize) + Number(lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
+          false
+        );
+      }
+
+
+      // evo effect
+      ctx.textAlign = 'start';
+      ctx.textBaseline = 'bottom'; // Align text to the bottom
+
+
+      console.log("a", evo_effect);
+      if (type === "MEGA") {
+        // no security text
+      } else if (type === "LINK") {
+        let req = json.linkRequirement;
+        let effect = json.linkEffect;
+        let delta_x = -220; let delta_y = -200; let shrink = 1000;
+        if (!empty(req)) {
+          drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(lineSpacing), "bubble");
         }
-
-        for (let i in evo_circle_colors) {
-          let my_color = evo_circle_colors[i];
-          let evoI = new Image();
-          evoImages[i] = evoI;
-          evoI.src = new_evo_circles[my_color]
-          evoI.onload = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`); }
-          evoI.onerror = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`, true); }
-          let wedgeI = new Image();
-          wedgeImages[i] = wedgeI;
-          wedgeI.src = new_evo_wedges[my_color]
-          wedgeI.onload = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`); }
-          wedgeI.onerror = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`, true); }
-        }
-        for (let i in cardframes) {
-          shellImages[i] = new Image();
-          shellImages[i].src = cardframes[i];
-          shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(`shell src  ${i} ${shellImages[i].src}`); }
-        }
-
-
-        switch (type) {
-          case "OPTION":
-          case "OPTIONINHERIT": array = options; break;
-          // how is outlines_tamer different from outlines_egg??
-          case "TAMER":
-          case "TAMERINHERIT": array = modern ? outlines_tamer : tamers; break;
-          case "EGG": array = modern ? outlines_egg : eggs; break;
-          case "MONSTER": break;
-          case "MEGA": break;
-          case "ACE": break;
-          case "LINK": break;
-          default: alert(4);
-        }
-
-
-        if (type.startsWith("OPTION")) {
-          frameImages[0].src = outline_option;
-        } else {
-          for (let i = 0; i < frameImages.length; i++) {
-            frameImages[i].src = array[colors[i]];
-          }
-        }
-        console.log(906, `sources set ${imagesToLoad} loaded ${imagesLoaded} base: ${!!baseImg.complete}`);
-
-      });
-
-      if (pauseDraw.current > 1) {
-        console.debug("triggering redraw " + newRedraw);
-        pauseDraw.current = 0;
-        setNewRedraw(newRedraw + 1);
-        console.debug("triggered redraw " + newRedraw);
+        // shrink is not working, we're ignoring max_width
+        let max_width = 2500 - 400 - delta_x * 2 - shrink;
+        drawBracketedText(ctx, fontSize, effect,
+          700 + delta_x * 2, 3740 + delta_y * 2 + 150,
+          max_width, Number(fontSize) + Number(lineSpacing), "effect");
       } else {
-        pauseDraw.current = -1;
+        let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
+        if (json.linkDP) {
+        }
+        sec_effect = colorReplace(sec_effect, true);
+
+        //ctx.fillStyle = 'red';
+        let delta_x = delta_y;
+        let shrink = 0;
+        if (type === "ACE") {
+          delta_x -= 60; delta_y += 100;
+        } else if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
+          delta_x = 0; delta_y = -50;
+        } else {
+          delta_x = 0; delta_y = 0;
+        }
+        let max_width = 2500 - 400 - delta_x * 2 - shrink;
+        drawBracketedText(ctx, fontSize, sec_effect,
+          700 + delta_x * 2, 3740 + delta_y * 2,
+          max_width, Number(fontSize) + Number(lineSpacing), "effect");
       }
-      // end draw
-    }, [userImg, backImg, jsonText, selectedOption, doDraw, currentIndex,
-      effectBox, drawFrame, skipDraw, addFoil, baselineOffset, specialOffset,
-      lineSpacing, initImageOptions, jsonIndex,
-      newRedraw,
-      //, endY, isSelecting, startX, startY, 
-      neue,
-      aceFrame, drawOutline
-    ]);
+    } /// end afterLoad
+    console.log(2150, "3");
+    /*
+    if (false)
+      if (isSelecting) {
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 30;
+        console.log(1026, "x", startX, startY, endX - startX, endY - startY);
+ 
+        ctx.strokeRect(startX * 2977 / 355,
+          startY * canvas.height / 499,
+          (endX - startX) * 2977 / 355,
+          (endY - startY) * canvas.height / 499
+        )
+      }
+        */
+
+
+    let evo_circle_colors = [];
+    if (_evos) {
+      evo_circle_colors = _evos.map(e => e.color ? e.color.toLowerCase().split("/") : [])
+        .reduce((acc, curr) => acc.concat(curr), []);
+    }
+    console.log(2117, imageOptions);
+    console.log(2118, imageOptions.effectBox);
+    const effectFrames = imageOptions.effectBox ? Array.from({ length: len }, () => new Image()) : [];
+
+    // N for basic style frame, [npo custom iage], 1 per color, 2 per evo circle, 1 per effect box
+    let imagesToLoad = cardframes.length + 0 + frameImages.length + 2 * (evo_circle_colors.length) + effectFrames.length;
+    console.log(817, frameImages.length, _evos && _evos.length);
+    let imagesLoaded = 0;
+
+    await new Promise((resolve) => {
+      const checkAllImagesLoaded = (text, failure) => {
+        imagesLoaded++;
+        console.log(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
+        if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
+          // Set the canvas dimensions  
+          afterLoad();
+          resolve();
+        }
+      };
+
+      for (let i = 0; i < effectFrames.length; i++) {
+        effectFrames[i].src = effectboxes[colors[i]];
+        effectFrames[i].onload = function () { checkAllImagesLoaded("box" + i); }
+        effectFrames[i].onerror = function () { checkAllImagesLoaded("box" + i, true); }
+
+      }
+
+      for (let f of frameImages) {
+        f.onload = function () { checkAllImagesLoaded(f.src); }
+        f.onerror = function () { checkAllImagesLoaded(f.src, true); }
+      }
+
+      for (let i in evo_circle_colors) {
+        let my_color = evo_circle_colors[i];
+        let evoI = new Image();
+        evoImages[i] = evoI;
+        evoI.src = new_evo_circles[my_color]
+        evoI.onload = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`); }
+        evoI.onerror = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`, true); }
+        let wedgeI = new Image();
+        wedgeImages[i] = wedgeI;
+        wedgeI.src = new_evo_wedges[my_color]
+        wedgeI.onload = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`); }
+        wedgeI.onerror = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`, true); }
+      }
+      for (let i in cardframes) {
+        shellImages[i] = new Image();
+        shellImages[i].src = cardframes[i];
+        shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(`shell src  ${i} ${shellImages[i].src}`); }
+      }
+
+
+      switch (type) {
+        case "OPTION":
+        case "OPTIONINHERIT": array = options; break;
+        // how is outlines_tamer different from outlines_egg??
+        case "TAMER":
+        case "TAMERINHERIT": array = modern ? outlines_tamer : tamers; break;
+        case "EGG": array = modern ? outlines_egg : eggs; break;
+        case "MONSTER": break;
+        case "MEGA": break;
+        case "ACE": break;
+        case "LINK": break;
+        default: alert(4);
+      }
+
+
+      if (type.startsWith("OPTION")) {
+        frameImages[0].src = outline_option;
+      } else {
+        for (let i = 0; i < frameImages.length; i++) {
+          frameImages[i].src = array[colors[i]];
+        }
+      }
+      console.log(906, `sources set ${imagesToLoad} loaded ${imagesLoaded} base: ${!!baseImg}`);
+
+    });
+
+    if (pauseDraw.current > 1) {
+      console.debug("triggering redraw " + newRedraw);
+      pauseDraw.current = 0;
+      setNewRedraw(newRedraw + 1);
+      console.debug("triggered redraw " + newRedraw);
+    } else {
+      pauseDraw.current = -1;
+    }
+    // end draw
+  }, [foreImg, backImg, jsonText, selectedOption, doDraw, currentIndex,
+    baselineOffset, specialOffset,
+    lineSpacing, initImageOptions, jsonIndex,
+    newRedraw,
+    //, endY, isSelecting, startX, startY, 
+    neue
+  ]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -2156,7 +2269,7 @@ function CustomCreator() {
       draw(canvas, ctx);
 
   }, [
-    userImg,
+    foreImg,
     jsonText,
     imageOptions, selectedOption,
     doDraw,
@@ -2364,8 +2477,14 @@ function CustomCreator() {
               neue || (<p>HelveticaNeue may not be loaded.</p>)
             }
 
-            Choose image:
-            <input type="file" onChange={loadUserImage} />
+            Choose background image:
+            <input type="file" onChange={(e) => loadUserImage(e, false)} />
+            <button onClick={setWhite}>Solid White</button>
+
+            <br />
+
+            Choose foreground image:
+            <input type="file" onChange={(e) => loadUserImage(e, true)} />
             <br />
             {/*          --- OR ---
           <br />
@@ -2385,17 +2504,14 @@ function CustomCreator() {
               flattenedJson && Object.entries(flattenedJson).filter(([key, value]) => key.includes("imageOptions.")).map(([k, v]) => [k, v, k.split(".")[1]]).map(([key, value, label]) =>
                 <tr>
                   <td key={label}>
-                    <label>{label}: </label>
+                    <label for={label}>{label}: </label>
                   </td>
                   <td>
-                    {key.match(/effect/i) ? (
-                      <textarea
+                      <input type={(typeof(value) === "boolean") ? "checkbox" : "number"}
                         value={formData[key] ?? value}
-                        onChange={(e) => handleInputChange(key, e.target.value)} />) : (
-                      <input type={label === "url" ? "text" : "number"}
-                        value={formData[key] ?? value}
-                        onChange={(e) => handleInputChange(key, e.target.value)} />)
-                    }
+                        checked={value}
+                        id={label}
+                        onChange={(e) => handleInputChange(key, e.target.value, typeof(value), e.target.checked)} />
                   </td>
                 </tr>
               )}
@@ -2428,9 +2544,7 @@ function CustomCreator() {
 
             <button onClick={handleExport}>Save Image Locally</button>
             <hr />
-            <SaveState jsonText={jsonText[currentIndex]} drawFrame={drawFrame}
-              addFoil={addFoil} drawOutline={drawOutline} aceFrame={aceFrame}
-              effectBox={effectBox} baselineOffset={baselineOffset} specialOffset={specialOffset} lineSpacing={lineSpacing}
+            <SaveState jsonText={jsonText[currentIndex]} baselineOffset={baselineOffset} specialOffset={specialOffset} lineSpacing={lineSpacing}
             />
             <hr />
             <span>
@@ -2442,25 +2556,6 @@ function CustomCreator() {
               <br />
               <label>Move special evo text up by: <input type="number" style={{ width: "50px" }} name="specialOffset" value={specialOffset} onChange={(e) => setSpecialOffset(e.target.value)} /> </label>
               <br />
-              <label>
-                <input type="checkbox" checked={effectBox} onChange={(e) => { setEffectBox(e.target.checked) }} />
-                Effect box </label>  <br />
-              <label>
-                <input type="checkbox" checked={drawFrame} onChange={(e) => { setDrawFrame(e.target.checked) }} />
-                Card Frame </label>
-              <label>
-                <input type="checkbox" checked={addFoil} onChange={(e) => { setAddFoil(e.target.checked) }} />
-                Add Foil </label>
-              <label>
-                <input type="checkbox" checked={aceFrame} onChange={(e) => { setAceFrame(e.target.checked) }} />
-                ACE Frame (beta) </label>
-              <br />
-              <label>
-                <input type="checkbox" checked={drawOutline} onChange={(e) => { setDrawOutline(e.target.checked) }} />
-                Outline </label>  <br />
-              <label style={{ display: "xxx" }} >
-                <input type="checkbox" checked={skipDraw} onChange={(e) => { setSkipDraw(e.target.checked) }} />
-                Skip Draw </label>  <br />
               <span> &nbsp; &nbsp; </span>
               <br /> Unimplemented:  burst, rarity <br />
             </span>

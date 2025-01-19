@@ -1,7 +1,10 @@
-Feedback on this list appreciated. Just a few people asking for a feature makes it very likely to exist.
+feedback on this list appreciated. 
+just a few people asking for a feature makes it very likely to exist, even if it already is listed here.
+take this as a brainstorming list of ideas.
 
-BUGS
+KNOWN BUGS
 
+* multiple users reporting Safari issues (bad scaling, bad font on mon name). if this includes you, please reach out
 * bubble around digixros wrong length
 * digimon name for pure yellow/pure white should be solid black, not white with black border
 * fix those extra pixels at intersections where angles jut out
@@ -10,16 +13,21 @@ BUGS
 * digixros field goes nuts if it doesn't start with [digixros -x]
 * the black color isn't quite black; try black/green egg and look closely at attribute bar
 * some timings [in brackets] not blue, again
-* multiple users reporting Safari issues (bad scaling, bad font on mon name). if this includes you, please reach out
 
 VAGUE TO DO LIST, SOONER:
 
 * put all variables into json blob
 * pen for creator name (should credit both artist and author)
+* auto-generate all images (for testing)
+* standalone binary, so local images can be accessed
 
 VAGUE TO DO LIST, LATER:
 
-* squeeze rule text
+* get brick backgrounds when we have more samples
+* get link frames when we ahve more samples
+* for frame-less ACEs, still have frame stuff at bottom, and make ESS transparnets
+* ... but ACEs may also be getting rid of ESS text, so... 🤷‍♂️
+* squeeze rule text as needed to fit in 1 line
 * option for smaller download (4 MB can be a lot for 1 card)
 * make default font for level text (before remote font loads) is really ugly
 * for remote fonts, delay first rendering or re-render when it loads

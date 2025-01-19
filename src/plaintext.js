@@ -85,6 +85,16 @@ Mega | Vaccine | Holy Warrior/X Antibody/Royal Knight
 [All Turns] (Once Per Turn) When an effect would trash your security stack, If there're 6 or fewer security cards and [Kentaurosmon] or [X Antibody] is in this Digimon's digivolution cards, you may trash your opponent's top security card and place 1 yellow card from your hand as your top security card instead.
 Author: Vansjoo`;
 
+// unsupported, 
+export const custom_7 = `MarinChimairamon - 🟦🟩🟪
+Lv.5 / Ultimate / Vaccine / Composite
+Play: Cost 9 / Digivolve 🟦: Cost 4 / 9000DP
+[PIERCING]
+(On Play)/(When Digivolving) For each of this Digimon's digivolution cards, trash any 1 digivolution card from 1 of your opponent's Digimon. Then, delete 1 of their unsuspended Digimon with as many or fewer digivolution cards as this Digimon.
+《[DigiXros -2] 4 🟦 Digimon cards w/different names and [Ancient Fish]/[Aquabeast]/[Aquatic]/[Mollusk]/[Sea Animal]/[Sea Beast] trait》
+Author: Schnivän
+`;
+
 // return color based on abbreviations
 function get_color(input) {
     if (!input) return undefined;
@@ -113,6 +123,7 @@ function split_colors(input) {
 }
 
 // 🔴🔵🟡🟢🟣⚫⚪
+
 
 function abbr_parse_color(text) {
     if (!text) return "";
@@ -158,7 +169,15 @@ export const enterPlainText = (lines) => {
             "ess_y_pos": 10,
             "ess_x_end": 74,
             "ess_y_end": 50,
-            "fontSize": 90.5
+            "fontSize": 90.5,
+            "foregroundOnTop": false,
+            "cardFrame": true,
+            "effectBox": false,
+            "addFoil": false,
+            "aceFrame": true,
+            "outline": true,
+            "skipDraw": false
+
         }
 
     }

@@ -43,10 +43,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.9.1"
-const latest = "set background image, put all checkboxes into JSON blob"
+const version = "0.7.9.4"
+const latest = "set background image, put all checkboxes into JSON blob, white/yellow name now pure black, fix Lv.X text w/Ace frames, new reminder text"
 
-// version 0.7.9    set background image
+// version 0.7.9.1  set background image, put all checkboxes into JSON blob
 // version 0.7.8    bigsize DP in link DP, too
 // version 0.7.7.x  increase Lv.N text size; don't wait for fonts for first load
 // version 0.7.6.x  trying to properly cache updates so just 1 happens at a time, and 1 always happens at the end"
@@ -104,7 +104,30 @@ const latest = "set background image, put all checkboxes into JSON blob"
 // version 0.4.3  multi color, egg.
 // version 0.4.2. Better error handling, re-orient custom image
 
-function empty(s) {
+const settingsText = {
+  "x_pos": "image offset, X",
+  "y_pos": "image offset, Y",
+  "x_scale": "image X scale, %",
+  "y_scale": "image Y scale, %",
+  "ess_x_pos": "ESS start X, %",
+  "ess_y_pos": "ESS start Y, %",
+  "ess_x_end": "ESS end X, %",
+  "ess_y_end": "ESS end Y, %",
+  "fontSize": "font size",
+  "foregroundOnTop": "foreground over frame",
+  "cardFrame": "draw card frame",
+  "effectBox": "pre-BT14 effect box",
+  "addFoil": "add foil to edge",
+  "aceFrame": "for ACEs use new frame",
+  "outline": "include border line",
+  "skipDraw": "don't update card",
+  "lineSpacing": "line spacing",
+}
+const settingText = (s) => {
+  return settingsText[s] ||  s;
+}
+
+const empty = (s) => {
   if (!s) return true;
   if (s.length < 2) return true;
   if (s === "-") return true;
@@ -131,47 +154,18 @@ function effectBoxScale(source_height, offset) {
 // stringroundremoved, dec 17
 
 
-/*  // Draw an evo circle instead of loading an image
-
-function colorMap(color) {
-  switch (color.toLowerCase()) {
-    case "blue": return "#5C8FC7";
-    case "green": return "#459A70";
-    case "purple": return "#58569d"
-    default: return color;
-  }
-}
-function coloredCircle(canvas, centerX, centerY, color) {
-  try {
-    const ctx = canvas.getContext('2d');
-    setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
-    const radius = 140;
-    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-    // Add color stops to the gradient
-    gradient.addColorStop(0, 'white');  // Center of the circle
-    gradient.addColorStop(0.6, colorMap(color));    // Edge of the circle
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.fill();
-  } catch (e) {
-  }
-}*/
-
-function borderColor(colors) {
-  for (let color of colors) {
-    if (color === "white" || color === "yellow") return "black";
-  }
-  return "";
-}
+// Draw an evo circle instead of loading an image
+// manual evo circle with gradient removed, jan 19
 
 // returns [fillColor, edgeColor, boolean if we need edge]
 // color should be lowercase array before we get here
-function textColor(colors) {
+// colors should all be lowercase before this is called
+const textColor = (colors) => {
   let border = (colors.includes("white") || colors.includes("yellow"));
   let fillColor = 'white';
   let strokeColor = 'black';
-  if (colors.length === 1 && (colors[0] === 'yellow' || colors[0] === 'white')) {
+  // if only white and/or yellow, pure black with no border
+  if (colors.filter( c =>  c !== "yellow" && c !== "white" ).length === 0) {
     fillColor = 'black';
     strokeColor = 'white';
     border = false; // may not draw border at all
@@ -179,17 +173,12 @@ function textColor(colors) {
   return [fillColor, strokeColor, border];
 }
 
-/*function edgeColor(color) {
-  if (["red", "blue", "green", "purple", "black", "all"].includes(color.toLowerCase())) return "black";
-  return "white";
-}*/
-
-function contrastColor(color) {
+const contrastColor = (color) => {
   if (["red", "blue", "green", "purple", "black", "all"].includes(color)) return "white";
   return "black";
 }
 // draw in white text on the black stripe -- unless we're a black card with a white stripe, in which case draw black
-function whiteColor(color) {
+const whiteColor = (color) => {
   if (color?.toLowerCase() === "black") return "black";
   return "white";
 }
@@ -1268,12 +1257,8 @@ function CustomCreator() {
     // options don't need to load frames
     const len = (type === "OPTION" || type === "OPTIONINHERIT") ? 1 : colors.length;
     const frameImages = Array.from({ length: len }, () => new Image());
-    const baseImg = backImg; //  new Image();
-    // baseImg.loaded = false;
+    const baseImg = backImg; 
 
-
-
-    //baseImg.src = placeholder; // default to get started
     const shellImages = [];
     const evoImages = [];
     const wedgeImages = [];
@@ -1925,6 +1910,7 @@ function CustomCreator() {
 
         y += levelHeight(type);
         y += 100
+        if (type === "ACE" && imageOptions.aceFrame) y += 40;
         ctx.font = '900 200px "Big Shoulders Text"'
         ctx.font = '900 170px "ProhibitionRough", "Big Shoulders Text"'
         let x = 250;
@@ -1977,12 +1963,11 @@ function CustomCreator() {
         ctx.font = `700 ${namefontSize}px ToppanBunkyExtraBold`; // has curved lowercase l
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = 'white';
+        let [fillColor, edgeColor, stroke] = textColor(colors);
+        ctx.fillStyle = fillColor;
 
         ctx.lineWidth = 30; // Border width
-        let bc = borderColor(colors);
-        ctx.strokeStyle = bc;
-
+        ctx.strokeStyle = edgeColor;
         let actualWidth = ctx.measureText(name).width;
         let scale = (maxWidth) / actualWidth;
         let endWidth = Math.min(maxWidth, actualWidth);
@@ -1991,7 +1976,7 @@ function CustomCreator() {
         ctx.save();
         ctx.scale(scale, 1);
         let name_line = 3328
-        if (bc !== "") {
+        if (stroke) {
           ctx.lineWidth = 20; // Border width
           ctx.strokeText(name, (1480 + ace_offset) / scale, name_line + delta_y);
         }
@@ -2504,7 +2489,7 @@ function CustomCreator() {
               flattenedJson && Object.entries(flattenedJson).filter(([key, value]) => key.includes("imageOptions.")).map(([k, v]) => [k, v, k.split(".")[1]]).map(([key, value, label]) =>
                 <tr>
                   <td key={label}>
-                    <label for={label}>{label}: </label>
+                    <label for={label}>{settingText(label)}: </label>
                   </td>
                   <td>
                       <input type={(typeof(value) === "boolean") ? "checkbox" : "number"}

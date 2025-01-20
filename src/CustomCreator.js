@@ -43,10 +43,11 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.10.3"
-const latest = "reorder fields a bit to move up evo conditions; move lineSpacing, skipdraw, baselineoffset and specialoffset into blob; foregroud over border"
+const version = "0.7.11.0"
+const latest = "squish rule text to a single line"
 
-// version 0.7.10.x reorder fields a bit to move up evo conditions
+// versonm 0.7.11   squish rule text to a single line
+// version 0.7.10.x reorder fields a bit to move up evo conditions; move lineSpacing, skipdraw, baselineoffset and specialoffset into blob; foregroud over border
 // version 0.7.9.x  set background image, put all checkboxes into JSON blob, white/yellow name now pure black, fix Lv.X text w/Ace frames, new reminder text
 // version 0.7.8    bigsize DP in link DP, too
 // version 0.7.7.x  increase Lv.N text size; don't wait for fonts for first load
@@ -1701,7 +1702,7 @@ function CustomCreator() {
         xros_offset = preview - (bottom + fontSize * 2);
         console.log(1254, 'x', preview, bottom);
       }
-      if (rule && xros) {
+      if (!empty(rule) && !empty(xros)) {
         let rule_start = writeRuleText(ctx, rule, fontSize, bottom, true);
         let xros_length = ctx.measureText(xros).width;
         let fudge = 260;

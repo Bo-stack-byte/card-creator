@@ -106,6 +106,7 @@ function splitTextIntoParts(text) {
 }
 
 export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
+  let maxWidth = 2200;
   fontSize = Number(fontSize);
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
@@ -114,14 +115,15 @@ export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
   let text = rule;
   if (text.startsWith("[Rule]")) text = text.substring(6).trim();
   let width = ctx.measureText(text).width;
-  let x = horizontal_limit - 100;
+  let x = horizontal_limit - 50;
   ctx.strokeStyle = 'white';
   ctx.lineWidth = 20;
+  if (width > maxWidth) width = maxWidth;
   if (!preview) {
     ctx.fillRect(x - width, bottom - fontSize / 8, width + fontSize / 4, - fontSize * 0.7);
-    ctx.strokeText(text, x, bottom);
+    ctx.strokeText(text, x, bottom, maxWidth);
     ctx.fillStyle = 'black';
-    ctx.fillText(text, x, bottom);
+    ctx.fillText(text, x, bottom, maxWidth);
   }
   // Rule:
   ctx.font = `${(fontSize - 10)}px Asimov`;

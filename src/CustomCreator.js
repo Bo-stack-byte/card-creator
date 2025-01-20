@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.10.2"
-const latest = "reorder fields a bit to move up evo conditions; move lineSpacing, skipdraw, baselineoffset and specialoffset into blob"
+const version = "0.7.10.3"
+const latest = "reorder fields a bit to move up evo conditions; move lineSpacing, skipdraw, baselineoffset and specialoffset into blob; foregroud over border"
 
 // version 0.7.10.x reorder fields a bit to move up evo conditions
 // version 0.7.9.x  set background image, put all checkboxes into JSON blob, white/yellow name now pure black, fix Lv.X text w/Ace frames, new reminder text
@@ -1434,20 +1434,6 @@ function CustomCreator() {
         }
       }
 
-      if (imageOptions.foregroundOnTop) drawMon(mon_img, bottom_y + 45);
-
-      //// DRAW TOP TEXT
-      ctx.textAlign = 'center';
-      ctx.fillStyle = 'white';
-      ctx.font = `bold 84px Roboto`;
-      if (!type.startsWith("OPTION")) {
-        ctx.fillStyle = 'black';
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 12
-        ctx.strokeText(json.cardType.toUpperCase(), 1490, 180);
-      }
-      ctx.fillText(json.cardType.toUpperCase(), 1490, 180);
-
 
       // OUTLINE?
 
@@ -1468,8 +1454,52 @@ function CustomCreator() {
       /// WRITE NAME
       let has_traits = (!empty(json.form) || !empty(json.attribute) || !empty(json.type));
 
+
+      // OUTLINE
       for (let i = 0; i < len; i++) {
+        let col = colors[i];
         let frame = frameImages[i];
+
+        if (frame && imageOptions.outline) {
+          let l = (type.startsWith("OPTION")) ? 1 : len; // just 1 option "outline"
+          let fudge = (type === "OPTION" || !i) ? 0 : 0.04;
+          fudge = 0;
+          // 1.05 is fudge factor because our frames aren't all left-justified the same
+          // this makes them  the same, but they might be the same wrong
+          // y - 1.5 to avoid tiniest stray pixels above egg frame on upper left
+          scalePartialImage(ctx, frame, i + (fudge), l, 3950, offset_x, offset_y - 1.5);
+        }
+        // DRAW BOTTOM OF BOX?
+        if (imageOptions.outline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE")) {
+          // bottom of frame
+          let border = borders[col];
+          scalePartialImage(ctx, border, i, len, 67.3, 166, bottom_y);
+
+          // todo: play with these numbers some more. scale is 67.2-67.5,
+          // and left is 166
+        }
+
+      }
+
+      // top mon?
+      if (imageOptions.foregroundOnTop) drawMon(mon_img, bottom_y + 45);
+
+      //// DRAW TOP TEXT
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'white';
+      ctx.font = `bold 84px Roboto`;
+      if (!type.startsWith("OPTION")) {
+        ctx.fillStyle = 'black';
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 12
+        ctx.strokeText(json.cardType.toUpperCase(), 1490, 180);
+      }
+      ctx.fillText(json.cardType.toUpperCase(), 1490, 180);
+
+
+
+      // OTHER MULTICOLOR
+      for (let i = 0; i < len; i++) {
         if (modern) {
           let name_field = bottoms; // i'm so sorry this is named 'bottom'
           if (type.startsWith("OPTION") || type.startsWith("TAMER")) name_field = bottoms_plain;
@@ -1478,15 +1508,6 @@ function CustomCreator() {
 
           if (outlines[col]) {
 
-            if (frame && imageOptions.outline) {
-              let l = (type.startsWith("OPTION")) ? 1 : len; // just 1 option "outline"
-              let fudge = (type === "OPTION" || !i) ? 0 : 0.04;
-              fudge = 0;
-              // 1.05 is fudge factor because our frames aren't all left-justified the same
-              // this makes them  the same, but they might be the same wrong
-              // y - 1.5 to avoid tiniest stray pixels above egg frame on upper left
-              scalePartialImage(ctx, frame, i + (fudge), l, 3950, offset_x, offset_y - 1.5);
-            }
 
             let y_scale = 1;
             ///// EVO BOX AT BOTTOM (OR LINK BOX)
@@ -1601,15 +1622,6 @@ function CustomCreator() {
 
             }
 
-            // DRAW BOTTOM OF BOX?
-            if (imageOptions.outline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE")) {
-              // bottom of frame
-              let border = borders[col];
-              scalePartialImage(ctx, border, i, len, 67.3, 166, bottom_y);
-
-              // todo: play with these numbers some more. scale is 67.2-67.5,
-              // and left is 166
-            }
 
             let start_x = 164;
             // name block
@@ -2466,16 +2478,16 @@ function CustomCreator() {
             <input type="file" onChange={(e) => loadUserImage(e, true)} />
             <hr />
             <button onClick={draw2}>Force Draw</button>
-            <br/>
+            <br />
             <button onClick={handleExport}>Download Image</button>
             <br />
             <SaveState jsonText={jsonText[currentIndex]} />
             <br />
-              {json_t && json_t.length > 0 && json_t[0] === '[' && (
-                <span>
-                  <label>index: <input type="number" style={{ width: "50px" }} name="jsonIndex" value={jsonIndex} onChange={(e) => { setJsonIndex(Number(e.target.value)) }} /> </label>
-                  </span>
-                  )}
+            {json_t && json_t.length > 0 && json_t[0] === '[' && (
+              <span>
+                <label>index: <input type="number" style={{ width: "50px" }} name="jsonIndex" value={jsonIndex} onChange={(e) => { setJsonIndex(Number(e.target.value)) }} /> </label>
+              </span>
+            )}
             {/*          --- OR ---
           <br />
           <input

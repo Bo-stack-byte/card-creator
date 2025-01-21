@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.11.0"
-const latest = "squish rule text to a single line"
+const version = "0.7.12.0"
+const latest = "fix bug The Gabumon Guy found, where inherits were limited to a single line"
 
 // versonm 0.7.11   squish rule text to a single line
 // version 0.7.10.x reorder fields a bit to move up evo conditions; move lineSpacing, skipdraw, baselineoffset and specialoffset into blob; foregroud over border
@@ -2104,13 +2104,13 @@ function CustomCreator() {
         let effect = json.linkEffect;
         let delta_x = -220; let delta_y = -200; let shrink = 1000;
         if (!empty(req)) {
-          drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(imageOptions.lineapacing), "bubble");
+          drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble");
         }
         // shrink is not working, we're ignoring max_width
         let max_width = 2500 - 400 - delta_x * 2 - shrink;
         drawBracketedText(ctx, fontSize, effect,
           700 + delta_x * 2, 3740 + delta_y * 2 + 150,
-          max_width, Number(fontSize) + Number(imageOptions.lineapacing), "effect");
+          max_width, Number(fontSize) + Number(imageOptions.lineSpacing), "effect");
       } else {
         let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
         if (json.linkDP) {
@@ -2130,7 +2130,7 @@ function CustomCreator() {
         let max_width = 2500 - 400 - delta_x * 2 - shrink;
         drawBracketedText(ctx, fontSize, sec_effect,
           700 + delta_x * 2, 3740 + delta_y * 2,
-          max_width, Number(fontSize) + Number(imageOptions.lineapacing), "effect");
+          max_width, Number(fontSize) + Number(imageOptions.lineSpacing), "effect");
       }
     } /// end afterLoad
     console.log(2150, "3");

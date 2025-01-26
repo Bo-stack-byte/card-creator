@@ -455,7 +455,6 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 
   //console.log(372, lines);
   for (let line of lines) {
-    console.log(458, "xxxxxxx", line.x);
     wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra, right_limit, preview);
   }
 
@@ -560,15 +559,16 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
             // First, draw the black stroke
             ctx.lineWidth = width; // Thicker stroke
             ctx.strokeStyle = stroke;
-            if (!preview) ctx.strokeText(word, lastX, y); //  cardWidth - lastX);
+            ctx.textAlign = 'left';
 
+            if (!preview) {
+              ctx.strokeText(word, lastX, y); //  cardWidth - lastX);
+            }
 
             ctx.lineWidth = 2; // Smaller stroke to define the edges
             ctx.fillStyle = fill;
             if (!preview) {
-              console.log(569, "xxxx", word, lastX);
               ctx.fillText(word, lastX, y); //  cardWidth - lastX);
-           //   ctx.strokeText(word, lastX, y);
             }
             width = ctx.measureText(word).width;
             //            if (width > y) width = y;

@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.15.1"
-const latest = "new free text format candidate for link/plug effects; (color) matcking the xros and rule"
+const version = "0.7.15.2"
+const latest = "new free text format candidate for link/plug effects; (color) matching the xros and rule; fix digixros going nuts"
 
 // version 0.7.15   new free text format candidate for link/plug effects
 // version 0.7.14.x various weird git fixes, author fix, tama fix, ayar fix, ayar offset

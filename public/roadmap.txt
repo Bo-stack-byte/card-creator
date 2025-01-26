@@ -5,20 +5,15 @@ take this as a brainstorming list of ideas.
 KNOWN BUGS
 
 * multiple users reporting Safari issues (bad scaling, bad font on mon name). if this includes you, please reach out
-* bubble around digixros wrong length
 * fix those extra pixels at intersections where angles jut out
-* Keyword scrunching (try sample ACE with fontsize 140)
 * (maybe same issue) Keywords that appear far along the line may be mis-aligned. So do [] symbols
-* digixros field goes nuts if it doesn't start with [digixros -x]
 * the black color isn't quite black; try black/green egg and look closely at attribute bar
-* some timings [in brackets] not blue, again
 
 VAGUE TO DO LIST, SOONER:
 
-* put all variables into json blob
-* pen for creator name (should credit both artist and author)
 * auto-generate all images with one click (for testing)
 * standalone binary, so local images can be accessed
+* get purple text with (parentheses) or fix in import for translation team's format
 
 VAGUE TO DO LIST, LATER:
 
@@ -26,7 +21,6 @@ VAGUE TO DO LIST, LATER:
 * get link frames when we ahve more samples
 * for frame-less ACEs, still have frame stuff at bottom, and make ESS transparnets
 * ... but ACEs may also be getting rid of ESS text, so... 🤷‍♂️
-* squeeze rule text as needed to fit in 1 line
 * option for smaller download (4 MB can be a lot for 1 card)
 * make default font for level text (before remote font loads) is really ugly
 * for remote fonts, delay first rendering or re-render when it loads
@@ -51,6 +45,13 @@ VAGUE TO DO LIST, LATER:
 
 NOMINALLY FIXED BUGS / FEATURES
 
+* squeeze rule text as needed to fit in 1 line
+* pen for creator name (should credit both artist and author)
+* some timings [in brackets] not blue, again
+* put all variables into json blob
+* digixros field goes nuts if it doesn't start with [digixros -x]
+* Keyword scrunching (try sample ACE with fontsize 140): can't reproduce this even going back a few weeks
+* bubble around digixros wrong length? don't know what this was any more
 * dual-layer art (user supplies background and foreground: foreground gets drawn over background)
 * digimon name for pure yellow/pure white should be solid black, not white with black border
 * Digixros and "rule" text overlaps.

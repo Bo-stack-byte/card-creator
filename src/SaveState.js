@@ -17,8 +17,7 @@ export const restoreState = async (ref, id) => {
     }
   };
 
-export const SaveState = ({ jsonText, fontSize, drawFrame,
-    effectBox, baselineOffset, lineSpacing }) => {
+export const SaveState = ({ jsonText }) => {
     const [handle, setHandle] = useState({ referenceId: 0, versionId: 0 } ); // For storing the returned reference ID
     const here = new URL(window.location.href);
     const baseUrl = here.origin + here.pathname;
@@ -26,8 +25,7 @@ export const SaveState = ({ jsonText, fontSize, drawFrame,
 
     const handleSave = async () => {
         const cardState = {
-            jsonText, fontSize, drawFrame,
-            effectBox, baselineOffset, lineSpacing
+            jsonText
         };
         try {
             let document = { cardState: cardState, referenceId: handle.referenceId };

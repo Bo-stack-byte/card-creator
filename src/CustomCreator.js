@@ -19,7 +19,7 @@ import {
   pen_img,
 } from './images';
 
-import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7} from './plaintext';
+import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7 } from './plaintext';
 import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
@@ -43,9 +43,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.15"
-const latest = "new free text format candidate for link/plug effects"
+const version = "0.7.15.1"
+const latest = "new free text format candidate for link/plug effects; (color) matcking the xros and rule"
 
+// version 0.7.15   new free text format candidate for link/plug effects
 // version 0.7.14.x various weird git fixes, author fix, tama fix, ayar fix, ayar offset
 // version 0.7.13   artist and author line
 // version 0.7.12   fix bug shawndamarbledcat found, where inherits were limited to a single line
@@ -785,7 +786,7 @@ function CustomCreator() {
   const customs = [
     custom_1,
     custom_2, custom_3, custom_4,
-    custom_5, custom_6, 
+    custom_5, custom_6,
     custom_7
   ];
   const custom_starter = `# This is a sample custom text taken from the customs channel.
@@ -1542,7 +1543,7 @@ function CustomCreator() {
       const here = new URL(window.location.href);
       const author = empty(json.author) ? "" : json.author;
       const ver = ("v" + version) || "";
-      const artist = (!empty(json.artist) && json.artist !== "-") ? json.artist : ver + "    " + here 
+      const artist = (!empty(json.artist) && json.artist !== "-") ? json.artist : ver + "    " + here
       const credit = artist + "   " + author;
       ctx.font = '70px Bert';
       ctx.save();
@@ -1642,6 +1643,7 @@ function CustomCreator() {
               }
             }
             if (type === "LINK") {
+              // move this up one block?
               ctx.restore();
             }
 
@@ -1746,8 +1748,8 @@ function CustomCreator() {
       // sometimes they have the full digixros effect and the rule above it (BT15-012)
 
       bottom += 800;
-      const rule = json.rule;
-      const xros = json.digiXros;
+      const rule = colorReplace(json.rule, true);
+      const xros = colorReplace(json.digiXros, true);
       const fontSize = Number(json.imageOptions.fontSize) || 90.5
       let rule_offset = 0;
       let xros_offset = 0;

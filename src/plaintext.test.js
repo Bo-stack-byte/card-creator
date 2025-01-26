@@ -1,5 +1,5 @@
-import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5 } from './plaintext';
-const customs = [custom_1, custom_2, custom_3, custom_4, custom_5 ];
+import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7, custom_8 } from './plaintext';
+const customs = [custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7 ];
 
 console.log = () => {}
 console.error = () => {}
@@ -12,24 +12,24 @@ function getObj() {
         ret.push(json);
     }
     // uncomment this line to get the output
-    //console.dir(ret, { depth: null} );
+   //console.dir(ret, { depth: null} );
     return ret;
 }
 
-let answer =     [
+let answer =   [
   {
     name: { english: 'ScrapBacomon' },
     color: 'Green',
     cardType: 'Digimon',
     playCost: '3',
     dp: '1000',
+    evolveCondition: [ { level: '2', cost: '0', color: 'Green' } ],
     cardLv: 'Lv.3',
     form: 'Rookie',
     attribute: 'Data',
     type: 'Mutant/ʟᴍᴡ',
     rarity: '',
     specialEvolve: '-',
-    evolveCondition: [ { level: '2', cost: '0', color: 'Green' } ],
     effect: '[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mutant] traut and 1 card with the [ʟᴍᴡ] trait among them to the hand. Return the rest to the bottom of the deck.\n',
     evolveEffect: '[All Turns] [Once Per Turn] When 1 other Digimon digivolves, <Draw 1>.\n',
     linkDP: '-',
@@ -53,7 +53,14 @@ let answer =     [
       ess_y_pos: 10,
       ess_x_end: 74,
       ess_y_end: 50,
-      fontSize: 90.5
+      fontSize: 90.5,
+      foregroundOnTop: false,
+      cardFrame: true,
+      effectBox: false,
+      addFoil: false,
+      aceFrame: true,
+      outline: true,
+      skipDraw: false
     }
   },
   {
@@ -62,16 +69,16 @@ let answer =     [
     cardType: 'Digimon',
     playCost: '13',
     dp: '13000',
+    evolveCondition: [
+      { cost: '5', level: '5', color: 'Purple' },
+      { cost: '5', level: '5', color: 'Red' }
+    ],
     cardLv: 'Lv.6',
     form: 'Mega',
     attribute: 'Virus',
     type: 'Ancient Dragonkin',
     rarity: '',
     specialEvolve: '[Digivolve] [Imperialdramon: Dragon Mode]: Cost 2',
-    evolveCondition: [
-      { cost: '5', level: '5', color: 'Purple' },
-      { cost: '5', level: '5', color: 'Red' }
-    ],
     effect: '<Security A. +1> <Piercing>\n' +
       "[When Digivolving] By returning 1 Multicolor Digimon card from this Digimon's digivolution cards to the hand, return all digivolution cards of 1 of your opponent's Digimon with as high or lower level as returned card to the bottom of the deck. Then, delete it.\n" +
       "[Your Turn] This Digimon doesn't activate [Security] effects of the cards it checks.\n",
@@ -97,7 +104,14 @@ let answer =     [
       ess_y_pos: 10,
       ess_x_end: 74,
       ess_y_end: 50,
-      fontSize: 90.5
+      fontSize: 90.5,
+      foregroundOnTop: false,
+      cardFrame: true,
+      effectBox: false,
+      addFoil: false,
+      aceFrame: true,
+      outline: true,
+      skipDraw: false
     }
   },
   {
@@ -106,16 +120,16 @@ let answer =     [
     cardType: 'Digimon',
     playCost: '3',
     dp: '1000',
+    evolveCondition: [
+      { cost: '1', level: '2', color: 'Yellow' },
+      { cost: '1', level: '2', color: 'Purple' }
+    ],
     cardLv: 'Lv.3',
     form: 'Rookie',
     attribute: 'Data',
     type: 'Mammal',
     rarity: '',
     specialEvolve: '[Digivolve] [Tokomon]: Cost 0',
-    evolveCondition: [
-      { cost: '1', level: '2', color: 'Yellow' },
-      { cost: '1', level: '2', color: 'Purple' }
-    ],
     effect: '[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mythical Beast] trait and 1 card with the [LIBERATOR] trait among them to the hand. Return the rest to the bottom of the deck. \n',
     evolveEffect: "[On Deletion] You may place 1 card from either player's trash face down in the battle area.\n",
     linkDP: '-',
@@ -139,7 +153,14 @@ let answer =     [
       ess_y_pos: 10,
       ess_x_end: 74,
       ess_y_end: 50,
-      fontSize: 90.5
+      fontSize: 90.5,
+      foregroundOnTop: false,
+      cardFrame: true,
+      effectBox: false,
+      addFoil: false,
+      aceFrame: true,
+      outline: true,
+      skipDraw: false
     }
   },
   {
@@ -148,13 +169,13 @@ let answer =     [
     cardType: 'Option',
     playCost: '3',
     dp: '-',
+    evolveCondition: [ { color: '', cost: '', level: '' } ],
     cardLv: '',
     form: '',
     attribute: '',
     type: '',
     rarity: '',
     specialEvolve: '-',
-    evolveCondition: [ { color: '', cost: '', level: '' } ],
     effect: '     [Main] <Draw 1> for every Tamer your opponent has in play.\n',
     evolveEffect: '',
     linkDP: '-',
@@ -178,7 +199,14 @@ let answer =     [
       ess_y_pos: 10,
       ess_x_end: 74,
       ess_y_end: 50,
-      fontSize: 90.5
+      fontSize: 90.5,
+      foregroundOnTop: false,
+      cardFrame: true,
+      effectBox: false,
+      addFoil: false,
+      aceFrame: true,
+      outline: true,
+      skipDraw: false
     }
   },
   {
@@ -187,16 +215,16 @@ let answer =     [
     cardType: 'Digimon',
     playCost: '8',
     dp: '7000',
-    cardLv: 'Lv.5',
-    form: '',
-    attribute: '',
-    type: '',
-    rarity: '',
-    specialEvolve: '[Digivolve] from Lv.4 w/<Save> in text: 3 cost',
     evolveCondition: [
       { cost: '4', level: '4', color: 'Black' },
       { cost: '4', level: '4', color: 'Purple' }
     ],
+    cardLv: 'Lv.5',
+    form: '',
+    attribute: 'Virus',
+    type: 'Enhancement/Dragonkin/Cyborg',
+    rarity: '',
+    specialEvolve: '[Digivolve] from Lv.4 w/<Save> in text: 3 cost',
     effect: '<Blocker>\n' +
       `[On Play][When Digivolving] Until the end of your opponent's turn, 1 of their Digimon gains "[Start of Main] Forced attack." If digixrossed with 2 materials, <De-Digivolve 1> 1 of their Digimon.\n`,
     evolveEffect: "[Opponent's Turn] This Digimon with <Save> in its text gains <Reboot>.\n",
@@ -209,7 +237,7 @@ let answer =     [
     dnaEvolve: '-',
     burstEvolve: '-',
     cardNumber: '',
-    author: '',
+    author: 'MuqRei',
     artist: '',
     imageOptions: {
       url: '',
@@ -221,11 +249,113 @@ let answer =     [
       ess_y_pos: 10,
       ess_x_end: 74,
       ess_y_end: 50,
-      fontSize: 90.5
+      fontSize: 90.5,
+      foregroundOnTop: false,
+      cardFrame: true,
+      effectBox: false,
+      addFoil: false,
+      aceFrame: true,
+      outline: true,
+      skipDraw: false
+    }
+  },
+  {
+    name: { english: 'Kentaurosmon (X Antibody)' },
+    color: 'Yellow/Blue',
+    cardType: 'Digimon',
+    playCost: '12',
+    dp: '12000',
+    evolveCondition: [
+      { cost: '4', level: '5', color: 'Yellow' },
+      { cost: '4', level: '5', color: 'Blue' }
+    ],
+    cardLv: 'Lv.6',
+    form: 'Mega',
+    attribute: 'Vaccine',
+    type: 'Holy Warrior/X Antibody/Royal Knight',
+    rarity: '',
+    specialEvolve: '[Digivolve] [Kentaurosmon]: Cost 1',
+    effect: "[When Digivolving] [When Attacking] (Once Per Turn) By trashing your top security card, 1 of your opponent's Digimon gets -10000 DP until the end of their turn. Then, until the end of their turn, 1 of their Digimon or Tamers can't suspend.\n" +
+    "[All Turns] (Once Per Turn) When an effect would trash your security stack, If there're 6 or fewer security cards and [Kentaurosmon] or [X Antibody] is in this Digimon's digivolution cards, you may trash your opponent's top security card and place 1 yellow card from your hand as your top security card instead.\n",
+    evolveEffect: '',
+    linkDP: '-',
+    linkRequirements: '-',
+    linkEffect: '-',
+    securityEffect: '-',
+    rule: '',
+    digiXros: '',
+    dnaEvolve: '-',
+    burstEvolve: '-',
+    cardNumber: '',
+    author: 'Vansjoo',
+    artist: '',
+    imageOptions: {
+      url: '',
+      x_pos: 0,
+      y_pos: 0,
+      x_scale: 95,
+      y_scale: 95,
+      ess_x_pos: 37,
+      ess_y_pos: 10,
+      ess_x_end: 74,
+      ess_y_end: 50,
+      fontSize: 90.5,
+      foregroundOnTop: false,
+      cardFrame: true,
+      effectBox: false,
+      addFoil: false,
+      aceFrame: true,
+      outline: true,
+      skipDraw: false
+    }
+  },
+  {
+    name: { english: 'Translatemon' },
+    color: 'Black',
+    cardType: 'Digimon',
+    playCost: '3',
+    dp: '2000',
+    evolveCondition: [ { level: '2', cost: '0', color: 'Black' } ],
+    cardLv: 'Lv.3',
+    form: 'Stnd./Appmon',
+    attribute: 'Translation',
+    type: 'Tool',
+    rarity: '',
+    specialEvolve: '-',
+    effect: "[Opponent's Turn] Your opponent can't activate name-based effects.\n",
+    evolveEffect: '[Link]: [Appmon] trait. Cost: 1.\n{2000 DP}\n',
+    linkDP: '-',
+    linkRequirements: '-',
+    linkEffect: '-',
+    securityEffect: '-',
+    rule: '',
+    digiXros: '',
+    dnaEvolve: '-',
+    burstEvolve: '-',
+    cardNumber: '',
+    author: 'shawndamarbledcat',
+    artist: '',
+    imageOptions: {
+      url: '',
+      x_pos: 0,
+      y_pos: 0,
+      x_scale: 95,
+      y_scale: 95,
+      ess_x_pos: 37,
+      ess_y_pos: 10,
+      ess_x_end: 74,
+      ess_y_end: 50,
+      fontSize: 90.5,
+      foregroundOnTop: false,
+      cardFrame: true,
+      effectBox: false,
+      addFoil: false,
+      aceFrame: true,
+      outline: true,
+      skipDraw: false
     }
   }
 ]
-
 
 
 let extra = 

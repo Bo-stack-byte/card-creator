@@ -5,7 +5,7 @@ import { getDot } from './images';
 
 let all_colors = ["Red", "Blue", "Yellow", "Green", "Black", "Purple", "White", "Rainbow"]; //rainbow unsupported right now
 
-  // copied from the customs channel
+// copied from the customs channel
 
 export const custom_1 = `     ʟᴠ.3 — ScrapBacomon
 [Rookie | Data | Mutant/ʟᴍᴡ] [Gre.]
@@ -85,8 +85,22 @@ Mega | Vaccine | Holy Warrior/X Antibody/Royal Knight
 [All Turns] (Once Per Turn) When an effect would trash your security stack, If there're 6 or fewer security cards and [Kentaurosmon] or [X Antibody] is in this Digimon's digivolution cards, you may trash your opponent's top security card and place 1 yellow card from your hand as your top security card instead.
 Author: Vansjoo`;
 
+export const custom_7 = `Lv.3 - Roleplaymon
+[Stnd./Appmon | Game | Ropure/7CA] [Yel.] [Blk.]
+Play Cost: 3 | Digivolve: 1 from Lv.2 [Yel.] [Blk.]
+2000 DP
+
+[On Play] Reveal the top 4 cards of your deck. Add 1 Digimon with the [7CA] trait to your hand. Return the rest to the bottom of the deck.
+---
+[Link] [Appmon] trait: Cost: 1
+[When Attacking] [Once Per Turn] 1 of your opponent's Digimon gets -2000 DP for the turn.
++2000 DP
+Author: shawndamarbledcat
+`;
+
+
 // unsupported, 
-export const custom_7 = `MarinChimairamon - 🟦🟩🟪
+export const custom_8 = `MarinChimairamon - 🟦🟩🟪
 Lv.5 / Ultimate / Vaccine / Composite
 Play: Cost 9 / Digivolve 🟦: Cost 4 / 9000DP
 [PIERCING]
@@ -95,24 +109,25 @@ Play: Cost 9 / Digivolve 🟦: Cost 4 / 9000DP
 Author: Schnivän
 `;
 
+
 // return color based on abbreviations
 function get_color(input) {
     if (!input) return undefined;
     let dot = getDot(input);
     if (dot) return dot;
-    input = input.toLowerCase().substring(0,3);
+    input = input.toLowerCase().substring(0, 3);
     console.log(11, input);
-    const candidate = all_colors.find( x => x.substring(0,3).toLowerCase() === input );
+    const candidate = all_colors.find(x => x.substring(0, 3).toLowerCase() === input);
     if (candidate) return candidate;
     console.log(14, input);
     if (input === "blk") return "Black";
     if (input === "grn") return "Black";
     return undefined;
-    
+
 }
 
 function split_colors(input) {
-    
+
     if (input.includes("/")) {
         return input.split("/").map(c => c.trim());
     }
@@ -152,8 +167,8 @@ export const enterPlainText = (lines) => {
         "effect": "",
         "evolveEffect": "",
         "linkDP": "-",
-        "linkRequirements": "-",
-        "linkEffect": "-",
+        "linkRequirement": "",
+        "linkEffect": "",
         "securityEffect": "-",
 
         "rule": "",
@@ -246,9 +261,12 @@ export const enterPlainText = (lines) => {
             evo.cost = (m[3]);
             evo.color = abbr_parse_color(m[5])
             json.evolveCondition.push(evo);
-        } else if ((m = line.match(/^\s*(\d+) DP/))) {
+        } else if ((m = line.match(/^\s*\+?(\d+) DP/))) {
             //      6000 DP
-            json.dp = (m[1]);
+            if (mode === "link")
+                json.linkDP = (m[1]);
+            else
+                json.dp = (m[1]);
         } else if ((m = line.match(/^(Play|Use)?.?cost\s*:\s*(\d+)/i))) {
             json.playCost = (m[2]);
             // only if pure colors
@@ -283,12 +301,20 @@ export const enterPlainText = (lines) => {
         } else if ((m = line.match(/security effect\s*:\s*(.*\w+.*)/i))) {
             console.log(124, m);
             json.securityEffect += m[1] + "\n";
-       //     {Digixros -1} [Arresterdramon] x [MetalTyrannomon]
+            //     {Digixros -1} [Arresterdramon] x [MetalTyrannomon]
         } else if ((m = line.match(/^.{0,3}(DigiXros -\d+).{0,3}\s+(.*)/i))) {
             json.digiXros = `[${m[1]}] ${m[2]}`;
+            //    [Link]: [Appmon] trait. Cost: 1.
+        } else if ((m = line.match(/^.{0,3}(Link).?:?\s*(.*trait.*).?\s*:\s*cost.?\s*(\d+)/i))) {
+            json.linkRequirement = `[Link] ${m[2]}: Cost ${m[3]}`
+            mode = "link";
         } else if ((m = line.match(/Security Effect/))) {
             mode = "security";
-            // translator format
+        } else if ((m = line.match(/(?:inherited effect|inheritable)\s*:\s*(.*\w+.*)/i))) {
+            console.log(124, m);
+            json.evolveEffect += m[1] + "\n";
+
+            // translator format            
         } else if ((m = line.match(/(?:inherited effect|inheritable)\s*:\s*(.*\w+.*)/i))) {
             console.log(124, m);
             json.evolveEffect += m[1] + "\n";
@@ -296,7 +322,7 @@ export const enterPlainText = (lines) => {
             mode = "inherited";
             // Type:X for arbitrary Key:Value pairs
         } else if ((m = line.match(/^(.*)\s*:\s*(.*)$/)) && (m[1].toLowerCase() in json)) {
-            let [key,value] = m;
+            let [, key, value] = m;
             key = key.toLowerCase();
             if (key in json) {
                 json[key] = value;
@@ -309,17 +335,19 @@ export const enterPlainText = (lines) => {
                 console.log(69, "after", json.name.english);
             } else if (mode === "inherited") {
                 json.evolveEffect += line + "\n";
-            } else if (mode === "inherited") {
+            } else if (mode === "security") {
                 json.securityEffect += line + "\n";
+            } else if (mode === "link") {
+                json.linkEffect += line + "\n";
             } else {
                 json.effect += line + "\n";
             }
         }
     }
     if (json.evolveCondition.length === 0) {
-     json.evolveCondition.push ({ color: "", cost: "", level: ""});
+        json.evolveCondition.push({ color: "", cost: "", level: "" });
     }
-    
+
 
     return JSON.stringify(json, null, 2);
     //   return JSON.stringify(json);
@@ -331,7 +359,7 @@ export const enterPlainText = (lines) => {
 const exports =  { 
     enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5
  };*/
- 
+
 /*  
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

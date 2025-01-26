@@ -19,7 +19,7 @@ import {
   pen_img,
 } from './images';
 
-import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5 } from './plaintext';
+import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7} from './plaintext';
 import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
@@ -43,9 +43,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.14.3"
-const latest = "various weird git fixes, author fix, tama fix, ayar fix, ayar offset"
+const version = "0.7.15"
+const latest = "new free text format candidate for link/plug effects"
 
+// version 0.7.14.x various weird git fixes, author fix, tama fix, ayar fix, ayar offset
 // version 0.7.13   artist and author line
 // version 0.7.12   fix bug shawndamarbledcat found, where inherits were limited to a single line
 // versonm 0.7.11   squish rule text to a single line
@@ -784,7 +785,8 @@ function CustomCreator() {
   const customs = [
     custom_1,
     custom_2, custom_3, custom_4,
-    custom_5
+    custom_5, custom_6, 
+    custom_7
   ];
   const custom_starter = `# This is a sample custom text taken from the customs channel.
 # Start typing to watch it update.
@@ -1526,7 +1528,6 @@ function CustomCreator() {
       ctx.fillText(json.cardType.toUpperCase(), 1490, 180);
 
       // DRAW AUTHOR
-      console.log(1520, pen_img);
       if (true) try {
         for (let scale = 1.20; scale >= 1.0; scale -= 0.04) {
           let width = 51 * scale; let height = 122 * scale;

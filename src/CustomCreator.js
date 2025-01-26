@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.14.0"
-const latest = "various weird git fixes"
+const version = "0.7.14.2"
+const latest = "various weird git fixes, author fix, tama fix, ayar fix"
 
 // version 0.7.13   artist and author line
 // version 0.7.12   fix bug shawndamarbledcat found, where inherits were limited to a single line
@@ -224,48 +224,63 @@ const setupRoundedCorners = (ctx, width, height, radius) => {
 };
 
 const starter_text_empty = `{
-    "name": {  "english": "Tama"  },
-    "color": "Red",
-    "cardType": "Digi-Egg",
-    "playCost": "-",
-    "cardLv": "Lv.2",
-    "cardNumber": "",
-    "dp": "-",
-    "evolveCondition": [],
-    "effect": "-",
-    "form": "In-Training",
-    "attribute": "",
-    "type": "",
-    "rarity": "C",
-    "specialEvolve": "-",
-    "securityEffect": "-",
-    "rule": "",
-    "digiXros": "",
-    "dnaEvolve": "-",
-    "burstEvolve": "-",
-    "evolveEffect": "-", 
-    "rule": "",
-    "cardNumber": "X-01", 
-    "linkRequirement": "-",
-    "linkDP": "-",
-    "linkEffect": "-",
-    "artist": "-",
-    "author": "-",
-
-    "imageOptions":{
-      "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
-      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
-      "foregroundOnTop": false,
-                  "cardFrame": true,
-            "effectBox": false,
-            "addFoil": false,
-            "aceFrame": true,
-            "outline": true,
-            "skipDraw": false
-
+  "name": {
+    "english": "Tama"
+  },
+  "color": "Red",
+  "cardType": "Digi-Egg",
+  "playCost": "-",
+  "cardLv": "Lv.2",
+  "cardNumber": "X-01",
+  "dp": "-",
+  "evolveCondition": [
+    {
+      "color": "",
+      "cost": "",
+      "level": ""
     }
-  }`;
+  ],
+  "effect": "-",
+  "form": "In-Training",
+  "attribute": "",
+  "type": "",
+  "rarity": "C",
+  "specialEvolve": "-",
+  "securityEffect": "-",
+  "rule": "",
+  "digiXros": "",
+  "dnaEvolve": "-",
+  "burstEvolve": "-",
+  "evolveEffect": "-",
+  "linkRequirement": "-",
+  "linkDP": "-",
+  "linkEffect": "-f",
+  "artist": "-",
+  "author": "-",
+  "imageOptions": {
+    "url": "",
+    "x_pos": 0,
+    "y_pos": 0,
+    "x_scale": 95,
+    "y_scale": 95,
+    "ess_x_pos": 40,
+    "ess_y_pos": 40,
+    "ess_x_end": 50,
+    "ess_y_end": 50,
+    "fontSize": 90.5,
+    "lineSpacing": 10,
+    "baselineOffset": 0,
+    "specialOffset": 0,
+    "foregroundOnTop": false,
+    "cardFrame": true,
+    "effectBox": false,
+    "addFoil": false,
+    "aceFrame": true,
+    "outline": true,
+    "skipDraw": false
+  }
+}`;
+
 
 const starter_text_0 = `  {
     "name": {  "english": "Doggie Dagger"  },
@@ -1526,7 +1541,7 @@ function CustomCreator() {
       const here = new URL(window.location.href);
       const author = empty(json.author) ? "" : json.author;
       const ver = ("v" + version) || "";
-      const artist = empty(json.artist) ? ver + "    " + here : json.artist;
+      const artist = (!empty(json.artist) && json.artist !== "-") ? json.artist : ver + "    " + here 
       const credit = artist + "   " + author;
       ctx.font = '70px Bert';
       ctx.save();
@@ -1863,7 +1878,7 @@ function CustomCreator() {
             ctx.fillText(evo1_level, 375, 870 + circle_offset, 200);
 
             // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
-            ctx.font = `bold 220px HelveticaNeue-CondensedBold, Helvetica, AyarKasone`;
+            ctx.font = `bold 220px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
             if (border) {
               ctx.lineWidth = 10;
               ctx.strokeText(evo1_cost, 375, 1010 + circle_offset);
@@ -1893,7 +1908,7 @@ function CustomCreator() {
           }
         }
         if (playcost >= 0) {
-          ctx.font = `bold 290px HelveticaNeue-CondensedBold, Helvetica`;
+          ctx.font = `bold 290px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
           ctx.fillStyle = 'white';
           ctx.fillText(playcost, x + 15, 370);
         }

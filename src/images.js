@@ -246,6 +246,9 @@ import _foil from './frames/foil.png';
 import _bubble from './frames/bubble.png';
 import _linkdp from './frames/linkdp.png';
 
+import pen from './frames/pen.png';
+
+
 export const ace_backgrounds = {
   'red': ace_red,
   'blue': ace_blue,
@@ -350,6 +353,7 @@ export const costs = {
 let bottom_property_white = new Image(); bottom_property_white.src = _bottom_property_white;
 let bottom_property_black = new Image(); bottom_property_black.src = _bottom_property_black;
 
+let pen_img = new Image(); pen_img.src = pen;
 
 // these backgrounds are used all the time and should be pre-loaded
 export {
@@ -357,7 +361,8 @@ export {
   cost, cost_egg, cost_option, cost_evo, cost_evo_plain,
   outline_option, ace_logo,
   bottom_property_white, bottom_property_black,
-  foil, bubble, linkdp
+  foil, bubble, linkdp,
+  pen_img
 };
 
 export const basics = {

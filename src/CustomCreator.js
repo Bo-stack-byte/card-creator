@@ -14,8 +14,9 @@ import {
   // inherits at bottom:
   bottom_evos, bottom_egg_evos,
   bottom_aces, inherited_security,
-  bottom_property_white, bottom_property_black
+  bottom_property_white, bottom_property_black,
 
+  pen_img,
 } from './images';
 
 import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5 } from './plaintext';
@@ -29,7 +30,6 @@ import shieldsmasher from './shieldsmasher.png';
 import rampager from './rampager.png';
 import featherbackground from './feather-background.png';
 import featherling from './featherling.png';
-
 import doublebind from './double-bind.png'
 import amy from './amy.png';
 import armor_cat from './armorcat.png';
@@ -43,9 +43,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.12.0"
-const latest = "fix bug The Gabumon Guy found, where inherits were limited to a single line"
+const version = "0.7.13.0"
+const latest = "artist and author line"
 
+// version 0.7.12   fix bug shawndamarbledcat found, where inherits were limited to a single line
 // versonm 0.7.11   squish rule text to a single line
 // version 0.7.10.x reorder fields a bit to move up evo conditions; move lineSpacing, skipdraw, baselineoffset and specialoffset into blob; foregroud over border
 // version 0.7.9.x  set background image, put all checkboxes into JSON blob, white/yellow name now pure black, fix Lv.X text w/Ace frames, new reminder text
@@ -629,13 +630,13 @@ function writeDP(ctx, _dp, args) {
 
 function CustomCreator() {
   /* eslint-disable react-hooks/exhaustive-deps */
+
   useEffect(() => {
     console.error("FIRST TIME");
     const params = new URLSearchParams(window.location.search);
     let ref = params.get("ref");
     let vid = params.get("v");
     if (ref) myRestoreState(ref, vid);
-
     // first time init
   }, []);
   /* eslint-enable react-hooks/exhaustive-deps */
@@ -833,7 +834,7 @@ function CustomCreator() {
       console.log(445, flattenedJson);
     } catch (e) {
       jsonerror = e;
-      console.error("json error");
+      console.error("json error", e);
       return;
     }
     Object.entries(flattenedJson).forEach(([key, value]) => {
@@ -863,10 +864,15 @@ function CustomCreator() {
     if (!("evolveCondition" in json)) {
       json.evolveCondition = [];
     }
+    let imageOptions = json.imageOptions;
+    imageOptions = initObject(imageOptions, initImageOptions);
+    json.imageOptions = imageOptions;
+    // shouldn't the default for imageOptions handle the below??
     // falses
+
     for (let field of ["foregroundOnTop", "effectBox", "addFoil", "skipDraw"]) {
       if (!(field in json.imageOptions)) {
-        console.log("Missing field added" + field);
+        console.log("Missing field added 1 " + field);
         json.imageOptions[field] = false;
       }
     }
@@ -901,6 +907,7 @@ function CustomCreator() {
     }
     // only fix things if we've got a valid json
     if (json) {
+      console.log(905, json);
       if (Array.isArray(json)) {
         if (json.length === 0) {
           // empty array? set to 1-array of empty object
@@ -912,13 +919,12 @@ function CustomCreator() {
       } else {
         json = addAllFields(json);
       }
-
+      text = JSON.stringify(json, null, 2);
+      console.log(918, json, text);
       jsonToFields(text);
       // f
     }
-    console.log(670, json);
-    text = JSON.stringify(json, null, 2);
-    console.log(599, json);
+    console.log(222222, json);
 
     const newHistory = jsonText.slice(0, currentIndex + 1);
     setJsonText([...newHistory, text]);
@@ -1153,14 +1159,18 @@ function CustomCreator() {
     }
     let json;
     try {
-      json = JSON.parse(jsonText[currentIndex]);
+      console.log(jsonText);
+      console.log(1157, currentIndex);
+      let jsontext = jsonText[currentIndex];
+      console.log(1159, jsontext);
+      json = JSON.parse(jsontext);
       if (Array.isArray(json)) {
         let arrayIndex = Number(jsonIndex);
         if (arrayIndex >= json.length) arrayIndex = json.length - 1;
         json = json[arrayIndex];
       }
-    } catch {
-      console.log("json error");
+    } catch (e) {
+      console.log("json error", e);
       if (pauseDraw.current > 1) {
         pauseDraw.current = 0;
       } else {
@@ -1497,7 +1507,36 @@ function CustomCreator() {
       }
       ctx.fillText(json.cardType.toUpperCase(), 1490, 180);
 
+      // DRAW AUTHOR
+      console.log(1520, pen_img);
+      if (true) try {
+        for (let scale = 1.20; scale >= 1.0; scale -= 0.04) {
+          let width = 51 * scale; let height = 122 * scale;
+          ctx.drawImage(pen_img, 2890 - width / 2,
+            530 - height / 2,
+            width,
+            height);
+        }
+      } catch (e) {
+        console.log(1529, e);
+      }
+      const here = new URL(window.location.href);
+      const baseUrl = here.origin + here.pathname;
+      const author = json.author || '';
+      const ver = ("v" + version) || "";
+      const artist = (json.artist || ver + "    " + baseUrl);
+      const credit = artist + "   " + author;
+      ctx.font = '70px Bert';
+      ctx.save();
+      ctx.translate(2925, 560);
+      ctx.rotate(-Math.PI / 2);
 
+      ctx.textAlign = "right";
+
+      ctx.lineWidth = 15
+      ctx.strokeText(credit, -51, 0);
+      ctx.fillText(credit, -51, 0);
+      ctx.restore();
 
       // OTHER MULTICOLOR
       for (let i = 0; i < len; i++) {
@@ -2132,6 +2171,8 @@ function CustomCreator() {
           700 + delta_x * 2, 3740 + delta_y * 2,
           max_width, Number(fontSize) + Number(imageOptions.lineSpacing), "effect");
       }
+
+      // last try for pen
     } /// end afterLoad
     console.log(2150, "3");
     /*
@@ -2557,6 +2598,7 @@ function CustomCreator() {
             <p> Put ⟦text⟧ in these crazy brackets to force the text to blue.</p>
             <p> Put text that would otherwise be blue in parens to make it purple, like ⟦(test)⟧ or [(Five Times Per Turn)].</p>
             <p> "Force Draw" may be needed in weird circumstances. </p>
+            <p>You can override the version and URL in the credits by setting an artist name (even making it one space)</p>
           </td>
         </tr>
         <tr style={{ fontSize: "smaller" }} >

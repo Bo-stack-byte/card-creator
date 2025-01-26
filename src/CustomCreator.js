@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.14.2"
-const latest = "various weird git fixes, author fix, tama fix, ayar fix"
+const version = "0.7.14.3"
+const latest = "various weird git fixes, author fix, tama fix, ayar fix, ayar offset"
 
 // version 0.7.13   artist and author line
 // version 0.7.12   fix bug shawndamarbledcat found, where inherits were limited to a single line
@@ -1907,10 +1907,12 @@ function CustomCreator() {
             if (i) ctx.drawImage(i, offset_x, offset_y, 500, 500);
           }
         }
+        let neue_offset = 0;
+        if (!neue) neue_offset = 20;
         if (playcost >= 0) {
           ctx.font = `bold 290px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
           ctx.fillStyle = 'white';
-          ctx.fillText(playcost, x + 15, 370);
+          ctx.fillText(playcost, x + 15, 370 + neue_offset);
         }
       }
 

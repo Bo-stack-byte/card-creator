@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.13.2"
-const latest = "artist and author line; symlink issue"
+const version = "0.7.13.3"
+const latest = "artist and author line; symlink issue, 3"
 
 // version 0.7.12   fix bug shawndamarbledcat found, where inherits were limited to a single line
 // versonm 0.7.11   squish rule text to a single line

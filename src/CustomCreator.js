@@ -43,9 +43,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.13.3"
-const latest = "artist and author line; symlink issue, 3"
+const version = "0.7.14.0"
+const latest = "various weird git fixes"
 
+// version 0.7.13   artist and author line
 // version 0.7.12   fix bug shawndamarbledcat found, where inherits were limited to a single line
 // versonm 0.7.11   squish rule text to a single line
 // version 0.7.10.x reorder fields a bit to move up evo conditions; move lineSpacing, skipdraw, baselineoffset and specialoffset into blob; foregroud over border
@@ -248,6 +249,8 @@ const starter_text_empty = `{
     "linkRequirement": "-",
     "linkDP": "-",
     "linkEffect": "-",
+    "artist": "-",
+    "author": "-",
 
     "imageOptions":{
       "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
@@ -1521,10 +1524,9 @@ function CustomCreator() {
         console.log(1529, e);
       }
       const here = new URL(window.location.href);
-      const baseUrl = here.origin + here.pathname;
-      const author = json.author || '';
+      const author = empty(json.author) ? "" : json.author;
       const ver = ("v" + version) || "";
-      const artist = (json.artist || ver + "    " + baseUrl);
+      const artist = empty(json.artist) ? ver + "    " + here : json.artist;
       const credit = artist + "   " + author;
       ctx.font = '70px Bert';
       ctx.save();

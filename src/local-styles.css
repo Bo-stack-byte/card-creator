@@ -20,6 +20,12 @@ br {
     display: inline-block; margin-right: 2px; /* Optional: add some space between spans */
 }
 
+@font-face {
+  font-family: 'Bert';
+  src: local('Bert'), url(./fonts/bert-sans.medium.ttf) format('truetype');
+
+}
+
 
 @font-face {
   font-family: 'AyarKasone';

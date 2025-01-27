@@ -14,6 +14,7 @@ VAGUE TO DO LIST, SOONER:
 * auto-generate all images with one click (for testing)
 * standalone binary, so local images can be accessed
 * get purple text with (parentheses) or fix in import for translation team's format
+* sample free form for ACEs, and/or better ways of detecting ACE
 
 VAGUE TO DO LIST, LATER:
 

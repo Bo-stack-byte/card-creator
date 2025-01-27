@@ -105,10 +105,18 @@ function splitTextIntoParts(text) {
       continue;
     }
 
-    all_words.push(...token.split(/(?<=\s)(?=\S)|(?<=\S)(?=\s)/));
+    let second_pass = token.split(/(⟦[^⟧]+⟧)/).filter(Boolean);
+    for (let thing of second_pass) {
+      if (thing[0] === "⟦") {
+        all_words.push(thing);
+      } else {
+        // split along word boundaries
+        all_words.push(...thing.split(/(?<=\s)(?=\S)|(?<=\S)(?=\s)/));
+
+      }
+
+    }
   }
-  console.log(4405, 222, all_words);
-  //  while (all_words[0] === '') all_words.shift(); // trim empty elements
 
   return all_words;
 }

@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.16.0"
-const latest = "don't let <keywords> be broken across liens no matter how long they are"
+const version = "0.7.16.1"
+const latest = "don't let <keywords> be broken across liens no matter how long they are; brackets, either"
 
 // version 0.7.15   new free text format candidate for link/plug effects; (color) matching the xros and rule; fix digixros going nuts"
 // version 0.7.14.x various weird git fixes, author fix, tama fix, ayar fix, ayar offset

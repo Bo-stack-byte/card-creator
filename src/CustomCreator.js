@@ -43,10 +43,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.15.2"
-const latest = "new free text format candidate for link/plug effects; (color) matching the xros and rule; fix digixros going nuts"
+const version = "0.7.16.0"
+const latest = "don't let <keywords> be broken across liens no matter how long they are"
 
-// version 0.7.15   new free text format candidate for link/plug effects
+// version 0.7.15   new free text format candidate for link/plug effects; (color) matching the xros and rule; fix digixros going nuts"
 // version 0.7.14.x various weird git fixes, author fix, tama fix, ayar fix, ayar offset
 // version 0.7.13   artist and author line
 // version 0.7.12   fix bug shawndamarbledcat found, where inherits were limited to a single line
@@ -1230,7 +1230,7 @@ function CustomCreator() {
 
     if (type === "AUTO") {
       type = "MONSTER";
-      if (json.cardLv === "Lv.6" || json.cardLv === "Lv.7") {
+      if ((json.cardLv === "Lv.6" || json.cardLv === "Lv.7") && empty(json.evolveEffect)) {
         type = "MEGA";
       }
       if (!empty(json.linkDP)) {

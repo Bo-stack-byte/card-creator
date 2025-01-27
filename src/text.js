@@ -87,20 +87,28 @@ export function isNeueLoaded(canvas) {
   console.log(82, len1, len2);
 }
 
+// return keywords as solid components, everything else
+// as spaces. 
+// What about spaces in [square brackets]?
 function splitTextIntoParts(text) {
   //  const words = text.split(/((\[＜).*?(\]＞))/);
   //const words = text.split(/((\[).*?(\]))/);
-  const words = text.split(/(\[.*?\])/);
-  //console.log(93, words);
+
+  // first, split into <KEYWORDs> that may include brackets
+  const first_pass = text.split(/(＜[^＞]+＞)/).filter(Boolean);
+
   let all_words = [];
-  for (let i = 0; i < words.length; i++) {
-    if (words[i].includes("[")) {
-      all_words.push(words[i]);
-    } else {
-      all_words.push(...words[i].split(/(?<=\s)(?=\S)|(?<=\S)(?=\s)/));
+
+  for (let token of first_pass) {
+    if (token[0] === "＜") {
+      all_words.push(token);
+      continue;
     }
+
+    all_words.push(...token.split(/(?<=\s)(?=\S)|(?<=\S)(?=\s)/));
   }
-  while (all_words[0] === '') all_words.shift(); // trim empty elements
+  console.log(4405, 222, all_words);
+  //  while (all_words[0] === '') all_words.shift(); // trim empty elements
 
   return all_words;
 }
@@ -413,7 +421,8 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
       const testLine = line + words[n];//  + ' ';
       const metrics = ctx.measureText(testLine.replaceAll(/[＜＞[\]]/ig, ''));
       const testWidth = metrics.width * scale;
-      //      console.log(`is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
+
+      //console.log(`XXX is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
 
       if (testWidth > maxWidth && n > 0) {
         //      let currentWidth = ctx.measureText(line).width;
@@ -438,7 +447,12 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     let max_end = Math.max.apply(Math,
       lines.map(l => wrapAndDrawText(l.ctx, fontSize, l.line, l.x, l.yOffset, extra, right_limit, true)));
     //console.log(515, 'max end', max_end);
-    if (max_end > right_limit) max_end = right_limit;
+
+
+    if (max_end > right_limit) {
+      // this will overflow anyway
+      max_end = right_limit;
+    }
     const pre_width = max_end - x;
 
     let h = (yOffset - y);
@@ -452,7 +466,6 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
       }
     }
   }
-
   //console.log(372, lines);
   for (let line of lines) {
     wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra, right_limit, preview);
@@ -536,10 +549,14 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
           const wordWidth = ctx.measureText(cleanWord).width;
           //console.log(314, wordWidth, cardWidth, lastX, cleanWord);
           let h = Number(fontSize);
-          if (!preview) drawDiamondRectangle(ctx, lastX, y - 8, scale * wordWidth + 10, h);
+          let width = wordWidth;
+          if (width > cardWidth - lastX) { // too big, limit width
+            width = cardWidth - lastX;
+          }
+          if (!preview) drawDiamondRectangle(ctx, lastX, y - 8, width + 10, h);
           //    ctx.scale(scale, 1);
           ctx.fillStyle = 'white'; // white on colored background
-          if (!preview) ctx.fillText(cleanWord, lastX / scale + 5, y - 10, cardWidth - lastX);
+          if (!preview) ctx.fillText(cleanWord, lastX, y - 10, cardWidth - lastX);
           lastX += scale * wordWidth + 15;
           //  ctx.restore();
           ctx.font = ` ${fontSize}px ${font}`;
@@ -560,7 +577,6 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
             ctx.lineWidth = width; // Thicker stroke
             ctx.strokeStyle = stroke;
             ctx.textAlign = 'left';
-
             if (!preview) {
               ctx.strokeText(word, lastX, y); //  cardWidth - lastX);
             }

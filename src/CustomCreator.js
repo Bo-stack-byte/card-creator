@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.16.1"
-const latest = "don't let <keywords> be broken across liens no matter how long they are; brackets, either"
+const version = "0.7.16.2"
+const latest = "don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right"
 
 // version 0.7.15   new free text format candidate for link/plug effects; (color) matching the xros and rule; fix digixros going nuts"
 // version 0.7.14.x various weird git fixes, author fix, tama fix, ayar fix, ayar offset
@@ -1341,12 +1341,13 @@ function CustomCreator() {
       console.log(1073, background_img);
       if (background_img && background_img.src) {
         console.log(1227, "DRAWING BACKGROUND");
-        ctx.save();
+
+/*        ctx.save();
         ctx.beginPath();
         ctx.rect(0, 0, canvas.width - 30, canvas.height);
-        ctx.clip();
+        ctx.clip(); */
         ctx.drawImage(background_img, 0, 0, canvas.width, canvas.height);
-        ctx.restore();
+//        ctx.restore();
       } else {
         console.log(1227, "NOT DRAWING BACKGROUND");
       }

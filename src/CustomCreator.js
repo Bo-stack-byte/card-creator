@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.16.2"
-const latest = "don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right"
+const version = "0.7.16.3"
+const latest = "don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right; other background fix"
 
 // version 0.7.15   new free text format candidate for link/plug effects; (color) matching the xros and rule; fix digixros going nuts"
 // version 0.7.14.x various weird git fixes, author fix, tama fix, ayar fix, ayar offset
@@ -683,7 +683,7 @@ function CustomCreator() {
       // handle all other new options here before getting text back
 
       // legacy options that weren't in JSON blob are in it now
-      for (let obj in ["drawFrame", "effectBox", "baselineOffset", "specialOffset",
+      for (let obj in ["cardFrame", "effectBox", "baselineOffset", "specialOffset",
         "lineSpacing"]) {
         if (obj in cardState) jsonObject.imageOptions[obj] = cardState[obj];
       }
@@ -1447,7 +1447,7 @@ function CustomCreator() {
           offScreenCtx.putImageData(baseImageData, 0, 0);
 
           // Draw the composite image on the main canvas
-          ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height); // Draw the original base image scaled to canvas
+          ctx.drawImage(baseImage, 0, 0, canvas.width * 1, canvas.height); // Draw the original base image scaled to canvas
           ctx.drawImage(offScreenCanvas, 0, 0, canvas.width, canvas.height); // Draw the composite image scaled to canvas
 
           // Put the modified image data back to the off-screen canvas
@@ -1458,9 +1458,10 @@ function CustomCreator() {
           ctx.drawImage(offScreenCanvas, 0, 0, canvas.width, canvas.height);
 
         } else {
+          // no foil
           let len = shellImages.length;
           for (let i = 0; i < len; i++) {
-            scalePartialImage(ctx, shellImages[i], i, len, 4141, 0, 0)
+            scalePartialImage(ctx, shellImages[i], i, len, 4141 * 1.01, 0, 0)
           }
 
           //          ctx.drawImage(shellImages[0], 0, 0, canvas.width * ace_scale, canvas.height * ace_scale);

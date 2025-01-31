@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.16.3"
-const latest = "don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right; other background fix"
+const version = "0.7.16.4"
+const latest = "don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right; other background fixl sliver fix AGAIN"
 
 // version 0.7.15   new free text format candidate for link/plug effects; (color) matching the xros and rule; fix digixros going nuts"
 // version 0.7.14.x various weird git fixes, author fix, tama fix, ayar fix, ayar offset
@@ -540,7 +540,7 @@ const decodeAndDecompress = (encodedString) => {
   }*/
 
 // show i of len piece, scaled by scale, start at x,y
-function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top = 0, y_scale = 1) {
+function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top = 0, y_scale = 1, x_scale = 1) {
 
   let len = 1;
   let i = 0;
@@ -553,27 +553,30 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
   if (!img) return;
 
 
-  ctx.save(); // Save the current state
+  ctx.save(); // Save the current state 
   ctx.beginPath();
-  //console.log(405, "clipping to ", i_width * _i, 0, i_width * (_i + 1), height);
+//  console.log(405, "clipping to ", i_width * _i, 0, i_width * (_i + 1), height);
   ctx.rect(i_width * _i, 0, i_width * (_i + 1), height);
   ctx.clip();
 
+
+
   i -= 0.0
   let y = scale; let x = y * (img.width / img.height);
+ // y = y / y_scale;
+  x = x * x_scale;
   let fw = x / len; // smaller frame length here
   let ww = img.width / len;
   let top = 0; let bottom = 0;
   if (crop_top > 0) top = crop_top;
   if (crop_top < 0) bottom = crop_top;
 
-
   try {
     ctx.drawImage(img,
       i * ww, top, // crop x,y
-      ww * 1.0, img.height + bottom, // crop w,h
+      ww, img.height + bottom, // crop w,h
       start_x + i * fw, start_y, // place x,y
-      x / len, y * y_scale// place w,h
+      (x / len), y * y_scale// place w,h
     );
   } catch (e) {
     console.log(426, "couldn't draw partial " + _i);
@@ -1342,12 +1345,12 @@ function CustomCreator() {
       if (background_img && background_img.src) {
         console.log(1227, "DRAWING BACKGROUND");
 
-/*        ctx.save();
-        ctx.beginPath();
-        ctx.rect(0, 0, canvas.width - 30, canvas.height);
-        ctx.clip(); */
+        /*        ctx.save();
+                ctx.beginPath();
+                ctx.rect(0, 0, canvas.width - 30, canvas.height);
+                ctx.clip(); */
         ctx.drawImage(background_img, 0, 0, canvas.width, canvas.height);
-//        ctx.restore();
+        //        ctx.restore();
       } else {
         console.log(1227, "NOT DRAWING BACKGROUND");
       }
@@ -1459,27 +1462,27 @@ function CustomCreator() {
 
         } else {
           // no foil
+          // we only need this for ace frames
           let len = shellImages.length;
           for (let i = 0; i < len; i++) {
-            scalePartialImage(ctx, shellImages[i], i, len, 4141 * 1.01, 0, 0)
+            scalePartialImage(ctx, shellImages[i], i, len, 4141, 0, 0, undefined, 1.0, 1.004)          
           }
-
-          //          ctx.drawImage(shellImages[0], 0, 0, canvas.width * ace_scale, canvas.height * ace_scale);
         }
       }
 
 
       // OUTLINE?
-
+      let border_scale = 3950;
       if (type === "MEGA" && imageOptions.outline) {
         console.log(602, frameImages.length);
         // draw the left and right line all the way down. crop off the top 1000 pixels
         try {
           if (frameImages[0].complete)
-            scalePartialImage(ctx, frameImages[0], 0, len, 3950, offset_x, offset_y + 1100, 600);
+            scalePartialImage(ctx, frameImages[0], 0, len, border_scale,
+              offset_x, offset_y + 1100, 600);
           let last = len - 1;
           if (frameImages[last].complete)
-            scalePartialImage(ctx, frameImages[last], last, len, 3950, offset_x, offset_y + 1100, 600);
+            scalePartialImage(ctx, frameImages[last], last, len, border_scale, offset_x, offset_y + 1100, 600);
         } catch (e) { // couldn't sufficiently check this w/o a try/catch
           console.log(611, e);
         }
@@ -1501,14 +1504,16 @@ function CustomCreator() {
           // 1.05 is fudge factor because our frames aren't all left-justified the same
           // this makes them  the same, but they might be the same wrong
           // y - 1.5 to avoid tiniest stray pixels above egg frame on upper left
-          scalePartialImage(ctx, frame, i + (fudge), l, 3950, offset_x, offset_y - 1.5);
+          scalePartialImage(ctx, frame, i + (fudge), l, border_scale, offset_x, offset_y - 1.5,
+            undefined, 1, 1.00);
         }
         // DRAW BOTTOM OF BOX?
         if (imageOptions.outline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE")) {
           // bottom of frame
           let border = borders[col];
-          scalePartialImage(ctx, border, i, len, 67.3, 166, bottom_y);
-
+          if (type === "ACE") bottom_y += 20;
+          scalePartialImage(ctx, border, i, len, 67.3 * border_scale / 3950,
+            166, bottom_y);
           // todo: play with these numbers some more. scale is 67.2-67.5,
           // and left is 166
         }

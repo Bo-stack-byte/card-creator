@@ -18,6 +18,8 @@ VAGUE TO DO LIST, SOONER:
 
 VAGUE TO DO LIST, LATER:
 
+* multiple evo circles with different cost/color
+* more Ayar Kasone as backup when the user doesn't have Helvetica Neue: especially DP
 * get brick backgrounds when we have more samples
 * get link frames when we ahve more samples
 * for frame-less ACEs, still have frame stuff at bottom, and make ESS transparnets

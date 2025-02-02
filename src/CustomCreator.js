@@ -160,7 +160,7 @@ function effectBoxScale(source_height, offset) {
 }
 
 
-const numberFont = "'XXXHelveticaNeue-CondensedBold', 'AyarKasone', 'Helvetica'"
+const numberFont = "'XXXHelveticaNeue-CondensedBold', 'XXXAyarKasone', 'Helvetica'"
 let neue = false;
 
 // stringroundremoved, dec 17

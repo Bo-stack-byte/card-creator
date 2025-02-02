@@ -43,9 +43,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.16.4"
-const latest = "don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right; other background fixl sliver fix AGAIN"
+const version = "0.7.17.0"
+const latest = "fix DP font to use Ayar"
 
+// version 0.7.16.x don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right; other background fixl sliver fix AGAIN
 // version 0.7.15   new free text format candidate for link/plug effects; (color) matching the xros and rule; fix digixros going nuts"
 // version 0.7.14.x various weird git fixes, author fix, tama fix, ayar fix, ayar offset
 // version 0.7.13   artist and author line
@@ -158,6 +159,9 @@ function effectBoxScale(source_height, offset) {
   return y_scale;
 }
 
+
+const numberFont = "'HelveticaNeue-CondensedBold', 'AyarKasone', 'Helvetica'"
+let neue = false;
 
 // stringroundremoved, dec 17
 
@@ -555,7 +559,7 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
 
   ctx.save(); // Save the current state 
   ctx.beginPath();
-//  console.log(405, "clipping to ", i_width * _i, 0, i_width * (_i + 1), height);
+  //  console.log(405, "clipping to ", i_width * _i, 0, i_width * (_i + 1), height);
   ctx.rect(i_width * _i, 0, i_width * (_i + 1), height);
   ctx.clip();
 
@@ -563,7 +567,7 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
 
   i -= 0.0
   let y = scale; let x = y * (img.width / img.height);
- // y = y / y_scale;
+  // y = y / y_scale;
   x = x * x_scale;
   let fw = x / len; // smaller frame length here
   let ww = img.width / len;
@@ -602,7 +606,6 @@ function writeDP(ctx, _dp, args) {
 
 
   ctx.fillStyle = color;
-  ctx.font = `bold ${bigsize}px 'HelveticaNeue-CondensedBold', 'Helvetica`;
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
 
@@ -616,20 +619,29 @@ function writeDP(ctx, _dp, args) {
     dp_m = (_dp % 1000).toString().padStart(3, '0');
   }
   let dp_x = x - 5;
-  // big num
+  let neue_boost = neue ? 0 : -20;
+
+  // TODO: handle the fact that AyarKasone is ugly for 0 and 6 and 9
+  ctx.font = `bold ${bigsize}px ${numberFont}`;
   while (dp_k > 0) {
     // right-to-left for dp_k
     let letterSpacing = -25;
     let dp_char = dp_k % 10;
     ctx.lineWidth = 20;
     ctx.strokeStyle = stroke;
-    if (stroke) ctx.strokeText(dp_char, dp_x, y);
-    ctx.fillText(dp_char, dp_x, y);
+    if (stroke) ctx.strokeText(dp_char, dp_x, y - 0.5 * neue_boost);
+    ctx.fillText(dp_char, dp_x, y - 0.5 * neue_boost);
     dp_x -= (ctx.measureText(dp_char).width + letterSpacing);
     dp_k = Math.floor(dp_k / 10);
   }
 
-  ctx.font = `bold ${size}px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
+  // the AyarKasone 0's are just too ugly to allow, so since 
+  // this will be "000" for most we can fall back to Helvetica
+  ctx.font = `bold ${size}px ${numberFont}`;
+  if (!neue) {
+    ctx.font = `bold ${size}px 'Helvetica', 'AyarKasone', 'Helvetica'`;
+  }
+
   ctx.textAlign = 'left';
   ctx.textBaseline = 'bottom';
   dp_x = x + 10; // size / 15;
@@ -640,8 +652,8 @@ function writeDP(ctx, _dp, args) {
       let letterSpacing = 5;
       ctx.lineWidth = 15;
       ctx.strokeStyle = stroke;
-      if (stroke) ctx.strokeText(dp_char, dp_x, y - y_offset);
-      ctx.fillText(dp_char, dp_x, y - y_offset);
+      if (stroke) ctx.strokeText(dp_char, dp_x, y - y_offset + neue_boost);
+      ctx.fillText(dp_char, dp_x, y - y_offset + neue_boost);
       dp_x += (ctx.measureText(dp_char).width + letterSpacing);
       // left-to-right for dp_m
     }
@@ -649,7 +661,20 @@ function writeDP(ctx, _dp, args) {
 
 }
 
-
+if (3 > 4) digitSettings();
+// returns neue_offset; side effect to set font
+function digitSettings(ctx, number, size) {
+  switch (number) {
+    case 0:
+    case 6:
+    case 9:
+      console.log(`doing ${size} helvetica for ${number}`);
+      ctx.font = `bold ${size} Helvetica`; return 0;
+    default:
+      console.log(`doing ${size} AyarKasone for ${number}`);
+      ctx.font = `bold ${size * 10} 'Courier'`; return 25;
+  }
+}
 
 function CustomCreator() {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -777,7 +802,6 @@ function CustomCreator() {
   };
 
   let _canvas = canvasRef.current;
-  let neue = true;
   if (_canvas) {
     let correct = 1714;
     let _ctx = _canvas.getContext("2d");
@@ -1465,7 +1489,7 @@ function CustomCreator() {
           // we only need this for ace frames
           let len = shellImages.length;
           for (let i = 0; i < len; i++) {
-            scalePartialImage(ctx, shellImages[i], i, len, 4141, 0, 0, undefined, 1.0, 1.004)          
+            scalePartialImage(ctx, shellImages[i], i, len, 4141, 0, 0, undefined, 1.0, 1.004)
           }
         }
       }
@@ -1669,7 +1693,7 @@ function CustomCreator() {
               //              ctx.fillText(json.linkDP, 0, 0);
               //              writeDP(ctx, json.linkDP, 0, 0, 90); 
               writeDP(ctx, json.linkDP, { x: -150, y: 20, size: 100, bigsize: 140, stroke: false, color: "white" });
-              ctx.font = "bold 90px HelveticaNeue-CondensedBold, AyarKasone, Helvetica";
+              ctx.font = `bold 90px ${numberFont}`;
               ctx.fillStyle = "white";
               ctx.textAlign = "right";
               ctx.textBaseline = "bottom";
@@ -1678,7 +1702,7 @@ function CustomCreator() {
               ctx.font = `40px 'Helvetica'`;
               ctx.textAlign = "center";
               ctx.fillText("DP", -300, -60);
-              // how do i make the plys skinnier
+              // how do i make the plus skinnier?
               ctx.font = `100 120px 'Helvetica'`;
 
               ctx.fillText("+", -300, 40);
@@ -1864,8 +1888,10 @@ function CustomCreator() {
               }
             }
 
+            // how to write the "lv.4" and "TAMER" text in evo circle?
+            // many many experiments here 
             ctx.font = `90px Roboto, Helvetica`; //  Roboto`;
-            ctx.font = `90px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
+            ctx.font = `90px ${numberFont}`;
             ctx.font = `80px AyarKasone, Helvetica`;
             ctx.font = `80px Helvetica`;
             //    ctx.font = `80px MyriadProBold`;
@@ -1888,7 +1914,7 @@ function CustomCreator() {
             ctx.fillText(evo1_level, 375, 870 + circle_offset, 200);
 
             // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
-            ctx.font = `bold 220px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
+            ctx.font = `bold 220px ${numberFont}`;
             if (border) {
               ctx.lineWidth = 10;
               ctx.strokeText(evo1_cost, 375, 1010 + circle_offset);
@@ -1920,7 +1946,7 @@ function CustomCreator() {
         let neue_offset = 0;
         if (!neue) neue_offset = 20;
         if (playcost >= 0) {
-          ctx.font = `bold 290px HelveticaNeue-CondensedBold, AyarKasone, Helvetica`;
+          ctx.font = `bold 290px ${numberFont}`;
           ctx.fillStyle = 'white';
           ctx.fillText(playcost, x + 15, 370 + neue_offset);
         }
@@ -2072,7 +2098,11 @@ function CustomCreator() {
       const id = json.cardNumber;
       ctx.textAlign = 'right';
       ctx.fillStyle = contrastColor(colors[colors.length - 1]);
+      //    use ${numberFont}
       ctx.font = `bold 100px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
+
+      ctx.font = `bold 100px ${numberFont}`;
+
 
       // Helvetica seems basically right but needs to be made skinny
       // ToppanBunkyExtraBold has serifs on 1 now??
@@ -2316,7 +2346,6 @@ function CustomCreator() {
     initImageOptions, jsonIndex,
     newRedraw,
     //, endY, isSelecting, startX, startY, 
-    neue
   ]);
 
   useEffect(() => {

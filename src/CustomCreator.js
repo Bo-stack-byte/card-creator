@@ -43,9 +43,10 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.17.0"
-const latest = "fix DP font to use Ayar"
+const version = "0.7.17.1"
+const latest = "fix DP font to use Ayar; right sliver on foreground image gone"
 
+// version 0.7.17.x fix DP font to use Ayar; right sliver on foreground image gone
 // version 0.7.16.x don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right; other background fixl sliver fix AGAIN
 // version 0.7.15   new free text format candidate for link/plug effects; (color) matching the xros and rule; fix digixros going nuts"
 // version 0.7.14.x various weird git fixes, author fix, tama fix, ayar fix, ayar offset
@@ -1332,16 +1333,8 @@ function CustomCreator() {
         let i_height = canvas.height * Number(imageOptions.y_scale) / 100;
         let i_x_pct = (100 - Number(imageOptions.x_scale)) / 2 + Number(imageOptions.x_pos);
         let i_y_pct = (100 - Number(imageOptions.y_scale)) / 2 + Number(imageOptions.y_pos);
-        // path to verify we don't overwrite right-most edge
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(0, 0, canvas.width - 30, height);
-        ctx.clip();
         ctx.drawImage(mon_img,
           i_x_pct * canvas.width / 100, i_y_pct * canvas.height / 100, i_width, i_height / 1);
-        ctx.restore();
-        //   let w = canvas.width;
-
       }
 
 

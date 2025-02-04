@@ -73,6 +73,46 @@ const magicWords = [
   "Twice Per Turn",
 ]
 
+const customSplit = (str) => {
+  const result = [];
+  let buffer = "";
+  let inTag = false;
+  let isWhitespace = false;
+
+  for (let char of str) {
+    if (char === '<') {
+      if (buffer) result.push(buffer);
+      buffer = "<";
+      inTag = true;
+    } else if (char === '>') {
+      buffer += ">";
+      result.push(buffer);
+      buffer = "";
+      inTag = false;
+    } else if (inTag) {
+      buffer += char;
+    } else if (/\s/.test(char)) {
+      if (!isWhitespace && buffer) {
+        result.push(buffer);
+        buffer = "";
+      }
+      buffer += char;
+      isWhitespace = true;
+    } else {
+      if (isWhitespace && buffer) {
+        result.push(buffer);
+        buffer = "";
+      }
+      buffer += char;
+      isWhitespace = false;
+    }
+  }
+  
+  if (buffer) result.push(buffer);
+  return result;
+};
+
+
 export function isNeueLoaded(canvas) {
   //  const canvas = canvasRef.current;
   console.log(78, canvas);
@@ -111,7 +151,18 @@ function splitTextIntoParts(text) {
         all_words.push(thing);
       } else {
         // split along word boundaries
-        all_words.push(...thing.split(/(?<=\s)(?=\S)|(?<=\S)(?=\s)/));
+        // things breaks support on older Safari
+
+        let pieces;
+        try {
+          if (3 < 4)        pieces = customSplit(thing);
+          pieces = thing.split(/(?<=\s)(?=\S)|(?<=\S)(?=\s)/);
+        } catch (e) {
+          console.log("can't look behind"); // older safari
+          pieces = thing.split(/\b/)
+        }
+
+        all_words.push(...pieces);
 
       }
 

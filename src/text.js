@@ -112,7 +112,7 @@ const customSplit = (str) => {
   return result;
 };
 
-
+// unused?
 export function isNeueLoaded(canvas) {
   //  const canvas = canvasRef.current;
   console.log(78, canvas);
@@ -571,6 +571,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
   //let phrases = text.split(/([[⟦].*?[\]⟧])/);
   phrases.forEach(phrase => {
     let cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
+    console.log(574, "p", phrase, "cp", cleanPhrase)
     if (
       (phrase.startsWith("⟦") && phrase.endsWith("⟧")) ||
       (phrase.startsWith("[") && phrase.endsWith("]") && matchMagic(magicWords, cleanPhrase))
@@ -591,7 +592,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
       ctx.fillStyle = 'white';
       ctx.textAlign = 'center';
       //console.log(328, lastX, cleanPhrase, (cardWidth - lastX - 5));
-      if (!preview) ctx.fillText(cleanPhrase, start + width / 2 + 5, y - 10, cardWidth - lastX - 5, phraseWidth);
+      if (!preview) ctx.fillText(cleanPhrase, start + width / 2, y - 10, cardWidth - lastX - 5, phraseWidth);
       ctx.textAlign = 'left';
 
       lastX += width + 2; // phraseWidth + fontSize;
@@ -615,7 +616,9 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
           if (!preview) drawDiamondRectangle(ctx, lastX, y - 8, width + 10, h);
           //    ctx.scale(scale, 1);
           ctx.fillStyle = 'white'; // white on colored background
-          if (!preview) ctx.fillText(cleanWord, lastX, y - 10, cardWidth - lastX);
+          let diamondOffset = -5; // how much to slide keyword in text around
+          if (!preview) ctx.fillText(cleanWord, lastX - diamondOffset, y - 10, cardWidth - lastX);
+          console.log(621, "xxx", cleanWord);
           lastX += scale * wordWidth + 15;
           //  ctx.restore();
           ctx.font = ` ${fontSize}px ${font}`;

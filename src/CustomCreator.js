@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.17.1"
-const latest = "fix DP font to use Ayar; right sliver on foreground image gone"
+const version = "0.7.17.2"
+const latest = "font tests"
 
 // version 0.7.17.x fix DP font to use Ayar; right sliver on foreground image gone
 // version 0.7.16.x don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right; other background fixl sliver fix AGAIN
@@ -161,7 +161,7 @@ function effectBoxScale(source_height, offset) {
 }
 
 
-const numberFont = "'HelveticaNeue-CondensedBold', 'AyarKasone', 'Helvetica'"
+const numberFont = "'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'AyarKasone', 'Helvetica'"
 let neue = false;
 
 // stringroundremoved, dec 17
@@ -806,9 +806,18 @@ function CustomCreator() {
   if (_canvas) {
     let correct = 1714;
     let _ctx = _canvas.getContext("2d");
-    _ctx.font = `275px HelveticaNeue-CondensedBold`;
+    _ctx.font = `275px 'HelveticaNeue-CondensedBold' 'Helvetica Neue Condensed Bold'`;
     let fontwidth = Math.round(_ctx.measureText("AAAaaa423434i").width);
     neue = (fontwidth === correct);
+
+    _ctx.font = `275px 'HelveticaNeue-CondensedBold'`;
+    console.log("hv cb", Math.round(_ctx.measureText("AAAaaa423434i").width));
+    _ctx.font = `275px 'Helvetica Neue Condensed Bold'`;
+    console.log("h v c b", Math.round(_ctx.measureText("AAAaaa423434i").width));
+    _ctx.font = `275px 'Helvetica Neue'`;
+    console.log("hn", Math.round(_ctx.measureText("AAAaaa423434i").width));
+    _ctx.font = `bold 275px 'Helvetica Neue'`;
+    console.log("bold hn", Math.round(_ctx.measureText("AAAaaa423434i").width));
   }
 
   const customs = [
@@ -2560,7 +2569,10 @@ function CustomCreator() {
           <td width={"25%"} valign={"top"}>
             {
               neue || (<p>HelveticaNeue may not be loaded.</p>)
-            }
+
+
+
+}
             Choose background image:
             <input type="file" onChange={(e) => loadUserImage(e, false)} />
             <button onClick={setWhite}>Solid White</button>

@@ -43,7 +43,7 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.17.2"
+const version = "0.7.17.3"
 const latest = "font tests"
 
 // version 0.7.17.x fix DP font to use Ayar; right sliver on foreground image gone
@@ -161,7 +161,7 @@ function effectBoxScale(source_height, offset) {
 }
 
 
-const numberFont = "'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'AyarKasone', 'Helvetica'"
+const numberFont = "'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'Helvetica Neue', 'AyarKasone', 'Helvetica'"
 let neue = false;
 
 // stringroundremoved, dec 17
@@ -806,7 +806,7 @@ function CustomCreator() {
   if (_canvas) {
     let correct = 1714;
     let _ctx = _canvas.getContext("2d");
-    _ctx.font = `275px 'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold'`;
+    _ctx.font = `275px 'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'Helvetica Neue'`;
     let fontwidth = Math.round(_ctx.measureText("AAAaaa423434i").width);
     neue = (fontwidth === correct);
     console.log("h boolean", neue, "fontwidth", fontwidth, "correct", correct);

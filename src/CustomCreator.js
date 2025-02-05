@@ -806,10 +806,10 @@ function CustomCreator() {
   if (_canvas) {
     let correct = 1714;
     let _ctx = _canvas.getContext("2d");
-    _ctx.font = `275px 'HelveticaNeue-CondensedBold' 'Helvetica Neue Condensed Bold'`;
+    _ctx.font = `275px 'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold'`;
     let fontwidth = Math.round(_ctx.measureText("AAAaaa423434i").width);
     neue = (fontwidth === correct);
-
+    console.log("h boolean", neue, "fontwidth", fontwidth, "correct", correct);
     _ctx.font = `275px 'HelveticaNeue-CondensedBold'`;
     console.log("hv cb", Math.round(_ctx.measureText("AAAaaa423434i").width));
     _ctx.font = `275px 'Helvetica Neue Condensed Bold'`;

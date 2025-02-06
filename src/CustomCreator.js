@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.17.4"
-const latest = "font tests; bubble offset slightly changed"
+const version = "0.7.17.5"
+const latest = "font tests; bubble offset slightly changed; font stuff"
 
 // version 0.7.17.x fix DP font to use Ayar; right sliver on foreground image gone
 // version 0.7.16.x don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right; other background fixl sliver fix AGAIN
@@ -806,9 +806,10 @@ function CustomCreator() {
   if (_canvas) {
     let correct = 1714;
     let _ctx = _canvas.getContext("2d");
-    _ctx.font = `275px 'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'Helvetica Neue'`;
+    _ctx.font = `275px 'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'Helvetica Neue', 'Helvetica Neue Lt Pro'`;
     let fontwidth = Math.round(_ctx.measureText("AAAaaa423434i").width);
     neue = (fontwidth === correct);
+    neue = true;
     console.log("h boolean", neue, "fontwidth", fontwidth, "correct", correct);
     _ctx.font = `275px 'HelveticaNeue-CondensedBold'`;
     console.log("hv cb", Math.round(_ctx.measureText("AAAaaa423434i").width));

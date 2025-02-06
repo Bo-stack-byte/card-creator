@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.17.5"
-const latest = "font tests; bubble offset slightly changed; font stuff"
+const version = "0.7.17.6"
+const latest = "font tests; bubble offset slightly changed; font stuff, font guide"
 
 // version 0.7.17.x fix DP font to use Ayar; right sliver on foreground image gone
 // version 0.7.16.x don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right; other background fixl sliver fix AGAIN

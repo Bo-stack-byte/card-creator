@@ -43,8 +43,8 @@ import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.17.6"
-const latest = "font tests; bubble offset slightly changed; font stuff, font guide"
+const version = "0.7.17.8"
+const latest = "font tests; bubble offset slightly changed; font stuff, font guide 3"
 
 // version 0.7.17.x fix DP font to use Ayar; right sliver on foreground image gone
 // version 0.7.16.x don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right; other background fixl sliver fix AGAIN
@@ -161,7 +161,7 @@ function effectBoxScale(source_height, offset) {
 }
 
 
-const numberFont = "'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'Helvetica Neue', 'AyarKasone', 'Helvetica'"
+const numberFont = "'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'Neue Helvetica BQ', 'Helvetica Neue', 'AyarKasone', 'Helvetica'"
 let neue = false;
 
 // stringroundremoved, dec 17
@@ -1949,7 +1949,7 @@ function CustomCreator() {
         let neue_offset = 0;
         if (!neue) neue_offset = 20;
         if (playcost >= 0) {
-          ctx.font = `bold 290px ${numberFont}`;
+          ctx.font = `600 290px ${numberFont}`;
           ctx.fillStyle = 'white';
           ctx.fillText(playcost, x + 15, 370 + neue_offset);
         }
@@ -2101,11 +2101,11 @@ function CustomCreator() {
       const id = json.cardNumber;
       ctx.textAlign = 'right';
       ctx.fillStyle = contrastColor(colors[colors.length - 1]);
-      //    use ${numberFont}
-      ctx.font = `bold 100px 'HelveticaNeue-CondensedBold', 'Helvetica'`;
-
+      // maybe this should be bold condensed?
       ctx.font = `bold 100px ${numberFont}`;
-
+      // this looks okay on mobile, but not enough weight on desktop
+      ctx.font = `bold 100px 'XXXNeue Helvetica Condensed BQ', ${numberFont}`;
+      
 
       // Helvetica seems basically right but needs to be made skinny
       // ToppanBunkyExtraBold has serifs on 1 now??

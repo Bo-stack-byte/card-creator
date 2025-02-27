@@ -115,7 +115,6 @@ const customSplit = (str) => {
 // unused?
 export function isNeueLoaded(canvas) {
   //  const canvas = canvasRef.current;
-  console.log(78, canvas);
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
@@ -293,6 +292,7 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
     case 'green': color0 = 'darkgreen'; color1 = 'lightgreen'; break;
     case 'bubble': color0 = 'black'; color1 = 'black'; break;
     case 'darkblue': color0 = '#0D1544'; color1 = '#4D5584'; break;
+    case 'red': color0 = '#530B07'; color1 = '#A12015'; color2 = '#DB6D52'; break;
 
     case 'blue':
     default:
@@ -536,10 +536,16 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 
 }
 
+
+    // brackets to use:
+//    ⸨ ⸩
+    
+
 function getColor(phrase) {
   if (phrase.match(/DigiXros/i)) return 'green';
   if (phrase.match(/Link/)) return 'green';
-  if (['Hand', 'Trash', 'Breeding', 'Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'purple';
+  if (['Hand', 'Trash', 'Breeding'].includes(phrase)) return 'purple';
+  if (['Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'red';
   if (phrase.match(/(Digi|E)volve/i)) return 'darkblue';
   return 'blue';
 }

@@ -35,17 +35,24 @@ import amy from './amy.png';
 import armor_cat from './armorcat.png';
 //import './styles.css';
 import './local-styles.css';
+import axios from 'axios';
 
 import { restoreState, SaveState } from './SaveState';
+import ImageBrowser from './ImageBrowser';
+import GoogleAuth from './GoogleAuth';
 import RadioGroup from './RadioGroup';
 import { Base64 } from 'js-base64';
 import pako from 'pako';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const version = "0.7.17.8"
-const latest = "font tests; bubble offset slightly changed; font stuff, font guide 3"
 
+
+const version = "0.7.18.1"
+const latest = "red once-per-turn; proto background uploading; 'Stnd.' as level to evo from"
+
+// version 0.7.18.1 red once-per-turn; proto background uploading; 'Stnd.' as level to evo from
+// version 0.7.17.8 font tests; bubble offset slightly changed; font stuff, font guide 3
 // version 0.7.17.x fix DP font to use Ayar; right sliver on foreground image gone
 // version 0.7.16.x don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right; other background fixl sliver fix AGAIN
 // version 0.7.15   new free text format candidate for link/plug effects; (color) matching the xros and rule; fix digixros going nuts"
@@ -142,6 +149,33 @@ const empty = (s) => {
   if (s.length < 2) return true;
   if (s === "-") return true;
   return false;
+}
+
+const handleUpload = async (backImg) => {
+  if (!backImg) return;
+  if (backImg.src.startsWith("http")) return;
+  const folder = "backgrounds";
+
+  const response = await fetch(backImg.src);
+  const blob = await response.blob();
+  const file = new File([blob], 'uploaded-image.jpg', { type: blob.type });
+  const formData = new FormData();
+  formData.append('image', file); // Ensure the key matches the server-side 'upload.single('image')'
+  formData.append('folder', folder);
+
+  const token = localStorage.getItem('google_token');
+
+  try {
+    const response = await axios.post('/api/image/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    console.log("File uploaded successfully:", response.data);
+  } catch (error) {
+    console.error("Error uploading file:", error);
+  }
 }
 
 // handles empty imageOptions object, or incomplete one
@@ -1092,6 +1126,20 @@ function CustomCreator() {
     reader.readAsDataURL(file);
   };
 
+
+
+  const handleSelectImage = (url, foreground) => {
+    console.log(1103, "here");
+    const img = new Image();
+    img.src = url;
+    img.onload = () => {
+      if (foreground)
+        setForeImg(img);
+      else
+        setBackImg(img);
+    };
+  };
+
   /*
   const loadImageFromUrl = () => {
     const img = new Image();
@@ -1838,7 +1886,7 @@ function CustomCreator() {
           // having two circles with different costs or different colors isn't supported,
           // and no card since BT14 has had such a thing. honest, go check.
 
-          let evo1_levels = _evos.map(e => e.level ? String(e.level).toUpperCase().split("/") : [])
+          let evo1_levels = _evos.map(e => e.level ? String(e.level).split("/") : [])
             .reduce((acc, curr) => acc.concat(curr), []);
           evo1_levels = [...new Set(evo1_levels)];
 
@@ -1847,8 +1895,8 @@ function CustomCreator() {
             let circle_offset = (j) * 420;
 
             let level = evo1_levels[j];
-            let evo1_level = "Lv." + level;
-            if (level === "TAMER") evo1_level = "Tamer";
+            let n_level = parseInt(level);
+            const evo1_level = n_level ? "Lv." + level : level;
             let evo1_cost = _evos[0].cost;
             let ring = cost_evo;
             if (j > 0) ring = cost_evo_plain;
@@ -2105,7 +2153,7 @@ function CustomCreator() {
       ctx.font = `bold 100px ${numberFont}`;
       // this looks okay on mobile, but not enough weight on desktop
       ctx.font = `bold 100px 'XXXNeue Helvetica Condensed BQ', ${numberFont}`;
-      
+
 
       // Helvetica seems basically right but needs to be made skinny
       // ToppanBunkyExtraBold has serifs on 1 now??
@@ -2568,18 +2616,26 @@ function CustomCreator() {
             </div>
           </td>
           <td width={"25%"} valign={"top"}>
+    
             {
               neue || (<p>HelveticaNeue may not be loaded.</p>)
 
 
 
-}
-            Choose background image:
-            <input type="file" onChange={(e) => loadUserImage(e, false)} />
-            <button onClick={setWhite}>Solid White</button>
+            }
+            <div>
+              <div>
+                <label>Choose background image:
+                  <input type="file" onChange={(e) => loadUserImage(e, false)} />
+                </label>
+                <button onClick={setWhite}>Solid White</button>
+                <button onClick={() => handleUpload(backImg)}>upload background (if logged in)</button>
+              </div>
 
+              {true && <ImageBrowser folder="backgrounds" foregrounds={0} onSelectImage={handleSelectImage} />}
+
+            </div>
             <br />
-
             Choose foreground image:
             <input type="file" onChange={(e) => loadUserImage(e, true)} />
             <hr />
@@ -2647,6 +2703,8 @@ function CustomCreator() {
             <hr />
           </td>
           <td width={"25%"} valign={"top"}>
+           <GoogleAuth />
+
             <button onClick={() => sample(0)}> Sample Egg </button><br />
             <button onClick={() => sample(5)}> Sample Monster </button><br />
             <button onClick={() => sample(1)}> Sample Mega </button><br />

@@ -48,10 +48,10 @@ import { saveAs } from 'file-saver';
 
 
 
-const version = "0.7.18.1"
-const latest = "red once-per-turn; proto background uploading; 'Stnd.' as level to evo from"
+const version = "0.7.18.2"
+const latest = "red once-per-turn; proto background uploading; 'Stnd.' as level to evo from; auth bug"
 
-// version 0.7.18.1 red once-per-turn; proto background uploading; 'Stnd.' as level to evo from
+// version 0.7.18.x red once-per-turn; proto background uploading; 'Stnd.' as level to evo from
 // version 0.7.17.8 font tests; bubble offset slightly changed; font stuff, font guide 3
 // version 0.7.17.x fix DP font to use Ayar; right sliver on foreground image gone
 // version 0.7.16.x don't let <keywords> be broken across liens no matter how long they are; brackets, either; let background go all the way to the right; other background fixl sliver fix AGAIN
@@ -295,7 +295,7 @@ const starter_text_empty = `{
   "evolveEffect": "-",
   "linkRequirement": "-",
   "linkDP": "-",
-  "linkEffect": "-f",
+  "linkEffect": "-",
   "artist": "-",
   "author": "-",
   "imageOptions": {

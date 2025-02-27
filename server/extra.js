@@ -191,6 +191,7 @@ module.exports = (app) => {
 
     //// GOOGLE AUTH
     
+    
     const passport = require('./plugins/creator/node_modules/passport');
     const GoogleStrategy = require('./plugins/creator/node_modules/passport-google-oauth20').Strategy;
 
@@ -198,7 +199,7 @@ module.exports = (app) => {
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: 'http://localhost:3001/auth/google/callback'
+        callbackURL: '/auth/google/callback'
     },
         (accessToken, refreshToken, profile, done) => {
             return done(null, profile.id);

@@ -32,6 +32,7 @@ const GoogleAuth = () => {
   }, []);
 
   const client_id = process.env.REACT_APP_GOOGLE_CLIENT_ID
+    console.log(process.env);
   console.log("Client ID:", client_id);
   console.log("user token", userToken);
 

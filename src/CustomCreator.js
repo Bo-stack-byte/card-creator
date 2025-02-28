@@ -48,8 +48,8 @@ import { saveAs } from 'file-saver';
 
 
 
-const version = "0.7.18.2"
-const latest = "red once-per-turn; proto background uploading; 'Stnd.' as level to evo from; auth bug"
+const version = "0.7.18.3"
+const latest = "red once-per-turn; proto background uploading; 'Stnd.' as level to evo from; auth bug 2"
 
 // version 0.7.18.x red once-per-turn; proto background uploading; 'Stnd.' as level to evo from
 // version 0.7.17.8 font tests; bubble offset slightly changed; font stuff, font guide 3

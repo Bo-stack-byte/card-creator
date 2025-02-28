@@ -2,6 +2,7 @@
 const express = require('express');
 var path = require('path');
 
+console.log("extra js");
 
 module.exports = (app) => {
 
@@ -164,7 +165,7 @@ module.exports = (app) => {
             res.status(500).send("Error uploading file");
         }
     });
-
+    console.log("pre get signed urls");
     app.get('/api/image/get-signed-urls', async (req, res) => {
         const folder = req.query.folder; // 'foregrounds' or 'backgrounds'
         try {

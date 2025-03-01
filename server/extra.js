@@ -100,6 +100,9 @@ module.exports = (app) => {
     console.error("123123 97");
     const bucketName = process.env.GCS_BUCKET_NAME;
     console.error("123123 99");
+    const { OAuth2Client } = require(magic_path + 'google-auth-library');
+
+    console.error("123123 100");
 
     const encoded_credentials = process.env.GOOGLE_CLOUD_CREDENTIALS;
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -129,7 +132,6 @@ module.exports = (app) => {
         });
         console.error("123123 120");
 
-        const { OAuth2Client } = require(magic_path + 'google-auth-library');
 
         const authenticateToken = async (req, res, next) => {
             const authHeader = req.headers['authorization'];
@@ -191,7 +193,6 @@ module.exports = (app) => {
         app.get('/api/image/get-signed-urls', async (req, res) => {
             console.error("123123 183....");
 
-            console.log(req);
             try {
                 const folder = req.query.folder; // 'foregrounds' or 'backgrounds'
                 const [files] = await storage.bucket(bucketName).getFiles({ prefix: `${folder}/` });
@@ -220,49 +221,64 @@ module.exports = (app) => {
 
     //// GOOGLE AUTH
 
-
+    const session = require(magic_path + 'express-session');
     const passport = require(magic_path + 'passport');
-    const GoogleStrategy = require(magic_path + 'passport-google-oauth20').Strategy;
+    const pgo = require(magic_path + 'passport-google-oauth20');
+    const client_secret = process.env.GOOGLE_CLIENT_SECRET;
 
-    // Configure Passport to use Google OAuth 2.0
-    passport.use(new GoogleStrategy({
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: '/auth/google/callback'
-    },
-        (accessToken, refreshToken, profile, done) => {
-            return done(null, profile.id);
-        }));
+
+
+    if (client && client_secret && session && passport && pgo)  {
+        const GoogleStrategy = require(magic_path + 'passport-google-oauth20').Strategy;
+
+        // Configure Passport to use Google OAuth 2.0
+        passport.use(new GoogleStrategy({
+            clientID: client,
+            clientSecret: client_secret,
+            callbackURL: '/auth/google/callback'
+        },
+            (accessToken, refreshToken, profile, done) => {
+                return done(null, profile.id);
+            }));
 
         console.error("123123 237");
 
-    passport.serializeUser((user, done) => {
-        done(null, user);
-    });
-    passport.deserializeUser((id, done) => {
-        done(null, id);
-    });
+        passport.serializeUser((user, done) => {
+            done(null, user);
+        });
+        passport.deserializeUser((id, done) => {
+            done(null, id);
+        });
+        
+        app.use(session({
+            secret: 'aaaaaaaa', 
+            resave: false, 
+            saveUninitialized: false, 
+           // cookie: { secure: false } // Set to true if using HTTPS
+        }));
+        
+        app.use(session({ }));
+        app.use(passport.initialize());
+        app.use(passport.session());
 
-    app.use(passport.initialize());
-    app.use(passport.session());
+        // Start the Google OAuth 2.0 login
+        app.get('/auth/google',
+            passport.authenticate('google', { scope: ['profile'] })
+        );
+        // Callback route
+        app.get('/auth/google/callback',
+            passport.authenticate('google', { failureRedirect: '/' }),
+            (req, res) => {
+                // Successful authentication, redirect to your desired route
+                res.redirect('/dashboard');
+            }
+        );
 
-    // Start the Google OAuth 2.0 login
-    app.get('/auth/google',
-        passport.authenticate('google', { scope: ['profile'] })
-    );
-    // Callback route
-    app.get('/auth/google/callback',
-        passport.authenticate('google', { failureRedirect: '/' }),
-        (req, res) => {
-            // Successful authentication, redirect to your desired route
-            res.redirect('/dashboard');
-        }
-    );
-
-    // is this used?
-    app.get('/api/current_user', (req, res) => {
-        res.send(req.user);
-    });
+        // is this used?
+        app.get('/api/current_user', (req, res) => {
+            res.send(req.user);
+        });
+    }
 
     // script to autogenerate images
     //const puppeteer = require('puppeteer');

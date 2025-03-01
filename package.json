@@ -10,6 +10,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.9",
+    "express-session": "^1.18.1",
     "file-saver": "^2.0.5",
     "js-base64": "^3.7.7",
     "jszip": "^3.10.1",

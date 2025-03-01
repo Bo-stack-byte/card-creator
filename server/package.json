@@ -1,0 +1,19 @@
+{
+    "name": "cc",
+    "version": "0.7.14",
+    "engines": {
+        "node": "20.11.1"
+    },
+    "private": true,
+    "scripts": {
+    },
+    "dependencies": {
+        "@google-cloud/storage": "^7.15.2",
+        "detect-file-type": "^0.2.8",
+        "express-session": "^1.18.1",
+        "google-auth-library": "^9.15.1",
+        "multer": "^1.4.5-lts.1",
+        "passport": "^0.7.0",
+        "passport-google-oauth20": "^2.0.0"
+    }
+}

@@ -48,7 +48,7 @@ import { saveAs } from 'file-saver';
 
 
 
-const version = "0.7.18.5"
+const version = "0.7.18.7"
 const latest = "red once-per-turn; proto background uploading; 'Stnd.' as level to evo from; auth bug 2"
 
 // version 0.7.18.x red once-per-turn; proto background uploading; 'Stnd.' as level to evo from

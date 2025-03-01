@@ -115,8 +115,12 @@ module.exports = (app) => {
             },
         });
 
+        console.error("123123 115");
+
+
         const detect = require(magic_path + 'detect-file-type');
         const allowedMimeTypes = ['image/webp', 'image/jpeg', 'image/png', 'image/gif']; // Allowed MIME types
+        console.error("123123 117");
         const upload = multer({
             storage: multer.memoryStorage(),
             fileFilter: (req, file, cb) => {
@@ -209,6 +213,7 @@ module.exports = (app) => {
         });
         console.error("123123 203");
     }
+    console.error("123123 216");
 
     //// END GOOGLE PICTURE SERVER
 
@@ -228,6 +233,8 @@ module.exports = (app) => {
         (accessToken, refreshToken, profile, done) => {
             return done(null, profile.id);
         }));
+
+        console.error("123123 237");
 
     passport.serializeUser((user, done) => {
         done(null, user);

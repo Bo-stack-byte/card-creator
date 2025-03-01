@@ -2,9 +2,12 @@
 const express = require('express');
 var path = require('path');
 
-console.log("extra js");
+const magic_path = './plugins/creator/node_modules/'
 
+console.log("extra js");
+console.error("EXTRA JS 123123");
 module.exports = (app) => {
+    console.error("EXTRA JS 123123 456456 456456");
 
     // MAIN SITE
     app.use('/card-creator', express.static(path.join(__dirname, 'build-cc')));
@@ -13,7 +16,7 @@ module.exports = (app) => {
     });
 
     //const bodyParser = require('body-parser');
-   
+
     // SAVE/RETRIEVE CARDS W/MONGO
     const connectDB = require('./db');
     function generateKey(length) {
@@ -58,6 +61,10 @@ module.exports = (app) => {
             res.status(500).send({ error: 'Failed to save data' });
         }
     });
+    app.get('/api/bob', async (req, res) => {
+        res.status(500).send({ error: 'Failed to retrieve bob' });
+
+    })
 
     app.get('/api/data/:id', async (req, res) => {
         // console.error(176, req.params);
@@ -85,116 +92,132 @@ module.exports = (app) => {
         }
     });
     ///// MONGO END
-
+    console.error("123123 93");
     //// IMAGE SAVE/RETRIVE W/GOOGLE BUCKET
-    const { Storage } = require('./plugins/creator/node_modules/@google-cloud/storage');
-    const multer = require('./plugins/creator/node_modules/multer');
+    const { Storage } = require(magic_path + '@google-cloud/storage');
+    console.error("123123 95");
+    const multer = require(magic_path + 'multer');
+    console.error("123123 97");
     const bucketName = process.env.GCS_BUCKET_NAME;
+    console.error("123123 99");
 
-    const credentials = JSON.parse(Buffer.from(process.env.GOOGLE_CLOUD_CREDENTIALS, 'base64').toString());
-    const storage = new Storage({
-        projectId: credentials.project_id,
-        credentials: {
-            client_email: credentials.client_email,
-            private_key: credentials.private_key,
-        },
-    });
-
-    const detect = require('./plugins/creator/node_modules/detect-file-type');
-    const allowedMimeTypes = ['image/webp', 'image/jpeg', 'image/png', 'image/gif']; // Allowed MIME types
-    const upload = multer({
-        storage: multer.memoryStorage(),
-        fileFilter: (req, file, cb) => {
-            cb(null, true); // Allow all files initially
-        }
-    });
-
-    const { OAuth2Client } = require('./plugins/creator/node_modules/google-auth-library');
+    const encoded_credentials = process.env.GOOGLE_CLOUD_CREDENTIALS;
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-    const authenticateToken = async (req, res, next) => {
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
-        if (!token) return res.sendStatus(401);
+    if (encoded_credentials && client && bucketName) {
 
-        try {
-            const ticket = await client.verifyIdToken({
-                idToken: token,
-                audience: process.env.GOOGLE_CLIENT_ID,
-            });
-            const payload = ticket.getPayload();
-            req.user = payload;
-            next();
-        } catch (error) {
-            console.error(error);
-            res.sendStatus(403);
-        }
-    };
+        const credentials = JSON.parse(Buffer.from(process.env.GOOGLE_CLOUD_CREDENTIALS, 'base64').toString());
+        const storage = new Storage({
+            projectId: credentials.project_id,
+            credentials: {
+                client_email: credentials.client_email,
+                private_key: credentials.private_key,
+            },
+        });
 
-    app.post('/api/image/upload', authenticateToken, upload.single('image'), async (req, res) => {
-        try {
-            if (!req.file) {
-                return res.status(400).send('No file uploaded.');
+        const detect = require(magic_path + 'detect-file-type');
+        const allowedMimeTypes = ['image/webp', 'image/jpeg', 'image/png', 'image/gif']; // Allowed MIME types
+        const upload = multer({
+            storage: multer.memoryStorage(),
+            fileFilter: (req, file, cb) => {
+                cb(null, true); // Allow all files initially
             }
-            const userId = req.user.sub; // User's unique identifier (openid)
-            console.log("!!!!! User ID:", userId); // Log the user's openid
+        });
+        console.error("123123 120");
 
-            const fileBuffer = req.file.buffer;
-            detect.fromBuffer(fileBuffer, (err, result) => {
-                if (err || !allowedMimeTypes.includes(result.mime)) {
-                    return res.status(400).send('Invalid file type. Only JPEG, PNG, GIF, and WebP files are allowed.');
-                }
-                const file = req.file;
-                const folder = req.body.folder; // 'foregrounds' or 'backgrounds'
-                let originalName = file.originalname || "image";
-                originalName += Math.random();
-                const destFileName = `${folder}/${originalName}`;
+        const { OAuth2Client } = require(magic_path + 'google-auth-library');
 
-                const bucket = storage.bucket(bucketName);
-                const blob = bucket.file(destFileName);
-                const blobStream = blob.createWriteStream();
+        const authenticateToken = async (req, res, next) => {
+            const authHeader = req.headers['authorization'];
+            const token = authHeader && authHeader.split(' ')[1];
+            if (!token) return res.sendStatus(401);
 
-                blobStream.on('error', (err) => res.status(500).send(err));
-                blobStream.on('finish', () => {
-                    res.status(200).send('Image uploaded successfully!');
+            try {
+                const ticket = await client.verifyIdToken({
+                    idToken: token,
+                    audience: process.env.GOOGLE_CLIENT_ID,
                 });
-                blobStream.end(fileBuffer);
-            });
-        } catch (error) {
-            console.error("Error uploading file:", error);
-            res.status(500).send("Error uploading file");
-        }
-    });
-    console.log("pre get signed urls");
-    app.get('/api/image/get-signed-urls', async (req, res) => {
-        const folder = req.query.folder; // 'foregrounds' or 'backgrounds'
-        try {
-            const [files] = await storage.bucket(bucketName).getFiles({ prefix: `${folder}/` });
-            const urls = await Promise.all(files
-                .filter(file => !file.name.endsWith('/'))
-                .map(async (file) => {
-                    const [url] = await file.getSignedUrl({
-                        version: 'v4',
-                        action: 'read',
-                        expires: Date.now() + 60 * 60 * 1000, // 1 hour
+                const payload = ticket.getPayload();
+                req.user = payload;
+                next();
+            } catch (error) {
+                console.error(error);
+                res.sendStatus(403);
+            }
+        };
+        console.error("123123 130");
+
+        app.post('/api/image/upload', authenticateToken, upload.single('image'), async (req, res) => {
+            try {
+                if (!req.file) {
+                    return res.status(400).send('No file uploaded.');
+                }
+                const userId = req.user.sub; // User's unique identifier (openid)
+                console.log("!!!!! User ID:", userId); // Log the user's openid
+
+                const fileBuffer = req.file.buffer;
+                detect.fromBuffer(fileBuffer, (err, result) => {
+                    if (err || !allowedMimeTypes.includes(result.mime)) {
+                        return res.status(400).send('Invalid file type. Only JPEG, PNG, GIF, and WebP files are allowed.');
+                    }
+                    const file = req.file;
+                    const folder = req.body.folder; // 'foregrounds' or 'backgrounds'
+                    let originalName = file.originalname || "image";
+                    originalName += Math.random();
+                    const destFileName = `${folder}/${originalName}`;
+
+                    const bucket = storage.bucket(bucketName);
+                    const blob = bucket.file(destFileName);
+                    const blobStream = blob.createWriteStream();
+
+                    blobStream.on('error', (err) => res.status(500).send(err));
+                    blobStream.on('finish', () => {
+                        res.status(200).send('Image uploaded successfully!');
                     });
-                    return url;
-                }));
-            res.json(urls);
-        } catch (error) {
-            console.error("Error generating signed URLs:", error);
-            res.status(500).send("Error generating signed URLs");
-        }
-    });
+                    blobStream.end(fileBuffer);
+                });
+            } catch (error) {
+                console.error("Error uploading file:", error);
+                res.status(500).send("Error uploading file");
+            }
+        });
+        console.log("pre get signed urls");
+
+
+        app.get('/api/image/get-signed-urls', async (req, res) => {
+            console.error("123123 183....");
+
+            console.log(req);
+            try {
+                const folder = req.query.folder; // 'foregrounds' or 'backgrounds'
+                const [files] = await storage.bucket(bucketName).getFiles({ prefix: `${folder}/` });
+                const urls = await Promise.all(files
+                    .filter(file => !file.name.endsWith('/'))
+                    .map(async (file) => {
+                        const [url] = await file.getSignedUrl({
+                            version: 'v4',
+                            action: 'read',
+                            expires: Date.now() + 60 * 60 * 1000, // 1 hour
+                        });
+                        return url;
+                    }));
+                res.json(urls);
+            } catch (error) {
+                console.error("Error generating signed URLs:", error);
+                res.status(500).send("Error generating signed URLs");
+            }
+        });
+        console.error("123123 203");
+    }
 
     //// END GOOGLE PICTURE SERVER
 
 
     //// GOOGLE AUTH
-    
-    
-    const passport = require('./plugins/creator/node_modules/passport');
-    const GoogleStrategy = require('./plugins/creator/node_modules/passport-google-oauth20').Strategy;
+
+
+    const passport = require(magic_path + 'passport');
+    const GoogleStrategy = require(magic_path + 'passport-google-oauth20').Strategy;
 
     // Configure Passport to use Google OAuth 2.0
     passport.use(new GoogleStrategy({

@@ -52,7 +52,7 @@ const ImageBrowser = ({ folder, foreground, onSelectImage, maxWidth = 800, maxHe
 
   return (
     <div>
-      <button onClick={handleOpen}>Browse Thumbnails</button>
+      <button onClick={handleOpen}>Browse...</button>
       <Modal
         isOpen={open}
         onRequestClose={handleClose}

@@ -26,6 +26,7 @@
     "start": "PUBLIC_URL=http://localhost:3000/card-creator react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "watch": "watch 'npm run build' src",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -45,5 +46,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "watch": "^1.0.2"
   }
 }

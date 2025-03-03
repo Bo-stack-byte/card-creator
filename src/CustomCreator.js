@@ -49,8 +49,9 @@ import { saveAs } from 'file-saver';
 
 
 const version = "0.7.18.7"
-const latest = "red once-per-turn; proto background uploading; 'Stnd.' as level to evo from; auth bug 2"
+const latest = "image upload stuff"
 
+// version 0.7.19   image upload stuff
 // version 0.7.18.x red once-per-turn; proto background uploading; 'Stnd.' as level to evo from
 // version 0.7.17.8 font tests; bubble offset slightly changed; font stuff, font guide 3
 // version 0.7.17.x fix DP font to use Ayar; right sliver on foreground image gone
@@ -151,17 +152,18 @@ const empty = (s) => {
   return false;
 }
 
-const handleUpload = async (backImg) => {
-  if (!backImg) return;
-  if (backImg.src.startsWith("http")) return;
-  const folder = "backgrounds";
+const handleUpload = async (image, folder) => {
+  if (!image) return;
+  if (image.src.startsWith("http")) return;
 
-  const response = await fetch(backImg.src);
+  const response = await fetch(image.src);
   const blob = await response.blob();
+  const image_id = image.id;
   const file = new File([blob], 'uploaded-image.jpg', { type: blob.type });
   const formData = new FormData();
   formData.append('image', file); // Ensure the key matches the server-side 'upload.single('image')'
   formData.append('folder', folder);
+  formData.append('image_id', image_id);
 
   const token = localStorage.getItem('google_token');
 
@@ -172,7 +174,7 @@ const handleUpload = async (backImg) => {
         'Authorization': `Bearer ${token}`,
       },
     });
-    console.log("File uploaded successfully:", response.data);
+    console.log("File uploaded to " + folder + " successfully:", response.data);
   } catch (error) {
     console.error("Error uploading file:", error);
   }
@@ -299,7 +301,8 @@ const starter_text_empty = `{
   "artist": "-",
   "author": "-",
   "imageOptions": {
-    "url": "",
+    "background_url": "",
+    "foreground_url": "",
     "x_pos": 0,
     "y_pos": 0,
     "x_scale": 95,
@@ -340,7 +343,7 @@ const starter_text_0 = `  {
     "evolveEffect": "[Your Turn] While you have a red Monster or Tamer in play, all your Monsters gain +1000 DP.",
     "cardNumber": "CS-01",
     "imageOptions":{
-      "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
       "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
             "foregroundOnTop": false,
@@ -387,7 +390,7 @@ const starter_text_1a = `  {
     "rule": "[Rule] Trait: Has the [Virus] attribute",
     "cardNumber": "CS2-11",
     "imageOptions":{
-      "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
       "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
             "foregroundOnTop": false,
@@ -427,7 +430,7 @@ const starter_text_1b = `  {
     "rule": "",
     "cardNumber": "CS2-18",
     "imageOptions":{
-      "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
       "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
             "foregroundOnTop": false,
@@ -468,7 +471,7 @@ const starter_text_1c = `{
   "burstEvolve": "-",
   "cardNumber": "CS3-02",
   "imageOptions": {
-    "url": "",
+    "background_url": "", "foreground_url": "",
     "x_pos": "9",
     "y_pos": "-16",
     "x_scale": "84",
@@ -508,7 +511,7 @@ const starter_text_2 = `  {
   "linkDP": "-",
   "linkEffect": "-",
     "imageOptions":{
-      "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
       "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
             "foregroundOnTop": false,
@@ -536,7 +539,7 @@ const starter_text_3 = `   {
     "rule": "",
     "cardNumber": "CS2-17",
     "imageOptions":{
-      "url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 0, "ess_x_end": 80, "ess_y_end": 40,
       "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
             "foregroundOnTop": false,
@@ -560,7 +563,6 @@ const decodeAndDecompress = (encodedString) => {
   } catch {
     return "";
   }
-  //  return JSON.parse(decompressed);
 };
 
 /*  
@@ -752,9 +754,34 @@ function CustomCreator() {
       }
       jsonText = JSON.stringify(jsonObject, null, 2);
       updateJson(jsonText);
+
+      let img_args = [];
+      if (jsonObject.imageOptions.background_url) {
+        img_args.push("background=" + jsonObject.imageOptions.background_url);
+      }
+      if (jsonObject.imageOptions.foreground_url) {
+        img_args.push("foreground=" + jsonObject.imageOptions.foreground_url);
+      }
+      if (img_args.length > 0) {
+        const response = await axios.get(`/api/image/get-url-by-id?${img_args.join("&")}`);
+        console.log("Fetched URLs:", response.data);
+        response.data.forEach((data) => {
+          let img = new Image();
+          img.src = data.signedUrl;
+          img.onload = () => {
+            if (data.type === "background") {
+              setBackImg(img);
+            } else {
+              setForeImg(img);
+            }
+          };
+        });
+      }
+
     } catch (e) {
       console.error("restore error: " + e);
     }
+
   };
 
 
@@ -807,7 +834,9 @@ function CustomCreator() {
 
   const initImageOptions = useMemo(() => {
     return {
-      url: "", x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
+      background_url: "",
+      foreground_url: "",
+      x_pos: 0, y_pos: 0, x_scale: 95, y_scale: 95,
       ess_x_pos: 40, ess_y_pos: 40, ess_x_end: 50, ess_y_end: 50,
       fontSize: 90.5,
       lineSpacing: 10,
@@ -1116,14 +1145,20 @@ function CustomCreator() {
     reader.onload = (e) => {
       const img = new Image();
       img.src = e.target.result;
+      const id = Number(Math.round(Math.random() * 1000 * 1000));
+      img.id = id;
+      console.error(1000, img.id);
       img.onload = () => {
         if (foreground)
           setForeImg(img);
         else
           setBackImg(img);
       };
+      const key = `imageOptions.${foreground ? "foreground_url" : "background_url"}`;
+      handleInputChange(key, id, "number");
     };
     reader.readAsDataURL(file);
+
   };
 
 
@@ -1383,7 +1418,6 @@ function CustomCreator() {
       const drawMon = (mon_img, height) => {
         height = 4000; // don't try this now
         console.log(986, json);
-        console.log(1204, mon_img);
         if (!mon_img) return;
         // mon image
         //      console.log("imageOptions", imageOptions);
@@ -1416,7 +1450,6 @@ function CustomCreator() {
 
       // DRAW BACKGROUND, IF WE HAVE IT
       let background_img = backImg;
-      console.log(1073, background_img);
       if (background_img && background_img.src) {
         console.log(1227, "DRAWING BACKGROUND");
 
@@ -2551,7 +2584,7 @@ function CustomCreator() {
  
 */
   let json_t = jsonText[currentIndex];
-
+  let debug = new URLSearchParams(window.location.search).get("debug") == '1';
   return (
     <table>
       <tbody>
@@ -2616,7 +2649,7 @@ function CustomCreator() {
             </div>
           </td>
           <td width={"25%"} valign={"top"}>
-    
+
             {
               neue || (<p>HelveticaNeue may not be loaded.</p>)
 
@@ -2629,21 +2662,22 @@ function CustomCreator() {
                   <input type="file" onChange={(e) => loadUserImage(e, false)} />
                 </label>
                 <button onClick={setWhite}>Solid White</button>
-                <button onClick={() => handleUpload(backImg)}>upload background (if logged in)</button>
+                {debug && (<button onClick={() => handleUpload(backImg, "backgrounds")}>upload background (if logged in)</button>)}
               </div>
-
               {true && <ImageBrowser folder="backgrounds" foregrounds={0} onSelectImage={handleSelectImage} />}
-
             </div>
             <br />
             Choose foreground image:
             <input type="file" onChange={(e) => loadUserImage(e, true)} />
+            {true && <ImageBrowser folder="foregrounds" foregrounds={1} onSelectImage={handleSelectImage} />}
+            {debug && (<button onClick={() => handleUpload(foreImg, "foregrounds")}>upload foreground (if logged in)</button>)}
+
             <hr />
             <button onClick={draw2}>Force Draw</button>
             <br />
             <button onClick={handleExport}>Download Image</button>
             <br />
-            <SaveState jsonText={jsonText[currentIndex]} />
+            <SaveState jsonText={jsonText[currentIndex]} image_save_fn={() => { handleUpload(backImg, "backgrounds"); handleUpload(foreImg, "foregrounds") }} />
             <br />
             {json_t && json_t.length > 0 && json_t[0] === '[' && (
               <span>
@@ -2703,7 +2737,7 @@ function CustomCreator() {
             <hr />
           </td>
           <td width={"25%"} valign={"top"}>
-           <GoogleAuth />
+            <GoogleAuth />
 
             <button onClick={() => sample(0)}> Sample Egg </button><br />
             <button onClick={() => sample(5)}> Sample Monster </button><br />

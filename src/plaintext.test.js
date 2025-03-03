@@ -12,11 +12,11 @@ function getObj() {
         ret.push(json);
     }
     // uncomment this line to get the output
-   //console.dir(ret, { depth: null} );
+   //console.log('let answer = ['); console.dir(ret, { depth: null} ); console.log(';');
     return ret;
 }
 
-let answer =   [
+let answer = [
   {
     name: { english: 'ScrapBacomon' },
     color: 'Green',
@@ -33,8 +33,8 @@ let answer =   [
     effect: '[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mutant] traut and 1 card with the [ʟᴍᴡ] trait among them to the hand. Return the rest to the bottom of the deck.\n',
     evolveEffect: '[All Turns] [Once Per Turn] When 1 other Digimon digivolves, <Draw 1>.\n',
     linkDP: '-',
-    linkRequirements: '-',
-    linkEffect: '-',
+    linkRequirement: '',
+    linkEffect: '',
     securityEffect: '-',
     rule: '[Rule] Trait: Has the [Free] type.',
     digiXros: '',
@@ -44,7 +44,8 @@ let answer =   [
     author: '',
     artist: '',
     imageOptions: {
-      url: '',
+      background_url: '',
+      foreground_url: '',
       x_pos: 0,
       y_pos: 0,
       x_scale: 95,
@@ -84,8 +85,8 @@ let answer =   [
       "[Your Turn] This Digimon doesn't activate [Security] effects of the cards it checks.\n",
     evolveEffect: '',
     linkDP: '-',
-    linkRequirements: '-',
-    linkEffect: '-',
+    linkRequirement: '',
+    linkEffect: '',
     securityEffect: '-',
     rule: '',
     digiXros: '',
@@ -95,7 +96,8 @@ let answer =   [
     author: '',
     artist: '',
     imageOptions: {
-      url: '',
+      background_url: '',
+      foreground_url: '',
       x_pos: 0,
       y_pos: 0,
       x_scale: 95,
@@ -133,8 +135,8 @@ let answer =   [
     effect: '[On Play] Reveal the top 3 cards of your deck. Add 1 card with the [Mythical Beast] trait and 1 card with the [LIBERATOR] trait among them to the hand. Return the rest to the bottom of the deck. \n',
     evolveEffect: "[On Deletion] You may place 1 card from either player's trash face down in the battle area.\n",
     linkDP: '-',
-    linkRequirements: '-',
-    linkEffect: '-',
+    linkRequirement: '',
+    linkEffect: '',
     securityEffect: '-',
     rule: '[Rule] Trait: Also has [Mythical Beast] Type.',
     digiXros: '',
@@ -144,7 +146,8 @@ let answer =   [
     author: '',
     artist: '',
     imageOptions: {
-      url: '',
+      background_url: '',
+      foreground_url: '',
       x_pos: 0,
       y_pos: 0,
       x_scale: 95,
@@ -179,8 +182,8 @@ let answer =   [
     effect: '     [Main] <Draw 1> for every Tamer your opponent has in play.\n',
     evolveEffect: '',
     linkDP: '-',
-    linkRequirements: '-',
-    linkEffect: '-',
+    linkRequirement: '',
+    linkEffect: '',
     securityEffect: '-[Security] <Draw 1>, then add this card to the hand.\n',
     rule: '',
     digiXros: '',
@@ -190,7 +193,8 @@ let answer =   [
     author: '',
     artist: '',
     imageOptions: {
-      url: '',
+      background_url: '',
+      foreground_url: '',
       x_pos: 0,
       y_pos: 0,
       x_scale: 95,
@@ -229,8 +233,8 @@ let answer =   [
       `[On Play][When Digivolving] Until the end of your opponent's turn, 1 of their Digimon gains "[Start of Main] Forced attack." If digixrossed with 2 materials, <De-Digivolve 1> 1 of their Digimon.\n`,
     evolveEffect: "[Opponent's Turn] This Digimon with <Save> in its text gains <Reboot>.\n",
     linkDP: '-',
-    linkRequirements: '-',
-    linkEffect: '-',
+    linkRequirement: '',
+    linkEffect: '',
     securityEffect: '-',
     rule: '',
     digiXros: '[Digixros -1] [Arresterdramon] x [MetalTyrannomon]',
@@ -240,7 +244,8 @@ let answer =   [
     author: 'MuqRei',
     artist: '',
     imageOptions: {
-      url: '',
+      background_url: '',
+      foreground_url: '',
       x_pos: 0,
       y_pos: 0,
       x_scale: 95,
@@ -276,11 +281,11 @@ let answer =   [
     rarity: '',
     specialEvolve: '[Digivolve] [Kentaurosmon]: Cost 1',
     effect: "[When Digivolving] [When Attacking] (Once Per Turn) By trashing your top security card, 1 of your opponent's Digimon gets -10000 DP until the end of their turn. Then, until the end of their turn, 1 of their Digimon or Tamers can't suspend.\n" +
-    "[All Turns] (Once Per Turn) When an effect would trash your security stack, If there're 6 or fewer security cards and [Kentaurosmon] or [X Antibody] is in this Digimon's digivolution cards, you may trash your opponent's top security card and place 1 yellow card from your hand as your top security card instead.\n",
+      "[All Turns] (Once Per Turn) When an effect would trash your security stack, If there're 6 or fewer security cards and [Kentaurosmon] or [X Antibody] is in this Digimon's digivolution cards, you may trash your opponent's top security card and place 1 yellow card from your hand as your top security card instead.\n",
     evolveEffect: '',
     linkDP: '-',
-    linkRequirements: '-',
-    linkEffect: '-',
+    linkRequirement: '',
+    linkEffect: '',
     securityEffect: '-',
     rule: '',
     digiXros: '',
@@ -290,7 +295,8 @@ let answer =   [
     author: 'Vansjoo',
     artist: '',
     imageOptions: {
-      url: '',
+      background_url: '',
+      foreground_url: '',
       x_pos: 0,
       y_pos: 0,
       x_scale: 95,
@@ -310,23 +316,23 @@ let answer =   [
     }
   },
   {
-    name: { english: 'Translatemon' },
-    color: 'Black',
+    name: { english: 'Roleplaymon' },
+    color: 'Yellow/Black',
     cardType: 'Digimon',
     playCost: '3',
     dp: '2000',
-    evolveCondition: [ { level: '2', cost: '0', color: 'Black' } ],
+    evolveCondition: [ { level: '2', cost: '1', color: 'Yellow/Black' } ],
     cardLv: 'Lv.3',
     form: 'Stnd./Appmon',
-    attribute: 'Translation',
-    type: 'Tool',
+    attribute: 'Game',
+    type: 'Ropure/7CA',
     rarity: '',
     specialEvolve: '-',
-    effect: "[Opponent's Turn] Your opponent can't activate name-based effects.\n",
-    evolveEffect: '[Link]: [Appmon] trait. Cost: 1.\n{2000 DP}\n',
-    linkDP: '-',
-    linkRequirements: '-',
-    linkEffect: '-',
+    effect: '[On Play] Reveal the top 4 cards of your deck. Add 1 Digimon with the [7CA] trait to your hand. Return the rest to the bottom of the deck.\n',
+    evolveEffect: '',
+    linkDP: '2000',
+    linkRequirement: '[Link] [Appmon] trait: Cost 1',
+    linkEffect: "[When Attacking] [Once Per Turn] 1 of your opponent's Digimon gets -2000 DP for the turn.\n",
     securityEffect: '-',
     rule: '',
     digiXros: '',
@@ -336,7 +342,8 @@ let answer =   [
     author: 'shawndamarbledcat',
     artist: '',
     imageOptions: {
-      url: '',
+      background_url: '',
+      foreground_url: '',
       x_pos: 0,
       y_pos: 0,
       x_scale: 95,
@@ -355,9 +362,10 @@ let answer =   [
       skipDraw: false
     }
   }
-]
+];
 
 
+// Test cases we haven't added yet
 let extra = 
 {
   "name": {
@@ -406,6 +414,7 @@ let extra =
     "fontSize": 90.5
   }
 };
+
 
 // Correct the test function
 test('getObj function', () => {

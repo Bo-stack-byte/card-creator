@@ -17,13 +17,15 @@ export const restoreState = async (ref, id) => {
     }
   };
 
-export const SaveState = ({ jsonText }) => {
+  // image_save_fn is bad
+export const SaveState = ({ jsonText, image_save_fn}) => {
     const [handle, setHandle] = useState({ referenceId: 0, versionId: 0 } ); // For storing the returned reference ID
     const here = new URL(window.location.href);
     const baseUrl = here.origin + here.pathname;
     let url = baseUrl + "?ref=";
 
     const handleSave = async () => {
+        image_save_fn();
         const cardState = {
             jsonText
         };
@@ -48,7 +50,7 @@ export const SaveState = ({ jsonText }) => {
     let link = url + ref.referenceId + "&v=" + ref.versionId;
     return (
         <div>
-            <button onClick={handleSave}>Get Share Link (w/o art for the moment)</button>
+            <button onClick={handleSave}>Get Share Link (art saved if you're logged in)</button>
             <br/>
             {ref.referenceId ? (<a href={link}>{link}</a>) : ""}
         </div>

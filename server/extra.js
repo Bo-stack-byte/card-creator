@@ -91,6 +91,7 @@ module.exports = (app) => {
             res.status(500).send({ error: 'Failed to retrieve data' });
         }
     });
+
     ///// MONGO END
     console.error("123123 93");
     //// IMAGE SAVE/RETRIVE W/GOOGLE BUCKET
@@ -158,8 +159,30 @@ module.exports = (app) => {
                 if (!req.file) {
                     return res.status(400).send('No file uploaded.');
                 }
+
+                const { client, db } = await connectDB();
+                const collection = db.collection('master-images');
+                let session = client.startSession();
+                session.startTransaction();
+
+                const image_id = req.body.image_id;
+                let find = await collection.findOne({ image_id: image_id });
+                if (find) {
+                    await session.commitTransaction();
+                    session.endSession();
+                    return res.status(400).send('Image ID already present.');
+                }
+
                 const userId = req.user.sub; // User's unique identifier (openid)
-                console.log("!!!!! User ID:", userId); // Log the user's openid
+                const folder = req.body.folder; // 'foregrounds' or 'backgrounds'
+                const mongo_obj = {
+                    image_id: image_id,
+                    folder: folder,
+                    user_id: userId,
+                    client_ip: req.ip,
+                    uploaded_at: new Date()
+                }
+                const result = await collection.insertOne(mongo_obj, { session });
 
                 const fileBuffer = req.file.buffer;
                 detect.fromBuffer(fileBuffer, (err, result) => {
@@ -167,21 +190,49 @@ module.exports = (app) => {
                         return res.status(400).send('Invalid file type. Only JPEG, PNG, GIF, and WebP files are allowed.');
                     }
                     const file = req.file;
-                    const folder = req.body.folder; // 'foregrounds' or 'backgrounds'
                     let originalName = file.originalname || "image";
                     originalName += Math.random();
+                    originalName = `img-${image_id}.img`;
                     const destFileName = `${folder}/${originalName}`;
 
                     const bucket = storage.bucket(bucketName);
                     const blob = bucket.file(destFileName);
                     const blobStream = blob.createWriteStream();
 
-                    blobStream.on('error', (err) => res.status(500).send(err));
+                    blobStream.on('error', (err) => { res.status(500).send(err); return; });
                     blobStream.on('finish', () => {
-                        res.status(200).send('Image uploaded successfully!');
+                        // fall on through.
+                        // res.status(200).send('Image uploaded successfully!');
                     });
                     blobStream.end(fileBuffer);
+
+                    const sharp = require(magic_path + "sharp");
+
+                    async function generateThumbnail(inputBuffer) {
+                        return await sharp(inputBuffer)
+                            .resize({ width: 100, height: 100, fit: "inside" }) // Maintain aspect ratio
+                            .toBuffer(); // Returns the resized image as a buffer
+                    }
+
+                    let thumbnail = generateThumbnail(fileBuffer);
+                    thumbnail.then((thumbBuffer) => {
+                        const thumbname = `thumb-${image_id}.img`;
+                        const thumbBlob = bucket.file(`${folder}/${thumbname}`);
+                        const thumbStream = thumbBlob.createWriteStream();
+                        thumbStream.on('error', (err) => { res.status(500).send(err); return; });
+                        thumbStream.on('finish', () => {
+                            res.status(200).send('Thumbnail uploaded successfully!');
+                        });
+                        thumbStream.end(thumbBuffer);
+                    });
+
                 });
+
+                await session.commitTransaction();
+                session.endSession();
+
+                // no nneed to send message
+
             } catch (error) {
                 console.error("Error uploading file:", error);
                 res.status(500).send("Error uploading file");
@@ -189,13 +240,51 @@ module.exports = (app) => {
         });
         console.log("pre get signed urls");
 
+        // up to 2 images at the moment
+        app.get('/api/image/get-url-by-id', async (req, res) => {
+            let url;
+            let resp = [];
+            try {
+                for (let ground of ["foreground", "background"]) {
+                    if (url = req.query[ground]) {
+                        const prefix =  `${ground}s/img-${url}.img`;
+                        if (!/^[a-zA-Z0-9-_\/]+$/.test(url)) {
+                            throw new Error("Invalid url format.");
+                          }
+                        console.error(267, prefix);
+                        const [files] = await storage.bucket(bucketName).getFiles({ prefix: prefix });
+                        await Promise.all(files
+                            .filter(file => !file.name.endsWith('/'))
+                            .map(async (file) => {
+                                const signedUrl = await file.getSignedUrl({
+                                    version: 'v4',
+                                    action: 'read',
+                                    expires: Date.now() + 60 * 60 * 1000, // 1 hour
+                                });
+                                resp.push({
+                                    type: ground, 
+                                    url: url, 
+                                    signedUrl: signedUrl
+                                    });
+                            }));
+                    }
+                }
+                res.json(resp);
+            } catch (error) {
+                console.error("Error generating signed URL:", error);
+                res.status(500).send("Error generating signed URL");
+            }
+        })
 
         app.get('/api/image/get-signed-urls', async (req, res) => {
             console.error("123123 183....");
 
             try {
                 const folder = req.query.folder; // 'foregrounds' or 'backgrounds'
-                const [files] = await storage.bucket(bucketName).getFiles({ prefix: `${folder}/` });
+                if (!/^[a-zA-Z0-9-_\/]+$/.test(folder)) {
+                    throw new Error("Invalid prefix format.");
+                  }
+                let [files] = await storage.bucket(bucketName).getFiles({ prefix: `${folder}/img-`, maxResults: 10 });
                 const urls = await Promise.all(files
                     .filter(file => !file.name.endsWith('/'))
                     .map(async (file) => {
@@ -216,6 +305,8 @@ module.exports = (app) => {
     }
     console.error("123123 216");
 
+
+
     //// END GOOGLE PICTURE SERVER
 
 
@@ -228,7 +319,7 @@ module.exports = (app) => {
 
 
 
-    if (client && client_secret && session && passport && pgo)  {
+    if (client && client_secret && session && passport && pgo) {
         const GoogleStrategy = require(magic_path + 'passport-google-oauth20').Strategy;
 
         // Configure Passport to use Google OAuth 2.0
@@ -249,15 +340,15 @@ module.exports = (app) => {
         passport.deserializeUser((id, done) => {
             done(null, id);
         });
-        
+
         app.use(session({
-            secret: 'aaaaaaaa', 
-            resave: false, 
-            saveUninitialized: false, 
-           // cookie: { secure: false } // Set to true if using HTTPS
+            secret: 'aaaaaaaa',
+            resave: false,
+            saveUninitialized: false,
+            // cookie: { secure: false } // Set to true if using HTTPS
         }));
-        
-        app.use(session({ }));
+
+        app.use(session({}));
         app.use(passport.initialize());
         app.use(passport.session());
 

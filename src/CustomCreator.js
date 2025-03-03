@@ -47,11 +47,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-
-const version = "0.7.18.7"
+const version = "0.7.19.2"
 const latest = "image upload stuff"
 
-// version 0.7.19   image upload stuff
+// version 0.7.19   image upload stuff                                                                                                      
 // version 0.7.18.x red once-per-turn; proto background uploading; 'Stnd.' as level to evo from
 // version 0.7.17.8 font tests; bubble offset slightly changed; font stuff, font guide 3
 // version 0.7.17.x fix DP font to use Ayar; right sliver on foreground image gone
@@ -2584,7 +2583,7 @@ function CustomCreator() {
  
 */
   let json_t = jsonText[currentIndex];
-  let debug = new URLSearchParams(window.location.search).get("debug") == '1';
+  let debug = new URLSearchParams(window.location.search).get("debug") === '1';
   return (
     <table>
       <tbody>

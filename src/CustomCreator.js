@@ -47,10 +47,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.0"
-const latest = "keep image IDs assigned, refresh token automatically"
+const version = "0.8.0.x"
+const latest = "keep image IDs assigned, refresh token automatically, fix CORS"
 
-// version 0.8.0    keep image IDs assigned, refresh token automatically
+// version 0.8.0.x  keep image IDs assigned, refresh token automatically, fix CORS
 // version 0.7.19   image upload stuff                                                                                                      
 // version 0.7.18.x red once-per-turn; proto background uploading; 'Stnd.' as level to evo from
 // version 0.7.17.8 font tests; bubble offset slightly changed; font stuff, font guide 3
@@ -767,6 +767,7 @@ function CustomCreator() {
         console.log("Fetched URLs:", response.data);
         response.data.forEach((data) => {
           let img = new Image();
+          img.crossOrigin = "anonymous"; 
           img.src = data.signedUrl;
           img.onload = () => {
             if (data.type === "background") {
@@ -777,6 +778,7 @@ function CustomCreator() {
             }
           };
         });
+        console.log("done");
       }
 
     } catch (e) {
@@ -1140,6 +1142,7 @@ function CustomCreator() {
     img.src = white;
   }
 
+  // read from user's device
   const loadUserImage = (event, foreground) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -1162,8 +1165,10 @@ function CustomCreator() {
 
   };
 
+  // read from gallery
   const handleSelectImage = (url, foreground, id) => {
     const img = new Image();
+    img.crossOrigin = "anonymous"; 
     img.src = url;
     console.error(1170, url, id);
     if (!id) {

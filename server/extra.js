@@ -128,7 +128,7 @@ module.exports = (app) => {
         const authenticateToken = async (req, res, next) => {
             const authHeader = req.headers['authorization'];
             const token = authHeader && authHeader.split(' ')[1];
-            if (!token) return res.status(401).send("no auth token");
+            if (!token || token == null) return res.status(401).send("no auth token");
             try {
                 const ticket = await client.verifyIdToken({
                     idToken: token,

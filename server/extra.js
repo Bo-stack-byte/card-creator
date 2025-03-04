@@ -93,22 +93,19 @@ module.exports = (app) => {
     });
 
     ///// MONGO END
-    console.error("123123 93");
+
     //// IMAGE SAVE/RETRIVE W/GOOGLE BUCKET
     const { Storage } = require(magic_path + '@google-cloud/storage');
-    console.error("123123 95");
     const multer = require(magic_path + 'multer');
-    console.error("123123 97");
     const bucketName = process.env.GCS_BUCKET_NAME;
-    console.error("123123 99");
     const { OAuth2Client } = require(magic_path + 'google-auth-library');
 
-    console.error("123123 100");
 
     const encoded_credentials = process.env.GOOGLE_CLOUD_CREDENTIALS;
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
     if (encoded_credentials && client && bucketName) {
+        console.log("bucket " + bucketName);
 
         const credentials = JSON.parse(Buffer.from(process.env.GOOGLE_CLOUD_CREDENTIALS, 'base64').toString());
         const storage = new Storage({
@@ -119,26 +116,19 @@ module.exports = (app) => {
             },
         });
 
-        console.error("123123 115");
-
-
         const detect = require(magic_path + 'detect-file-type');
         const allowedMimeTypes = ['image/webp', 'image/jpeg', 'image/png', 'image/gif']; // Allowed MIME types
-        console.error("123123 117");
         const upload = multer({
             storage: multer.memoryStorage(),
             fileFilter: (req, file, cb) => {
                 cb(null, true); // Allow all files initially
             }
         });
-        console.error("123123 120");
-
 
         const authenticateToken = async (req, res, next) => {
             const authHeader = req.headers['authorization'];
             const token = authHeader && authHeader.split(' ')[1];
-            if (!token) return res.sendStatus(401);
-
+            if (!token) return res.status(401).send("no auth token");
             try {
                 const ticket = await client.verifyIdToken({
                     idToken: token,
@@ -149,7 +139,15 @@ module.exports = (app) => {
                 next();
             } catch (error) {
                 console.error(error);
-                res.sendStatus(403);
+                console.error("token was " + token);
+                // Handle the error
+                if (error.message.includes("Token used too late")) {
+                    // Specific handling for expired tokens
+                    res.status(401).json({ error: "Token has expired" });
+                } else {
+                    // Generic error handling
+                    res.status(400).json({ error: "Invalid token" });
+                }
             }
         };
         console.error("123123 130");
@@ -247,10 +245,10 @@ module.exports = (app) => {
             try {
                 for (let ground of ["foreground", "background"]) {
                     if (url = req.query[ground]) {
-                        const prefix =  `${ground}s/img-${url}.img`;
+                        const prefix = `${ground}s/img-${url}.img`;
                         if (!/^[a-zA-Z0-9-_\/]+$/.test(url)) {
                             throw new Error("Invalid url format.");
-                          }
+                        }
                         console.error(267, prefix);
                         const [files] = await storage.bucket(bucketName).getFiles({ prefix: prefix });
                         await Promise.all(files
@@ -262,10 +260,10 @@ module.exports = (app) => {
                                     expires: Date.now() + 60 * 60 * 1000, // 1 hour
                                 });
                                 resp.push({
-                                    type: ground, 
-                                    url: url, 
+                                    type: ground,
+                                    url: url,
                                     signedUrl: signedUrl
-                                    });
+                                });
                             }));
                     }
                 }
@@ -283,7 +281,7 @@ module.exports = (app) => {
                 const folder = req.query.folder; // 'foregrounds' or 'backgrounds'
                 if (!/^[a-zA-Z0-9-_\/]+$/.test(folder)) {
                     throw new Error("Invalid prefix format.");
-                  }
+                }
                 let [files] = await storage.bucket(bucketName).getFiles({ prefix: `${folder}/img-`, maxResults: 10 });
                 const urls = await Promise.all(files
                     .filter(file => !file.name.endsWith('/'))

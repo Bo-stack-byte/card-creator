@@ -8,6 +8,9 @@ const GoogleAuth = () => {
   const handleLoginSuccess = (response) => {
     console.log("Login Success:", response);
     const token = response.credential;
+    const expiresAt = response.expires_at;
+    scheduleTokenRefresh(expiresAt);
+    localStorage.setItem('expiresAt', expiresAt);
     localStorage.setItem('google_token', token);
     setIsLoggedIn(true);
     setUserToken(token);
@@ -31,8 +34,31 @@ const GoogleAuth = () => {
     }
   }, []);
 
+  const refreshToken = async () => {
+    try {
+      const authInstance = window.gapi.auth2.getAuthInstance();
+      const currentUser = authInstance.currentUser.get();
+      const newAuthResponse = await currentUser.reloadAuthResponse(); // Refresh the token
+      const newToken = newAuthResponse.id_token;
+      localStorage.setItem('google_token', newToken); // Update stored token
+      setUserToken(newToken); // Update app state with new token
+      console.log("Token refreshed:", newToken);
+      scheduleTokenRefresh(newAuthResponse.expires_at);
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+      setIsLoggedIn(false);
+    }
+  };
+
+  const scheduleTokenRefresh = (expiresAt) => {
+    const timeToRefresh = expiresAt - Date.now() - 60000; // Refresh 1 minute before expiry
+    if (timeToRefresh > 0) {
+      setTimeout(refreshToken, timeToRefresh);
+    }
+  };
+  
   const client_id = process.env.REACT_APP_GOOGLE_CLIENT_ID
-    console.log(process.env);
+  console.log(process.env);
   console.log("Client ID:", client_id);
   console.log("user token", userToken);
 
@@ -46,13 +72,13 @@ const GoogleAuth = () => {
           </div>
         ) : (
           <div>
-          <span>Log in w/Google to save images.<br/>(I don't mean to request your name and email but I just haven't figured out OAuth enough to not ask for that.)</span>
-          <GoogleLogin
-            onSuccess={handleLoginSuccess}
-            onFailure={handleLoginFailure}
-            buttonText="Login with Google"
-            scope="openid"
-          />
+            <span>Log in w/Google to save images.<br />(I don't mean to request your name and email but I just haven't figured out OAuth enough to not ask for that.)</span>
+            <GoogleLogin
+              onSuccess={handleLoginSuccess}
+              onFailure={handleLoginFailure}
+              buttonText="Login with Google"
+              scope="openid"
+            />
           </div>
         )}
       </div>

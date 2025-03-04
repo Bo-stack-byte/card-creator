@@ -47,9 +47,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.7.19.2"
-const latest = "image upload stuff"
+const version = "0.8.0"
+const latest = "keep image IDs assigned, refresh token automatically"
 
+// version 0.8.0    keep image IDs assigned, refresh token automatically
 // version 0.7.19   image upload stuff                                                                                                      
 // version 0.7.18.x red once-per-turn; proto background uploading; 'Stnd.' as level to evo from
 // version 0.7.17.8 font tests; bubble offset slightly changed; font stuff, font guide 3
@@ -770,6 +771,7 @@ function CustomCreator() {
           img.onload = () => {
             if (data.type === "background") {
               setBackImg(img);
+              
             } else {
               setForeImg(img);
             }
@@ -1160,18 +1162,25 @@ function CustomCreator() {
 
   };
 
-
-
-  const handleSelectImage = (url, foreground) => {
-    console.log(1103, "here");
+  const handleSelectImage = (url, foreground, id) => {
     const img = new Image();
     img.src = url;
+    console.error(1170, url, id);
+    if (!id) {
+      id = (url.match(/\d+/) || [])[0];
+    }
+    img.id = id;
     img.onload = () => {
-      if (foreground)
+      if (foreground) {
         setForeImg(img);
-      else
+        
+      } else {
         setBackImg(img);
+        img.id = id;
+      }
     };
+    const key = `imageOptions.${foreground ? "foreground_url" : "background_url"}`;
+    handleInputChange(key, id, "number");
   };
 
   /*
@@ -2668,7 +2677,7 @@ function CustomCreator() {
             <br />
             Choose foreground image:
             <input type="file" onChange={(e) => loadUserImage(e, true)} />
-            {true && <ImageBrowser folder="foregrounds" foregrounds={1} onSelectImage={handleSelectImage} />}
+            {true && <ImageBrowser folder="foregrounds" foreground={1} onSelectImage={handleSelectImage} />}
             {debug && (<button onClick={() => handleUpload(foreImg, "foregrounds")}>upload foreground (if logged in)</button>)}
 
             <hr />

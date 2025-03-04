@@ -44,7 +44,7 @@ const ImageBrowser = ({ folder, foreground, onSelectImage, maxWidth = 800, maxHe
 
   const handleSelectImage = () => {
     if (selectedImage) {
-      onSelectImage(selectedImage, foreground);
+      onSelectImage(selectedImage, foreground, selectedImage.id);
       handleClose();
       console.log("Image selected:", selectedImage);
     }
@@ -75,43 +75,45 @@ const ImageBrowser = ({ folder, foreground, onSelectImage, maxWidth = 800, maxHe
         <div className="carousel-thumbs"> {/* Custom class for thumbnails */}
           {urls.map((url, index) => (
             <img
+              id={(url.match(/\d+/) || [])[0]}
               key={index}
               src={url}
               alt={`Thumbnail ${index}`}
               onClick={() => handleThumbnailClick(url)}
-              style={{ 
-                width: '80px', 
-                height: '80px', 
-                cursor: 'pointer', 
-                margin: '10px', 
+              style={{
+                width: '80px',
+                height: '80px',
+                cursor: 'pointer',
+                margin: '10px',
                 border: selectedImage === url ? '2px solid blue' : 'none'
-              }} 
+              }}
             />
           ))}
         </div>
         {selectedImage && (
-          <div 
-            style={{ 
-              textAlign: 'center', 
-              width: `${maxWidth}px`, 
-              height: `${maxHeight}px`, 
-              overflow: 'hidden', 
-              margin: 'auto', 
-              position: 'relative', 
-              border: '1px solid #ccc', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center' 
+          <div
+            style={{
+              textAlign: 'center',
+              width: `${maxWidth}px`,
+              height: `${maxHeight}px`,
+              overflow: 'hidden',
+              margin: 'auto',
+              position: 'relative',
+              border: '1px solid #ccc',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
             <img
+              id={(selectedImage.match(/\d+/) || [])[0]}
               src={selectedImage}
               alt="Selected"
               onClick={handleSelectImage}
-              style={{ 
-                maxWidth: '100%', 
-                maxHeight: '100%', 
-                cursor: 'pointer' 
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                cursor: 'pointer'
               }}
             />
           </div>

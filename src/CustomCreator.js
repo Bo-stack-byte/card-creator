@@ -47,9 +47,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.0.x"
-const latest = "keep image IDs assigned, refresh token automatically, fix CORS"
+const version = "0.8.1"
+const latest = "0 DP shows up as big 0 with no small 000"
 
+// version 0.8.1    0 DP shows up as big 0 with no small 000
 // version 0.8.0.x  keep image IDs assigned, refresh token automatically, fix CORS
 // version 0.7.19   image upload stuff                                                                                                      
 // version 0.7.18.x red once-per-turn; proto background uploading; 'Stnd.' as level to evo from
@@ -654,13 +655,17 @@ function writeDP(ctx, _dp, args) {
     dp_k = parseInt(_dp / 1000);
     if (dp_k === 0) dp_k = "";
     dp_m = (_dp % 1000).toString().padStart(3, '0');
+    if (_dp === 0) {
+      dp_k = "0";
+      dp_m = "";
+    }
   }
   let dp_x = x - 5;
   let neue_boost = neue ? 0 : -20;
 
   // TODO: handle the fact that AyarKasone is ugly for 0 and 6 and 9
   ctx.font = `bold ${bigsize}px ${numberFont}`;
-  while (dp_k > 0) {
+  while (dp_k > 0 || dp_k === "0") {
     // right-to-left for dp_k
     let letterSpacing = -25;
     let dp_char = dp_k % 10;

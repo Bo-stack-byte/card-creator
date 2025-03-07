@@ -1,4 +1,5 @@
 
+import nocost_background from './frames/background_nocost.png';
 import mon_background from './frames/background_digimon_evo.png';
 import mega_background from './frames/background_digimon.png';
 import egg_background from './frames/background_egg.png';
@@ -132,6 +133,16 @@ import outline_egg_green from './frames/new-egg-green.png';
 import outline_egg_purple from './frames/new-egg-purple.png';
 import outline_egg_black from './frames/new-egg-black.png';
 import outline_egg_white from './frames/new-egg-white.png';
+
+//import outline_nocost_red from './frames/new-nocost-red.png';
+//import outline_nocost_blue from './frames/new-nocost-blue.png';
+//import outline_nocost_yellow from './frames/new-nocost-yellow.png';
+import outline_nocost_green from './frames/outline-nocost-green.png';
+//import outline_nocost_purple from './frames/new-nocost-purple.png';
+//import outline_nocost_black from './frames/new-nocost-black.png';
+//import outline_nocost_white from './frames/new-nocost-white.png';
+
+
 
 import outline_tamer_red from './frames/tamer/outline-tamer-red.png';
 import outline_tamer_blue from './frames/tamer/outline-tamer-blue.png';
@@ -357,7 +368,7 @@ let pen_img = new Image(); pen_img.src = pen;
 
 // these backgrounds are used all the time and should be pre-loaded
 export {
-  mon_background, mega_background, egg_background, option_background, tamer_background,
+  nocost_background, mon_background, mega_background, egg_background, option_background, tamer_background,
   cost, cost_egg, cost_option, cost_evo, cost_evo_plain,
   outline_option, ace_logo,
   bottom_property_white, bottom_property_black,
@@ -394,6 +405,19 @@ export const outlines_egg = {
   'purple': outline_egg_purple,
   'black': outline_egg_black,
   'white': outline_egg_white,
+}
+
+export const outlines_nocost = {
+  /*
+  'red': outline_nocost_red,
+  'blue': outline_nocost_blue,
+  'yellow': outline_nocost_yellow,*/
+  'green': outline_nocost_green,
+  /*
+  'purple': outline_nocost_purple,
+  'black': outline_nocost_black,
+  'white': outline_nocost_white,
+  */
 }
 
 export const outlines_tamer = {

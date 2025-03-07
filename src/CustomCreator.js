@@ -1,9 +1,12 @@
 import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import { eggs, basics, options, tamers, colorReplace } from './images';
 import {
+  //nocost_background, 
   mon_background, mega_background, egg_background, option_background, tamer_background,
   ace_backgrounds,
-  outlines, outlines_egg, outlines_tamer, outline_option,
+  outlines, outlines_egg, 
+  //outlines_nocost, 
+  outlines_tamer, outline_option,
 
   cost, cost_egg, cost_option, cost_evo, cost_evo_plain, costs,
   ace_logo, foil, linkdp,
@@ -47,8 +50,8 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.1"
-const latest = "0 DP shows up as big 0 with no small 000"
+const version = "0.8.2"
+const latest = "fix dead link"
 
 // version 0.8.1    0 DP shows up as big 0 with no small 000
 // version 0.8.0.x  keep image IDs assigned, refresh token automatically, fix CORS

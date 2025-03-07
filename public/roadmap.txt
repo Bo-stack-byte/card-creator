@@ -11,6 +11,14 @@ KNOWN BUGS
 
 VAGUE TO DO LIST, SOONER:
 
+* font check page
+* multiple evo circles with different cost/color
+* rainbow color in evo circle needs white text w/black border
+* add/remove digivolve condition button
+* default to array for JSON
+
+MEDIUM TERM:
+
 * auto-generate all images with one click (for testing)
 * standalone binary, so local images can be accessed
 * get purple text with (parentheses) or fix in import for translation team's format
@@ -18,14 +26,14 @@ VAGUE TO DO LIST, SOONER:
 
 VAGUE TO DO LIST, LATER:
 
-* multiple evo circles with different cost/color
+* - for level ?
 * more Ayar Kasone as backup when the user doesn't have Helvetica Neue: especially DP
 * get brick backgrounds when we have more samples
 * get link frames when we ahve more samples
 * for frame-less ACEs, still have frame stuff at bottom, and make ESS transparnets
 * ... but ACEs may also be getting rid of ESS text, so... 🤷‍♂️
 * option for smaller download (4 MB can be a lot for 1 card)
-* make default font for level text (before remote font loads) is really ugly
+* make default font for level text (before remote font loads) less ugly
 * for remote fonts, delay first rendering or re-render when it loads
 * handle too-large text in a better way
 * get faint white glow in playcost circle
@@ -36,11 +44,9 @@ VAGUE TO DO LIST, LATER:
 * maybe pre-BT14 styles as an option
 * rarity icons
 * Burst digivolve format
-* color cicle replacement everywhere (might be done now)
 * populating inherit box at the bottom with art
 * (maybe auto-guessing where the "face" is for that)
 * new security icons
-* add/remove digivolve condition button
 * add triangle to "Rule" text
 * for options, use black text (with optional white outline)
 * for white cards, make text black with white outlines white cards
@@ -69,5 +75,7 @@ NOMINALLY FIXED BUGS / FEATURES
 * "Effect box" doesn't always show up right away when clicking check box and it's making me angry
 * make squares transparent for all inherits
 * assumes only 1 digivolve circle ever needed, mangled art if they're mixed (and can't handle "tamer")
+* color cicle replacement everywhere (might be done now)
+* 0 DP
 
 

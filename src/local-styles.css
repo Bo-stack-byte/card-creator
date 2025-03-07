@@ -66,6 +66,10 @@ br {
   src: local('FallingSky'), url(./fonts/FallingSky.otf) format('opentype');
 }
 
+@font-face {
+    font-family: "ProhibitionRough";
+    src: local('ProhibitionRough'), url(./fonts/Prohibition-Regular.ttf) format('truetype');
+}
 
 @font-face {
   font-family: 'RepoMedium';

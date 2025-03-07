@@ -50,9 +50,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.2"
+const version = "0.8.2.1"
 const latest = "fix dead link"
 
+// version 0.8.2.x  fix dead link
 // version 0.8.1    0 DP shows up as big 0 with no small 000
 // version 0.8.0.x  keep image IDs assigned, refresh token automatically, fix CORS
 // version 0.7.19   image upload stuff                                                                                                      

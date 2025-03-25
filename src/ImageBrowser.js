@@ -9,6 +9,8 @@ const ImageBrowser = ({ folder, foreground, onSelectImage, maxWidth = 800, maxHe
   const [urls, setUrls] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchUrls() {
@@ -20,12 +22,27 @@ const ImageBrowser = ({ folder, foreground, onSelectImage, maxWidth = 800, maxHe
           setSelectedImage(response.data[0]); // Set the first image as the selected image
         }
       } catch (error) {
-        console.error("Error fetching signed URLs:", error);
+        if (error.code === 'ECONNABORTED') {
+          setError("Request timed out. Please try again.");
+        } else {
+          console.error("Error fetching signed URLs:", error);
+          setError("Failed to load images.");
+        }
+      } finally {
+        setLoading(false);
       }
     }
     fetchUrls();
   }, [folder]);
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+  
   const handleOpen = () => {
     setOpen(true);
     console.log("Modal opened");

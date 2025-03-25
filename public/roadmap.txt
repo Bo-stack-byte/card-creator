@@ -15,10 +15,12 @@ VAGUE TO DO LIST, SOONER:
 * multiple evo circles with different cost/color
 * rainbow color in evo circle needs white text w/black border
 * add/remove digivolve condition button
-* default to array for JSON
+* better browse of images (see your own w/priority and page through others)
 
 MEDIUM TERM:
 
+* brick art
+* full color border art
 * auto-generate all images with one click (for testing)
 * standalone binary, so local images can be accessed
 * get purple text with (parentheses) or fix in import for translation team's format
@@ -77,5 +79,6 @@ NOMINALLY FIXED BUGS / FEATURES
 * assumes only 1 digivolve circle ever needed, mangled art if they're mixed (and can't handle "tamer")
 * color cicle replacement everywhere (might be done now)
 * 0 DP
+* default to array for JSON
 
 

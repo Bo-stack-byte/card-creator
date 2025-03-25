@@ -4,7 +4,7 @@ import {
   //nocost_background, 
   mon_background, mega_background, egg_background, option_background, tamer_background,
   ace_backgrounds,
-  outlines, outlines_egg, 
+  outlines, outlines_egg,
   //outlines_nocost, 
   outlines_tamer, outline_option,
 
@@ -50,9 +50,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.2.1"
-const latest = "fix dead link"
+const version = "0.8.3"
+const latest = "json object now array (only first object used)"
 
+// version 0.8.3    json object now array
 // version 0.8.2.x  fix dead link
 // version 0.8.1    0 DP shows up as big 0 with no small 000
 // version 0.8.0.x  keep image IDs assigned, refresh token automatically, fix CORS
@@ -271,7 +272,7 @@ const setupRoundedCorners = (ctx, width, height, radius) => {
   ctx.clip();
 };
 
-const starter_text_empty = `{
+const starter_text_empty = `[{
   "name": {
     "english": "Tama"
   },
@@ -328,10 +329,10 @@ const starter_text_empty = `{
     "outline": true,
     "skipDraw": false
   }
-}`;
+}]`;
 
 
-const starter_text_0 = `  {
+const starter_text_0 = ` [ {
     "name": {  "english": "Doggie Dagger"  },
     "color": "Green",
     "cardType": "Digi-Egg",
@@ -359,8 +360,8 @@ const starter_text_0 = `  {
             "outline": true,
             "skipDraw": false
 
-    }
-}`;
+    },
+}]`;
 
 const starter_text_1 = `
      ʟᴠ.4 — Armored Cat — CS1-18
@@ -598,14 +599,11 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
 
   if (!img) return;
 
-
   ctx.save(); // Save the current state 
   ctx.beginPath();
   //  console.log(405, "clipping to ", i_width * _i, 0, i_width * (_i + 1), height);
   ctx.rect(i_width * _i, 0, i_width * (_i + 1), height);
   ctx.clip();
-
-
 
   i -= 0.0
   let y = scale; let x = y * (img.width / img.height);
@@ -704,7 +702,6 @@ function writeDP(ctx, _dp, args) {
       // left-to-right for dp_m
     }
   }
-
 }
 
 if (3 > 4) digitSettings();
@@ -776,12 +773,12 @@ function CustomCreator() {
         console.log("Fetched URLs:", response.data);
         response.data.forEach((data) => {
           let img = new Image();
-          img.crossOrigin = "anonymous"; 
+          img.crossOrigin = "anonymous";
           img.src = data.signedUrl;
           img.onload = () => {
             if (data.type === "background") {
               setBackImg(img);
-              
+
             } else {
               setForeImg(img);
             }
@@ -815,7 +812,8 @@ function CustomCreator() {
 
   const [zoom, setZoom] = useState(100);
   const [jsonText, setJsonText] = useState([start]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0); // for undo
+  const [cardIndex, setCardIndex] = useState(0); // for multiple cards 
   const [jsonIndex, setJsonIndex] = useState(0);
   /*
     const [isSelecting, setIsSelecting] = useState(false);
@@ -939,33 +937,17 @@ function CustomCreator() {
     //    console.log(6871, text);
     let json;
     try {
-      json = JSON.parse(text);
-      //    console.log(687, "first parse", json);
+      const jsonArray = JSON.parse(text);
+      json = jsonArray[cardIndex];
       imageOptions = json.imageOptions;
     } catch {
       return; // no json to parse, don't populate fields...
-      // what if array?
     }
-    imageOptions = initObject(imageOptions, initImageOptions);
-    // console.log(6872, "img object", JSON.stringify(imageOptions));
-    // console.log(687, "pre-json", JSON.stringify(json));
-    json.imageOptions = { ...imageOptions };
-    // console.log(687, "postjson", JSON.stringify(json));
-    try {
-      let temp_parsedJson = json; // JSON.parse(text);
-      if (Array.isArray(temp_parsedJson)) {
-        // if an array of objects, only show the first in text fields
-        parsedJson = temp_parsedJson[0];
-      } else {
-        parsedJson = temp_parsedJson;
-      }
-      console.log(6873, parsedJson);
-      //
-      // if (!parsedJson.imageOptions) parsedJson.imageOptions = imageOptions;
-      // parsedJson.imageOptions = initObject(parsedJson.imageOptioons, initImageOptions);
-      flattenedJson = flattenJson(parsedJson);
 
-      console.log(445, flattenedJson);
+    imageOptions = initObject(imageOptions, initImageOptions);
+    json.imageOptions = { ...imageOptions };
+    try {
+      flattenedJson = flattenJson(json);
     } catch (e) {
       jsonerror = e;
       console.error("json error", e);
@@ -973,60 +955,64 @@ function CustomCreator() {
     }
     Object.entries(flattenedJson).forEach(([key, value]) => {
       formData[key] = value;
-    }
-    )
+    })
   }
+
 
   let jsonerror = "none";
 
   // any missing fields are added
-  const addAllFields = (json) => {
-    if (!("name" in json)) {
-      json.name = {};
+  const addAllFields = (jsonArray) => {
+    if (!Array.isArray(jsonArray)) {
+      jsonArray = [jsonArray];
     }
-    for (let field of ["color", "cardType", "playCost",
-      "dp", "cardLv", "form", "attribute", "type", "rarity",
-      "linkDP", "linkRequirement", "linkEffect",
-      "specialEvolve", "effect", "evolveEffect", "securityEffect",
-      "rule", "digiXros", "burstEvolve", "cardNumber",
-      "author", "artist"]) {
-      if (!(field in json)) {
-        console.log("Missing field added " + field);
-        json[field] = "";
+    for (let json of jsonArray) {
+      if (!("name" in json)) {
+        json.name = {};
       }
-    }
-    if (!("evolveCondition" in json)) {
-      json.evolveCondition = [];
-    }
-    let imageOptions = json.imageOptions;
-    imageOptions = initObject(imageOptions, initImageOptions);
-    json.imageOptions = imageOptions;
-    // shouldn't the default for imageOptions handle the below??
-    // falses
+      for (let field of ["color", "cardType", "playCost",
+        "dp", "cardLv", "form", "attribute", "type", "rarity",
+        "linkDP", "linkRequirement", "linkEffect",
+        "specialEvolve", "effect", "evolveEffect", "securityEffect",
+        "rule", "digiXros", "burstEvolve", "cardNumber",
+        "author", "artist"]) {
+        if (!(field in json)) {
+          console.log("Missing field added " + field);
+          json[field] = "";
+        }
+      }
+      if (!("evolveCondition" in json)) {
+        json.evolveCondition = [];
+      }
+      let imageOptions = json.imageOptions;
+      imageOptions = initObject(imageOptions, initImageOptions);
+      json.imageOptions = imageOptions;
+      // shouldn't the default for imageOptions handle the below??
 
-    for (let field of ["foregroundOnTop", "effectBox", "addFoil", "skipDraw"]) {
-      if (!(field in json.imageOptions)) {
-        console.log("Missing field added 1 " + field);
-        json.imageOptions[field] = false;
+      // falses
+      for (let field of ["foregroundOnTop", "effectBox", "addFoil", "skipDraw"]) {
+        if (!(field in json.imageOptions)) {
+          console.log("Missing field added 1 " + field);
+          json.imageOptions[field] = false;
+        }
       }
-    }
-    // trues
-    for (let field of ["cardFrame", "aceFrame", "outline"]) {
-      if (!(field in json.imageOptions)) {
-        console.log("Missing field added" + field);
-        json.imageOptions[field] = true;
+      // trues
+      for (let field of ["cardFrame", "aceFrame", "outline"]) {
+        if (!(field in json.imageOptions)) {
+          console.log("Missing field added" + field);
+          json.imageOptions[field] = true;
+        }
       }
+      if (!("english" in json.name)) {
+        json.name.english = "Mon";
+      }
+      if (json.evolveCondition.length === 0) {
+        json.evolveCondition.push({ color: "", cost: "", level: "" });
+      }
+      imageOptions = initObject(imageOptions, initImageOptions);
+      json.imageOptions = imageOptions;
     }
-    if (!("english" in json.name)) {
-      json.name.english = "Mon";
-    }
-    //console.log(681, json);
-    if (json.evolveCondition.length === 0) {
-      json.evolveCondition.push({ color: "", cost: "", level: "" });
-    }
-    imageOptions = initObject(imageOptions, initImageOptions);
-    json.imageOptions = imageOptions;
-    return json;
+    return jsonArray;
   }
 
   const updateJson = (text) => {
@@ -1037,28 +1023,19 @@ function CustomCreator() {
       imageOptions = json.imageOptions;
     } catch (e) {
       console.error("incomplete json:", e);
-
     }
     // only fix things if we've got a valid json
     if (json) {
-      console.log(905, json);
-      if (Array.isArray(json)) {
-        if (json.length === 0) {
-          // empty array? set to 1-array of empty object
-          json = [{}]
-        }
-        for (let subImage of json) {
-          subImage = addAllFields(subImage);
-        }
-      } else {
-        json = addAllFields(json);
+      if (!Array.isArray(json)) {
+        json = [json];
+      }
+      for (let subImage of json) {
+        subImage = addAllFields(subImage);
       }
       text = JSON.stringify(json, null, 2);
       console.log(918, json, text);
       jsonToFields(text);
-      // f
     }
-    console.log(222222, json);
 
     const newHistory = jsonText.slice(0, currentIndex + 1);
     setJsonText([...newHistory, text]);
@@ -1118,7 +1095,7 @@ function CustomCreator() {
     try {
       const updatedJson = JSON.parse(jsonText[currentIndex]);
       const keys = key.split('.');
-      let current = updatedJson;
+      let current = updatedJson[cardIndex];
       keys.forEach((k, index) => {
         if (index === keys.length - 1) {
           current[k] = value;
@@ -1135,6 +1112,7 @@ function CustomCreator() {
   let parsedJson, flattenedJson;
   try {
     parsedJson = JSON.parse(jsonText[currentIndex]);
+    parsedJson = parsedJson[cardIndex];
     flattenedJson = flattenJson(parsedJson);
   } catch (e) {
     jsonerror = e.toString();
@@ -1177,7 +1155,7 @@ function CustomCreator() {
   // read from gallery
   const handleSelectImage = (url, foreground, id) => {
     const img = new Image();
-    img.crossOrigin = "anonymous"; 
+    img.crossOrigin = "anonymous";
     img.src = url;
     console.error(1170, url, id);
     if (!id) {
@@ -1187,7 +1165,7 @@ function CustomCreator() {
     img.onload = () => {
       if (foreground) {
         setForeImg(img);
-        
+
       } else {
         setBackImg(img);
         img.id = id;
@@ -1249,7 +1227,6 @@ function CustomCreator() {
         setForeImg(img);
       };
     }
-    console.error(896, back_src);
     if (back_src) {
       console.error("settings back");
       const img2 = new Image();
@@ -1362,12 +1339,10 @@ function CustomCreator() {
     let imageOptions = "";
     try {
       let json = JSON.parse(jsonText[currentIndex]);
-      console.log(132400, json);
+      json = json[cardIndex];
       imageOptions = json.imageOptions;
     } catch { }
-    console.log(1327, JSON.stringify(imageOptions));
     imageOptions = initObject(imageOptions, initImageOptions);
-    console.log(1329, JSON.stringify(imageOptions));
 
 
 
@@ -1418,7 +1393,7 @@ function CustomCreator() {
           overflow = parseInt(match[1]);
         } else { // if no overflow set, use level as backup
           match = json.cardLv && json.cardLv.match(/\d+/);
-          console.log(528, match);
+          //console.log(528, match);
           if (match) overflow = parseInt(match) - 2;
         }
         break;
@@ -2607,6 +2582,7 @@ function CustomCreator() {
 */
   let json_t = jsonText[currentIndex];
   let debug = new URLSearchParams(window.location.search).get("debug") === '1';
+
   return (
     <table>
       <tbody>

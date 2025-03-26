@@ -16,6 +16,7 @@ VAGUE TO DO LIST, SOONER:
 * rainbow color in evo circle needs white text w/black border
 * add/remove digivolve condition button
 * better browse of images (see your own w/priority and page through others)
+* shell without egg 
 
 MEDIUM TERM:
 

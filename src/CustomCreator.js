@@ -50,9 +50,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.3"
-const latest = "json object now array (only first object used)"
+const version = "0.8.4"
+const latest = "can iterate over array and save objects"
 
+// version 0.8.4    can iterate over array and save objects
 // version 0.8.3    json object now array
 // version 0.8.2.x  fix dead link
 // version 0.8.1    0 DP shows up as big 0 with no small 000
@@ -360,7 +361,7 @@ const starter_text_0 = ` [ {
             "outline": true,
             "skipDraw": false
 
-    },
+    }
 }]`;
 
 const starter_text_1 = `
@@ -814,7 +815,6 @@ function CustomCreator() {
   const [jsonText, setJsonText] = useState([start]);
   const [currentIndex, setCurrentIndex] = useState(0); // for undo
   const [cardIndex, setCardIndex] = useState(0); // for multiple cards 
-  const [jsonIndex, setJsonIndex] = useState(0);
   /*
     const [isSelecting, setIsSelecting] = useState(false);
   
@@ -1306,7 +1306,7 @@ function CustomCreator() {
       console.log(1159, jsontext);
       json = JSON.parse(jsontext);
       if (Array.isArray(json)) {
-        let arrayIndex = Number(jsonIndex);
+        let arrayIndex = Number(cardIndex);
         if (arrayIndex >= json.length) arrayIndex = json.length - 1;
         json = json[arrayIndex];
       }
@@ -2424,7 +2424,7 @@ function CustomCreator() {
     }
     // end draw
   }, [foreImg, backImg, jsonText, selectedOption, doDraw, currentIndex,
-    initImageOptions, jsonIndex,
+    initImageOptions, cardIndex,
     newRedraw,
     //, endY, isSelecting, startX, startY, 
   ]);
@@ -2449,20 +2449,38 @@ function CustomCreator() {
     draw]);
 
 
+  const handleExport1 = async () => {
+    document.getElementById("download1").disabled = true;
+    let json = JSON.parse(jsonText[currentIndex]);
+    let json1 = json[cardIndex];
+    try {
+      let name = json1.name.english;
+      name = name.replace(/[^a-zA-Z0-9]+/g, '-') + ".png";
+      exportOneImage(name);
+    } catch (e) {
+      console.error(e);
+    }
+    document.getElementById("download1").disabled = false;
+
+  }
 
   const handleExport = async () => {
+
+    document.getElementById("downloadall").disabled = true;
     let name = 'custom-card.png';
     let json = {};
     try {
       json = JSON.parse(jsonText[currentIndex]);
     } catch (e) {
       console.error(e);
+      document.getElementById("downloadall").disabled = false;
+
       return;
     }
-    if (Array.isArray(json)) {
+    if (Array.isArray(json) && json.length > 1) {
       const zip = new JSZip();
       for (let i = 0; i < json.length; i++) {
-        setJsonIndex(i);
+        setCardIndex(i);
         console.log(1879, i);
         await draw(0, 0, false)
         await sleep(2000);
@@ -2470,19 +2488,27 @@ function CustomCreator() {
         const canvas = canvasRef.current;
         const dataUrl = canvas.toDataURL('image/png');
         const base64Data = dataUrl.split(',')[1]; // Get base64 part
-        zip.file(`image${i + 1}.png`, base64Data, { base64: true });
+        let filename = `image${i + 1}`;
+        try {
+          filename = json[i].name.english;
+        } catch { }
+        filename += ".png";
+        zip.file(filename, base64Data, { base64: true });
       }
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       saveAs(zipBlob, 'images.zip');
     } else {
       try {
-        name = json.name.english;
+        let json1 = json[0];
+        name = json1.name.english;
         name = name.replace(/[^a-zA-Z0-9]+/g, '-') + ".png";
         exportOneImage(name);
       } catch (e) {
         console.error(e);
       }
     }
+    document.getElementById("downloadall").disabled = false;
+
   }
 
   const exportOneImage = (name) => {
@@ -2579,8 +2605,11 @@ function CustomCreator() {
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
  
-*/
-  let json_t = jsonText[currentIndex];
+*/let json_t = jsonText[currentIndex];
+  let obj;
+  try {
+    obj = JSON.parse(json_t);
+  } catch { }
   let debug = new URLSearchParams(window.location.search).get("debug") === '1';
 
   return (
@@ -2673,13 +2702,16 @@ function CustomCreator() {
             <hr />
             <button onClick={draw2}>Force Draw</button>
             <br />
-            <button onClick={handleExport}>Download Image</button>
+            <button id="download1" onClick={handleExport1}>Download Image</button>
+            {obj && obj.length > 1 && (
+              <button id="downloadall" onClick={handleExport}>Download All...</button>
+            )}
             <br />
             <SaveState jsonText={jsonText[currentIndex]} image_save_fn={() => { handleUpload(backImg, "backgrounds"); handleUpload(foreImg, "foregrounds") }} />
             <br />
-            {json_t && json_t.length > 0 && json_t[0] === '[' && (
+            {obj && obj.length > 1 && (
               <span>
-                <label>index: <input type="number" style={{ width: "50px" }} name="jsonIndex" value={jsonIndex} onChange={(e) => { setJsonIndex(Number(e.target.value)) }} /> </label>
+                <label>index: <input type="number" style={{ width: "50px" }} name="jsonIndex" value={cardIndex} onChange={(e) => { let n = e.target.value; if (n >= 0 && n < obj.length) setCardIndex(Number(e.target.value)) }} /> </label>
               </span>
             )}
             {/*          --- OR ---

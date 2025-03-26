@@ -50,9 +50,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.4.1"
-const latest = "can iterate over array and save objects"
+const version = "0.8.5"
+const latest = "load images up again (but only for first image in array)"
 
+// version 0.8.5    load images up again (but only for first image in array)
 // version 0.8.4    can iterate over array and save objects
 // version 0.8.3    json object now array
 // version 0.8.2.x  fix dead link
@@ -743,25 +744,31 @@ function CustomCreator() {
       if ("jsonText" in cardState) {
         jsonText = cardState.jsonText;
         jsonObject = JSON.parse(jsonText);
+        if (! Array.isArray(jsonObject)) {
+          jsonObject = [jsonObject];
+        }
       }
       console.log(415, jsonText, jsonObject);
 
-      jsonObject.imageOptions = initObject(jsonObject.imageOptions, initImageOptions);
+      jsonObject[0].imageOptions = initObject(jsonObject[0].imageOptions, initImageOptions);
 
+      console.log(417, jsonText, jsonObject);
 
+      // these are very old settings, we're trying to reload them in nicely, but
+      // tests cases are lacking
       if ("fontSize" in cardState) {
-        jsonObject.imageOptions.fontSize = cardState.fontSize;
+        jsonObject[0].imageOptions.fontSize = cardState.fontSize;
       }
-      // handle all other new options here before getting text back
-
       // legacy options that weren't in JSON blob are in it now
       for (let obj in ["cardFrame", "effectBox", "baselineOffset", "specialOffset",
         "lineSpacing"]) {
-        if (obj in cardState) jsonObject.imageOptions[obj] = cardState[obj];
+        if (obj in cardState) jsonObject[0].imageOptions[obj] = cardState[obj];
       }
       jsonText = JSON.stringify(jsonObject, null, 2);
-      updateJson(jsonText);
+      updateJson(jsonText); // save state with full array
 
+      // use first object in array
+      jsonObject = jsonObject[0];
       let img_args = [];
       if (jsonObject.imageOptions.background_url) {
         img_args.push("background=" + jsonObject.imageOptions.background_url);
@@ -937,7 +944,7 @@ function CustomCreator() {
     //    console.log(6871, text);
     let json;
     try {
-      const jsonArray = JSON.parse(text);
+      const jsonArray = JSON.load(text);
       json = jsonArray[cardIndex];
       imageOptions = json.imageOptions;
     } catch {

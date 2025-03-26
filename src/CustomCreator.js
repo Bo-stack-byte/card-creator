@@ -50,7 +50,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.4"
+const version = "0.8.4.1"
 const latest = "can iterate over array and save objects"
 
 // version 0.8.4    can iterate over array and save objects
@@ -2425,7 +2425,7 @@ function CustomCreator() {
     // end draw
   }, [foreImg, backImg, jsonText, selectedOption, doDraw, currentIndex,
     initImageOptions, cardIndex,
-    newRedraw,
+    newRedraw
     //, endY, isSelecting, startX, startY, 
   ]);
 
@@ -2612,6 +2612,8 @@ function CustomCreator() {
   } catch { }
   let debug = new URLSearchParams(window.location.search).get("debug") === '1';
 
+  jsonToFields(json_t);
+
   return (
     <table>
       <tbody>
@@ -2711,7 +2713,7 @@ function CustomCreator() {
             <br />
             {obj && obj.length > 1 && (
               <span>
-                <label>index: <input type="number" style={{ width: "50px" }} name="jsonIndex" value={cardIndex} onChange={(e) => { let n = e.target.value; if (n >= 0 && n < obj.length) setCardIndex(Number(e.target.value)) }} /> </label>
+                <label>index: <input type="number" style={{ width: "50px" }} name="jsonIndex" value={cardIndex} onChange={(e) => { let n = e.target.value; if (n >= 0 && n < obj.length) setCardIndex(Number(e.target.value)); jsonToFields(jsonText[currentIndex]) }} /> </label>
               </span>
             )}
             {/*          --- OR ---

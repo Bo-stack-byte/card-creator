@@ -50,9 +50,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.5"
-const latest = "load images up again (but only for first image in array)"
+const version = "0.8.6"
+const latest = "load images as we walk through the array"
 
+// version 0.8.6    load images as we walk through the array
 // version 0.8.5    load images up again (but only for first image in array)
 // version 0.8.4    can iterate over array and save objects
 // version 0.8.3    json object now array
@@ -744,7 +745,7 @@ function CustomCreator() {
       if ("jsonText" in cardState) {
         jsonText = cardState.jsonText;
         jsonObject = JSON.parse(jsonText);
-        if (! Array.isArray(jsonObject)) {
+        if (!Array.isArray(jsonObject)) {
           jsonObject = [jsonObject];
         }
       }
@@ -769,38 +770,47 @@ function CustomCreator() {
 
       // use first object in array
       jsonObject = jsonObject[0];
-      let img_args = [];
-      if (jsonObject.imageOptions.background_url) {
-        img_args.push("background=" + jsonObject.imageOptions.background_url);
-      }
-      if (jsonObject.imageOptions.foreground_url) {
-        img_args.push("foreground=" + jsonObject.imageOptions.foreground_url);
-      }
-      if (img_args.length > 0) {
-        const response = await axios.get(`/api/image/get-url-by-id?${img_args.join("&")}`);
-        console.log("Fetched URLs:", response.data);
-        response.data.forEach((data) => {
-          let img = new Image();
-          img.crossOrigin = "anonymous";
-          img.src = data.signedUrl;
-          img.onload = () => {
-            if (data.type === "background") {
-              setBackImg(img);
-
-            } else {
-              setForeImg(img);
-            }
-          };
-        });
-        console.log("done");
-      }
-
+      loadNetImages(jsonObject.imageOptions);
     } catch (e) {
       console.error("restore error: " + e);
     }
-
   };
 
+  // given imageOptions block, loads net images if not what we have now
+  const loadNetImages = async (imageOptions) => {
+    let id;
+    let img_args = [];
+    if ((id = imageOptions.background_url)) {
+      if (id !== (backImg && backImg.id))
+        img_args.push("background=" + imageOptions.background_url);
+    }
+    if ((id = imageOptions.foreground_url)) {
+      if (id !== (foreImg && foreImg.id))
+        img_args.push("foreground=" + imageOptions.foreground_url);
+    }
+    if (img_args.length === 0) return;
+
+    try {
+      const response = await axios.get(`/api/image/get-url-by-id?${img_args.join("&")}`);
+      console.debug("Fetched URLs:", response.data);
+      response.data.forEach((data) => {
+        let img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = data.signedUrl;
+        img.onload = () => {
+          img.id = data.url; // very important to set this
+          if (data.type === "background") {
+            setBackImg(img);
+          } else {
+            setForeImg(img);
+          }
+        };
+      });
+    } catch (e) {
+      console.error("netimageerror", e);
+    }
+
+  }
 
   const params = new URLSearchParams(window.location.search);
   let share = params.get("share");
@@ -941,13 +951,13 @@ function CustomCreator() {
   const jsonToFields = (text) => {
 
     let imageOptions = "";
-    //    console.log(6871, text);
     let json;
     try {
-      const jsonArray = JSON.load(text);
+      const jsonArray = JSON.parse(text);
       json = jsonArray[cardIndex];
       imageOptions = json.imageOptions;
-    } catch {
+    } catch (e) {
+      console.error("invalid json parse", e);
       return; // no json to parse, don't populate fields...
     }
 
@@ -961,8 +971,11 @@ function CustomCreator() {
       return;
     }
     Object.entries(flattenedJson).forEach(([key, value]) => {
-      formData[key] = value;
+      //    formData[key] = value;
     })
+    loadNetImages(imageOptions);
+
+
   }
 
 
@@ -1258,7 +1271,6 @@ function CustomCreator() {
 
   const draw = useCallback(async (x, y, clear) => {
 
-    console.log(1043, backImg);
     if (!backImg) return;
     if (pauseDraw.current <= 0) {
       pauseDraw.current = 1; // drawing, continue

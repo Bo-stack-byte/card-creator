@@ -52,10 +52,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.7"
+const version = "0.8.7.1"
 const latest = "better show all"
 
-// versioin 0.8.7   better show all
+// version 0.8.7.x  better show all
 // version 0.8.6    load images as we walk through the array
 // version 0.8.5    load images up again (but only for first image in array)
 // version 0.8.4    can iterate over array and save objects
@@ -855,13 +855,6 @@ function CustomCreator() {
 
   const [showGallery, setShowGallery] = useState(false); // for gallery view
   const backgroundRender = React.useRef(false);
-
-  React.useEffect(() => {
-    galleryRef.current = galleryRef.current;
-  }, [galleryRef.current]);
-  React.useEffect(() => {
-    backgroundRender.current = backgroundRender.current;
-  }, [backgroundRender.current]);
 
   /*
     const [isSelecting, setIsSelecting] = useState(false);
@@ -2475,7 +2468,8 @@ function CustomCreator() {
       setNewRedraw(newRedraw + 1);
       console.debug("triggered redraw " + newRedraw);
     } else {
-
+      try { 
+      let obj = JSON.parse(jsonText[currentIndex]);
       if (obj.length > 1) {
         // we only need this if we have multiple cards
         console.log(2734.1, "cardIndex is " + cardIndex);
@@ -2487,6 +2481,9 @@ function CustomCreator() {
           updateGalleryItem(cardIndex, base64Data);
         }
       }
+    } catch (e) { 
+      console.error("update", e);
+    }
 
 
       pauseDraw.current = -1;
@@ -2494,7 +2491,7 @@ function CustomCreator() {
     // end draw
   }, [foreImg, backImg, jsonText, selectedOption, doDraw, currentIndex,
     initImageOptions, cardIndex,
-    newRedraw
+    newRedraw,
     //, endY, isSelecting, startX, startY, 
   ]);
 
@@ -2748,8 +2745,8 @@ function CustomCreator() {
     const current_copy = cardIndex;
     const canvas = canvasRef.current;
     if (!galleryRef.current[current_copy]) {
-      const dataUrl = canvas.toDataURL('image/png');
-      const base64Data = dataUrl;
+     // const dataUrl = canvas.toDataURL('image/png');
+     // const base64Data = dataUrl;
       if (current_copy !== cardIndex) {
         console.log(2734, "something changed on us, 1");
         backgroundRender.current = false;
@@ -2781,7 +2778,7 @@ function CustomCreator() {
         if (false) {
           const dataUrl = canvas.toDataURL('image/png');
           const base64Data = dataUrl;
-          if (index != cardIndex) {
+          if (index !== cardIndex) {
             console.log(2734, "something changed on us, 2");
             backgroundRender.current = false;
             return;

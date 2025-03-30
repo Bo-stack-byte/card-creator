@@ -87,3 +87,15 @@ br {
   url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.ttf")format("truetype"),
   url("https://db.onlinewebfonts.com/t/f4946a7046de988b81712c4b9a6e1e86.svg#Prohibition W00 Rough")format("svg");
 }
+
+.minimap-grid {
+  display: grid;
+  gap: 5px; /* Space between tiles */
+  width: 100%; /* Fit within the same coordinates as the canvas */
+  height: 100%;
+}
+.minimap-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Ensure images fit nicely */
+}

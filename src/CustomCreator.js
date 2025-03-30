@@ -36,6 +36,8 @@ import featherling from './featherling.png';
 import doublebind from './double-bind.png'
 import amy from './amy.png';
 import armor_cat from './armorcat.png';
+import loading_img from './loading-bar.png';
+
 //import './styles.css';
 import './local-styles.css';
 import axios from 'axios';
@@ -50,9 +52,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.6"
-const latest = "load images as we walk through the array"
+const version = "0.8.7"
+const latest = "better show all"
 
+// versioin 0.8.7   better show all
 // version 0.8.6    load images as we walk through the array
 // version 0.8.5    load images up again (but only for first image in array)
 // version 0.8.4    can iterate over array and save objects
@@ -783,10 +786,24 @@ function CustomCreator() {
     if ((id = imageOptions.background_url)) {
       if (id !== (backImg && backImg.id))
         img_args.push("background=" + imageOptions.background_url);
+    } else {
+      if (backImg && backImg.src && !backImg.src.includes("placeholder")) {
+        const img = new Image();
+        img.src = placeholder;
+        img.onload = () => {
+          setBackImg(img);
+        };
+      }
+
+      //   if (backImg) 
+      //   setBackImg(null);
     }
     if ((id = imageOptions.foreground_url)) {
       if (id !== (foreImg && foreImg.id))
         img_args.push("foreground=" + imageOptions.foreground_url);
+    } else {
+      if (foreImg)
+        setForeImg(null);
     }
     if (img_args.length === 0) return;
 
@@ -832,6 +849,20 @@ function CustomCreator() {
   const [jsonText, setJsonText] = useState([start]);
   const [currentIndex, setCurrentIndex] = useState(0); // for undo
   const [cardIndex, setCardIndex] = useState(0); // for multiple cards 
+  // const [galleryRef.current, setGallery] = useState([]);
+  //  const galleryRef = useRef(gallery); // Reference to gallery
+  const galleryRef = React.useRef([]);
+
+  const [showGallery, setShowGallery] = useState(false); // for gallery view
+  const backgroundRender = React.useRef(false);
+
+  React.useEffect(() => {
+    galleryRef.current = galleryRef.current;
+  }, [galleryRef.current]);
+  React.useEffect(() => {
+    backgroundRender.current = backgroundRender.current;
+  }, [backgroundRender.current]);
+
   /*
     const [isSelecting, setIsSelecting] = useState(false);
   
@@ -948,12 +979,19 @@ function CustomCreator() {
   };
 
 
+  // takes the array of cards, as text
   const jsonToFields = (text) => {
 
     let imageOptions = "";
     let json;
     try {
       const jsonArray = JSON.parse(text);
+
+      for (let i = 0; i < jsonArray.length; i++) {
+        if (!(i in galleryRef.current)) {
+          updateGalleryItem(i, null);
+        }
+      }
       json = jsonArray[cardIndex];
       imageOptions = json.imageOptions;
     } catch (e) {
@@ -971,7 +1009,7 @@ function CustomCreator() {
       return;
     }
     Object.entries(flattenedJson).forEach(([key, value]) => {
-      //    formData[key] = value;
+      formData[key] = value;
     })
     loadNetImages(imageOptions);
 
@@ -1319,10 +1357,7 @@ function CustomCreator() {
     }
     let json;
     try {
-      console.log(jsonText);
-      console.log(1157, currentIndex);
       let jsontext = jsonText[currentIndex];
-      console.log(1159, jsontext);
       json = JSON.parse(jsontext);
       if (Array.isArray(json)) {
         let arrayIndex = Number(cardIndex);
@@ -2433,12 +2468,27 @@ function CustomCreator() {
 
     });
 
+
     if (pauseDraw.current > 1) {
       console.debug("triggering redraw " + newRedraw);
       pauseDraw.current = 0;
       setNewRedraw(newRedraw + 1);
       console.debug("triggered redraw " + newRedraw);
     } else {
+
+      if (obj.length > 1) {
+        // we only need this if we have multiple cards
+        console.log(2734.1, "cardIndex is " + cardIndex);
+        console.log(2734.2, "gallery is " + !!galleryRef.current[cardIndex]); //  galleryRef.current[cardIndex]);
+        // doing this every time could be expensive
+        if (true || !galleryRef.current[cardIndex]) {
+          const dataUrl = canvas.toDataURL('image/png');
+          const base64Data = dataUrl;
+          updateGalleryItem(cardIndex, base64Data);
+        }
+      }
+
+
       pauseDraw.current = -1;
     }
     // end draw
@@ -2466,7 +2516,6 @@ function CustomCreator() {
     imageOptions, selectedOption,
     doDraw,
     draw]);
-
 
   const handleExport1 = async () => {
     document.getElementById("download1").disabled = true;
@@ -2624,7 +2673,55 @@ function CustomCreator() {
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
  
-*/let json_t = jsonText[currentIndex];
+*/
+
+  const getGridSize = (numImages) => {
+    const cols = Math.ceil(Math.sqrt(numImages)); // Number of columns
+    const rows = Math.ceil(numImages / cols); // Number of rows
+    return { rows, cols };
+  };
+
+  const updateGalleryItem = (index, newImage) => {
+    galleryRef.current[index] = newImage; // Directly assign the new string 
+    console.debug("Updated gallery:", galleryRef.current); // Debugging output
+  };
+
+  // insert into place? re-order?
+  const addCard = () => {
+    let json_t = jsonText[currentIndex];
+    try {
+      // could just edit json text?
+      let obj = JSON.parse(json_t);
+      let starter = JSON.parse(starter_text_empty)[0];
+      obj.push(starter);
+      json_t = JSON.stringify(obj, null, 2); // stringify it back
+      updateJson(json_t);
+      galleryRef.current[obj.length - 1] = null;
+    } catch (e) {
+      console.error("can't add card:", e);
+    }
+  }
+
+  const handlePrev = () => {
+    const canvas = canvasRef.current;
+    const dataUrl = canvas.toDataURL('image/png');
+    const base64Data = dataUrl; // dataUrl.split(',')[1]; // Get base64 part
+    updateGalleryItem(cardIndex, base64Data);
+    setCardIndex(cardIndex - 1);
+  }
+
+  const handleNext = () => {
+    const canvas = canvasRef.current;
+    const dataUrl = canvas.toDataURL('image/png');
+    const base64Data = dataUrl; // dataUrl.split(',')[1]; // Get base64 part
+    updateGalleryItem(cardIndex, base64Data);
+    setCardIndex(cardIndex + 1);
+  }
+
+
+
+
+  let json_t = jsonText[currentIndex];
   let obj;
   try {
     obj = JSON.parse(json_t);
@@ -2632,6 +2729,76 @@ function CustomCreator() {
   let debug = new URLSearchParams(window.location.search).get("debug") === '1';
 
   jsonToFields(json_t);
+
+  const { rows, cols } = getGridSize(galleryRef.current.length);
+
+
+  const gridStyle = {
+    width: width + 'px',
+    height: height + 'px',
+    gridTemplateColumns: `repeat(${cols}, 1fr)`,
+    gridTemplateRows: `repeat(${rows}, 1fr)`,
+  };
+
+  const populateMissingArts = async () => {
+    console.log(2734.000, "populating missing arts", backgroundRender);
+    if (backgroundRender.current) return;
+    backgroundRender.current = true;
+    // try current card first
+    const current_copy = cardIndex;
+    const canvas = canvasRef.current;
+    if (!galleryRef.current[current_copy]) {
+      const dataUrl = canvas.toDataURL('image/png');
+      const base64Data = dataUrl;
+      if (current_copy !== cardIndex) {
+        console.log(2734, "something changed on us, 1");
+        backgroundRender.current = false;
+        return;
+      }
+      //updateGalleryItem(current_copy, base64Data);
+    }
+    for (const index in galleryRef.current) {
+      const art = galleryRef.current[index];
+      if (!art) {
+        if (!showGallery) {
+          backgroundRender.current = false;
+          return;
+        }
+        setCardIndex(index);
+        // split this out
+        await sleep(100);
+        await draw(0, 0, false); // draw the card and wait for it to be done, but it may not be synchronous
+        while (true) {
+          let pd = pauseDraw.current;
+          if (pd > 0) {
+            await sleep(100);
+          } else {
+            break;
+          }
+        }
+        await sleep(2000); // have time for images to load, this sucks to do
+
+        if (false) {
+          const dataUrl = canvas.toDataURL('image/png');
+          const base64Data = dataUrl;
+          if (index != cardIndex) {
+            console.log(2734, "something changed on us, 2");
+            backgroundRender.current = false;
+            return;
+          }
+          console.log(2734, "updating " + index + " to " + base64Data.substring(0, 100));
+          console.log(2734.8, "was " + galleryRef.current[index]);
+          updateGalleryItem(index, base64Data);
+        }
+
+      }
+    }
+    backgroundRender.current = false;
+  };
+
+  if (showGallery) {
+    populateMissingArts(); // asynchronous
+  }
 
   return (
     <table>
@@ -2683,13 +2850,36 @@ function CustomCreator() {
             <div>
               <canvas id="cardImage" ref={canvasRef}
                 style={{
-                  width: width + 'px', // traditional cards are roughly 300 x 416, let's zoom in
-                  height: height + 'px',
+                  width: (showGallery ? 100 : width) + 'px', // traditional cards are roughly 300 x 416, let's zoom in
+                  height: (showGallery ? 100 : height) + 'px',
                   backgroundColor: '#eef',
                   borderRadius: '20px',  // this radius is scaled differently than the one in the function
                   overflow: 'hidden'
                 }}>
               </canvas>
+
+              {showGallery && (
+                <div className="minimap-grid" style={gridStyle}>
+                  {galleryRef.current.map((image, index) => (
+                    <img
+                      key={index}
+                      src={image || loading_img}
+                      alt={`Card ${index + 1}`}
+                      style={{}}
+                      onClick={(event) => {
+                        const ctx = canvasRef.current.getContext('2d');
+                        setBackImg(placeholder); // clear and reload
+                        setForeImg(null); // clear and reload, TODO: compare to current
+                        ctx.drawImage(event.target, 0, 0); // Use event.target to reference the <img> element
+                        setShowGallery(false);
+                        setCardIndex(index);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+
+
               <br />
               <label>Zoom: <input type="number" style={{ width: "50px" }} name="zoom" value={zoom} onChange={updateZoom} />% </label>
 
@@ -2704,6 +2894,24 @@ function CustomCreator() {
 
 
             }
+
+            <div>
+              <button onClick={addCard}>Add Card</button>
+              {obj && obj.length > 1 && (
+                <button onClick={handlePrev} disabled={cardIndex === 0}>Prev</button>
+              )}
+              {obj && obj.length > 1 && (
+                <button onClick={handleNext} disabled={cardIndex >= obj.length - 1}>Next</button>
+              )}
+              {obj && obj.length > 1 && (
+                <span>
+                  <button onClick={null} disabled={jsonText[currentIndex].length === 0}>Delete</button>
+                  <button onClick={() => { setShowGallery(true) }}>Show All</button>
+                </span>
+              )}
+            </div>
+
+
             <div>
               <div>
                 <label>Choose background image:
@@ -2732,7 +2940,8 @@ function CustomCreator() {
             <br />
             {obj && obj.length > 1 && (
               <span>
-                <label>index: <input type="number" style={{ width: "50px" }} name="jsonIndex" value={cardIndex} onChange={(e) => { let n = e.target.value; if (n >= 0 && n < obj.length) setCardIndex(Number(e.target.value)); jsonToFields(jsonText[currentIndex]) }} /> </label>
+                <label>index: <input type="number" style={{ width: "50px" }} name="jsonIndex"
+                  value={cardIndex} onChange={(e) => { let n = e.target.value; if (n >= 0 && n < obj.length) setCardIndex(Number(e.target.value)); jsonToFields(jsonText[currentIndex]) }} /> </label>
               </span>
             )}
             {/*          --- OR ---
@@ -2817,6 +3026,8 @@ function CustomCreator() {
             <p style={{ fontFamily: "AyarKasone" }}> More templates from <a href="https://digi-lov.tumblr.com/post/748763635923435520/digimon-card-template">Digi-Lov</a></p>
             <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba, Zaffy, and Digimoncard.io who kept this dream alive in previous years.</p>
             <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
+            <p style={{ fontFamily: "Courier" }}> <a href="https://www.freepik.com/icon/loading-bar_4461744#fromView=search&page=1&position=21&uuid=5e70cbe7-7e5c-493e-bbb4-c41bb20123c6">Icon by kerismaker</a></p>
+
             Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
             <br />
             <br />
@@ -2828,7 +3039,7 @@ function CustomCreator() {
             <img src={banner} alt={"Digi Viz Card Creator"} style={{ width: "700", height: "224px", transform: "rotate(-1deg)", zIndex: -3 }} />
           </td></tr>
       </tbody>
-    </table>
+    </table >
 
   );
 }

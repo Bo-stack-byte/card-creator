@@ -1,12 +1,15 @@
 import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import { eggs, basics, options, tamers, colorReplace } from './images';
 import {
-  //nocost_background, 
+
   mon_background, mega_background, egg_background, option_background, tamer_background,
+  mon_background_nocost, mega_background_nocost, egg_background_nocost, option_background_nocost, tamer_background_nocost,
+
   ace_backgrounds,
-  outlines, outlines_egg,
-  //outlines_nocost, 
-  outlines_tamer, outline_option,
+  outlines,
+  outlines_nocost, 
+  outlines_tamer, outline_option, outlines_egg,
+  outlines_tamer_nocost, outline_option_nocost, outlines_egg_nocost,
 
   cost, cost_egg, cost_option, cost_evo, cost_evo_plain, costs,
   ace_logo, foil, linkdp,
@@ -52,9 +55,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.7.1"
-const latest = "better show all"
+const version = "0.8.8"
+const latest = "no cost outlines for many things, kind of buggy"
 
+// version 0.8.8    no cost outlines for many things, kind of buggy
 // version 0.8.7.x  better show all
 // version 0.8.6    load images as we walk through the array
 // version 0.8.5    load images up again (but only for first image in array)
@@ -783,23 +787,29 @@ function CustomCreator() {
   const loadNetImages = async (imageOptions) => {
     let id;
     let img_args = [];
-    if ((id = imageOptions.background_url)) {
-      if (id !== (backImg && backImg.id))
+    let bgid = backImg && backImg.id;
+    if (bgid === '2') {
+      // nothing
+    } else if ((id = imageOptions.background_url)) {
+      console.error(790, bgid);
+      if (id !== bgid)
         img_args.push("background=" + imageOptions.background_url);
     } else {
-      if (backImg && backImg.src && !backImg.src.includes("placeholder")) {
+      if (backImg && backImg.src
+        && !backImg.src.includes("placeholder")) {
+        console.error(795, backImg.id);
         const img = new Image();
         img.src = placeholder;
         img.onload = () => {
           setBackImg(img);
         };
       }
-
-      //   if (backImg) 
-      //   setBackImg(null);
     }
-    if ((id = imageOptions.foreground_url)) {
-      if (id !== (foreImg && foreImg.id))
+    let fgid = foreImg && foreImg.id;
+    if (fgid === '1') { 
+        // nothing
+    } else if ((id = imageOptions.foreground_url)) {
+      if (id !== fgid)
         img_args.push("foreground=" + imageOptions.foreground_url);
     } else {
       if (foreImg)
@@ -1273,6 +1283,7 @@ function CustomCreator() {
 
       const img = new Image();
       img.src = img_src;
+      img.id = 1;
       img.onload = () => {
         console.error("foreground");
         setForeImg(img);
@@ -1281,6 +1292,7 @@ function CustomCreator() {
     if (back_src) {
       console.error("settings back");
       const img2 = new Image();
+      img2.id = 2;
       img2.src = back_src;
       img2.onload = () => {
         console.error(901, img2);
@@ -1373,11 +1385,13 @@ function CustomCreator() {
     }
 
     let modern = 1;
+    const has_cost = (json.playCost >= 0);
+    // TODO: make cost an array to avoid inline trinaries
 
     let t;
     let array = basics;
-    let cardframes = [mon_background];
-    if (modern) array = outlines;
+    let cardframes = [has_cost ? mon_background : mon_background_nocost];
+    array = has_cost ? outlines : outlines_nocost;
     let type = selectedOption;
     let overflow = undefined;
     const evo_effect = json.evolveEffect || json.digivolveEffect;
@@ -1422,13 +1436,13 @@ function CustomCreator() {
     const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
 
     switch (type) {
-      case "MEGA": cardframes = [mega_background]; break;
+      case "MEGA": cardframes = [has_cost ? mega_background : mega_background_nocost]; break;
       case "OPTION":
-      case "OPTIONINHERIT": cardframes = [option_background]; break;
+      case "OPTIONINHERIT": cardframes = [has_cost ? option_background : option_background_nocost]; break;
       case "TAMER":
       case "TAMERINHERIT":
-        cardframes = [tamer_background]; break;
-      case "EGG": cardframes = [egg_background]; break;
+        cardframes = [has_cost ? tamer_background : tamer_background_nocost]; break;
+      case "EGG": cardframes = [has_cost ? egg_background : egg_background_nocost]; break;
       case "LINK":
       case "MONSTER": break;
       case "ACE":
@@ -2434,14 +2448,14 @@ function CustomCreator() {
         shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(`shell src  ${i} ${shellImages[i].src}`); }
       }
 
-
+      
       switch (type) {
         case "OPTION":
         case "OPTIONINHERIT": array = options; break;
         // how is outlines_tamer different from outlines_egg??
         case "TAMER":
-        case "TAMERINHERIT": array = modern ? outlines_tamer : tamers; break;
-        case "EGG": array = modern ? outlines_egg : eggs; break;
+        case "TAMERINHERIT": array = has_cost ? outlines_tamer : outlines_tamer_nocost; break;
+        case "EGG": array = has_cost ? outlines_egg : outlines_egg_nocost; break;
         case "MONSTER": break;
         case "MEGA": break;
         case "ACE": break;
@@ -2468,22 +2482,22 @@ function CustomCreator() {
       setNewRedraw(newRedraw + 1);
       console.debug("triggered redraw " + newRedraw);
     } else {
-      try { 
-      let obj = JSON.parse(jsonText[currentIndex]);
-      if (obj.length > 1) {
-        // we only need this if we have multiple cards
-        console.log(2734.1, "cardIndex is " + cardIndex);
-        console.log(2734.2, "gallery is " + !!galleryRef.current[cardIndex]); //  galleryRef.current[cardIndex]);
-        // doing this every time could be expensive
-        if (true || !galleryRef.current[cardIndex]) {
-          const dataUrl = canvas.toDataURL('image/png');
-          const base64Data = dataUrl;
-          updateGalleryItem(cardIndex, base64Data);
+      try {
+        let obj = JSON.parse(jsonText[currentIndex]);
+        if (obj.length > 1) {
+          // we only need this if we have multiple cards
+          console.log(2734.1, "cardIndex is " + cardIndex);
+          console.log(2734.2, "gallery is " + !!galleryRef.current[cardIndex]); //  galleryRef.current[cardIndex]);
+          // doing this every time could be expensive
+          if (true || !galleryRef.current[cardIndex]) {
+            const dataUrl = canvas.toDataURL('image/png');
+            const base64Data = dataUrl;
+            updateGalleryItem(cardIndex, base64Data);
+          }
         }
+      } catch (e) {
+        console.error("update", e);
       }
-    } catch (e) { 
-      console.error("update", e);
-    }
 
 
       pauseDraw.current = -1;
@@ -2745,8 +2759,8 @@ function CustomCreator() {
     const current_copy = cardIndex;
     const canvas = canvasRef.current;
     if (!galleryRef.current[current_copy]) {
-     // const dataUrl = canvas.toDataURL('image/png');
-     // const base64Data = dataUrl;
+      // const dataUrl = canvas.toDataURL('image/png');
+      // const base64Data = dataUrl;
       if (current_copy !== cardIndex) {
         console.log(2734, "something changed on us, 1");
         backgroundRender.current = false;
@@ -2851,7 +2865,8 @@ function CustomCreator() {
                   height: (showGallery ? 100 : height) + 'px',
                   backgroundColor: '#eef',
                   borderRadius: '20px',  // this radius is scaled differently than the one in the function
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  display: (showGallery ? "none" : "block"),
                 }}>
               </canvas>
 
@@ -2902,7 +2917,7 @@ function CustomCreator() {
               )}
               {obj && obj.length > 1 && (
                 <span>
-                  <button onClick={null} disabled={jsonText[currentIndex].length === 0}>Delete</button>
+                  <button onClick={null} disabled={true}>Delete</button>
                   <button onClick={() => { setShowGallery(true) }}>Show All</button>
                 </span>
               )}

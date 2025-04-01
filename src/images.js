@@ -1,10 +1,17 @@
 
-import nocost_background from './frames/background_nocost.png';
+
+
 import mon_background from './frames/background_digimon_evo.png';
 import mega_background from './frames/background_digimon.png';
 import egg_background from './frames/background_egg.png';
 import option_background from './frames/background_option.png';
 import tamer_background from './frames/background_tamer.png';
+
+import mon_background_nocost from './frames/background_digimon_evo_nocost.png';
+import mega_background_nocost from './frames/background_digimon_nocost.png';
+import egg_background_nocost from './frames/background_egg_nocost.png';
+import option_background_nocost from './frames/background_option_nocost.png';
+import tamer_background_nocost from './frames/background_tamer_nocost.png';
 
 import ace_red from './frames/backgrounds/red-ace.png';
 import ace_blue from './frames/backgrounds/blue-ace.png';
@@ -124,6 +131,15 @@ import outline_purple from './frames/outline-purple.png';
 import outline_black from './frames/outline-black.png';
 import outline_white from './frames/outline-white.png';
 
+import outline_red_nocost from './frames/outline-red_nocost.png';
+import outline_blue_nocost from './frames/outline-blue_nocost.png';
+import outline_yellow_nocost from './frames/outline-yellow_nocost.png';
+import outline_green_nocost from './frames/outline-green_nocost.png';
+import outline_purple_nocost from './frames/outline-purple_nocost.png';
+import outline_black_nocost from './frames/outline-black_nocost.png';
+import outline_white_nocost from './frames/outline-white_nocost.png';
+
+
 import outline_option from './frames/outline-option.png';
 
 import outline_egg_red from './frames/new-egg-red.png';
@@ -133,6 +149,15 @@ import outline_egg_green from './frames/new-egg-green.png';
 import outline_egg_purple from './frames/new-egg-purple.png';
 import outline_egg_black from './frames/new-egg-black.png';
 import outline_egg_white from './frames/new-egg-white.png';
+
+import outline_egg_red_nocost from'./frames/new-egg-red_nocost.png';
+import outline_egg_blue_nocost from'./frames/new-egg-blue_nocost.png';
+import outline_egg_yellow_nocost from'./frames/new-egg-yellow_nocost.png';
+import outline_egg_green_nocost from'./frames/new-egg-green_nocost.png';
+import outline_egg_purple_nocost from'./frames/new-egg-purple_nocost.png';
+import outline_egg_black_nocost from'./frames/new-egg-black_nocost.png';
+import outline_egg_white_nocost from'./frames/new-egg-white_nocost.png';
+
 
 //import outline_nocost_red from './frames/new-nocost-red.png';
 //import outline_nocost_blue from './frames/new-nocost-blue.png';
@@ -152,6 +177,13 @@ import outline_tamer_purple from './frames/tamer/outline-tamer-purple.png';
 import outline_tamer_black from './frames/tamer/outline-tamer-black.png';
 import outline_tamer_white from './frames/tamer/outline-tamer-white.png';
 
+import outline_tamer_red_nocost from './frames/tamer/outline-tamer-red_nocost.png';
+import outline_tamer_blue_nocost from './frames/tamer/outline-tamer-blue_nocost.png';
+import outline_tamer_yellow_nocost from './frames/tamer/outline-tamer-yellow_nocost.png';
+import outline_tamer_green_nocost from './frames/tamer/outline-tamer-green_nocost.png';
+import outline_tamer_purple_nocost from './frames/tamer/outline-tamer-purple_nocost.png';
+import outline_tamer_black_nocost from './frames/tamer/outline-tamer-black_nocost.png';
+import outline_tamer_white_nocost from './frames/tamer/outline-tamer-white_nocost.png';
 
 
 
@@ -368,7 +400,8 @@ let pen_img = new Image(); pen_img.src = pen;
 
 // these backgrounds are used all the time and should be pre-loaded
 export {
-  nocost_background, mon_background, mega_background, egg_background, option_background, tamer_background,
+  mon_background, mega_background, egg_background, option_background, tamer_background,
+  mon_background_nocost, mega_background_nocost, egg_background_nocost, option_background_nocost, tamer_background_nocost,
   cost, cost_egg, cost_option, cost_evo, cost_evo_plain,
   outline_option, ace_logo,
   bottom_property_white, bottom_property_black,
@@ -396,6 +429,15 @@ export const outlines = {
   'black': outline_black,
   'white': outline_white,
 }
+export const outlines_nocost = {
+  'red': outline_red_nocost,
+  'blue': outline_blue_nocost,
+  'yellow': outline_yellow_nocost,
+  'green': outline_green_nocost,
+  'purple': outline_purple_nocost,
+  'black': outline_black_nocost,
+  'white': outline_white_nocost,
+}
 
 export const outlines_egg = {
   'red': outline_egg_red,
@@ -407,7 +449,18 @@ export const outlines_egg = {
   'white': outline_egg_white,
 }
 
-export const outlines_nocost = {
+export const outlines_egg_nocost = {
+  'red': outline_egg_red_nocost,
+  'blue': outline_egg_blue_nocost,
+  'yellow': outline_egg_yellow_nocost,
+  'green': outline_egg_green_nocost,
+  'purple': outline_egg_purple_nocost,
+  'black': outline_egg_black_nocost,
+  'white': outline_egg_white_nocost,
+}
+
+
+export const DELETE_outlines_nocost = {
   /*
   'red': outline_nocost_red,
   'blue': outline_nocost_blue,
@@ -428,6 +481,15 @@ export const outlines_tamer = {
   'purple': outline_tamer_purple,
   'black': outline_tamer_black,
   'white': outline_tamer_white,
+}
+export const outlines_tamer_nocost = {
+  'red': outline_tamer_red_nocost,
+  'blue': outline_tamer_blue_nocost,
+  'yellow': outline_tamer_yellow_nocost,
+  'green': outline_tamer_green_nocost,
+  'purple': outline_tamer_purple_nocost,
+  'black': outline_tamer_black_nocost,
+  'white': outline_tamer_white_nocost,
 }
 
 export const effectboxes = {

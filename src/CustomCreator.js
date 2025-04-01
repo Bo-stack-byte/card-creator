@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react';
-import { eggs, basics, options, tamers, colorReplace } from './images';
+import { basics, options, colorReplace } from './images';
 import {
 
   mon_background, mega_background, egg_background, option_background, tamer_background,
@@ -55,7 +55,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.8"
+const version = "0.8.8.1"
 const latest = "no cost outlines for many things, kind of buggy"
 
 // version 0.8.8    no cost outlines for many things, kind of buggy
@@ -2465,7 +2465,7 @@ function CustomCreator() {
 
 
       if (type.startsWith("OPTION")) {
-        frameImages[0].src = outline_option;
+        frameImages[0].src = has_cost ? outline_option : outline_option_nocost;
       } else {
         for (let i = 0; i < frameImages.length; i++) {
           frameImages[i].src = array[colors[i]];

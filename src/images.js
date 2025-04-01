@@ -141,6 +141,7 @@ import outline_white_nocost from './frames/outline-white_nocost.png';
 
 
 import outline_option from './frames/outline-option.png';
+import outline_option_nocost from './frames/outline-option-nocost.png';
 
 import outline_egg_red from './frames/new-egg-red.png';
 import outline_egg_blue from './frames/new-egg-blue.png';
@@ -403,7 +404,7 @@ export {
   mon_background, mega_background, egg_background, option_background, tamer_background,
   mon_background_nocost, mega_background_nocost, egg_background_nocost, option_background_nocost, tamer_background_nocost,
   cost, cost_egg, cost_option, cost_evo, cost_evo_plain,
-  outline_option, ace_logo,
+  outline_option, outline_option_nocost, ace_logo,
   bottom_property_white, bottom_property_black,
   foil, bubble, linkdp,
   pen_img

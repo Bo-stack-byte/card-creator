@@ -7,7 +7,7 @@ import {
 
   ace_backgrounds,
   outlines,
-  outlines_nocost, 
+  outlines_nocost,
   outlines_tamer, outline_option, outlines_egg,
   outlines_tamer_nocost, outline_option_nocost, outlines_egg_nocost,
 
@@ -55,10 +55,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.8.1"
-const latest = "no cost outlines for many things, kind of buggy"
+const version = "0.8.9"
+const latest = "fix bugs in default egg and number parsing; eggs always show eggs, cards can have no play cost"
 
-// version 0.8.8    no cost outlines for many things, kind of buggy
+// version 0.8.9    fix bugs in default egg and number parsing; eggs always show eggs, cards can have no play cost
+// version 0.8.8.x  no cost outlines for many things, kind of buggy
 // version 0.8.7.x  better show all
 // version 0.8.6    load images as we walk through the array
 // version 0.8.5    load images up again (but only for first image in array)
@@ -806,8 +807,8 @@ function CustomCreator() {
       }
     }
     let fgid = foreImg && foreImg.id;
-    if (fgid === '1') { 
-        // nothing
+    if (fgid === '1') {
+      // nothing
     } else if ((id = imageOptions.foreground_url)) {
       if (id !== fgid)
         img_args.push("foreground=" + imageOptions.foreground_url);
@@ -1385,13 +1386,12 @@ function CustomCreator() {
     }
 
     let modern = 1;
-    const has_cost = (json.playCost >= 0);
+    const has_cost = (json.playCost.length > 0 && json.playCost >= 0);
     // TODO: make cost an array to avoid inline trinaries
 
     let t;
     let array = basics;
     let cardframes = [has_cost ? mon_background : mon_background_nocost];
-    array = has_cost ? outlines : outlines_nocost;
     let type = selectedOption;
     let overflow = undefined;
     const evo_effect = json.evolveEffect || json.digivolveEffect;
@@ -1432,7 +1432,7 @@ function CustomCreator() {
         if (t.match(/egg/i) || t.match(/tama/i)) { type = "EGG"; }
       }
     }
-
+    array = (has_cost || type === "EGG") ? outlines : outlines_nocost;
     const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
 
     switch (type) {
@@ -1442,7 +1442,8 @@ function CustomCreator() {
       case "TAMER":
       case "TAMERINHERIT":
         cardframes = [has_cost ? tamer_background : tamer_background_nocost]; break;
-      case "EGG": cardframes = [has_cost ? egg_background : egg_background_nocost]; break;
+      // Is there any way to indicate we should use the no_cost egg background??
+      case "EGG": cardframes = [has_cost ? egg_background : egg_background]; break;
       case "LINK":
       case "MONSTER": break;
       case "ACE":
@@ -2448,14 +2449,15 @@ function CustomCreator() {
         shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(`shell src  ${i} ${shellImages[i].src}`); }
       }
 
-      
+
       switch (type) {
         case "OPTION":
         case "OPTIONINHERIT": array = options; break;
         // how is outlines_tamer different from outlines_egg??
         case "TAMER":
         case "TAMERINHERIT": array = has_cost ? outlines_tamer : outlines_tamer_nocost; break;
-        case "EGG": array = has_cost ? outlines_egg : outlines_egg_nocost; break;
+        // Is there any way to indicate we should use the no_cost egg background??
+        case "EGG": array = has_cost ? outlines_egg : outlines_egg; break;
         case "MONSTER": break;
         case "MEGA": break;
         case "ACE": break;

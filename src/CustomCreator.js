@@ -3,13 +3,13 @@ import { basics, options, colorReplace } from './images';
 import {
 
   mon_background, mega_background, egg_background, option_background, tamer_background,
-  mon_background_nocost, mega_background_nocost, egg_background_nocost, option_background_nocost, tamer_background_nocost,
+  mon_background_nocost, mega_background_nocost, /*egg_background_nocost,*/ option_background_nocost, tamer_background_nocost,
 
   ace_backgrounds,
   outlines,
   outlines_nocost,
   outlines_tamer, outline_option, outlines_egg,
-  outlines_tamer_nocost, outline_option_nocost, outlines_egg_nocost,
+  outlines_tamer_nocost, outline_option_nocost, /*outlines_egg_nocost,*/
 
   cost, cost_egg, cost_option, cost_evo, cost_evo_plain, costs,
   ace_logo, foil, linkdp,
@@ -55,10 +55,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.9"
+const version = "0.8.9.1"
 const latest = "fix bugs in default egg and number parsing; eggs always show eggs, cards can have no play cost"
 
-// version 0.8.9    fix bugs in default egg and number parsing; eggs always show eggs, cards can have no play cost
+// version 0.8.9.x  fix bugs in default egg and number parsing; eggs always show eggs, cards can have no play cost
 // version 0.8.8.x  no cost outlines for many things, kind of buggy
 // version 0.8.7.x  better show all
 // version 0.8.6    load images as we walk through the array

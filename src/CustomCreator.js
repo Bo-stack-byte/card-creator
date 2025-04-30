@@ -55,9 +55,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.9.1"
-const latest = "fix bugs in default egg and number parsing; eggs always show eggs, cards can have no play cost"
+const version = "0.8.11.0"
+const latest = "multi-color circles are back"
 
+// version 0.8.11   multi-color circles are back
 // version 0.8.9.x  fix bugs in default egg and number parsing; eggs always show eggs, cards can have no play cost
 // version 0.8.8.x  no cost outlines for many things, kind of buggy
 // version 0.8.7.x  better show all
@@ -1967,29 +1968,38 @@ function CustomCreator() {
           _evos[0].color || _evos[0].level || _evos[0].cost)) {
 
           // BT-14 and up, there is never two evo circles any more (until direct on tamers).
-          // This assumes that all circle evos are from the same level and for the same cost, just different colors.
-          // Post BT-14 alterate conditions were handled via special digivolve lines.
-          // For now there is just one circle. Ask in feedback if you want more. 
 
-          let evo1_colors = _evos.map(e => e.color ? e.color.toLowerCase().split("/") : [])
-            .reduce((acc, curr) => acc.concat(curr), []);
 
-          // we collect all the different colors, and all the different levels (to allow for "tamer")
-          // having two circles with different costs or different colors isn't supported,
-          // and no card since BT14 has had such a thing. honest, go check.
+          let evo1_level_costs = _evos.map(e =>
+            e.level ? String(e.level).split("/").map(l => ({ level: l, cost: e.cost })) : []
+          )
+            .reduce((acc, curr) => acc.concat(curr), [])
+            .filter((value, index, self) =>
+              index === self.findIndex(v => v.level === value.level && v.cost === value.cost)
+            );
 
-          let evo1_levels = _evos.map(e => e.level ? String(e.level).split("/") : [])
-            .reduce((acc, curr) => acc.concat(curr), []);
-          evo1_levels = [...new Set(evo1_levels)];
+          console.error(1978.02, evo1_level_costs);
 
-          for (let j = evo1_levels.length - 1; j >= 0; j--) {
+        
+
+          //let evo1_levels = _evos.map(e => e.level ? String(e.level).split("/") : [])
+          //  .reduce((acc, curr) => acc.concat(curr), []);
+          //evo1_levels = [...new Set(evo1_levels)];
+          //console.error(1978.1, evo1_levels);
+          for (let j = evo1_level_costs.length - 1; j >= 0; j--) {
+            // get the colors for every condition with this level
+            console.error(1978.2, _evos);
+            let level = evo1_level_costs[j].level;
+            let evo1_colors = _evos.filter(e => e.level.includes(level)).map(e => e.color ? e.color.toLowerCase().split("/") : [])
+              .reduce((acc, curr) => acc.concat(curr), []);
+            console.error(1978.3, level, evo1_colors);
             j = Number(j);
             let circle_offset = (j) * 420;
 
-            let level = evo1_levels[j];
             let n_level = parseInt(level);
             const evo1_level = n_level ? "Lv." + level : level;
-            let evo1_cost = _evos[0].cost;
+            let evo1_cost = evo1_level_costs[j].cost;
+
             let ring = cost_evo;
             if (j > 0) ring = cost_evo_plain;
             ctx.drawImage(ring, offset_x, offset_y + 600 + circle_offset, 500, 500);
@@ -1998,6 +2008,7 @@ function CustomCreator() {
             let each = 360 / (evo1_colors.length);
 
             for (let i in evo1_colors) {
+              const my_color = evo1_colors[i];
               i = Number(i);
               let X = offset_x + 130;
               let Y = offset_y + 125 + 600 + circle_offset;
@@ -2005,8 +2016,9 @@ function CustomCreator() {
               const imgWidth = 310; // height, too
               const imgHeight = 310; // height, too
 
-              const circle = evoImages[i]
-              const wedge = wedgeImages[i];
+              const circle = evoImages[my_color];
+              console.error(1978.9, circle);
+              const wedge = wedgeImages[my_color];
               const radius = imgWidth / 2;
               // TODO: wait for .onLoad()? Or did we.
               let start = base + i * each
@@ -2395,8 +2407,7 @@ function CustomCreator() {
 
     let evo_circle_colors = [];
     if (_evos) {
-      evo_circle_colors = _evos.map(e => e.color ? e.color.toLowerCase().split("/") : [])
-        .reduce((acc, curr) => acc.concat(curr), []);
+      evo_circle_colors = ['red', 'blue', 'yellow', 'green', 'black', 'purple', 'white'];
     }
     console.log(2117, imageOptions);
     console.log(2118, imageOptions.effectBox);
@@ -2430,18 +2441,19 @@ function CustomCreator() {
         f.onerror = function () { checkAllImagesLoaded(f.src, true); }
       }
 
-      for (let i in evo_circle_colors) {
-        let my_color = evo_circle_colors[i];
+      for (let color of ['red', 'blue', 'yellow', 'green', 'black', 'purple', 'white']) {
+        let my_color = color;
         let evoI = new Image();
-        evoImages[i] = evoI;
+        evoImages[my_color] = evoI;
+        // do we seriously need to set the .src here?
         evoI.src = new_evo_circles[my_color]
-        evoI.onload = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`); }
-        evoI.onerror = function () { checkAllImagesLoaded(`evo circle ${i} ${my_color}`, true); }
+        evoI.onload = function () { checkAllImagesLoaded(`evo circle  ${my_color}`); }
+        evoI.onerror = function () { checkAllImagesLoaded(`evo circle  ${my_color}`, true); }
         let wedgeI = new Image();
-        wedgeImages[i] = wedgeI;
+        wedgeImages[my_color] = wedgeI;
         wedgeI.src = new_evo_wedges[my_color]
-        wedgeI.onload = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`); }
-        wedgeI.onerror = function () { checkAllImagesLoaded(`evo wedge ${i} ${my_color}`, true); }
+        wedgeI.onload = function () { checkAllImagesLoaded(`evo wedge  ${my_color}`); }
+        wedgeI.onerror = function () { checkAllImagesLoaded(`evo wedge ${my_color}`, true); }
       }
       for (let i in cardframes) {
         shellImages[i] = new Image();

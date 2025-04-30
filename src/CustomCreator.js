@@ -55,10 +55,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.11.0"
+const version = "0.8.11.1"
 const latest = "multi-color circles are back"
 
-// version 0.8.11   multi-color circles are back
+// version 0.8.11.x multi-color circles are back
 // version 0.8.9.x  fix bugs in default egg and number parsing; eggs always show eggs, cards can have no play cost
 // version 0.8.8.x  no cost outlines for many things, kind of buggy
 // version 0.8.7.x  better show all
@@ -1990,7 +1990,9 @@ function CustomCreator() {
             // get the colors for every condition with this level
             console.error(1978.2, _evos);
             let level = evo1_level_costs[j].level;
-            let evo1_colors = _evos.filter(e => e.level.includes(level)).map(e => e.color ? e.color.toLowerCase().split("/") : [])
+            let evo1_cost = evo1_level_costs[j].cost;
+
+            let evo1_colors = _evos.filter(e => e.level.includes(level) && e.cost.includes(evo1_cost)).map(e => e.color ? e.color.toLowerCase().split("/") : [])
               .reduce((acc, curr) => acc.concat(curr), []);
             console.error(1978.3, level, evo1_colors);
             j = Number(j);
@@ -1998,7 +2000,6 @@ function CustomCreator() {
 
             let n_level = parseInt(level);
             const evo1_level = n_level ? "Lv." + level : level;
-            let evo1_cost = evo1_level_costs[j].cost;
 
             let ring = cost_evo;
             if (j > 0) ring = cost_evo_plain;

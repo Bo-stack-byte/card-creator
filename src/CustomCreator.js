@@ -55,9 +55,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.11.1"
-const latest = "multi-color circles are back"
+const version = "0.8.12"
+const latest = "+/- buttons for evo conditions"
 
+// version 0.8.12   evo conditions
 // version 0.8.11.x multi-color circles are back
 // version 0.8.9.x  fix bugs in default egg and number parsing; eggs always show eggs, cards can have no play cost
 // version 0.8.8.x  no cost outlines for many things, kind of buggy
@@ -1022,6 +1023,22 @@ function CustomCreator() {
   }
 
 
+
+  function popEvoCond(json_t) {
+    const json_all = JSON.parse(json_t);
+    const json = json_all[cardIndex];
+    json.evolveCondition.pop();
+    updateJson(JSON.stringify(json, null, 2));
+  }
+
+  function pushEvoCond(json_t) {
+    const json_all = JSON.parse(json_t);
+    const json = json_all[cardIndex];
+    json.evolveCondition.push({ color: "", cost: "", level: "" });
+    updateJson(JSON.stringify(json, null, 2));
+  }
+
+
   let jsonerror = "none";
 
   // any missing fields are added
@@ -1075,6 +1092,7 @@ function CustomCreator() {
       imageOptions = initObject(imageOptions, initImageOptions);
       json.imageOptions = imageOptions;
     }
+    // does accepting this return do anything?
     return jsonArray;
   }
 
@@ -1978,23 +1996,13 @@ function CustomCreator() {
               index === self.findIndex(v => v.level === value.level && v.cost === value.cost)
             );
 
-          console.error(1978.02, evo1_level_costs);
-
-        
-
-          //let evo1_levels = _evos.map(e => e.level ? String(e.level).split("/") : [])
-          //  .reduce((acc, curr) => acc.concat(curr), []);
-          //evo1_levels = [...new Set(evo1_levels)];
-          //console.error(1978.1, evo1_levels);
           for (let j = evo1_level_costs.length - 1; j >= 0; j--) {
             // get the colors for every condition with this level
-            console.error(1978.2, _evos);
             let level = evo1_level_costs[j].level;
             let evo1_cost = evo1_level_costs[j].cost;
 
             let evo1_colors = _evos.filter(e => e.level.includes(level) && e.cost.includes(evo1_cost)).map(e => e.color ? e.color.toLowerCase().split("/") : [])
               .reduce((acc, curr) => acc.concat(curr), []);
-            console.error(1978.3, level, evo1_colors);
             j = Number(j);
             let circle_offset = (j) * 420;
 
@@ -2018,7 +2026,6 @@ function CustomCreator() {
               const imgHeight = 310; // height, too
 
               const circle = evoImages[my_color];
-              console.error(1978.9, circle);
               const wedge = wedgeImages[my_color];
               const radius = imgWidth / 2;
               // TODO: wait for .onLoad()? Or did we.
@@ -2863,6 +2870,11 @@ function CustomCreator() {
                                 onChange={(e) => handleInputChange(key, e.target.value)} />)
                             }
                           </td>
+                          {key === "evolveCondition.0.color" && (
+                            <td style={{ whiteSpace: "nowrap" }}>
+                              <button onClick={() => pushEvoCond(json_t)}>+</button>
+                              <button onClick={() => popEvoCond(json_t)}>-</button>
+                            </td>)}
                         </tr>
                       )}
                   </table>

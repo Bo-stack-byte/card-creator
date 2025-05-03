@@ -55,9 +55,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.12.1"
-const latest = "when linking not green; e.cost fix"
+const version = "0.8.13"
+const latest = "when linking not green; e.cost fix; all for rainbow is back; rainbow border"
 
+// version 0.8.13   when linking not green; e.cost fix; all for rainbow is back; rainbow border
 // version 0.8.12   +/- buttons for evo conditions
 // version 0.8.11.x multi-color circles are back
 // version 0.8.9.x  fix bugs in default egg and number parsing; eggs always show eggs, cards can have no play cost
@@ -229,7 +230,7 @@ let neue = false;
 // color should be lowercase array before we get here
 // colors should all be lowercase before this is called
 const textColor = (colors) => {
-  let border = (colors.includes("white") || colors.includes("yellow"));
+  let border = (colors.includes("white") || colors.includes("yellow") || colors.includes("all"));
   let fillColor = 'white';
   let strokeColor = 'black';
   // if only white and/or yellow, pure black with no border
@@ -2417,7 +2418,7 @@ function CustomCreator() {
 
     let evo_circle_colors = [];
     if (_evos) {
-      evo_circle_colors = ['red', 'blue', 'yellow', 'green', 'black', 'purple', 'white'];
+      evo_circle_colors = ['red', 'blue', 'yellow', 'green', 'black', 'purple', 'white', 'all'];
     }
     console.log(2117, imageOptions);
     console.log(2118, imageOptions.effectBox);
@@ -2451,7 +2452,7 @@ function CustomCreator() {
         f.onerror = function () { checkAllImagesLoaded(f.src, true); }
       }
 
-      for (let color of ['red', 'blue', 'yellow', 'green', 'black', 'purple', 'white']) {
+      for (let color of ['red', 'blue', 'yellow', 'green', 'black', 'purple', 'white', 'all']) {
         let my_color = color;
         let evoI = new Image();
         evoImages[my_color] = evoI;

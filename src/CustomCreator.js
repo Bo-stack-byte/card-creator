@@ -55,10 +55,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.12"
-const latest = "+/- buttons for evo conditions"
+const version = "0.8.12.1"
+const latest = "when linking not green; e.cost fix"
 
-// version 0.8.12   evo conditions
+// version 0.8.12   +/- buttons for evo conditions
 // version 0.8.11.x multi-color circles are back
 // version 0.8.9.x  fix bugs in default egg and number parsing; eggs always show eggs, cards can have no play cost
 // version 0.8.8.x  no cost outlines for many things, kind of buggy
@@ -1997,11 +1997,13 @@ function CustomCreator() {
             );
 
           for (let j = evo1_level_costs.length - 1; j >= 0; j--) {
-            // get the colors for every condition with this level
+            // get the colors for every condition with this level...
             let level = evo1_level_costs[j].level;
             let evo1_cost = evo1_level_costs[j].cost;
 
-            let evo1_colors = _evos.filter(e => e.level.includes(level) && e.cost.includes(evo1_cost)).map(e => e.color ? e.color.toLowerCase().split("/") : [])
+            let evo1_colors = _evos
+              .filter(e => e.level.includes(level) && e.cost && e.cost === (evo1_cost))
+              .map(e => e.color ? e.color.toLowerCase().split("/") : [])
               .reduce((acc, curr) => acc.concat(curr), []);
             j = Number(j);
             let circle_offset = (j) * 420;

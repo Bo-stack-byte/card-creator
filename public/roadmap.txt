@@ -12,17 +12,13 @@ KNOWN BUGS
 VAGUE TO DO LIST, SOONER:
 
 * font check page
-* multiple evo circles with different cost/color
 * rainbow color in evo circle needs white text w/black border
-* add/remove digivolve condition button
 * better browse of images (see your own w/priority and page through others)
-* shell without egg 
 
 MEDIUM TERM:
 
 * brick art
 * full color border art
-* auto-generate all images with one click (for testing)
 * standalone binary, so local images can be accessed
 * get purple text with (parentheses) or fix in import for translation team's format
 * sample free form for ACEs, and/or better ways of detecting ACE
@@ -82,5 +78,11 @@ NOMINALLY FIXED BUGS / FEATURES
 * color cicle replacement everywhere (might be done now)
 * 0 DP
 * default to array for JSON
+* multiple evo circles with different cost/color
+* add/remove digivolve condition button
+* shell without egg 
+* auto-generate all images with one click (for testing)
+
+
 
 

@@ -23,8 +23,11 @@ import {
   bottom_property_white, bottom_property_black,
 
   pen_img,
+
+  lines, 
 } from './images';
 
+import { applyGradientToFrame } from './util';
 import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7 } from './plaintext';
 import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
 import banner from './banner.png';
@@ -55,9 +58,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.13"
-const latest = "when linking not green; e.cost fix; all for rainbow is back; rainbow border"
+const version = "0.8.14"
+const latest = "colored frames, not loading immediately"
 
+// version 0.8.14   colored frames, not loading immediately
 // version 0.8.13   when linking not green; e.cost fix; all for rainbow is back; rainbow border
 // version 0.8.12   +/- buttons for evo conditions
 // version 0.8.11.x multi-color circles are back
@@ -155,6 +159,7 @@ const settingsText = {
   "effectBox": "pre-BT14 effect box",
   "addFoil": "add foil to edge",
   "aceFrame": "for ACEs use new frame",
+  "coloredFrame": "colored border frame",
   "outline": "include border line",
   "skipDraw": "disabling drawing",
   "lineSpacing": "line spacing",
@@ -340,6 +345,7 @@ const starter_text_empty = `[{
     "effectBox": false,
     "addFoil": false,
     "aceFrame": true,
+    "coloredFrame": false,
     "outline": true,
     "skipDraw": false
   }
@@ -371,6 +377,7 @@ const starter_text_0 = ` [ {
             "effectBox": false,
             "addFoil": false,
             "aceFrame": true,
+            "coloredFrame": false,
             "outline": true,
             "skipDraw": false
 
@@ -418,6 +425,7 @@ const starter_text_1a = `  {
             "effectBox": false,
             "addFoil": false,
             "aceFrame": true,
+            "coloredFrame": false,
             "outline": true,
             "skipDraw": false
 
@@ -458,6 +466,7 @@ const starter_text_1b = `  {
             "effectBox": false,
             "addFoil": false,
             "aceFrame": true,
+            "coloredFrame": false,
             "outline": true,
             "skipDraw": false
 
@@ -506,6 +515,7 @@ const starter_text_1c = `{
             "effectBox": false,
             "addFoil": false,
             "aceFrame": true,
+            "coloredFrame": false,
             "outline": true,
             "skipDraw": false
   },
@@ -539,6 +549,7 @@ const starter_text_2 = `  {
             "effectBox": false,
             "addFoil": false,
             "aceFrame": true,
+            "coloredFrame": false,
             "outline": true,
             "skipDraw": false
 
@@ -567,6 +578,7 @@ const starter_text_3 = `   {
             "effectBox": false,
             "addFoil": false,
             "aceFrame": true,
+            "coloredFrame": false,
             "outline": true
     }
     }`;
@@ -640,10 +652,7 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
     console.log(426, "couldn't draw partial " + _i);
   }
 
-
-
   ctx.restore(); // Restore the previous state
-
 }
 
 
@@ -912,6 +921,7 @@ function CustomCreator() {
       effectBox: false,
       addFoil: false,
       aceFrame: true,
+      coloredFrame: false,
       outline: true,
       skipDraw: false,
 
@@ -1071,7 +1081,7 @@ function CustomCreator() {
       // shouldn't the default for imageOptions handle the below??
 
       // falses
-      for (let field of ["foregroundOnTop", "effectBox", "addFoil", "skipDraw"]) {
+      for (let field of ["foregroundOnTop", "effectBox", "addFoil", "skipDraw", "coloredFrame"]) {
         if (!(field in json.imageOptions)) {
           console.log("Missing field added 1 " + field);
           json.imageOptions[field] = false;
@@ -1649,10 +1659,21 @@ function CustomCreator() {
 
         } else {
           // no foil
-          // we only need this for ace frames
-          let len = shellImages.length;
-          for (let i = 0; i < len; i++) {
-            scalePartialImage(ctx, shellImages[i], i, len, 4141, 0, 0, undefined, 1.0, 1.004)
+
+          let shells = shellImages;
+          if (imageOptions.coloredFrame && colors.length > 1) {
+            console.log(1379, "drawing colored border", colors.length);
+            shells = Array(colors.length).fill(shellImages[0]);
+          }
+
+          let len = shells.length;
+          for (let i = 0; i < shells.length; i++) {
+            const line = lines[ colors[i] ];
+            console.error(1669, colors,  colors[i], i, len,  line && line.src);
+            const colored = (imageOptions.coloredFrame && line) ?
+              applyGradientToFrame(shellImages[0], line) : shells[i];
+            console.error(1671, colored);
+            scalePartialImage(ctx, colored, i, len, 4141, 0, 0, undefined, 1.0, 1.004)
           }
         }
       }

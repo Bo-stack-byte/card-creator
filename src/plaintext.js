@@ -192,6 +192,7 @@ export const enterPlainText = (lines) => {
             "effectBox": false,
             "addFoil": false,
             "aceFrame": true,
+            "coloredFrame": false,
             "outline": true,
             "skipDraw": false
 

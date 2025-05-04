@@ -25,6 +25,7 @@ MEDIUM TERM:
 
 VAGUE TO DO LIST, LATER:
 
+* flower frame? like EX5-048 EX6-012
 * draw name bar with vector graphics instead of layering up images
 * - for level ?
 * more Ayar Kasone as backup when the user doesn't have Helvetica Neue: especially DP

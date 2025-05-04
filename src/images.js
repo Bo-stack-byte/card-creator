@@ -1,6 +1,8 @@
 
 
 
+
+
 import mon_background from './frames/background_digimon_evo.png';
 import mega_background from './frames/background_digimon.png';
 import egg_background from './frames/background_egg.png';
@@ -293,6 +295,16 @@ import _linkdp from './frames/linkdp.png';
 import pen from './frames/pen.png';
 
 
+import _redline from   './frames/lines/redline.png';
+import _blueline from  './frames/lines/blueline.png';
+import _yellowline from './frames/lines/yellowline.png';
+import _greenline from './frames/lines/greenline.png';
+import _blackline from './frames/lines/blackline.png';
+import _purpleline from './frames/lines/purpleline.png';
+import _whiteline from './frames/lines/whiteline.png';
+
+
+
 export const ace_backgrounds = {
   'red': ace_red,
   'blue': ace_blue,
@@ -334,6 +346,24 @@ export const new_evo2_circles = {
   'purple': new_evo2_purple,
   'black': new_evo2_black,
   'white': new_evo2_white,
+}
+
+export const redline = new Image(); redline.src = _redline;
+export const blueline = new Image(); blueline.src = _blueline;
+export const yellowline = new Image(); yellowline.src = _yellowline;
+export const greenline = new Image(); greenline.src = _greenline;
+export const blackline = new Image();  blackline.src = _blackline;
+export const purpleline = new Image(); purpleline.src = _purpleline;
+export const whiteline = new Image(); whiteline.src = _whiteline;
+
+export const lines = {
+  'red': redline,
+  'blue': blueline,
+  'yellow': yellowline,
+  'green': greenline,
+  'black': blackline,
+  'purple': purpleline,
+  'white': whiteline,
 }
 
 let foil = new Image(); foil.src = _foil;

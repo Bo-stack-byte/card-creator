@@ -48,6 +48,7 @@ const magicWords = [
   "Security",
 
   "Digixros.{0,6}",
+  "Assembly.{0,6}",
   "Link",
   "(DNA )?(Digi|E)volve",
 

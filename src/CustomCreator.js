@@ -58,9 +58,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.14"
-const latest = "colored frames, not loading immediately"
+const version = "0.8.15"
+const latest = "Assembly as green"
 
+// version 0.8.15   Assembly as green
 // version 0.8.14   colored frames, not loading immediately
 // version 0.8.13   when linking not green; e.cost fix; all for rainbow is back; rainbow border
 // version 0.8.12   +/- buttons for evo conditions

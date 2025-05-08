@@ -544,6 +544,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 
 function getColor(phrase) {
   if (phrase.match(/DigiXros/i)) return 'green';
+  if (phrase.match(/Assembly/i)) return 'green';
   if (phrase === "Link") return 'green';
   if (['Hand', 'Trash', 'Breeding'].includes(phrase)) return 'purple';
   if (['Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'red';

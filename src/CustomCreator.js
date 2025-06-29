@@ -24,7 +24,7 @@ import {
 
   pen_img,
 
-  lines, 
+  lines,
 } from './images';
 
 import { applyGradientToFrame } from './util';
@@ -58,9 +58,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.15.1"
-const latest = "Assembly as green"
+const version = "0.8.16.1"
+const latest = "prep for new changes; 'new card' starts out as dupe of current card"
 
+// version 0.8.16.x prep for new changes; 'new card' starts out as dupe of current card
 // version 0.8.15.x Assembly as green
 // version 0.8.14   colored frames, not loading immediately
 // version 0.8.13   when linking not green; e.cost fix; all for rainbow is back; rainbow border
@@ -746,6 +747,8 @@ function digitSettings(ctx, number, size) {
 function CustomCreator() {
   /* eslint-disable react-hooks/exhaustive-deps */
 
+  // took out dupe refresh-token code
+
   useEffect(() => {
     console.error("FIRST TIME");
     const params = new URLSearchParams(window.location.search);
@@ -806,7 +809,7 @@ function CustomCreator() {
       // nothing
     } else if ((id = imageOptions.background_url)) {
       console.error(790, bgid);
-      if (id !== bgid)
+      if (Number(id) !== Number(bgid))
         img_args.push("background=" + imageOptions.background_url);
     } else {
       if (backImg && backImg.src
@@ -820,15 +823,18 @@ function CustomCreator() {
       }
     }
     let fgid = foreImg && foreImg.id;
+    console.error(825, fgid);
     if (fgid === '1') {
       // nothing
     } else if ((id = imageOptions.foreground_url)) {
-      if (id !== fgid)
+      console.error(829, id);
+      if (Number(id) !== Number(fgid))
         img_args.push("foreground=" + imageOptions.foreground_url);
     } else {
       if (foreImg)
         setForeImg(null);
     }
+    console.error(834, img_args);
     if (img_args.length === 0) return;
 
     try {
@@ -1345,7 +1351,7 @@ function CustomCreator() {
   //  const draw = async (x, y, clear) => {
 
   const draw = useCallback(async (x, y, clear) => {
-
+    console.log(1879.1, pauseDraw.current);
     if (!backImg) return;
     if (pauseDraw.current <= 0) {
       pauseDraw.current = 1; // drawing, continue
@@ -1402,6 +1408,8 @@ function CustomCreator() {
         json = json[arrayIndex];
       }
     } catch (e) {
+      console.log(1879.2, pauseDraw.current);
+
       console.log("json error", e);
       if (pauseDraw.current > 1) {
         pauseDraw.current = 0;
@@ -1669,11 +1677,11 @@ function CustomCreator() {
 
           let len = shells.length;
           for (let i = 0; i < shells.length; i++) {
-            const line = lines[ colors[i] ];
-            console.error(1669, colors,  colors[i], i, len,  line && line.src);
+            // this isn't loading the very first time for each color
+            // 
+            const line = lines[colors[i]];
             const colored = (imageOptions.coloredFrame && line) ?
               applyGradientToFrame(shellImages[0], line) : shells[i];
-            console.error(1671, colored);
             scalePartialImage(ctx, colored, i, len, 4141, 0, 0, undefined, 1.0, 1.004)
           }
         }
@@ -2419,6 +2427,8 @@ function CustomCreator() {
           max_width, Number(fontSize) + Number(imageOptions.lineSpacing), "effect");
       }
 
+      console.log(1879.3, pauseDraw.current);
+
       // last try for pen
     } /// end afterLoad
     console.log(2150, "3");
@@ -2454,7 +2464,7 @@ function CustomCreator() {
     await new Promise((resolve) => {
       const checkAllImagesLoaded = (text, failure) => {
         imagesLoaded++;
-        console.log(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
+        //console.info(771, failure ? "IMAGE FAILED" : "image loaded,", imagesLoaded, imagesToLoad, text);
         if (imagesLoaded === imagesToLoad) { // Change this number based on the number of images
           // Set the canvas dimensions  
           afterLoad();
@@ -2536,7 +2546,7 @@ function CustomCreator() {
           console.log(2734.1, "cardIndex is " + cardIndex);
           console.log(2734.2, "gallery is " + !!galleryRef.current[cardIndex]); //  galleryRef.current[cardIndex]);
           // doing this every time could be expensive
-          if (true || !galleryRef.current[cardIndex]) {
+          if (!galleryRef.current[cardIndex]) {
             const dataUrl = canvas.toDataURL('image/png');
             const base64Data = dataUrl;
             updateGalleryItem(cardIndex, base64Data);
@@ -2607,16 +2617,17 @@ function CustomCreator() {
       const zip = new JSZip();
       for (let i = 0; i < json.length; i++) {
         setCardIndex(i);
-        console.log(1879, i);
-        await draw(0, 0, false)
-        await sleep(2000);
-        console.log(1879, i);
+        console.log(1879, new Date().toLocaleString(), i, pauseDraw.current);
+        //  await draw(0, 0, false)
+        await sleep(7000);
+        console.log(1879, new Date().toLocaleString(), i, pauseDraw.current);
         const canvas = canvasRef.current;
         const dataUrl = canvas.toDataURL('image/png');
         const base64Data = dataUrl.split(',')[1]; // Get base64 part
         let filename = `image${i + 1}`;
         try {
           filename = json[i].name.english;
+          filename = json[i].id;
         } catch { }
         filename += ".png";
         zip.file(filename, base64Data, { base64: true });
@@ -2746,12 +2757,13 @@ function CustomCreator() {
 
   // insert into place? re-order?
   const addCard = () => {
-    let json_t = jsonText[currentIndex];
+    let json_t = jsonText[currentIndex]; 
     try {
       // could just edit json text?
       let obj = JSON.parse(json_t);
-      let starter = JSON.parse(starter_text_empty)[0];
-      obj.push(starter);
+      // make newcard copy of current card, instead of empty card
+      let newcard = JSON.parse( jsonText[currentIndex])[cardIndex];
+      obj.push(newcard);
       json_t = JSON.stringify(obj, null, 2); // stringify it back
       updateJson(json_t);
       galleryRef.current[obj.length - 1] = null;

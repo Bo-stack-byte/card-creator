@@ -580,7 +580,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
   //let phrases = text.split(/([[⟦].*?[\]⟧])/);
   phrases.forEach(phrase => {
     let cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
-    console.log(574, "p", phrase, "cp", cleanPhrase)
+    //console.log(574, "p", phrase, "cp", cleanPhrase)
     if (
       (phrase.startsWith("⟦") && phrase.endsWith("⟧")) ||
       (phrase.startsWith("[") && phrase.endsWith("]") && matchMagic(magicWords, cleanPhrase))

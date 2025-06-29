@@ -34,10 +34,13 @@ const GoogleAuth = () => {
     }
   }, []);
 
+
+
   const refreshToken = async () => {
     try {
       const authInstance = window.gapi.auth2.getAuthInstance();
       const currentUser = authInstance.currentUser.get();
+      localStorage.setItem('user', currentUser);
       const newAuthResponse = await currentUser.reloadAuthResponse(); // Refresh the token
       const newToken = newAuthResponse.id_token;
       localStorage.setItem('google_token', newToken); // Update stored token

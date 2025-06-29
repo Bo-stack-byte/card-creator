@@ -58,9 +58,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.16.1"
-const latest = "prep for new changes; 'new card' starts out as dupe of current card"
+const version = "0.8.17"
+const latest = "new 'USE' label for options, way overdue"
 
+// version 0.8.17   new 'USE' label for options, way overdue
 // version 0.8.16.x prep for new changes; 'new card' starts out as dupe of current card
 // version 0.8.15.x Assembly as green
 // version 0.8.14   colored frames, not loading immediately

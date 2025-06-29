@@ -11,14 +11,16 @@ KNOWN BUGS
 
 VAGUE TO DO LIST, SOONER:
 
-* font check page
+* "use cost" instead of "cost" for options
+* "new card" copies current card
 * rainbow color in evo circle needs white text w/black border
 * better browse of images (see your own w/priority and page through others)
 
 MEDIUM TERM:
 
+* font check page
 * brick art
-* full color border art
+* full color border art (PARTIALLY DONE)
 * standalone binary, so local images can be accessed
 * get purple text with (parentheses) or fix in import for translation team's format
 * sample free form for ACEs, and/or better ways of detecting ACE

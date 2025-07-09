@@ -333,13 +333,13 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
 
 }
 
-// x,y is upper left?
+// x,y is upper left? maybe center left
 
-function drawDiamondRectangle(ctx, x, y, width, height) {
+export function drawDiamondRectangle(ctx, x, y, width, height, color, strokeColor) {
   if (Math.random() < 0.0)
     _1drawDiamondRectangle(ctx, x, y, width, height)
   else
-    _2drawDiamondRectangle(ctx, x, y, width, height)
+    _2drawDiamondRectangle(ctx, x, y, width, height, color, strokeColor)
 }
 
 function _1drawDiamondRectangle(ctx, x, y, width, height) {
@@ -356,16 +356,16 @@ function _1drawDiamondRectangle(ctx, x, y, width, height) {
 
 }
 
-function _2drawDiamondRectangle(ctx, x, y, width, height) {
+function _2drawDiamondRectangle(ctx, x, y, width, height, color, strokeColor) {
   // Calculate the half-height and half-width for the triangles
   //console.log(238, x, y, width, height);
   y -= height;
   const halfHeight = height / 2;
   // Create the gradient from dark brown to medium brown
   const gradient = ctx.createLinearGradient(0, y, 0, y + height);
-  gradient.addColorStop(0, '#7E3329'); // Dark brown
-  gradient.addColorStop(0.6, '#C36327'); // Medium brown
-  gradient.addColorStop(0.9, '#E38367'); // "light" brown
+  gradient.addColorStop(0, color ||  '#7E3329'); // Dark brown
+  gradient.addColorStop(0.6, color ||  '#C36327'); // Medium brown
+  gradient.addColorStop(0.9,  color || '#E38367'); // "light" brown
 
   // Begin drawing the shape
   ctx.beginPath();
@@ -380,8 +380,8 @@ function _2drawDiamondRectangle(ctx, x, y, width, height) {
   ctx.fillStyle = gradient;
   ctx.fill();
 
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 5;
+  ctx.strokeStyle =  strokeColor ||  'black';
   ctx.stroke();
 }
 

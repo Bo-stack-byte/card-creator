@@ -11,8 +11,6 @@ KNOWN BUGS
 
 VAGUE TO DO LIST, SOONER:
 
-* "use cost" instead of "cost" for options
-* "new card" copies current card
 * rainbow color in evo circle needs white text w/black border
 * better browse of images (see your own w/priority and page through others)
 
@@ -45,7 +43,6 @@ VAGUE TO DO LIST, LATER:
 * user accounts
 * better parsing of custom card formats
 * maybe pre-BT14 styles as an option
-* rarity icons
 * Burst digivolve format
 * populating inherit box at the bottom with art
 * (maybe auto-guessing where the "face" is for that)
@@ -57,6 +54,9 @@ VAGUE TO DO LIST, LATER:
 
 NOMINALLY FIXED BUGS / FEATURES
 
+* rarity icons, block icons
+* "use cost" instead of "cost" for options
+* "new card" copies current card
 * squeeze rule text as needed to fit in 1 line
 * pen for creator name (should credit both artist and author)
 * some timings [in brackets] not blue, again

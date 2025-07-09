@@ -29,7 +29,7 @@ import {
 
 import { applyGradientToFrame } from './util';
 import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7 } from './plaintext';
-import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
+import { fitTextToWidth, drawDiamondRectangle, drawBracketedText, writeRuleText, center } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
 import white from './white.png';
@@ -58,9 +58,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.17"
-const latest = "new 'USE' label for options, way overdue"
+const version = "0.8.18"
+const latest = "rarity and block icons, finally"
 
+// version 0.8.18   rarity and block icons, finally
 // version 0.8.17   new 'USE' label for options, way overdue
 // version 0.8.16.x prep for new changes; 'new card' starts out as dupe of current card
 // version 0.8.15.x Assembly as green
@@ -175,8 +176,9 @@ const settingText = (s) => {
 
 const empty = (s) => {
   if (!s) return true;
-  if (s.length < 2) return true;
+  if (s.length < 1) return true;
   if (s === "-") return true;
+  if (s === " ") return true;
   return false;
 }
 
@@ -316,6 +318,7 @@ const starter_text_empty = `[{
   "attribute": "",
   "type": "",
   "rarity": "C",
+  "block": "04",
   "specialEvolve": "-",
   "securityEffect": "-",
   "rule": "",
@@ -614,6 +617,16 @@ const decodeAndDecompress = (encodedString) => {
     setShareURL(url);
     navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
   }*/
+
+function rarity_string(str) {
+  const rarity = str.toUpperCase();
+  if (rarity === "COMMON") return "C";
+  if (rarity === "UNCOMMON") return "U";
+  if (rarity === "RARE") return "R";
+  if (rarity === "SUPER RARE") return "SR";
+  if (rarity === "SECRET RARE") return "SEC";
+  return rarity;
+}
 
 // show i of len piece, scaled by scale, start at x,y
 function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top = 0, y_scale = 1, x_scale = 1) {
@@ -2312,7 +2325,54 @@ function CustomCreator() {
 
       ctx.fillText(id, 2740, 3300 + delta_y);
 
+      ////////// right under card number, put circle and block
+
+      let mycolor = contrastColor(colors[colors.length - 1]);
+
+      const block = json.block;
+      let outlinecolor = undefined;
+      if (!empty(block)) {
+        // if "white" background give this a solid border
+        if (mycolor === "white") {
+          outlinecolor = "black";
+        }
+        drawDiamondRectangle(ctx, 2740 - 150, 3300 + delta_y + 145, 145, 95, "white", outlinecolor);
+        ctx.fillStyle = "black";
+        ctx.textAlign = 'center';
+
+        ctx.font = "500 90px 'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'Courier'"
+        ctx.fillText(block, 2740 - 75, 3300 + delta_y + 100);
+      }
+
+      ctx.fillStyle = contrastColor(colors[colors.length - 1]);
+      let rarity = rarity_string(json.rarity);
+      if (!empty(rarity)) {
+        let radius = 40;
+        ctx.beginPath();
+        let r_width = rarity.length;
+        let left = 2740 - 220;
+        let right = 2740 - 220;
+        if (r_width > 2) {
+          left -= 40;
+          right += 0;
+        }
+        ctx.arc(left, 3300 + delta_y + radius / 2 + 80, radius, Math.PI / 2, Math.PI * 3 / 2);
+        ctx.arc(right, 3300 + delta_y + radius / 2 + 80, radius, Math.PI * 3 / 2, Math.PI / 2);
+        // stroke color same as fill color
+        ctx.strokeStyle = mycolor;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fill();
+        ctx.font = '100 70px "ProhibitionRough", "Big Shoulders Text"'
+        console.error(2350, ctx.strokeStyle, rarity); 
+        ctx.fillStyle = contrastColor(mycolor); // flip
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(rarity, (left + right) / 2, 3300 + delta_y + radius / 2 + 80)
+      }
+
       // traits: form, attribute, type
+      ctx.textAlign = 'right';
       let form = json.form || '';
       let attribute = json.attribute || '';
       let c_type = json.type || '';
@@ -2758,12 +2818,12 @@ function CustomCreator() {
 
   // insert into place? re-order?
   const addCard = () => {
-    let json_t = jsonText[currentIndex]; 
+    let json_t = jsonText[currentIndex];
     try {
       // could just edit json text?
       let obj = JSON.parse(json_t);
       // make newcard copy of current card, instead of empty card
-      let newcard = JSON.parse( jsonText[currentIndex])[cardIndex];
+      let newcard = JSON.parse(jsonText[currentIndex])[cardIndex];
       obj.push(newcard);
       json_t = JSON.stringify(obj, null, 2); // stringify it back
       updateJson(json_t);

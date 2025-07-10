@@ -60,10 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.18"
-const latest = "rarity and block icons, finally"
+const version = "0.8.18.2"
+const latest = "rarity and block icons, finally, and update old cards to allow"
 
-// version 0.8.18   rarity and block icons, finally
+// version 0.8.18.x rarity and block icons, finally, and update old cards to allow
 // version 0.8.17   new 'USE' label for options, way overdue
 // version 0.8.16.x prep for new changes; 'new card' starts out as dupe of current card
 // version 0.8.15.x Assembly as green
@@ -527,10 +527,10 @@ const starter_text_2 = `  {
   "attribute": "Rock",
   "effect": "[Main] Suspend 2 of your opponent's Monsters. Then, return 1 of your opponent's suspended Monster to its owner's hand.",
   "securityEffect": "[Security] Activate this card's [Main] effect.",
-  "rarity": "Rare",
   "evolveEffect": "-",
   "digiXros": "-",
-  "rarity": "Secret Rare",
+  "rarity": "Super Rare", 
+  "block": "05",
   "rule": "",
   "cardNumber": "CS1-13",
   "linkRequirement": "-",
@@ -562,7 +562,8 @@ const starter_text_3 = `   {
     "securityEffect": "[Security] Play this card without paying the cost.",
     "evolveEffect": "-",
     "digiXros": "-",
-    "rarity": "Secret Rare",
+    "rarity": "Rare",
+    "block": "05",
     "rule": "",
     "cardNumber": "CS2-17",
     "imageOptions":{
@@ -1064,6 +1065,7 @@ function CustomCreator() {
       }
       for (let field of ["color", "cardType", "playCost",
         "dp", "cardLv", "form", "attribute", "type", "rarity",
+        "block",
         "linkDP", "linkRequirement", "linkEffect",
         "specialEvolve", "effect", "evolveEffect", "securityEffect",
         "rule", "digiXros", "burstEvolve", "cardNumber",

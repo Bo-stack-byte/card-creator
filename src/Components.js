@@ -11,7 +11,7 @@ function rarity_string(str) {
   if (rarity === "RARE") return "R";
   if (rarity === "SUPER RARE") return "SR";
   if (rarity === "SECRET RARE") return "SEC";
-  return rarity;
+  return rarity.substring(0, 3).toUpperCase();
 }
 
 export function CircleAndBlock(ctx, color, rarity, block, x, y) {

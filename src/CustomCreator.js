@@ -60,7 +60,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.18.2"
+const version = "0.8.18.3"
 const latest = "rarity and block icons, finally, and update old cards to allow"
 
 // version 0.8.18.x rarity and block icons, finally, and update old cards to allow

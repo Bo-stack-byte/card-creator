@@ -27,9 +27,9 @@ import {
   lines,
 } from './images';
 
-import { applyGradientToFrame } from './util';
+import { applyGradientToFrame, contrastColor, whiteColor, empty } from './util';
 import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7 } from './plaintext';
-import { fitTextToWidth, drawDiamondRectangle, drawBracketedText, writeRuleText, center } from './text';
+import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
 import white from './white.png';
@@ -42,7 +42,9 @@ import featherling from './featherling.png';
 import doublebind from './double-bind.png'
 import amy from './amy.png';
 import armor_cat from './armorcat.png';
+import { CircleAndBlock } from './Components';
 import loading_img from './loading-bar.png';
+
 
 //import './styles.css';
 import './local-styles.css';
@@ -174,13 +176,6 @@ const settingText = (s) => {
   return settingsText[s] || s;
 }
 
-const empty = (s) => {
-  if (!s) return true;
-  if (s.length < 1) return true;
-  if (s === "-") return true;
-  if (s === " ") return true;
-  return false;
-}
 
 const handleUpload = async (image, folder) => {
   if (!image) return;
@@ -252,15 +247,6 @@ const textColor = (colors) => {
   return [fillColor, strokeColor, border];
 }
 
-const contrastColor = (color) => {
-  if (["red", "blue", "green", "purple", "black", "all"].includes(color)) return "white";
-  return "black";
-}
-// draw in white text on the black stripe -- unless we're a black card with a white stripe, in which case draw black
-const whiteColor = (color) => {
-  if (color?.toLowerCase() === "black") return "black";
-  return "white";
-}
 
 const hasLevel = (type) => {
   return (type === "EGG" || type === "MONSTER" || type === "MEGA" || type === "ACE" || type === "LINK");
@@ -372,6 +358,7 @@ const starter_text_0 = ` [ {
     "attribute": "Data",
     "type": "Sword",
     "rarity": "C",
+    "block": "03",
     "evolveEffect": "[Your Turn] While you have a red Monster or Tamer in play, all your Monsters gain +1000 DP.",
     "cardNumber": "CS-01",
     "imageOptions":{
@@ -420,6 +407,7 @@ const starter_text_1a = `  {
     "dnaEvolve": "-",
     "burstEvolve": "-",
     "rarity": "Rare",
+    "block": "05",
     "rule": "[Rule] Trait: Has the [Virus] attribute",
     "cardNumber": "CS2-11",
     "imageOptions":{
@@ -461,6 +449,7 @@ const starter_text_1b = `  {
     "aceEffect": "Overflow \uff1c-5\uff1e (As this card would move from the field or from under a card to another area, lose 4 memory.)",
     "burstEvolve": "-",
     "rarity": "Secret Rare",
+    "block": "05",
     "rule": "",
     "cardNumber": "CS2-18",
     "imageOptions":{
@@ -494,6 +483,7 @@ const starter_text_1c = `{
   "attribute": "Bird",
   "type": "Spellcaster",
   "rarity": "Special",
+  "block": "03",
   "specialEvolve": "-",
   "effect": "[Your Turn] [Once Per Turn] When this Monster gets linked, You may suspend 1 other Monster with DP less than or equal to this Monster.",
   "linkRequirement": "[Link] [Bird] trait: Cost 1",
@@ -617,16 +607,6 @@ const decodeAndDecompress = (encodedString) => {
     setShareURL(url);
     navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
   }*/
-
-function rarity_string(str) {
-  const rarity = str.toUpperCase();
-  if (rarity === "COMMON") return "C";
-  if (rarity === "UNCOMMON") return "U";
-  if (rarity === "RARE") return "R";
-  if (rarity === "SUPER RARE") return "SR";
-  if (rarity === "SECRET RARE") return "SEC";
-  return rarity;
-}
 
 // show i of len piece, scaled by scale, start at x,y
 function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top = 0, y_scale = 1, x_scale = 1) {
@@ -2327,49 +2307,7 @@ function CustomCreator() {
 
       ////////// right under card number, put circle and block
 
-      let mycolor = contrastColor(colors[colors.length - 1]);
-
-      const block = json.block;
-      let outlinecolor = undefined;
-      if (!empty(block)) {
-        // if "white" background give this a solid border
-        if (mycolor === "white") {
-          outlinecolor = "black";
-        }
-        drawDiamondRectangle(ctx, 2740 - 150, 3300 + delta_y + 145, 145, 95, "white", outlinecolor);
-        ctx.fillStyle = "black";
-        ctx.textAlign = 'center';
-
-        ctx.font = "500 90px 'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'Courier'"
-        ctx.fillText(block, 2740 - 75, 3300 + delta_y + 100);
-      }
-
-      ctx.fillStyle = contrastColor(colors[colors.length - 1]);
-      let rarity = rarity_string(json.rarity);
-      if (!empty(rarity)) {
-        let radius = 40;
-        ctx.beginPath();
-        let r_width = rarity.length;
-        let left = 2740 - 220;
-        let right = 2740 - 220;
-        if (r_width > 2) {
-          left -= 40;
-          right += 0;
-        }
-        ctx.arc(left, 3300 + delta_y + radius / 2 + 80, radius, Math.PI / 2, Math.PI * 3 / 2);
-        ctx.arc(right, 3300 + delta_y + radius / 2 + 80, radius, Math.PI * 3 / 2, Math.PI / 2);
-        // stroke color same as fill color
-        ctx.strokeStyle = mycolor;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        ctx.fill();
-        ctx.font = '100 70px "ProhibitionRough", "Big Shoulders Text"'
-        console.error(2350, ctx.strokeStyle, rarity); 
-        ctx.fillStyle = contrastColor(mycolor); // flip
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(rarity, (left + right) / 2, 3300 + delta_y + radius / 2 + 80)
-      }
+      CircleAndBlock(ctx, colors[colors.length - 1], json.rarity, json.block, 2740 - 150, 3300 + delta_y);      
 
       // traits: form, attribute, type
       ctx.textAlign = 'right';

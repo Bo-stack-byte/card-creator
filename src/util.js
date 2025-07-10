@@ -33,3 +33,21 @@ export const applyGradientToFrame = (img, gradientImage) => {
 
     return newImg; 
 };
+
+export const contrastColor = (color) => {
+  if (["red", "blue", "green", "purple", "black", "all"].includes(color)) return "white";
+  return "black";
+}
+// draw in white text on the black stripe -- unless we're a black card with a white stripe, in which case draw black
+export const whiteColor = (color) => {
+  if (color?.toLowerCase() === "black") return "black";
+  return "white";
+}
+
+export const empty = (s) => {
+  if (!s) return true;
+  if (s.length < 1) return true;
+  if (s === "-") return true;
+  if (s === " ") return true;
+  return false;
+}

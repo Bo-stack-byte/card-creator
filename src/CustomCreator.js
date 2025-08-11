@@ -2,7 +2,7 @@ import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react'
 import { basics, options, colorReplace } from './images';
 import {
 
-  mon_background, mega_background, egg_background, option_background, tamer_background,
+  mon_background, mega_background, egg_background, option_background, tamer_background, tamer_dp_background,
   mon_background_nocost, mega_background_nocost, /*egg_background_nocost,*/ option_background_nocost, tamer_background_nocost,
 
   ace_backgrounds,
@@ -27,7 +27,7 @@ import {
   lines,
 } from './images';
 
-import { applyGradientToFrame, contrastColor, whiteColor, empty } from './util';
+import { applyGradientToFrame, contrastColor, cropImageBottomRows, whiteColor, empty } from './util';
 import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7 } from './plaintext';
 import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
 import banner from './banner.png';
@@ -60,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.18.3"
-const latest = "rarity and block icons, finally, and update old cards to allow"
+const version = "0.8.19"
+const latest = "monsters with security effects/icons"
 
+// version 0.8.19   monsters with security effects/icons
 // version 0.8.18.x rarity and block icons, finally, and update old cards to allow
 // version 0.8.17   new 'USE' label for options, way overdue
 // version 0.8.16.x prep for new changes; 'new card' starts out as dupe of current card
@@ -259,9 +260,6 @@ const levelHeight = (type) => {
 const hasEvo = (type) => {
   return (type === "MONSTER" || type === "MEGA" || type === "ACE" ||
     type === "TAMER" || type === "TAMERINHERIT" || type === "LINK");
-}
-const hasDP = (type) => {
-  return (type === "MONSTER" || type === "MEGA" || type === "ACE" || type === "LINK");
 }
 
 
@@ -1422,6 +1420,7 @@ function CustomCreator() {
 
     let modern = 1;
     const has_cost = (json.playCost.length > 0 && json.playCost >= 0);
+    const has_dp = (json.dp && json.dp.length > 0);
     // TODO: make cost an array to avoid inline trinaries
 
     let t;
@@ -1476,7 +1475,7 @@ function CustomCreator() {
       case "OPTIONINHERIT": cardframes = [has_cost ? option_background : option_background_nocost]; break;
       case "TAMER":
       case "TAMERINHERIT":
-        cardframes = [has_cost ? tamer_background : tamer_background_nocost]; break;
+        cardframes = [has_dp ? tamer_dp_background : has_cost ? tamer_background : tamer_background_nocost]; break;
       // Is there any way to indicate we should use the no_cost egg background??
       case "EGG": cardframes = [has_cost ? egg_background : egg_background]; break;
       case "LINK":
@@ -1672,6 +1671,7 @@ function CustomCreator() {
           }
 
           let len = shells.length;
+          
           for (let i = 0; i < shells.length; i++) {
             // this isn't loading the very first time for each color
             // 
@@ -1708,7 +1708,15 @@ function CustomCreator() {
       // OUTLINE
       for (let i = 0; i < len; i++) {
         let col = colors[i];
-        let frame = frameImages[i];
+        let _frame = frameImages[i];
+        let frame;
+        console.error(1717.1, frame);
+        if (type.startsWith("TAMER") && has_dp) {
+          frame = cropImageBottomRows(_frame, 1055);
+        } else {
+          frame = _frame;
+        }
+        console.error(1717.2, frame);
 
         if (frame && imageOptions.outline) {
           let l = (type.startsWith("OPTION")) ? 1 : len; // just 1 option "outline"
@@ -1721,12 +1729,14 @@ function CustomCreator() {
             undefined, 1, 1.00);
         }
         // DRAW BOTTOM OF BOX?
-        if (imageOptions.outline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE")) {
+        if (imageOptions.outline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE" || type.startsWith("TAMER"))) {
           // bottom of frame
           let border = borders[col];
-          if (type === "ACE") bottom_y += 20;
-          scalePartialImage(ctx, border, i, len, 67.3 * border_scale / 3950,
-            166, bottom_y);
+          let y_offset = 0;
+          if (type.startsWith("TAMER") && has_dp) y_offset = -150;
+          if (type === "ACE") y_offset = 20;
+          if (true) scalePartialImage(ctx, border, i, len, 67.3 * border_scale / 3950,
+            166, bottom_y + y_offset);
           // todo: play with these numbers some more. scale is 67.2-67.5,
           // and left is 166
         }
@@ -2179,7 +2189,7 @@ function CustomCreator() {
 
       }
 
-      if (hasDP(type)) {
+      if (has_dp) {
         // dp
         x = 2540;
         y = 410;
@@ -2511,7 +2521,7 @@ function CustomCreator() {
         case "OPTIONINHERIT": array = options; break;
         // how is outlines_tamer different from outlines_egg??
         case "TAMER":
-        case "TAMERINHERIT": array = has_cost ? outlines_tamer : outlines_tamer_nocost; break;
+        case "TAMERINHERIT": if (!has_dp) array = has_cost ? outlines_tamer : outlines_tamer_nocost; break;
         // Is there any way to indicate we should use the no_cost egg background??
         case "EGG": array = has_cost ? outlines_egg : outlines_egg; break;
         case "MONSTER": break;

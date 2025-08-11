@@ -4,6 +4,7 @@ take this as a brainstorming list of ideas.
 
 KNOWN BUGS
 
+* ESS picture not using bbackground
 * multiple users reporting Safari issues (bad scaling, bad font on mon name). if this includes you, please reach out
 * fix those extra pixels at intersections where angles jut out
 * (maybe same issue) Keywords that appear far along the line may be mis-aligned. So do [] symbols
@@ -16,6 +17,7 @@ VAGUE TO DO LIST, SOONER:
 
 MEDIUM TERM:
 
+* Monsters with Security effect icons (brand new layout, new Security box)
 * font check page
 * brick art
 * full color border art (PARTIALLY DONE)

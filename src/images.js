@@ -8,6 +8,7 @@ import mega_background from './frames/background_digimon.png';
 import egg_background from './frames/background_egg.png';
 import option_background from './frames/background_option.png';
 import tamer_background from './frames/background_tamer.png';
+import tamer_dp_background from './frames/background_tamer_dp.png';
 
 import mon_background_nocost from './frames/background_digimon_evo_nocost.png';
 import mega_background_nocost from './frames/background_digimon_nocost.png';
@@ -348,6 +349,7 @@ export const new_evo2_circles = {
   'white': new_evo2_white,
 }
 
+// gradient for special backgrounds
 export const redline = new Image(); redline.src = _redline;
 export const blueline = new Image(); blueline.src = _blueline;
 export const yellowline = new Image(); yellowline.src = _yellowline;
@@ -431,7 +433,7 @@ let pen_img = new Image(); pen_img.src = pen;
 
 // these backgrounds are used all the time and should be pre-loaded
 export {
-  mon_background, mega_background, egg_background, option_background, tamer_background,
+  mon_background, mega_background, egg_background, option_background, tamer_background, tamer_dp_background,
   mon_background_nocost, mega_background_nocost, egg_background_nocost, option_background_nocost, tamer_background_nocost,
   cost, cost_egg, cost_option, cost_evo, cost_evo_plain,
   outline_option, outline_option_nocost, ace_logo,

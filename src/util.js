@@ -34,35 +34,6 @@ export const applyGradientToFrame = (img, gradientImage) => {
     return newImg; 
 };
 
-
-export function cropImageBottomRows(imageObj, rowsToErase) {
-  if (!imageObj.complete || imageObj.naturalWidth === 0 || imageObj.naturalHeight === 0 || !rowsToErase) {
-    return imageObj;
-  }
-
-
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  canvas.width = imageObj.naturalWidth;
-  canvas.height = imageObj.naturalHeight;
-
-  ctx.drawImage(imageObj, 0, 0);
-
-  ctx.clearRect(
-    0,
-    canvas.height - rowsToErase,
-    canvas.width,
-    rowsToErase
-  );
-
-  const resultImage = new Image();
-  resultImage.src = canvas.toDataURL("image/png");  // png for transparency
-  return resultImage;
-}
-
-
-
 export const contrastColor = (color) => {
   if (["red", "blue", "green", "purple", "black", "all"].includes(color)) return "white";
   return "black";

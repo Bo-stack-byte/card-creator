@@ -93,6 +93,14 @@ import _inherited_sec_purple from './frames/inherits/bottom_purple_security.png'
 import _inherited_sec_black from './frames/inherits/bottom_black_security.png';
 import _inherited_sec_white from './frames/inherits/bottom_white_security.png';
 
+import _inherited_sec_mon_red from './frames/inherits/bottom_red_mon_security.png';
+import _inherited_sec_mon_blue from './frames/inherits/bottom_blue_mon_security.png';
+import _inherited_sec_mon_yellow from './frames/inherits/bottom_yellow_mon_security.png';
+import _inherited_sec_mon_green from './frames/inherits/bottom_green_mon_security.png';
+import _inherited_sec_mon_purple from './frames/inherits/bottom_purple_mon_security.png';
+import _inherited_sec_mon_black from './frames/inherits/bottom_black_mon_security.png';
+import _inherited_sec_mon_white from './frames/inherits/bottom_white_mon_security.png';
+
 
 import _bottom_plain_red from './frames/inherits/bottom_plain_red.png';
 import _bottom_plain_blue from './frames/inherits/bottom_plain_blue.png';
@@ -577,6 +585,14 @@ let inherited_sec_purple = new Image(); inherited_sec_purple.src = _inherited_se
 let inherited_sec_black = new Image(); inherited_sec_black.src = _inherited_sec_black;
 let inherited_sec_white = new Image(); inherited_sec_white.src = _inherited_sec_white;
 
+let inherited_sec_mon_red = new Image(); inherited_sec_mon_red.src = _inherited_sec_mon_red;
+let inherited_sec_mon_blue = new Image(); inherited_sec_mon_blue.src = _inherited_sec_mon_blue;
+let inherited_sec_mon_yellow = new Image(); inherited_sec_mon_yellow.src = _inherited_sec_mon_yellow;
+let inherited_sec_mon_green = new Image(); inherited_sec_mon_green.src = _inherited_sec_mon_green;
+let inherited_sec_mon_purple = new Image(); inherited_sec_mon_purple.src = _inherited_sec_mon_purple;
+let inherited_sec_mon_black = new Image(); inherited_sec_mon_black.src = _inherited_sec_mon_black;
+let inherited_sec_mon_white = new Image(); inherited_sec_mon_white.src = _inherited_sec_mon_white;
+
 
 let bottom_plain_red = new Image(); bottom_plain_red.src = _bottom_plain_red;
 let bottom_plain_blue = new Image(); bottom_plain_blue.src = _bottom_plain_blue;
@@ -645,6 +661,16 @@ export const inherited_security = {
   'purple': inherited_sec_purple,
   'black': inherited_sec_black,
   'white': inherited_sec_white
+}
+
+export const inherited_mon_security = {
+  'red': inherited_sec_mon_red,
+  'blue': inherited_sec_mon_blue,
+  'yellow': inherited_sec_mon_yellow,
+  'green': inherited_sec_mon_green,
+  'purple': inherited_sec_mon_purple,
+  'black': inherited_sec_mon_black,
+  'white': inherited_sec_mon_white
 }
 
 // NAME field

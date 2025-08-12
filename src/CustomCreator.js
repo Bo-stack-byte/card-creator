@@ -2,7 +2,7 @@ import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react'
 import { basics, options, colorReplace } from './images';
 import {
 
-  mon_background, mega_background, egg_background, option_background, tamer_background, tamer_dp_background,
+  mon_background, mega_background, egg_background, option_background, tamer_background,
   mon_background_nocost, mega_background_nocost, /*egg_background_nocost,*/ option_background_nocost, tamer_background_nocost,
 
   ace_backgrounds,
@@ -19,7 +19,7 @@ import {
 
   // inherits at bottom:
   bottom_evos, bottom_egg_evos,
-  bottom_aces, inherited_security,
+  bottom_aces, inherited_security, inherited_mon_security,
   bottom_property_white, bottom_property_black,
 
   pen_img,
@@ -27,7 +27,7 @@ import {
   lines,
 } from './images';
 
-import { applyGradientToFrame, contrastColor, cropImageBottomRows, whiteColor, empty } from './util';
+import { applyGradientToFrame, contrastColor, whiteColor, empty } from './util';
 import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7 } from './plaintext';
 import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
 import banner from './banner.png';
@@ -60,10 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.19"
-const latest = "monsters with security effects/icons"
+const version = "0.8.19.1"
+const latest = "monsters with security inheriteds have security icons"
 
-// version 0.8.19   monsters with security effects/icons
+// version 0.9.19.x monsters with security inheriteds have security icons
 // version 0.8.18.x rarity and block icons, finally, and update old cards to allow
 // version 0.8.17   new 'USE' label for options, way overdue
 // version 0.8.16.x prep for new changes; 'new card' starts out as dupe of current card
@@ -260,6 +260,9 @@ const levelHeight = (type) => {
 const hasEvo = (type) => {
   return (type === "MONSTER" || type === "MEGA" || type === "ACE" ||
     type === "TAMER" || type === "TAMERINHERIT" || type === "LINK");
+}
+const hasDP = (type) => {
+  return (type === "MONSTER" || type === "MEGA" || type === "ACE" || type === "LINK");
 }
 
 
@@ -1420,7 +1423,6 @@ function CustomCreator() {
 
     let modern = 1;
     const has_cost = (json.playCost.length > 0 && json.playCost >= 0);
-    const has_dp = (json.dp && json.dp.length > 0);
     // TODO: make cost an array to avoid inline trinaries
 
     let t;
@@ -1475,7 +1477,7 @@ function CustomCreator() {
       case "OPTIONINHERIT": cardframes = [has_cost ? option_background : option_background_nocost]; break;
       case "TAMER":
       case "TAMERINHERIT":
-        cardframes = [has_dp ? tamer_dp_background : has_cost ? tamer_background : tamer_background_nocost]; break;
+        cardframes = [has_cost ? tamer_background : tamer_background_nocost]; break;
       // Is there any way to indicate we should use the no_cost egg background??
       case "EGG": cardframes = [has_cost ? egg_background : egg_background]; break;
       case "LINK":
@@ -1671,7 +1673,6 @@ function CustomCreator() {
           }
 
           let len = shells.length;
-          
           for (let i = 0; i < shells.length; i++) {
             // this isn't loading the very first time for each color
             // 
@@ -1708,15 +1709,7 @@ function CustomCreator() {
       // OUTLINE
       for (let i = 0; i < len; i++) {
         let col = colors[i];
-        let _frame = frameImages[i];
-        let frame;
-        console.error(1717.1, frame);
-        if (type.startsWith("TAMER") && has_dp) {
-          frame = cropImageBottomRows(_frame, 1055);
-        } else {
-          frame = _frame;
-        }
-        console.error(1717.2, frame);
+        let frame = frameImages[i];
 
         if (frame && imageOptions.outline) {
           let l = (type.startsWith("OPTION")) ? 1 : len; // just 1 option "outline"
@@ -1729,14 +1722,12 @@ function CustomCreator() {
             undefined, 1, 1.00);
         }
         // DRAW BOTTOM OF BOX?
-        if (imageOptions.outline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE" || type.startsWith("TAMER"))) {
+        if (imageOptions.outline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE")) {
           // bottom of frame
           let border = borders[col];
-          let y_offset = 0;
-          if (type.startsWith("TAMER") && has_dp) y_offset = -150;
-          if (type === "ACE") y_offset = 20;
-          if (true) scalePartialImage(ctx, border, i, len, 67.3 * border_scale / 3950,
-            166, bottom_y + y_offset);
+          if (type === "ACE") bottom_y += 20;
+          scalePartialImage(ctx, border, i, len, 67.3 * border_scale / 3950,
+            166, bottom_y);
           // todo: play with these numbers some more. scale is 67.2-67.5,
           // and left is 166
         }
@@ -1802,6 +1793,9 @@ function CustomCreator() {
             ///// EVO BOX AT BOTTOM (OR LINK BOX)
             if (type !== "MEGA") {
               let img = bottom_evos[col];
+              if (json.evolveEffect.startsWith("[Security]")) {
+                img = inherited_mon_security[col];
+              }
               // scale = 606 specifically for bottom_evo_${color}.png
               let scale = 735;
               let height = 3550;
@@ -1836,7 +1830,7 @@ function CustomCreator() {
             }
 
 
-            // DRAW ESS BOX
+            /// DRAW ESS BOX
             if (mon_img) {
               let ess_i_width = (Number(imageOptions.ess_x_end) - Number(imageOptions.ess_x_pos)) * mon_img.width / 100
               let ess_i_height = (Number(imageOptions.ess_y_end) - Number(imageOptions.ess_y_pos)) * mon_img.height / 100
@@ -1848,6 +1842,7 @@ function CustomCreator() {
               let size_y = 350;
 
               if (type === "MEGA" || type === "OPTION" || type === "TAMER") ess_pos_y = 0;
+              if (json.evolveEffect.startsWith("[Security]")) ess_pos_y = -3500; // just hiding it
               if (type.endsWith("INHERIT")) ess_pos_y -= 105;
               if (type === "LINK") {
                 ess_pos_y -= 310;
@@ -2189,7 +2184,7 @@ function CustomCreator() {
 
       }
 
-      if (has_dp) {
+      if (hasDP(type)) {
         // dp
         x = 2540;
         y = 410;
@@ -2317,7 +2312,7 @@ function CustomCreator() {
 
       ctx.fillText(id, 2740, 3300 + delta_y);
 
-      ////////// right under card number, put circle and block
+      ////// right under card number, put circle and block
 
       CircleAndBlock(ctx, colors[colors.length - 1], json.rarity, json.block, 2740 - 150, 3300 + delta_y);      
 
@@ -2521,7 +2516,7 @@ function CustomCreator() {
         case "OPTIONINHERIT": array = options; break;
         // how is outlines_tamer different from outlines_egg??
         case "TAMER":
-        case "TAMERINHERIT": if (!has_dp) array = has_cost ? outlines_tamer : outlines_tamer_nocost; break;
+        case "TAMERINHERIT": array = has_cost ? outlines_tamer : outlines_tamer_nocost; break;
         // Is there any way to indicate we should use the no_cost egg background??
         case "EGG": array = has_cost ? outlines_egg : outlines_egg; break;
         case "MONSTER": break;

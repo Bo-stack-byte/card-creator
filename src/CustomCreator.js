@@ -60,7 +60,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.19.1"
+const version = "0.8.19.2"
 const latest = "monsters with security inheriteds have security icons"
 
 // version 0.9.19.x monsters with security inheriteds have security icons
@@ -1793,7 +1793,7 @@ function CustomCreator() {
             ///// EVO BOX AT BOTTOM (OR LINK BOX)
             if (type !== "MEGA") {
               let img = bottom_evos[col];
-              if (json.evolveEffect.startsWith("[Security]")) {
+              if (!empty(json.securityEffect)) { 
                 img = inherited_mon_security[col];
               }
               // scale = 606 specifically for bottom_evo_${color}.png
@@ -1842,7 +1842,7 @@ function CustomCreator() {
               let size_y = 350;
 
               if (type === "MEGA" || type === "OPTION" || type === "TAMER") ess_pos_y = 0;
-              if (json.evolveEffect.startsWith("[Security]")) ess_pos_y = -3500; // just hiding it
+              if (!empty(json.securityEffect)) ess_pos_y = -3500; // just hiding it
               if (type.endsWith("INHERIT")) ess_pos_y -= 105;
               if (type === "LINK") {
                 ess_pos_y -= 310;

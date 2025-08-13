@@ -60,10 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.19.4"
+const version = "0.8.19.5"
 const latest = "monsters with security inheriteds have security icons, and 'egg' as cost to force egg icon"
 
-// version 0.9.19.x monsters with security inheriteds have security icons, and 'egg' as cost to force egg icon
+// version 0.8.19.x monsters with security inheriteds have security icons, and 'egg' as cost to force egg icon
 // version 0.8.18.x rarity and block icons, finally, and update old cards to allow
 // version 0.8.17   new 'USE' label for options, way overdue
 // version 0.8.16.x prep for new changes; 'new card' starts out as dupe of current card
@@ -1422,7 +1422,7 @@ function CustomCreator() {
     }
 
     let modern = 1;
-    const has_cost = (json.playCost.length > 0 && json.playCost >= 0);
+    const has_cost = (json.playCost.length > 0 && (json.playCost >= 0 || json.playCost.toLowerCase() === "egg"));
     // TODO: make cost an array to avoid inline trinaries
 
     let t;
@@ -2133,7 +2133,7 @@ function CustomCreator() {
           img = cost;
           if (type.startsWith("OPTION")) img = cost_option;
         }
-        if (json.playCost === "egg") img = cost_egg;
+        if (json.playCost.toLowerCase() === "egg") img = cost_egg;
         if (img) {
           ctx.drawImage(img, offset_x, offset_y, 500, 500);
           for (let color of colors) {

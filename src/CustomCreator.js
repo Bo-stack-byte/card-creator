@@ -60,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.19.5"
-const latest = "monsters with security inheriteds have security icons, and 'egg' as cost to force egg icon"
+const version = "0.8.20"
+const latest = "assembly field added (overlaps with digixros); arbitrary [fields] at start of digixros/link/assembly line"
 
+// version 0.8.20   assembly field added (overlaps with digixros); arbitrary [fields] at start of digixros/link/assembly line
 // version 0.8.19.x monsters with security inheriteds have security icons, and 'egg' as cost to force egg icon
 // version 0.8.18.x rarity and block icons, finally, and update old cards to allow
 // version 0.8.17   new 'USE' label for options, way overdue
@@ -310,6 +311,7 @@ const starter_text_empty = `[{
   "securityEffect": "-",
   "rule": "",
   "digiXros": "",
+  "assembly": "",
   "dnaEvolve": "-",
   "burstEvolve": "-",
   "evolveEffect": "-",
@@ -405,6 +407,7 @@ const starter_text_1a = `  {
     "securityEffect": "-",
     "specialEvolve": "-",
     "digiXros": "[DigiXros -3] [Axe Raider] x [Pikachu]",
+    "assembly": "-",
     "dnaEvolve": "-",
     "burstEvolve": "-",
     "rarity": "Rare",
@@ -447,6 +450,7 @@ const starter_text_1b = `  {
     "evolveEffect": "-",
     "dnaEvolve": "[DNA Digivolve] Yellow Lv.6 + Blue Lv.6\u00a0: Cost 0",
     "digiXros": "-",
+    "assembly": "-",
     "aceEffect": "Overflow \uff1c-5\uff1e (As this card would move from the field or from under a card to another area, lose 4 memory.)",
     "burstEvolve": "-",
     "rarity": "Secret Rare",
@@ -493,6 +497,7 @@ const starter_text_1c = `{
   "securityEffect": "-",
   "rule": "",
   "digiXros": "-",
+  "assembly": "-",
   "dnaEvolve": "-",
   "burstEvolve": "-",
   "cardNumber": "CS3-02",
@@ -530,6 +535,7 @@ const starter_text_2 = `  {
   "securityEffect": "[Security] Activate this card's [Main] effect.",
   "evolveEffect": "-",
   "digiXros": "-",
+  "assembly": "-",
   "rarity": "Super Rare", 
   "block": "05",
   "rule": "",
@@ -563,6 +569,7 @@ const starter_text_3 = `   {
     "securityEffect": "[Security] Play this card without paying the cost.",
     "evolveEffect": "-",
     "digiXros": "-",
+    "assembly": "-",
     "rarity": "Rare",
     "block": "05",
     "rule": "",
@@ -1069,7 +1076,7 @@ function CustomCreator() {
         "block",
         "linkDP", "linkRequirement", "linkEffect",
         "specialEvolve", "effect", "evolveEffect", "securityEffect",
-        "rule", "digiXros", "burstEvolve", "cardNumber",
+        "rule", "digiXros", "assembly", "burstEvolve", "cardNumber",
         "author", "artist"]) {
         if (!(field in json)) {
           console.log("Missing field added " + field);
@@ -1974,7 +1981,9 @@ function CustomCreator() {
 
       bottom += 800;
       const rule = colorReplace(json.rule, true);
-      const xros = colorReplace(json.digiXros, true);
+      let xros_text = json.digiXros;
+      if (!empty(json.assembly)) xros_text = json.assembly;
+      const xros = colorReplace(xros_text, true);
       const fontSize = Number(json.imageOptions.fontSize) || 90.5
       let rule_offset = 0;
       let xros_offset = 0;

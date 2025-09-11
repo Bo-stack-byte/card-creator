@@ -295,7 +295,8 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
     case 'bubble': color0 = 'black'; color1 = 'black'; break;
     case 'darkblue': color0 = '#0D1544'; color1 = '#4D5584'; break;
     case 'red': color0 = '#530B07'; color1 = '#A12015'; color2 = '#DB6D52'; break;
-
+    case 'yellow': color0 = 'yellow'; color1= 'yellow'; break;
+    
     case 'blue':
     default:
       color0 = '#41386A'; color1 = '#4765CC'; color2 = '#55D8E6';
@@ -451,6 +452,7 @@ function prepareKeywords(str, replaceBrackets) {
 // drawbracketedtext calls splittextintoparts
 
 // if "extra" is "bubble", put text in black bubble
+// if "extra" is "bubble", put all [bracketed text] at start of line in green
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
 // _maxWidth is unused :(
 export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, preview = false) {
@@ -543,16 +545,17 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 //    ⸨ ⸩
     
 
-function getColor(phrase) {
+function getColor(phrase, default_color = 'blue') {
   if (phrase.match(/DigiXros/i)) return 'green';
   if (phrase.match(/Assembly/i)) return 'green';
   if (phrase === "Link") return 'green';
   if (['Hand', 'Trash', 'Breeding'].includes(phrase)) return 'purple';
   if (['Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'red';
   if (phrase.match(/(Digi|E)volve/i)) return 'darkblue';
-  return 'blue';
+  return default_color;
 }
 
+// style is called 'extra' in other functions
 function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = false) {
   //console.log(361, fontSize, text, x, y, style, preview);
   fontSize = Number(fontSize);
@@ -569,6 +572,10 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
   //  ctx.save();
   // ctx.scale(scale, 1);
 
+  let default_color = 'blue'; // default for [brackets]
+  if (style === "effect") default_color = 'blue';
+  if (style === "dna") default_color = 'darkblue';
+  if (style === "bubble") default_color = 'green';
 
   // split by <> first
   let angle_phrases = text.split(/([<＜].*?[>＞])/);
@@ -578,15 +585,16 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
     phrases.push(...temp);
   }
   //let phrases = text.split(/([[⟦].*?[\]⟧])/);
-  phrases.forEach(phrase => {
+  phrases.forEach((phrase,index) => {
     let cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
     //console.log(574, "p", phrase, "cp", cleanPhrase)
     if (
       (phrase.startsWith("⟦") && phrase.endsWith("⟧")) ||
-      (phrase.startsWith("[") && phrase.endsWith("]") && matchMagic(magicWords, cleanPhrase))
+      (phrase.startsWith("[") && phrase.endsWith("]") && matchMagic(magicWords, cleanPhrase)) ||
+      (phrase.startsWith("[") && phrase.endsWith("]") && index < 2)// first hrase
     ) {
       // Calculate the width of the bracketed text
-      let color = getColor(cleanPhrase);
+      let color = getColor(cleanPhrase, default_color);
       //console.log(292, cleanPhrase);
       if (cleanPhrase.startsWith("(") && cleanPhrase.endsWith(")")) {
         color = "purple";

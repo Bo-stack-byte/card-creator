@@ -173,6 +173,7 @@ export const enterPlainText = (lines) => {
 
         "rule": "",
         "digiXros": "",
+        "assembly": "",
         "dnaEvolve": "-",
         "burstEvolve": "-",
         "cardNumber": "",
@@ -307,6 +308,8 @@ export const enterPlainText = (lines) => {
             //     {Digixros -1} [Arresterdramon] x [MetalTyrannomon]
         } else if ((m = line.match(/^.{0,3}(DigiXros -\d+).{0,3}\s+(.*)/i))) {
             json.digiXros = `[${m[1]}] ${m[2]}`;
+        } else if ((m = line.match(/^.{0,3}(Assembly -\d+).{0,3}\s+(.*)/i))) {
+            json.assembly = `[${m[1]}] ${m[2]}`;
             //    [Link]: [Appmon] trait. Cost: 1.
         } else if ((m = line.match(/^.{0,3}(Link).?:?\s*(.*trait.*).?\s*:\s*cost.?\s*(\d+)/i))) {
             json.linkRequirement = `[Link] ${m[2]}: Cost ${m[3]}`

@@ -303,6 +303,7 @@ import _dna_all from './frames/dna_box_all.png';
 import _foil from './frames/foil.png';
 
 import _bubble from './frames/bubble.png';
+import _doublebubble from './frames/doublebubble.png';
 import _linkdp from './frames/linkdp.png';
 
 import pen from './frames/pen.png';
@@ -382,6 +383,7 @@ export const lines = {
 
 let foil = new Image(); foil.src = _foil;
 let bubble = new Image(); bubble.src = _bubble;
+let doublebubble = new Image(); doublebubble.src = _doublebubble;
 let linkdp = new Image(); linkdp.src = _linkdp;
 
 let dna_red = new Image(); dna_red.src = _dna_red;
@@ -451,7 +453,7 @@ export {
   cost, cost_egg, cost_option, cost_evo, cost_evo_plain,
   outline_option, outline_option_nocost, ace_box, ace_logo,
   bottom_property_white, bottom_property_black,
-  foil, bubble, linkdp,
+  foil, bubble, doublebubble, linkdp,
   pen_img
 };
 

@@ -3,7 +3,7 @@ import _left_diamond from './frames/keywords/left-diamond.png';
 import _middle_diamond from './frames/keywords/middle-diamond.png';
 import _right_diamond from './frames/keywords/right-diamond.png';
 
-import { dna_boxes, countColors, colorReplace, bubble } from './images';
+import { dna_boxes, countColors, colorReplace, bubble, doublebubble } from './images';
 
 let diamondLeft = new Image(); diamondLeft.src = _left_diamond;
 let diamondMiddle = new Image(); diamondMiddle.src = _middle_diamond;
@@ -109,7 +109,7 @@ const customSplit = (str) => {
       isWhitespace = false;
     }
   }
-  
+
   if (buffer) result.push(buffer);
   return result;
 };
@@ -158,7 +158,7 @@ function splitTextIntoParts(text) {
 
         let pieces;
         try {
-          if (3 < 4)        pieces = customSplit(thing);
+          if (3 < 4) pieces = customSplit(thing);
           pieces = thing.split(/(?<=\s)(?=\S)|(?<=\S)(?=\s)/);
         } catch (e) {
           console.log("can't look behind"); // older safari
@@ -232,9 +232,10 @@ function drawRoundedRect(ctx, x, y, width, height, radius, stroke) {
   ctx.restore();
 }
 
-function drawBubble(ctx, x, y, w, h) {
+function drawBubble(ctx, x, y, w, h, double = false) {
   ctx.globalAlpha = 0.9;
-  ctx.drawImage(bubble, x - 20, y - h, w, h);
+  let img = double ? doublebubble : bubble;
+  ctx.drawImage(img, x - 20, y - h, w, h);
   ctx.globalAlpha = 1.0;
 
 }
@@ -281,11 +282,14 @@ function drawDnaBox(ctx, x, y, w, h, colors) {
 
 //x,y is upper left
 function drawColoredRectangle(ctx, x, y, width, height, color) {
-  //console.log(195, x, y, width, height, color);
+  console.log(195, x, y, width, height, color);
   //#922969 darker ois lower
   if (color === 'bubble') {
-
     drawBubble(ctx, x, y, width, height);
+    return;
+  }
+  if (color === 'doublebubble') {
+    drawBubble(ctx, x, y, width, height, true);
     return;
   }
   const cardWidth = horizontal_limit; // !
@@ -294,11 +298,12 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
   switch (color) {
     case 'purple': color0 = '#720949'; color1 = '#b24999'; break;
     case 'green': color0 = 'darkgreen'; color1 = 'lightgreen'; break;
+    case 'doublebubble':
     case 'bubble': color0 = 'black'; color1 = 'black'; break;
     case 'darkblue': color0 = '#0D1544'; color1 = '#4D5584'; break;
     case 'red': color0 = '#530B07'; color1 = '#A12015'; color2 = '#DB6D52'; break;
-    case 'yellow': color0 = 'yellow'; color1= 'yellow'; break;
-    
+    case 'yellow': color0 = 'yellow'; color1 = 'yellow'; break;
+
     case 'blue':
     default:
       color0 = '#41386A'; color1 = '#4765CC'; color2 = '#55D8E6';
@@ -313,7 +318,7 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
     gradient.addColorStop(0.99, color2);
   }
   let d = 0;
-  if (color === 'bubble') {
+  if (color.includes('bubble')) {
     ctx.globalAlpha = 0.4;
     d = 10;
   }
@@ -323,7 +328,7 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
   //  ctx.fillRect(x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, false);
   drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 0 + 2 * d, height + 2 * d, height / 3, false);
   ctx.globalAlpha = 1;
-  if (color === 'bubble') { // dead code
+  if (color.includes('bubble')) { // dead code
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 8;
     drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 0 + 2 * d, height + 2 * d, height / 3, true);
@@ -366,9 +371,9 @@ function _2drawDiamondRectangle(ctx, x, y, width, height, color, strokeColor) {
   const halfHeight = height / 2;
   // Create the gradient from dark brown to medium brown
   const gradient = ctx.createLinearGradient(0, y, 0, y + height);
-  gradient.addColorStop(0, color ||  '#7E3329'); // Dark brown
-  gradient.addColorStop(0.6, color ||  '#C36327'); // Medium brown
-  gradient.addColorStop(0.9,  color || '#E38367'); // "light" brown
+  gradient.addColorStop(0, color || '#7E3329'); // Dark brown
+  gradient.addColorStop(0.6, color || '#C36327'); // Medium brown
+  gradient.addColorStop(0.9, color || '#E38367'); // "light" brown
 
   // Begin drawing the shape
   ctx.beginPath();
@@ -384,7 +389,7 @@ function _2drawDiamondRectangle(ctx, x, y, width, height, color, strokeColor) {
   ctx.fill();
 
   ctx.lineWidth = 5;
-  ctx.strokeStyle =  strokeColor ||  'black';
+  ctx.strokeStyle = strokeColor || 'black';
   ctx.stroke();
 }
 
@@ -450,18 +455,17 @@ function prepareKeywords(str, replaceBrackets) {
 // MAIN ENTRY POINT
 // drawbracketedtext calls splittextintoparts
 
-// if "extra" is "bubble", put text in black bubble
-// if "extra" is "bubble", put all [bracketed text] at start of line in green
+// if "extra" is "bubble" of "doublebubble", put text in black bubble
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
 // _maxWidth is unused :(
 export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, preview = false) {
 
   // preprocess
-  text = text.replaceAll('((', '⸨').replaceAll('))','⸩');
+  text = text.replaceAll('((', '⸨').replaceAll('))', '⸩');
 
   fontSize = Number(fontSize);
   let maxWidth = horizontal_limit - x;
-  if (extra === "bubble") maxWidth -= 150;
+  if (extra.includes("bubble")) maxWidth -= 150;
   //console.debug(308, "calling with", fontSize, text, y, "XXX", lineHeight);
   lineHeight = Number(lineHeight);
   let yOffset = y;
@@ -473,11 +477,31 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   if (extra === "dna") text = colorReplace(text);
   //console.log(345, text);
   const paragraphs = text.split("\n");
+
+  // no need for a lot of magic, just make sure each line first in 1
+  if (extra === "doublebubble") {
+    // force each line to fit
+    let lines = text.split("\n");
+    console.log(195.2, ctx.font);
+    console.log(195.1, _maxWidth, lineHeight, lines.length);
+    drawColoredRectangle(ctx, x - 10, y - fontSize, _maxWidth, lineHeight * lines.length * 1.2, extra);
+    y -= lineHeight * lines.length * 1.1
+    ctx.font = `italic ${fontSize}px Asimov`;
+    for (let index in lines) {
+      let line = lines[index];
+      ctx.fillText(line, x, y+fontSize * .2, _maxWidth - 100);
+ //     wrapAndDrawText(ctx, fontSize, line, x, y, extra, right_limit, preview);
+      y += lineHeight * 0.9;
+    }
+    return;
+  }
+
+
   for (let p = 0; p < paragraphs.length; p++) {
     let graf = prepareKeywords(paragraphs[p], extra.startsWith("effect"));
     const words = splitTextIntoParts(graf);
     let line = '';
-    const italics = (extra === "bubble" || extra === "dna") ? "italic" : "100";
+    const italics = (extra === "bubble" || extra === "doublebubble" || extra === "dna") ? "italic" : "100";
 
     let scale = 1.0;
 
@@ -522,9 +546,9 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     const pre_width = max_end - x;
 
     let h = (yOffset - y);
-    if (extra === 'bubble') {
+    if (extra.includes("bubble")) {
       if (!preview)
-        drawColoredRectangle(ctx, x - 10, y - fontSize * 1.1 + h, pre_width + fontSize, yOffset - y, 'bubble');
+        drawColoredRectangle(ctx, x - 10, y - fontSize * 1.1 + h, pre_width + fontSize, yOffset - y, extra);
     }
     if (extra === "dna") {
       if (!preview) {
@@ -532,6 +556,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
       }
     }
   }
+
   //console.log(372, lines);
   for (let line of lines) {
     wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra, right_limit, preview);
@@ -544,9 +569,9 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 }
 
 
-    // brackets to use:
+// brackets to use:
 //      ⸨ ⸩
-    // ⟦ 
+// ⟦ 
 
 function getColor(phrase, default_color = 'blue') {
   console.error(551, phrase);
@@ -589,7 +614,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
     phrases.push(...temp);
   }
   //let phrases = text.split(/([[⟦].*?[\]⟧])/);
-  phrases.forEach((phrase,index) => {
+  phrases.forEach((phrase, index) => {
     let cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
     //console.log(574, "p", phrase, "cp", cleanPhrase)
     if (

@@ -60,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.22"
-const latest = "specialEvolve and DNAEvolve no longer overlap"
+const version = "0.8.23"
+const latest = "finally burst digivolve"
 
+// version 0.8.23   finally burst digivolve
 // version 0.8.22   specialEvolve and DNAEvolve no longer overlap
 // version 0.8.21.x ⸨text⸩ or ((text)) is forced green, and updated ACE box to modern wording
 // version 0.8.20.x assembly field added (overlaps with digixros); arbitrary [fields] at start of digixros/link/assembly line
@@ -2392,6 +2393,7 @@ function CustomCreator() {
       // DNA evo and special evo appear above the effect line
       const dna_evo = json.dnaEvolve || json.dnaDigivolve; // colorReplace is inside drawBracketedText
       const spec_temp = json.specialEvolve || json.specialDigivolve;
+      const burst_evo = json.burstEvolve || json.burstDigivolve;
       const spec_evo = colorReplace(spec_temp, true);
       const delta = fontSize_n + so;
       let special_baseline = y_line;
@@ -2404,6 +2406,10 @@ function CustomCreator() {
       if (!empty(spec_evo)) {
         special_baseline -= (delta);
         drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(imageOptions.lineSpacing), "bubble");
+      }
+      if (!empty(burst_evo)) {
+        special_baseline -= (delta * 0.5); // burst bubble is twice as big
+        drawBracketedText(ctx, fontSize_n, burst_evo, 270, special_baseline, 2500, Number(fontSize_n) + Number(imageOptions.lineSpacing), "doublebubble");
       }
 
       let effect = json.effect;
@@ -2937,7 +2943,7 @@ function CustomCreator() {
                             <label>{key}: </label>
                           </td>
                           <td>
-                            {key.match(/effect/i) ? (
+                            {key.match(/effect/i) || key.match(/burst/) ? (
                               <textarea
                                 value={formData[key] ?? value}
                                 onChange={(e) => handleInputChange(key, e.target.value)} />) : (

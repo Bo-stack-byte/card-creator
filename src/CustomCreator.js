@@ -60,8 +60,8 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.20"
-const latest = "assembly field added (overlaps with digixros); arbitrary [fields] at start of digixros/link/assembly line"
+const version = "0.8.20.1"
+const latest = "assembly field added (overlaps with digixros) (undid keyword)"
 
 // version 0.8.20   assembly field added (overlaps with digixros); arbitrary [fields] at start of digixros/link/assembly line
 // version 0.8.19.x monsters with security inheriteds have security icons, and 'egg' as cost to force egg icon

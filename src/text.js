@@ -591,7 +591,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
     if (
       (phrase.startsWith("⟦") && phrase.endsWith("⟧")) ||
       (phrase.startsWith("[") && phrase.endsWith("]") && matchMagic(magicWords, cleanPhrase)) ||
-      (phrase.startsWith("[") && phrase.endsWith("]") && index < 2)// first hrase
+      (false && phrase.startsWith("[") && phrase.endsWith("]") && index < 2)// first hrase
     ) {
       // Calculate the width of the bracketed text
       let color = getColor(cleanPhrase, default_color);

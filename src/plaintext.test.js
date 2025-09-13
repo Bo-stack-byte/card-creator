@@ -278,7 +278,7 @@ let answer =     [
         name: { english: 'Kentaurosmon (X Antibody)' },
         color: 'Yellow/Blue',
         cardType: 'Digimon',
- '12',  playCost:
+        playCost: '12',
         dp: '12000',
         evolveCondition: [
           { cost: '4', level: '5', color: 'Yellow' },
@@ -376,7 +376,7 @@ let answer =     [
           skipDraw: false
         }
       }
-    ]
+    ];
 
 // Test cases we haven't added yet
 let extra = 

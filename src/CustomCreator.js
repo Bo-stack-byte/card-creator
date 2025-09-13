@@ -12,14 +12,14 @@ import {
   outlines_tamer_nocost, outline_option_nocost, /*outlines_egg_nocost,*/
 
   cost, cost_egg, cost_option, cost_evo, cost_evo_plain, costs,
-  ace_logo, foil, linkdp,
+  ace_logo, ace_box, foil, linkdp,
   new_evo_circles, /* new_evo2_circles, */
   new_evo_wedges,
   bottoms, bottoms_plain, borders, effectboxes,
 
   // inherits at bottom:
   bottom_evos, bottom_egg_evos,
-  bottom_aces, inherited_security, inherited_mon_security,
+  inherited_security, inherited_mon_security,
   bottom_property_white, bottom_property_black,
 
   pen_img,
@@ -60,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.20.1"
-const latest = "assembly field added (overlaps with digixros) (undid keyword)"
+const version = "0.8.21"
+const latest = "⸨text⸩ is forced green, and updated ACE box"
 
+// version 0.8.21   Put ⸨text⸩ in these funky parens to force the text to green.
 // version 0.8.20   assembly field added (overlaps with digixros); arbitrary [fields] at start of digixros/link/assembly line
 // version 0.8.19.x monsters with security inheriteds have security icons, and 'egg' as cost to force egg icon
 // version 0.8.18.x rarity and block icons, finally, and update old cards to allow
@@ -1813,7 +1814,7 @@ function CustomCreator() {
                 y_scale = 1.5;
               }
               if (type === "ACE") {
-                img = bottom_aces[col];
+                img = undefined; //   img = bottom_aces[col];
                 scale = 606;
               }
               if (type === "OPTION" || type === "TAMER" || type === "EgjgjGG") {
@@ -1833,8 +1834,18 @@ function CustomCreator() {
                 // tamer inherit has ESS box but raised height
                 height = 3450;
               }
-              scalePartialImage(ctx, img, i, len, scale, 164, height, undefined, y_scale);
+              if (img)
+                scalePartialImage(ctx, img, i, len, scale, 164, height, undefined, y_scale);
             }
+
+            if (type === "ACE") {
+               scalePartialImage(ctx, ace_box,
+                 0, 1,
+                 326,
+                 94, 3525
+                );
+            }
+
 
 
             /// DRAW ESS BOX
@@ -2161,32 +2172,42 @@ function CustomCreator() {
 
 
       if (type === "ACE" && overflow) {
-        ctx.font = `70px MyriadProBold`;
+        ctx.font = `95px MyriadProBold`;
 
+        let neg_overflow = "-" + overflow;
+        let o_x = 1170, o_y = 3645;
         // fake blur 
-        ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)';
-        ctx.lineWidth = 15;
-        ctx.strokeText(overflow, 1045, 3605);
+        ctx.strokeStyle = 'rgba(200, 200, 200, 0.7)';
+        ctx.lineWidth = 22;
+        ctx.strokeText(neg_overflow, o_x, o_y);
+
+        ctx.strokeStyle = 'rgba(200, 200, 200, 0.85)';
+        ctx.lineWidth = 18;
+        ctx.strokeText(neg_overflow, o_x, o_y);
 
         ctx.strokeStyle = '#eee';
-        ctx.lineWidth = 10;
-        ctx.strokeText(overflow, 1045, 3605);
-
+        ctx.lineWidth = 14;
+        ctx.strokeText(neg_overflow, o_x, o_y);
 
         ctx.shadowBlur = 0; // Remove shadow blur for the fill text
         ctx.fillStyle = 'rgba(32, 32, 32, 0.8)'; // '#444';
-        ctx.fillText(overflow, 1045, 3605);
-
+        ctx.fillText(neg_overflow, o_x, o_y);
 
         // this isn't quite right, it's too slanted. maybe gothic ?
-        ctx.font = `italic 111px MyriadCondenser`;
+        ctx.font = `italic  90px MyriadCondenser`;
         // ctx.font = `italic 90px "Adobe Gothic Std"`;
-        ctx.strokeStyle = '#111';
+
+        ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+        ctx.lineWidth = 8;
+        ctx.strokeText(overflow, 2370, 3750);
+
+
+        ctx.strokeStyle = '#eee';
         ctx.lineWidth = 5;
         ctx.fillStyle = '#ddd';
         //        ctx.fillText('lose  4  memory', 1850, 3730);
-        ctx.strokeText(overflow, 2040, 3735);
-        ctx.fillText(overflow, 2040, 3735);
+        ctx.strokeText(overflow, 2370, 3750);
+        ctx.fillText(overflow,   2370, 3750);
 
 
 
@@ -3103,7 +3124,9 @@ function CustomCreator() {
             <p>
               To have colors replaced by circles, put the color in parentheses.
             </p>
+            ⸨
             <p> Put ⟦text⟧ in these crazy brackets to force the text to blue.</p>
+            <p> Put ⸨text⸩ in these funky parens to force the text to green.</p>
             <p> Put text that would otherwise be blue in parens to make it purple, like ⟦(test)⟧ or [(Five Times Per Turn)].</p>
             <p> "Force Draw" may be needed in weird circumstances. </p>
             <p>You can override the version and URL in the credits by setting an artist name (even making it one space)</p>

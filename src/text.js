@@ -146,9 +146,11 @@ function splitTextIntoParts(text) {
       continue;
     }
 
-    let second_pass = token.split(/(⟦[^⟧]+⟧)/).filter(Boolean);
+    //let second_pass oken.split(/([⟦⸨]).*([⟧⸩])/).filter(Boolean);
+
+    let second_pass = token.split(/([⟦⸨][^⟧]+[⟧⸩])/).filter(Boolean);
     for (let thing of second_pass) {
-      if (thing[0] === "⟦") {
+      if (thing[0].match(/[⟦⸨]/)) {
         all_words.push(thing);
       } else {
         // split along word boundaries
@@ -542,10 +544,11 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 
 
     // brackets to use:
-//    ⸨ ⸩
-    
+//      ⸨ ⸩
+    // ⟦ 
 
 function getColor(phrase, default_color = 'blue') {
+  console.error(551, phrase);
   if (phrase.match(/DigiXros/i)) return 'green';
   if (phrase.match(/Assembly/i)) return 'green';
   if (phrase === "Link") return 'green';
@@ -581,7 +584,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
   let angle_phrases = text.split(/([<＜].*?[>＞])/);
   let phrases = [];
   for (let ap of angle_phrases) {
-    let temp = ap.startsWith("＜") ? [ap] : ap.split(/([[⟦].*?[\]⟧])/);
+    let temp = ap.startsWith("＜") ? [ap] : ap.split(/([[⟦⸨].*?[\]⟧⸩])/);
     phrases.push(...temp);
   }
   //let phrases = text.split(/([[⟦].*?[\]⟧])/);
@@ -590,6 +593,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
     //console.log(574, "p", phrase, "cp", cleanPhrase)
     if (
       (phrase.startsWith("⟦") && phrase.endsWith("⟧")) ||
+      (phrase.startsWith("⸨") && phrase.endsWith("⸩")) ||
       (phrase.startsWith("[") && phrase.endsWith("]") && matchMagic(magicWords, cleanPhrase)) ||
       (false && phrase.startsWith("[") && phrase.endsWith("]") && index < 2)// first hrase
     ) {
@@ -598,6 +602,10 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
       //console.log(292, cleanPhrase);
       if (cleanPhrase.startsWith("(") && cleanPhrase.endsWith(")")) {
         color = "purple";
+        cleanPhrase = cleanPhrase.slice(1, -1);
+      }
+      if (cleanPhrase.startsWith("⸨") && cleanPhrase.endsWith("⸩")) {
+        color = "green";
         cleanPhrase = cleanPhrase.slice(1, -1);
       }
       const italics = (style === "bubble" || style === "dna") ? "italic" : "";

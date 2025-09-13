@@ -75,6 +75,7 @@ import _bottom_purple from './frames/bottom_purple.png';
 import _bottom_black from './frames/bottom_black.png';
 import _bottom_white from './frames/bottom_white.png';
 
+/*
 import _bottom_ace_red from './frames/inherits/bottom_red_evo_ace.png';
 import _bottom_ace_blue from './frames/inherits/bottom_blue_evo_ace.png';
 import _bottom_ace_yellow from './frames/inherits/bottom_yellow_evo_ace.png';
@@ -82,6 +83,9 @@ import _bottom_ace_green from './frames/inherits/bottom_green_evo_ace.png';
 import _bottom_ace_purple from './frames/inherits/bottom_purple_evo_ace.png';
 import _bottom_ace_black from './frames/inherits/bottom_black_evo_ace.png';
 import _bottom_ace_white from './frames/inherits/bottom_white_evo_ace.png';
+*/
+
+import _ace_box from './frames/ace-empty.png';
 
 import _ace_logo from './frames/ACE.png';
 
@@ -411,6 +415,7 @@ let cost_option = new Image(); cost_option.src = _cost_option;
 let cost_evo = new Image(); cost_evo.src = _cost_evo;
 let cost_evo_plain = new Image(); cost_evo_plain.src = _cost_evo_plain;
 
+let ace_box = new Image(); ace_box.src = _ace_box;
 let ace_logo = new Image(); ace_logo.src = _ace_logo;
 
 
@@ -444,7 +449,7 @@ export {
   mon_background, mega_background, egg_background, option_background, tamer_background, tamer_dp_background,
   mon_background_nocost, mega_background_nocost, egg_background_nocost, option_background_nocost, tamer_background_nocost,
   cost, cost_egg, cost_option, cost_evo, cost_evo_plain,
-  outline_option, outline_option_nocost, ace_logo,
+  outline_option, outline_option_nocost, ace_box, ace_logo,
   bottom_property_white, bottom_property_black,
   foil, bubble, linkdp,
   pen_img
@@ -568,14 +573,14 @@ let bottom_purple = new Image(); bottom_purple.src = _bottom_purple;
 let bottom_black = new Image(); bottom_black.src = _bottom_black;
 let bottom_white = new Image(); bottom_white.src = _bottom_white;
 
-let bottom_ace_red = new Image(); bottom_ace_red.src = _bottom_ace_red;
+/*let bottom_ace_red = new Image(); bottom_ace_red.src = _bottom_ace_red;
 let bottom_ace_blue = new Image(); bottom_ace_blue.src = _bottom_ace_blue;
 let bottom_ace_yellow = new Image(); bottom_ace_yellow.src = _bottom_ace_yellow;
 let bottom_ace_green = new Image(); bottom_ace_green.src = _bottom_ace_green;
 let bottom_ace_purple = new Image(); bottom_ace_purple.src = _bottom_ace_purple;
 let bottom_ace_black = new Image(); bottom_ace_black.src = _bottom_ace_black;
 let bottom_ace_white = new Image(); bottom_ace_white.src = _bottom_ace_white;
-
+*/
 
 let inherited_sec_red = new Image(); inherited_sec_red.src = _inherited_sec_red;
 let inherited_sec_blue = new Image(); inherited_sec_blue.src = _inherited_sec_blue;
@@ -643,7 +648,8 @@ export const bottoms = {
   'white': bottom_white,
 }
 
-export const bottom_aces = {
+/*
+export const bottom_aces_UNUSED = {
   'red': bottom_ace_red,
   'blue': bottom_ace_blue,
   'yellow': bottom_ace_yellow,
@@ -651,7 +657,7 @@ export const bottom_aces = {
   'purple': bottom_ace_purple,
   'black': bottom_ace_black,
   'white': bottom_ace_white
-}
+}*/
 
 export const inherited_security = {
   'red': inherited_sec_red,

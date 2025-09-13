@@ -60,11 +60,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.21"
-const latest = "⸨text⸩ is forced green, and updated ACE box"
+const version = "0.8.21.1"
+const latest = "⸨text⸩ or ((text)) is forced green, and updated ACE box"
 
-// version 0.8.21   Put ⸨text⸩ in these funky parens to force the text to green.
-// version 0.8.20   assembly field added (overlaps with digixros); arbitrary [fields] at start of digixros/link/assembly line
+// version 0.8.21.x Put ⸨text⸩ in these funky parens to force the text to green.
+// version 0.8.20.x assembly field added (overlaps with digixros); arbitrary [fields] at start of digixros/link/assembly line
 // version 0.8.19.x monsters with security inheriteds have security icons, and 'egg' as cost to force egg icon
 // version 0.8.18.x rarity and block icons, finally, and update old cards to allow
 // version 0.8.17   new 'USE' label for options, way overdue

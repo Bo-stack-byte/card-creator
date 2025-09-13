@@ -414,10 +414,7 @@ function replaceBracketsAtStart(line) {
   );
   //  const _tokens = line.match(/( \[[^\] ]+\] |＜[^＞]+＞|\S+|\s+)/g);
 
-
-
   if (!tokens) return line;
-
 
   let replacing = true;
 
@@ -458,6 +455,10 @@ function prepareKeywords(str, replaceBrackets) {
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
 // _maxWidth is unused :(
 export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, preview = false) {
+
+  // preprocess
+  text = text.replaceAll('((', '⸨').replaceAll('))','⸩');
+
   fontSize = Number(fontSize);
   let maxWidth = horizontal_limit - x;
   if (extra === "bubble") maxWidth -= 150;

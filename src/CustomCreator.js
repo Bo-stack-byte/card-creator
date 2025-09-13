@@ -60,10 +60,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.21.1"
-const latest = "⸨text⸩ or ((text)) is forced green, and updated ACE box"
+const version = "0.8.22"
+const latest = "specialEvolve and DNAEvolve no longer overlap"
 
-// version 0.8.21.x Put ⸨text⸩ in these funky parens to force the text to green.
+// version 0.8.22   specialEvolve and DNAEvolve no longer overlap
+// version 0.8.21.x ⸨text⸩ or ((text)) is forced green, and updated ACE box to modern wording
 // version 0.8.20.x assembly field added (overlaps with digixros); arbitrary [fields] at start of digixros/link/assembly line
 // version 0.8.19.x monsters with security inheriteds have security icons, and 'egg' as cost to force egg icon
 // version 0.8.18.x rarity and block icons, finally, and update old cards to allow
@@ -2395,13 +2396,14 @@ function CustomCreator() {
       const delta = fontSize_n + so;
       let special_baseline = y_line;
       console.log(1277, special_baseline, y_line, (fontSize_n + so))
-      if (!empty(spec_evo)) {
-        special_baseline -= (delta);
-        drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(imageOptions.lineSpacing), "bubble");
-      }
       if (!empty(dna_evo)) {
         special_baseline -= (delta);
         drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(imageOptions.lineSpacing), "dna");
+        special_baseline -= (delta *.5);
+      }
+      if (!empty(spec_evo)) {
+        special_baseline -= (delta);
+        drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(imageOptions.lineSpacing), "bubble");
       }
 
       let effect = json.effect;

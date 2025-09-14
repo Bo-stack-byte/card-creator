@@ -4,50 +4,40 @@ take this as a brainstorming list of ideas.
 
 KNOWN BUGS
 
-* ESS picture not using bbackground
+* ESS picture not using background, and other issues with images
 * multiple users reporting Safari issues (bad scaling, bad font on mon name). if this includes you, please reach out
 * fix those extra pixels at intersections where angles jut out
 * (maybe same issue) Keywords that appear far along the line may be mis-aligned. So do [] symbols
 * the black color isn't quite black; try black/green egg and look closely at attribute bar
+* multiple card implementation is cumbersome
+* the full color border art isn't quite right, somewhat off-center for some colors
 
-VAGUE TO DO LIST, SOONER:
+VAGUE TO DO LIST, SOON-TO-MEDIUM TERM
 
 * rainbow color in evo circle needs white text w/black border
 * better browse of images (see your own w/priority and page through others)
-
-MEDIUM TERM:
-
-* Monsters with Security effect icons (brand new layout, new Security box)
+* render ACE text live instead of using images
 * font check page
 * brick art
-* full color border art (PARTIALLY DONE)
 * standalone binary, so local images can be accessed
 * get purple text with (parentheses) or fix in import for translation team's format
 * sample free form for ACEs, and/or better ways of detecting ACE
+* ACE with no inherited (frame has changed slightly)
 
 VAGUE TO DO LIST, LATER:
 
-* make ACE text fully generated and customizable
 * flower frame? like EX5-048 EX6-012
 * draw name bar with vector graphics instead of layering up images
-* - for level ?
 * more Ayar Kasone as backup when the user doesn't have Helvetica Neue: especially DP
-* get brick backgrounds when we have more samples
-* get link frames when we ahve more samples
 * for frame-less ACEs, still have frame stuff at bottom, and make ESS transparnets
-* ... but ACEs may also be getting rid of ESS text, so... 🤷‍♂️
 * option for smaller download (4 MB can be a lot for 1 card)
 * make default font for level text (before remote font loads) less ugly
 * for remote fonts, delay first rendering or re-render when it loads
-* handle too-large text in a better way
 * get faint white glow in playcost circle
-* save final art and user art with link
 * browseable gallery of all saves
-* user accounts
 * better parsing of custom card formats
 * maybe pre-BT14 styles as an option
-* Burst digivolve format
-* populating inherit box at the bottom with art
+* hyper coliseum
 * (maybe auto-guessing where the "face" is for that)
 * new security icons
 * add triangle to "Rule" text
@@ -88,6 +78,8 @@ NOMINALLY FIXED BUGS / FEATURES
 * add/remove digivolve condition button
 * shell without egg 
 * auto-generate all images with one click (for testing)
+* Monsters with Security effect icons (brand new layout, new Security box)
+* Burst digivolve format
 
 
 

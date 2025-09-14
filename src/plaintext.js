@@ -174,6 +174,7 @@ export const enterPlainText = (lines) => {
         "rule": "",
         "digiXros": "",
         "assembly": "",
+        "aceEffect": "",
         "dnaEvolve": "-",
         "burstEvolve": "-",
         "cardNumber": "",

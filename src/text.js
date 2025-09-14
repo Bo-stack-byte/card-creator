@@ -37,7 +37,9 @@ export function fitTextToWidth(ctx, text, maxWidth, initialFontSize, limit) {
 
 function matchMagic(array, phrase) {
   // can precalc all these regexps
-  let match = array.find(str => { let regexp = new RegExp(`^${str}$`, "i"); return phrase.match(regexp) });
+  let match = array.find(str => { 
+    let regexp = new RegExp(`^${str}$`, "i"); 
+    return phrase.match(regexp) });
   return !!match;
 }
 
@@ -159,7 +161,10 @@ function splitTextIntoParts(text) {
         let pieces;
         try {
           if (3 < 4) pieces = customSplit(thing);
-          pieces = thing.split(/(?<=\s)(?=\S)|(?<=\S)(?=\s)/);
+          let pattern = new RegExp("(?<=\\s)(?=\\S)|(?<=\\S)(?=\\s)", "g");
+          // the below line crashes on older iOS devices at compile time
+          //pieces = thing.split(/(?<=\s)(?=\S)|(?<=\S)(?=\s)/);
+          pieces = thing.split(pattern);
         } catch (e) {
           console.log("can't look behind"); // older safari
           pieces = thing.split(/\b/)
@@ -580,7 +585,7 @@ function getColor(phrase, default_color = 'blue') {
   if (phrase === "Link") return 'green';
   if (['Hand', 'Trash', 'Breeding'].includes(phrase)) return 'purple';
   if (['Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'red';
-  if (phrase.match(/(Digi|E)volve/i)) return 'darkblue';
+  if (phrase.match(/^(Digi|E)volve$/i)) return 'darkblue';
   return default_color;
 }
 

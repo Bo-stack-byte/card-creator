@@ -60,8 +60,8 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.23"
-const latest = "finally burst digivolve"
+const version = "0.8.24"
+const latest = "bug fixes: stop [on evolve] from being dark blue; add aceEffect everywhere; stop crashing on old iOS; font guide updates; fugly iOS name font fixed"
 
 // version 0.8.23   finally burst digivolve
 // version 0.8.22   specialEvolve and DNAEvolve no longer overlap
@@ -315,6 +315,7 @@ const starter_text_empty = `[{
   "rule": "",
   "digiXros": "",
   "assembly": "",
+  "aceEffect": "",
   "dnaEvolve": "-",
   "burstEvolve": "-",
   "evolveEffect": "-",
@@ -411,6 +412,7 @@ const starter_text_1a = `  {
     "specialEvolve": "-",
     "digiXros": "[DigiXros -3] [Axe Raider] x [Pikachu]",
     "assembly": "-",
+    "aceEffect": "",
     "dnaEvolve": "-",
     "burstEvolve": "-",
     "rarity": "Rare",
@@ -454,7 +456,7 @@ const starter_text_1b = `  {
     "dnaEvolve": "[DNA Digivolve] Yellow Lv.6 + Blue Lv.6\u00a0: Cost 0",
     "digiXros": "-",
     "assembly": "-",
-    "aceEffect": "Overflow \uff1c-5\uff1e (As this card would move from the field or from under a card to another area, lose 4 memory.)",
+    "aceEffect": "Overflow \uff1c-5\uff1e (As this card would move from the field or from under a card to another area, lose 5 memory.)",
     "burstEvolve": "-",
     "rarity": "Secret Rare",
     "block": "05",
@@ -501,6 +503,7 @@ const starter_text_1c = `{
   "rule": "",
   "digiXros": "-",
   "assembly": "-",
+  "aceEffect": "",
   "dnaEvolve": "-",
   "burstEvolve": "-",
   "cardNumber": "CS3-02",
@@ -539,6 +542,7 @@ const starter_text_2 = `  {
   "evolveEffect": "-",
   "digiXros": "-",
   "assembly": "-",
+  "aceEffect": "",
   "rarity": "Super Rare", 
   "block": "05",
   "rule": "",
@@ -573,6 +577,7 @@ const starter_text_3 = `   {
     "evolveEffect": "-",
     "digiXros": "-",
     "assembly": "-",
+    "aceEffect": "",
     "rarity": "Rare",
     "block": "05",
     "rule": "",
@@ -1079,6 +1084,7 @@ function CustomCreator() {
         "block",
         "linkDP", "linkRequirement", "linkEffect",
         "specialEvolve", "effect", "evolveEffect", "securityEffect",
+        "aceEffect", 
         "rule", "digiXros", "assembly", "burstEvolve", "cardNumber",
         "author", "artist"]) {
         if (!(field in json)) {
@@ -2293,7 +2299,7 @@ function CustomCreator() {
         // PF Das Grotesk Pro Bold is the actual font but $$
         //ctx.font = `bold ${fontSize}px Roboto`; // better looking I
         //        ctx.font = `700 ${fontSize}px Schibsted Grotesk`; // has curved lowercase l
-        ctx.font = `700 ${namefontSize}px ToppanBunkyExtraBold`; // has curved lowercase l
+        ctx.font = `${namefontSize}px ToppanBunkyExtraBold`; // has curved lowercase l
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         let [fillColor, edgeColor, stroke] = textColor(colors);

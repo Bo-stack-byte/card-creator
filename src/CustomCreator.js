@@ -60,9 +60,12 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.24"
-const latest = "bug fixes: stop [on evolve] from being dark blue; add aceEffect everywhere; stop crashing on old iOS; font guide updates; fugly iOS name font fixed"
+const version = "0.8.26"
+const latest = "《 》 for dark blue, or, whatever [bracket] starts bubble text"
 
+// version 0.8.26   《 》 for dark blue, or, whatever [bracket] starts bubble text
+// version 0.8.25   custom radius
+// version 0.8.24   bug fixes: stop [on evolve] from being dark blue; add aceEffect everywhere; stop crashing on old iOS; font guide updates; fugly iOS name font fixed   
 // version 0.8.23   finally burst digivolve
 // version 0.8.22   specialEvolve and DNAEvolve no longer overlap
 // version 0.8.21.x ⸨text⸩ or ((text)) is forced green, and updated ACE box to modern wording
@@ -176,6 +179,7 @@ const settingsText = {
   "lineSpacing": "line spacing",
   "baselineOffset": "move effect baseline up by",
   "specialOffset": "move special evos up by",
+  "radius": "word bubble radius"
 }
 const settingText = (s) => {
   return settingsText[s] || s;
@@ -338,7 +342,7 @@ const starter_text_empty = `[{
     "fontSize": 90.5,
     "lineSpacing": 10,
     "baselineOffset": 0,
-    "specialOffset": 0,
+    "specialOffset": 0, "radius": 0,
     "foregroundOnTop": false,
     "cardFrame": true,
     "effectBox": false,
@@ -371,7 +375,7 @@ const starter_text_0 = ` [ {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "radius": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -422,7 +426,7 @@ const starter_text_1a = `  {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "radius": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -465,7 +469,7 @@ const starter_text_1b = `  {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "radius": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -517,7 +521,7 @@ const starter_text_1c = `{
     "ess_y_pos": "24",
     "ess_x_end": 50,
     "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "radius": 0,
             "foregroundOnTop": true,
             "cardFrame": true,
             "effectBox": false,
@@ -553,7 +557,7 @@ const starter_text_2 = `  {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "radius": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -585,7 +589,7 @@ const starter_text_3 = `   {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 0, "ess_x_end": 80, "ess_y_end": 40,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "radius": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -2006,10 +2010,11 @@ function CustomCreator() {
       const fontSize = Number(json.imageOptions.fontSize) || 90.5
       let rule_offset = 0;
       let xros_offset = 0;
+      let radius = Number(json.imageOptions.radius) || 0;
 
       if (!empty(xros)) {
         let preview = drawBracketedText(ctx, fontSize, xros, 300, bottom,
-          3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble", true);
+          3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble", radius, true);
         // our text should end at roughly bottom + 
         xros_offset = preview - (bottom + fontSize * 2);
         console.log(1254, 'x', preview, bottom);
@@ -2031,7 +2036,7 @@ function CustomCreator() {
       if (!empty(xros)) {
         // BT10-009 EX3-014: shaded box
         // st19-10 solid box
-        drawBracketedText(ctx, fontSize, xros, 300, bottom - xros_offset, 3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble");
+        drawBracketedText(ctx, fontSize, xros, 300, bottom - xros_offset, 3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble", radius);
       }
 
 
@@ -2406,16 +2411,16 @@ function CustomCreator() {
       console.log(1277, special_baseline, y_line, (fontSize_n + so))
       if (!empty(dna_evo)) {
         special_baseline -= (delta);
-        drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(imageOptions.lineSpacing), "dna");
+        drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(imageOptions.lineSpacing), "dna", radius);
         special_baseline -= (delta *.5);
       }
       if (!empty(spec_evo)) {
         special_baseline -= (delta);
-        drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(imageOptions.lineSpacing), "bubble");
+        drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(imageOptions.lineSpacing), "bubble", radius);
       }
       if (!empty(burst_evo)) {
         special_baseline -= (delta * 0.5); // burst bubble is twice as big
-        drawBracketedText(ctx, fontSize_n, burst_evo, 270, special_baseline, 2500, Number(fontSize_n) + Number(imageOptions.lineSpacing), "doublebubble");
+        drawBracketedText(ctx, fontSize_n, burst_evo, 270, special_baseline, 2500, Number(fontSize_n) + Number(imageOptions.lineSpacing), "doublebubble", radius);
       }
 
       let effect = json.effect;
@@ -2431,6 +2436,7 @@ function CustomCreator() {
           250, y_line,
           2455,
           Number(fontSize) + Number(imageOptions.lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
+          radius,
           false
         );
       }
@@ -2455,7 +2461,7 @@ function CustomCreator() {
         let max_width = 2500 - 400 - delta_x * 2 - shrink;
         drawBracketedText(ctx, fontSize, effect,
           700 + delta_x * 2, 3740 + delta_y * 2 + 150,
-          max_width, Number(fontSize) + Number(imageOptions.lineSpacing), "effect");
+          max_width, Number(fontSize) + Number(imageOptions.lineSpacing), "effect", radius);
       } else {
         let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
         if (json.linkDP) {
@@ -2475,7 +2481,7 @@ function CustomCreator() {
         let max_width = 2500 - 400 - delta_x * 2 - shrink;
         drawBracketedText(ctx, fontSize, sec_effect,
           700 + delta_x * 2, 3740 + delta_y * 2,
-          max_width, Number(fontSize) + Number(imageOptions.lineSpacing), "effect");
+          max_width, Number(fontSize) + Number(imageOptions.lineSpacing), "effect", radius);
       }
 
       console.log(1879.3, pauseDraw.current);

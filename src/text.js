@@ -286,7 +286,7 @@ function drawDnaBox(ctx, x, y, w, h, colors) {
 };
 
 //x,y is upper left
-function drawColoredRectangle(ctx, x, y, width, height, color) {
+function drawColoredRectangle(ctx, x, y, width, height, color, radius) {
   console.log(195, x, y, width, height, color);
   //#922969 darker ois lower
   if (color === 'bubble') {
@@ -329,16 +329,10 @@ function drawColoredRectangle(ctx, x, y, width, height, color) {
   }
   ctx.fillStyle = gradient;
   if (width > (cardWidth - x)) width = cardWidth - x;
-  //let radius = (color === 'bubble') ? height / 2 : 0;
-  //  ctx.fillRect(x - d, y - height - 10 - d, width + 10 + 2 * d, height + 2 * d, height / 3, false);
-  drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 0 + 2 * d, height + 2 * d, height / 3, false);
+
+  let rad = radius || height / 3;
+  drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 0 + 2 * d, height + 2 * d, rad,  false);
   ctx.globalAlpha = 1;
-  if (color.includes('bubble')) { // dead code
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 8;
-    drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 0 + 2 * d, height + 2 * d, height / 3, true);
-    //  ctx.strokeRect(x - d, y - height - 10 - d, width + 10 + d * 2, height + d * 2);
-  }
   ctx.strokeStyle = '';
   ctx.lineWidth = 0;
 
@@ -456,6 +450,8 @@ function prepareKeywords(str, replaceBrackets) {
   });
 }
 
+// 《 》
+
 // ⟦ ⟧
 // MAIN ENTRY POINT
 // drawbracketedtext calls splittextintoparts
@@ -463,10 +459,16 @@ function prepareKeywords(str, replaceBrackets) {
 // if "extra" is "bubble" of "doublebubble", put text in black bubble
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
 // _maxWidth is unused :(
-export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, preview = false) {
+export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, radius, preview = false) {
 
   // preprocess
   text = text.replaceAll('((', '⸨').replaceAll('))', '⸩');
+
+  // if it starts with [xxx] and we are "bubble" or "dna" make that dark blue
+  let match;
+  if ((match = text.match(/^\[(.*?)\] (.*)/))) {
+    text = "《" + match[1] + "》 " + match[2];
+  }
 
   fontSize = Number(fontSize);
   let maxWidth = horizontal_limit - x;
@@ -540,7 +542,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 
     // 2700 should not be hard-coded
     let max_end = Math.max.apply(Math,
-      lines.map(l => wrapAndDrawText(l.ctx, fontSize, l.line, l.x, l.yOffset, extra, right_limit, true)));
+      lines.map(l => wrapAndDrawText(l.ctx, fontSize, l.line, l.x, l.yOffset, extra, right_limit, radius, true)));
     //console.log(515, 'max end', max_end);
 
 
@@ -564,7 +566,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 
   //console.log(372, lines);
   for (let line of lines) {
-    wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra, right_limit, preview);
+    wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra, right_limit, radius, preview);
   }
 
 
@@ -590,7 +592,7 @@ function getColor(phrase, default_color = 'blue') {
 }
 
 // style is called 'extra' in other functions
-function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = false) {
+function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, preview = false) {
   //console.log(361, fontSize, text, x, y, style, preview);
   fontSize = Number(fontSize);
   y = Number(y);
@@ -599,7 +601,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
   let scale = 1;
   // ⟦⟧ 
   if (!preview) {
-    let width = wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, true);
+    let width = wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, true);
     if (width > cardWidth) scale = cardWidth / width;
     // compress all text equally, but we should let keywords stay a bit wider if we can    
   }
@@ -614,8 +616,8 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
   // split by <> first
   let angle_phrases = text.split(/([<＜].*?[>＞])/);
   let phrases = [];
-  for (let ap of angle_phrases) {
-    let temp = ap.startsWith("＜") ? [ap] : ap.split(/([[⟦⸨].*?[\]⟧⸩])/);
+  for (let ap of angle_phrases) { // 》《
+    let temp = ap.startsWith("＜") ? [ap] : ap.split(/([[⟦⸨《].*?[\]⟧⸩》])/);
     phrases.push(...temp);
   }
   //let phrases = text.split(/([[⟦].*?[\]⟧])/);
@@ -625,6 +627,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
     if (
       (phrase.startsWith("⟦") && phrase.endsWith("⟧")) ||
       (phrase.startsWith("⸨") && phrase.endsWith("⸩")) ||
+      (phrase.startsWith("《") && phrase.endsWith("》")) ||
       (phrase.startsWith("[") && phrase.endsWith("]") && matchMagic(magicWords, cleanPhrase)) ||
       (false && phrase.startsWith("[") && phrase.endsWith("]") && index < 2)// first hrase
     ) {
@@ -639,12 +642,16 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, preview = 
         color = "green";
         cleanPhrase = cleanPhrase.slice(1, -1);
       }
+      if (cleanPhrase.startsWith("《") && cleanPhrase.endsWith("》")) {
+        color = "darkblue";
+        cleanPhrase = cleanPhrase.slice(1, -1);
+      }
       const italics = (style === "bubble" || style === "dna") ? "italic" : "";
 
       ctx.font = `100 ${(fontSize - 10)}px ${boxfont}`;
       const phraseWidth = ctx.measureText(cleanPhrase).width;
       let start = lastX; let width = phraseWidth + 50;
-      if (!preview) drawColoredRectangle(ctx, start, y + 3, width, fontSize, color);
+      if (!preview) drawColoredRectangle(ctx, start, y + 3, width, fontSize, color, radius);
       ctx.fillStyle = 'white';
       ctx.textAlign = 'center';
       //console.log(328, lastX, cleanPhrase, (cardWidth - lastX - 5));

@@ -85,7 +85,8 @@ import _bottom_ace_black from './frames/inherits/bottom_black_evo_ace.png';
 import _bottom_ace_white from './frames/inherits/bottom_white_evo_ace.png';
 */
 
-import _ace_box from './frames/ace-empty.png';
+//import _ace_box from './frames/ace-empty.png';
+import _ace_box from './frames/ace-blank.png';
 
 import _ace_logo from './frames/ACE.png';
 

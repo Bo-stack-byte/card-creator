@@ -37,9 +37,10 @@ export function fitTextToWidth(ctx, text, maxWidth, initialFontSize, limit) {
 
 function matchMagic(array, phrase) {
   // can precalc all these regexps
-  let match = array.find(str => { 
-    let regexp = new RegExp(`^${str}$`, "i"); 
-    return phrase.match(regexp) });
+  let match = array.find(str => {
+    let regexp = new RegExp(`^${str}$`, "i");
+    return phrase.match(regexp)
+  });
   return !!match;
 }
 
@@ -331,7 +332,7 @@ function drawColoredRectangle(ctx, x, y, width, height, color, radius) {
   if (width > (cardWidth - x)) width = cardWidth - x;
 
   let rad = radius || height / 3;
-  drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 0 + 2 * d, height + 2 * d, rad,  false);
+  drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 0 + 2 * d, height + 2 * d, rad, false);
   ctx.globalAlpha = 1;
   ctx.strokeStyle = '';
   ctx.lineWidth = 0;
@@ -450,8 +451,55 @@ function prepareKeywords(str, replaceBrackets) {
   });
 }
 
-// 《 》
 
+// fit everything onto 1 line, but allow multiple styles.
+// blobs is array of (text,style) pairs. right now the only style is "italics"
+// only used for ace text right now.
+export function textLine(ctx, blobs, x, y, limit) {
+
+  let all_text = blobs.map(x => x[0]).join("");
+
+  let all_length = ctx.measureText(all_text).width;
+  let actual_length = Math.min(all_length, limit);
+  let ratio = actual_length / all_length;
+  console.log(471.3, "radtio", ratio);
+  let x_pos = x;
+  let lengths = blobs.map(x => ctx.measureText(x[0]).width * ratio);
+  // first pass
+  for (let i in blobs) {
+    let blob = blobs[i];
+    console.log(471.1, blob);
+    let length = lengths[i];
+    let [text, style] = blob;
+    console.log(471.2, "A", text, "B", style);
+    if (style === "italics") {
+      italicText(ctx, text, x_pos, y, length);
+      x_pos += length;
+    } else {
+      ctx.fillText(text, x_pos, y, length);
+      x_pos += length;
+    }
+  }
+
+
+}
+
+// 《 》
+//possibly italic text
+export function italicText(ctx, text, x, y, limit) {
+  let skew = 0.25; // i might want to make this a *smudge* smaller than 0.25
+  ctx.save();
+  ctx.setTransform(1, 0, -skew, 1, skew * y, 0);
+  ctx.fillText(text, x, y, limit);
+  ctx.restore();
+}
+export function italicStrokeText(ctx, text, x, y, limit) {
+  let skew = 0.2;
+  ctx.save();
+  ctx.setTransform(1, 0, -skew, 1, skew * y, 0);
+  ctx.strokeText(text, x, y, limit);
+  ctx.restore();
+}
 // ⟦ ⟧
 // MAIN ENTRY POINT
 // drawbracketedtext calls splittextintoparts
@@ -496,8 +544,8 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     ctx.font = `italic ${fontSize}px Asimov`;
     for (let index in lines) {
       let line = lines[index];
-      ctx.fillText(line, x, y+fontSize * .2, _maxWidth - 100);
- //     wrapAndDrawText(ctx, fontSize, line, x, y, extra, right_limit, preview);
+      ctx.fillText(line, x, y + fontSize * .2, _maxWidth - 100);
+      //     wrapAndDrawText(ctx, fontSize, line, x, y, extra, right_limit, preview);
       y += lineHeight * 0.9;
     }
     return;
@@ -581,7 +629,6 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 // ⟦ 
 
 function getColor(phrase, default_color = 'blue') {
-  console.error(551, phrase);
   if (phrase.match(/DigiXros/i)) return 'green';
   if (phrase.match(/Assembly/i)) return 'green';
   if (phrase === "Link") return 'green';
@@ -592,6 +639,7 @@ function getColor(phrase, default_color = 'blue') {
 }
 
 // style is called 'extra' in other functions
+// in non-preview mode, writes 1 line of text
 function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, preview = false) {
   //console.log(361, fontSize, text, x, y, style, preview);
   fontSize = Number(fontSize);
@@ -702,14 +750,27 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
             ctx.lineWidth = width; // Thicker stroke
             ctx.strokeStyle = stroke;
             ctx.textAlign = 'left';
+            // for testing italics
+            let skew = 0;//  Math.random() < 0.5;
             if (!preview) {
-              ctx.strokeText(word, lastX, y); //  cardWidth - lastX);
+              if (skew) {
+                ctx.strokeText(word, lastX, y); //  cardWidth - lastX);
+              } else {
+                italicStrokeText(ctx, word, lastX, y);
+              }
             }
 
             ctx.lineWidth = 2; // Smaller stroke to define the edges
             ctx.fillStyle = fill;
             if (!preview) {
-              ctx.fillText(word, lastX, y); //  cardWidth - lastX);
+              if (skew) {
+                ctx.fillText(word, lastX, y); //  cardWidth - lastX);
+                //              ctx.fillText(cleanWord, lastX - diamondOffset, y - 10, cardWidth - lastX);
+              } else {
+                italicText(ctx, word, lastX, y);
+                //                italicText(ctx, cleanWord, lastX - diamondOffset, y - 10, cardWidth - lastX);
+              }
+
             }
             width = ctx.measureText(word).width;
             //            if (width > y) width = y;

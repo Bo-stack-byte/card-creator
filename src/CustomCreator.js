@@ -29,7 +29,7 @@ import {
 
 import { applyGradientToFrame, contrastColor, whiteColor, empty } from './util';
 import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7 } from './plaintext';
-import { fitTextToWidth, drawBracketedText, writeRuleText, center } from './text';
+import { fitTextToWidth, drawBracketedText, writeRuleText, center, textLine } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
 import white from './white.png';
@@ -60,9 +60,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.26"
-const latest = "《 》 for dark blue, or, whatever [bracket] starts bubble text"
+const version = "0.8.28"
+const latest = "fix bubbleradius and ace text composed on the fly"
 
+// version 0.8.28   fix bubbleradius and ace text composed on the fly
+// version 0.8.27   italics
 // version 0.8.26   《 》 for dark blue, or, whatever [bracket] starts bubble text
 // version 0.8.25   custom radius
 // version 0.8.24   bug fixes: stop [on evolve] from being dark blue; add aceEffect everywhere; stop crashing on old iOS; font guide updates; fugly iOS name font fixed   
@@ -179,7 +181,7 @@ const settingsText = {
   "lineSpacing": "line spacing",
   "baselineOffset": "move effect baseline up by",
   "specialOffset": "move special evos up by",
-  "radius": "word bubble radius"
+  "bubbleRadius": "word bubble radius"
 }
 const settingText = (s) => {
   return settingsText[s] || s;
@@ -342,7 +344,7 @@ const starter_text_empty = `[{
     "fontSize": 90.5,
     "lineSpacing": 10,
     "baselineOffset": 0,
-    "specialOffset": 0, "radius": 0,
+    "specialOffset": 0, "bubbleRadius": 0,
     "foregroundOnTop": false,
     "cardFrame": true,
     "effectBox": false,
@@ -375,7 +377,7 @@ const starter_text_0 = ` [ {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "radius": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -426,7 +428,7 @@ const starter_text_1a = `  {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "radius": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -469,7 +471,7 @@ const starter_text_1b = `  {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "radius": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -521,7 +523,7 @@ const starter_text_1c = `{
     "ess_y_pos": "24",
     "ess_x_end": 50,
     "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "radius": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0,
             "foregroundOnTop": true,
             "cardFrame": true,
             "effectBox": false,
@@ -557,7 +559,7 @@ const starter_text_2 = `  {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "radius": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -589,7 +591,7 @@ const starter_text_3 = `   {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 0, "ess_x_end": 80, "ess_y_end": 40,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "radius": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0,
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -938,6 +940,7 @@ function CustomCreator() {
       lineSpacing: 10,
       baselineOffset: 0,
       specialOffset: 0,
+      bubbleRadius: 0,
       foregroundOnTop: false,
       cardFrame: true,
       effectBox: false,
@@ -1116,6 +1119,13 @@ function CustomCreator() {
         if (!(field in json.imageOptions)) {
           console.log("Missing field added" + field);
           json.imageOptions[field] = true;
+        }
+      }
+      // zeros
+      for (let field of ["bubbleRadius"]) {
+        if (!(field in json.imageOptions)) {
+          console.log("Missing field added" + field);
+          json.imageOptions[field] = 0;
         }
       }
       if (!("english" in json.name)) {
@@ -2010,7 +2020,7 @@ function CustomCreator() {
       const fontSize = Number(json.imageOptions.fontSize) || 90.5
       let rule_offset = 0;
       let xros_offset = 0;
-      let radius = Number(json.imageOptions.radius) || 0;
+      let radius = Number(json.imageOptions.bubbleRadius) || 0;
 
       if (!empty(xros)) {
         let preview = drawBracketedText(ctx, fontSize, xros, 300, bottom,
@@ -2186,6 +2196,9 @@ function CustomCreator() {
 
       if (type === "ACE" && overflow) {
         ctx.font = `95px MyriadProBold`;
+        
+        
+
 
         let neg_overflow = "-" + overflow;
         let o_x = 1170, o_y = 3645;
@@ -2206,10 +2219,23 @@ function CustomCreator() {
         ctx.fillStyle = 'rgba(32, 32, 32, 0.8)'; // '#444';
         ctx.fillText(neg_overflow, o_x, o_y);
 
-        // this isn't quite right, it's too slanted. maybe gothic ?
-        ctx.font = `italic  90px MyriadCondenser`;
-        // ctx.font = `italic 90px "Adobe Gothic Std"`;
+        ctx.font = `95px MyriadProBold`;
+      //  ctx.font = `90px MyriadProSemibold`;
+        // Semibold might be a slightly better match but it means a whole extra font
+        
+        ctx.textAlign = 'left';
 
+        let line1 = "As this card moves from the field or";
+        let ace_text = [ ["("],  [line1, "italics"] ];
+        let ace_text2 = [ ["under a card to an area other than those, lose " + 
+          overflow + " memory.", "italics"], [")"] ]
+        
+        ctx.fillStyle = 'rgba(255, 254, 254, 1.0)';
+        textLine(ctx, ace_text, 1310, 3655, 1400);      
+        textLine(ctx, ace_text2, 650, 3750, 2120);//, 0.2);
+
+
+        if (false) {
         ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
         ctx.lineWidth = 8;
         ctx.strokeText(overflow, 2370, 3750);
@@ -2221,7 +2247,7 @@ function CustomCreator() {
         //        ctx.fillText('lose  4  memory', 1850, 3730);
         ctx.strokeText(overflow, 2370, 3750);
         ctx.fillText(overflow,   2370, 3750);
-
+        }
 
 
         // now put it in its second place

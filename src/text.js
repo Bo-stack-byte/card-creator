@@ -494,7 +494,7 @@ export function italicText(ctx, text, x, y, limit) {
   ctx.restore();
 }
 export function italicStrokeText(ctx, text, x, y, limit) {
-  let skew = 0.2;
+  let skew = 0.25;
   ctx.save();
   ctx.setTransform(1, 0, -skew, 1, skew * y, 0);
   ctx.strokeText(text, x, y, limit);
@@ -753,7 +753,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
             // for testing italics
             let skew = 0;//  Math.random() < 0.5;
             if (!preview) {
-              if (skew) {
+              if (!skew) {
                 ctx.strokeText(word, lastX, y); //  cardWidth - lastX);
               } else {
                 italicStrokeText(ctx, word, lastX, y);
@@ -763,7 +763,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
             ctx.lineWidth = 2; // Smaller stroke to define the edges
             ctx.fillStyle = fill;
             if (!preview) {
-              if (skew) {
+              if (!skew) {
                 ctx.fillText(word, lastX, y); //  cardWidth - lastX);
                 //              ctx.fillText(cleanWord, lastX - diamondOffset, y - 10, cardWidth - lastX);
               } else {

@@ -60,7 +60,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.28"
+const version = "0.8.28.1"
 const latest = "fix bubbleradius and ace text composed on the fly"
 
 // version 0.8.28   fix bubbleradius and ace text composed on the fly
@@ -462,7 +462,7 @@ const starter_text_1b = `  {
     "dnaEvolve": "[DNA Digivolve] Yellow Lv.6 + Blue Lv.6\u00a0: Cost 0",
     "digiXros": "-",
     "assembly": "-",
-    "aceEffect": "Overflow \uff1c-5\uff1e (As this card would move from the field or from under a card to another area, lose 5 memory.)",
+    "aceEffect": "Overflow \uff1c-5\uff1e (As this card moves from the field or\\nunder a card to an area other than those, lose 5 memory.)",
     "burstEvolve": "-",
     "rarity": "Secret Rare",
     "block": "05",
@@ -2196,9 +2196,14 @@ function CustomCreator() {
 
       if (type === "ACE" && overflow) {
         ctx.font = `95px MyriadProBold`;
-        
-        
 
+        console.log(2200, json.aceEffect);
+        let overflow_match = json.aceEffect.match(/\((.*)\)/s);
+        let custom_text = overflow_match && overflow_match[1];
+        if (!custom_text || custom_text.length < 4) {
+          custom_text = "As this card moves from the field or\n" + 
+              "under a card to an area other than those, lose " + overflow + " memory.";
+        }
 
         let neg_overflow = "-" + overflow;
         let o_x = 1170, o_y = 3645;
@@ -2225,10 +2230,10 @@ function CustomCreator() {
         
         ctx.textAlign = 'left';
 
-        let line1 = "As this card moves from the field or";
+        let lines = custom_text.split("\n");
+        let [line1, line2] = lines;
         let ace_text = [ ["("],  [line1, "italics"] ];
-        let ace_text2 = [ ["under a card to an area other than those, lose " + 
-          overflow + " memory.", "italics"], [")"] ]
+        let ace_text2 = [ [line2, "italics"], [")"] ]
         
         ctx.fillStyle = 'rgba(255, 254, 254, 1.0)';
         textLine(ctx, ace_text, 1310, 3655, 1400);      

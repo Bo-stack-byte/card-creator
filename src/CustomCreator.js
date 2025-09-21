@@ -60,10 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.28.1"
-const latest = "fix bubbleradius and ace text composed on the fly"
+const version = "0.8.28.2"
+const latest = "fix bubbleradius and ace text composed on the fly, no autoblue"
 
-// version 0.8.28   fix bubbleradius and ace text composed on the fly
+// version 0.8.28   fix bubbleradius and ace text composed on the fly, no autoblue
 // version 0.8.27   italics
 // version 0.8.26   《 》 for dark blue, or, whatever [bracket] starts bubble text
 // version 0.8.25   custom radius

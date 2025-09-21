@@ -513,11 +513,12 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   text = text.replaceAll('((', '⸨').replaceAll('))', '⸩');
 
   // if it starts with [xxx] and we are "bubble" or "dna" make that dark blue
+  /*if (extra === "bubble" || extra == "dna") {
   let match;
-  if ((match = text.match(/^\[(.*?)\] (.*)/))) {
-    text = "《" + match[1] + "》 " + match[2];
-  }
-
+    if ((match = text.match(/^\[(.*?)\] (.*)/s))) {
+      text = "《" + match[1] + "》 " + match[2];
+    }
+  }*/
   fontSize = Number(fontSize);
   let maxWidth = horizontal_limit - x;
   if (extra.includes("bubble")) maxWidth -= 150;

@@ -60,7 +60,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.29.1"
+const version = "0.8.29.2"
 const latest = "(*italic text*)"
 
 // version 0.8.28.x   fix bubbleradius and ace text composed on the fly, no autoblue
@@ -2494,10 +2494,10 @@ function CustomCreator() {
           drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble");
         }
         // shrink is not working, we're ignoring max_width
-          let max_width = 2500 - 400 - delta_x * 2 - shrink; max_width *= 1; // delete this
-        drawBracketedText(ctx, fontSize, effect,
+          let max_width = 2500 - 400 - delta_x * 2 - shrink;
+          drawBracketedText(ctx, fontSize, effect,
           700 + delta_x * 2, 3740 + delta_y * 2 + 150,
-          2200, Number(fontSize) + Number(imageOptions.lineSpacing), "effect", radius);
+          2200 + max_width / 100 * 0.0001, Number(fontSize) + Number(imageOptions.lineSpacing), "effect", radius);
       } else {
         let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
         if (json.linkDP) {

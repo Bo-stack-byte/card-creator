@@ -514,7 +514,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   // make inside of (*stufff  f f *) be italic
     //【abc】  【power】
   let match;
-  if (match = text.match(/(.*)\(\*(.*)\*\)(.*)/)) {
+  if ((match = text.match(/(.*)\(\*(.*)\*\)(.*)/))) {
     let temp_text = match[1] + "(";
     temp_text += match[2].split(" ").map(x => "【" + x+ "】").join(" ")
     temp_text += ")" + match[3];

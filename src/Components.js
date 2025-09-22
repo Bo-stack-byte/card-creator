@@ -26,7 +26,7 @@ export function CircleAndBlock(ctx, color, rarity, block, x, y) {
         if (color === "white") {
             outlinecolor = "black";
         }
-        console.error(28, "color", color, "mycolor", mycolor, "outlinecolor", outlinecolor);
+        //console.log(28, "color", color, "mycolor", mycolor, "outlinecolor", outlinecolor);
         drawDiamondRectangle(ctx, x, y + 145, 145, 95, "white", outlinecolor);
         ctx.fillStyle = "black";
         ctx.textAlign = 'center';
@@ -55,7 +55,7 @@ export function CircleAndBlock(ctx, color, rarity, block, x, y) {
         ctx.stroke();
         ctx.fill();
         ctx.font = '100 70px "ProhibitionRough", "Big Shoulders Text"'
-        console.error(2350, ctx.strokeStyle, rarity);
+        //console.log(2350, ctx.strokeStyle, rarity);
         ctx.fillStyle = contrastColor(mycolor); // flip
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';

@@ -511,6 +511,15 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 
   // preprocess
   text = text.replaceAll('((', '⸨').replaceAll('))', '⸩');
+  // make inside of (*stufff  f f *) be italic
+    //【abc】  【power】
+  let match;
+  if (match = text.match(/(.*)\(\*(.*)\*\)(.*)/)) {
+    let temp_text = match[1] + "(";
+    temp_text += match[2].split(" ").map(x => "【" + x+ "】").join(" ")
+    temp_text += ")" + match[3];
+    text = temp_text;
+  }
 
   // if it starts with [xxx] and we are "bubble" or "dna" make that dark blue
   /*if (extra === "bubble" || extra == "dna") {
@@ -521,6 +530,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   }*/
   fontSize = Number(fontSize);
   let maxWidth = horizontal_limit - x;
+  maxWidth = _maxWidth;
   if (extra.includes("bubble")) maxWidth -= 150;
   //console.debug(308, "calling with", fontSize, text, y, "XXX", lineHeight);
   lineHeight = Number(lineHeight);
@@ -565,7 +575,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     for (let n = 0; n < words.length; n++) {
       ctx.font = `${italics} ${fontSize}px ${font}`;
       const testLine = line + words[n];//  + ' ';
-      const metrics = ctx.measureText(testLine.replaceAll(/[＜＞[\]]/ig, ''));
+      const metrics = ctx.measureText(testLine.replaceAll(/[＜＞【】[\]]/ig, ''));
       const testWidth = metrics.width * scale;
 
       //console.log(`XXX is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
@@ -639,6 +649,10 @@ function getColor(phrase, default_color = 'blue') {
   return default_color;
 }
 
+
+//【abc】  【power】
+
+
 // style is called 'extra' in other functions
 // in non-preview mode, writes 1 line of text
 function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, preview = false) {
@@ -666,7 +680,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
   let angle_phrases = text.split(/([<＜].*?[>＞])/);
   let phrases = [];
   for (let ap of angle_phrases) { // 》《
-    let temp = ap.startsWith("＜") ? [ap] : ap.split(/([[⟦⸨《].*?[\]⟧⸩》])/);
+    let temp = ap.startsWith("＜") ? [ap] : ap.split(/([[⟦⸨《【].*?[\]⟧⸩》】])/);
     phrases.push(...temp);
   }
   //let phrases = text.split(/([[⟦].*?[\]⟧])/);
@@ -680,7 +694,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
       (phrase.startsWith("[") && phrase.endsWith("]") && matchMagic(magicWords, cleanPhrase)) ||
       (false && phrase.startsWith("[") && phrase.endsWith("]") && index < 2)// first hrase
     ) {
-      // Calculate the width of the bracketed text
+        // Calculate the width of the bracketed text
       let color = getColor(cleanPhrase, default_color);
       //console.log(292, cleanPhrase);
       if (cleanPhrase.startsWith("(") && cleanPhrase.endsWith(")")) {
@@ -695,6 +709,12 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
         color = "darkblue";
         cleanPhrase = cleanPhrase.slice(1, -1);
       }
+      if (false && cleanPhrase.startsWith("【") && cleanPhrase.endsWith("】")) {
+        //alert(cleanPhrase);
+        color = "italic";
+        cleanPhrase = cleanPhrase.slice(1, -1);
+      }
+
       const italics = (style === "bubble" || style === "dna") ? "italic" : "";
 
       ctx.font = `100 ${(fontSize - 10)}px ${boxfont}`;
@@ -730,7 +750,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
           ctx.fillStyle = 'white'; // white on colored background
           let diamondOffset = -5; // how much to slide keyword in text around
           if (!preview) ctx.fillText(cleanWord, lastX - diamondOffset, y - 10, cardWidth - lastX);
-          console.log(621, "xxx", cleanWord);
+          //console.log(621, "xxx specialword", cleanWord);
           lastX += scale * wordWidth + 15;
           //  ctx.restore();
           ctx.font = ` ${fontSize}px ${font}`;
@@ -744,7 +764,14 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
             fill = 'black';
           }
 
+
           if (word.length > 0) {
+            let skew = 0;//  Math.random() < 0.5;
+            if (word.startsWith("【") && word.endsWith("】")) {
+              word = word.slice(1, -1);
+              skew = 1;
+            }
+
             //            console.log(334, lastX, word);
 
             // First, draw the black stroke
@@ -752,7 +779,6 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
             ctx.strokeStyle = stroke;
             ctx.textAlign = 'left';
             // for testing italics
-            let skew = 0;//  Math.random() < 0.5;
             if (!preview) {
               if (!skew) {
                 ctx.strokeText(word, lastX, y); //  cardWidth - lastX);

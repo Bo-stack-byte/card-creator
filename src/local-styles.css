@@ -26,6 +26,11 @@ br {
 
 }
 
+@font-face {
+  font-family: 'Hiragino';
+  src: local('Hiragino'), url(./fonts/hiragino.ttf) format('truetype');
+}
+
 
 @font-face {
   font-family: 'AyarKasone';
@@ -48,7 +53,6 @@ br {
   src: local('MyriadCondenser'), url(./fonts/MYRIADPRO-COND.OTF) format('opentype');
 }
 
-
 @font-face {
   font-family: 'ToppanBunkyExtraBold';
   src: local('ToppanBunkyExtraBold'), url(./fonts/ToppanBunkyuMidashiGothicStdN-ExtraBold.otf) format('opentype');
@@ -66,6 +70,8 @@ br {
   src: local('FallingSky'), url(./fonts/FallingSky.otf) format('opentype');
 }
 
+
+
 @font-face {
     font-family: "ProhibitionRough";
     src: local('ProhibitionRough'), url(./fonts/Prohibition-Regular.ttf) format('truetype');
@@ -73,10 +79,10 @@ br {
 
 @font-face {
   font-family: 'RepoMedium';
-/*  font-style: normal;
-  font-weight: normal; */
   src: local('RepoMedium'), url(./fonts/Repo-Medium.woff) format('woff');
-  }
+}
+
+
 
 @font-face {
   font-family: "ProhibitionRough";

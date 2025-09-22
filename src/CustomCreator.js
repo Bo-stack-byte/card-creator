@@ -60,10 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.28.2"
-const latest = "fix bubbleradius and ace text composed on the fly, no autoblue"
+const version = "0.8.29"
+const latest = "(*italic text*)"
 
-// version 0.8.28   fix bubbleradius and ace text composed on the fly, no autoblue
+// version 0.8.28.x   fix bubbleradius and ace text composed on the fly, no autoblue
 // version 0.8.27   italics
 // version 0.8.26   《 》 for dark blue, or, whatever [bracket] starts bubble text
 // version 0.8.25   custom radius
@@ -504,7 +504,7 @@ const starter_text_1c = `{
   "effect": "[Your Turn] [Once Per Turn] When this Monster gets linked, You may suspend 1 other Monster with DP less than or equal to this Monster.",
   "linkRequirement": "[Link] [Bird] trait: Cost 1",
   "linkDP": "1500",
-  "linkEffect": "＜Dodge＞ (When this Monster would leave the field, you may\\nsuspend it to prevent that deletion.)",
+  "linkEffect": "＜Dodge＞ (*When this Monster would leave the field, you may nsuspend it to prevent that deletion.*)",
   "securityEffect": "-",
   "rule": "",
   "digiXros": "-",
@@ -840,7 +840,7 @@ function CustomCreator() {
       }
     }
     let fgid = foreImg && foreImg.id;
-    console.error(825, fgid);
+    console.log(825, fgid);
     if (fgid === '1') {
       // nothing
     } else if ((id = imageOptions.foreground_url)) {
@@ -851,7 +851,7 @@ function CustomCreator() {
       if (foreImg)
         setForeImg(null);
     }
-    console.error(834, img_args);
+    console.log(834, img_args);
     if (img_args.length === 0) return;
 
     try {
@@ -973,15 +973,15 @@ function CustomCreator() {
     let fontwidth = Math.round(_ctx.measureText("AAAaaa423434i").width);
     neue = (fontwidth === correct);
     neue = true;
-    console.log("h boolean", neue, "fontwidth", fontwidth, "correct", correct);
+    console.debug("h boolean", neue, "fontwidth", fontwidth, "correct", correct);
     _ctx.font = `275px 'HelveticaNeue-CondensedBold'`;
-    console.log("hv cb", Math.round(_ctx.measureText("AAAaaa423434i").width));
+    console.debug("hv cb", Math.round(_ctx.measureText("AAAaaa423434i").width));
     _ctx.font = `275px 'Helvetica Neue Condensed Bold'`;
-    console.log("h v c b", Math.round(_ctx.measureText("AAAaaa423434i").width));
+    console.debug("h v c b", Math.round(_ctx.measureText("AAAaaa423434i").width));
     _ctx.font = `275px 'Helvetica Neue'`;
-    console.log("hn", Math.round(_ctx.measureText("AAAaaa423434i").width));
+    console.debug("hn", Math.round(_ctx.measureText("AAAaaa423434i").width));
     _ctx.font = `bold 275px 'Helvetica Neue'`;
-    console.log("bold hn", Math.round(_ctx.measureText("AAAaaa423434i").width));
+    console.debug("bold hn", Math.round(_ctx.measureText("AAAaaa423434i").width));
   }
 
   const customs = [
@@ -1038,6 +1038,7 @@ function CustomCreator() {
       imageOptions = json.imageOptions;
     } catch (e) {
       console.error("invalid json parse", e);
+      console.log("<<" + text + ">>");
       return; // no json to parse, don't populate fields...
     }
 
@@ -1341,9 +1342,9 @@ function CustomCreator() {
       if (showJson === 2) setShowJson(0);
       updateJson(text);
     }
-    console.log("SETTING JSON TEXT", text);
+    //console.log("SETTING JSON TEXT", text);
     jsonToFields(text);
-    console.error(889, img_src);
+    //console.error(889, img_src);
     if (img_src) {
 
       const img = new Image();
@@ -1360,7 +1361,7 @@ function CustomCreator() {
       img2.id = 2;
       img2.src = back_src;
       img2.onload = () => {
-        console.error(901, img2);
+        //console.log(901, img2);
         setBackImg(img2);
       }
       img2.onerror = () => {
@@ -2442,12 +2443,12 @@ function CustomCreator() {
       console.log(1277, special_baseline, y_line, (fontSize_n + so))
       if (!empty(dna_evo)) {
         special_baseline -= (delta);
-        drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(imageOptions.lineSpacing), "dna", radius);
+        drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 1, Number(fontSize_n) + Number(imageOptions.lineSpacing), "dna", radius);
         special_baseline -= (delta *.5);
       }
       if (!empty(spec_evo)) {
         special_baseline -= (delta);
-        drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 0, Number(fontSize_n) + Number(imageOptions.lineSpacing), "bubble", radius);
+        drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 1, Number(fontSize_n) + Number(imageOptions.lineSpacing), "bubble", radius);
       }
       if (!empty(burst_evo)) {
         special_baseline -= (delta * 0.5); // burst bubble is twice as big
@@ -2465,7 +2466,7 @@ function CustomCreator() {
         y_line = drawBracketedText(ctx, fontSize, effect,
           //wrapText(ctx, effect, // + effect, 
           250, y_line,
-          2455,
+          2455 + 100,
           Number(fontSize) + Number(imageOptions.lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
           radius,
           false
@@ -2486,13 +2487,17 @@ function CustomCreator() {
         let effect = json.linkEffect;
         let delta_x = -220; let delta_y = -200; let shrink = 1000;
         if (!empty(req)) {
+          // instead of 3000, width of 2700 to save room for link-DP-thingy
+
+          // (alias) drawBracketedText(ctx: any, fontSize: any, text: any, x: any, y: any, _maxWidth: any, lineHeight: any, extra: any, radius: any, preview?: boolean): any
+          // ctx                
           drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble");
         }
         // shrink is not working, we're ignoring max_width
         let max_width = 2500 - 400 - delta_x * 2 - shrink;
         drawBracketedText(ctx, fontSize, effect,
           700 + delta_x * 2, 3740 + delta_y * 2 + 150,
-          max_width, Number(fontSize) + Number(imageOptions.lineSpacing), "effect", radius);
+          2200, Number(fontSize) + Number(imageOptions.lineSpacing), "effect", radius);
       } else {
         let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
         if (json.linkDP) {
@@ -3019,6 +3024,7 @@ function CustomCreator() {
                   borderRadius: '20px',  // this radius is scaled differently than the one in the function
                   overflow: 'hidden',
                   display: (showGallery ? "none" : "block"),
+                  fontVariantLigatures: "none",
                 }}>
               </canvas>
 

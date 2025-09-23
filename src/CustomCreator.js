@@ -60,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.29.3"
-const latest = "(*italic text*), better handles keywords"
+const version = "0.8.30.0"
+const latest = "at last, proper fonts for keywords"
 
+// version 0.8.30   at last, proper fonts for keywords
 // version 0.8.29.x (*italic text*), better handles keywords
 // version 0.8.28.x fix bubbleradius and ace text composed on the fly, no autoblue
 // version 0.8.27   italics

@@ -14,7 +14,9 @@
     .ayar {
       font-family: "AyarKasone";
     }
-
+    .hiragino {
+      font-family: "Hiragino";
+    }
     .prohibition {
       font-family: "ProhibitionRough"
     }
@@ -32,6 +34,9 @@
     }
     .myriad {
       font-family: "MyriadProBold"
+    }
+    .myriaditalic {
+      font-family: "MyriadProItalic"
     }
     .helvetica {
       font-family: "Helvetica"
@@ -129,8 +134,9 @@
       WithTheWill</a> came up with the original card templates, and also eyeballed the fonts in use on the official
     cards. he probably didn't expect that lots of people would stick to his initial thoughts years later.</p>
 
-  <p class="myriad">this is a guide on reverse-engineering the fonts in question.2</p>
-  
+  <p class="myriad">this is a guide on reverse-engineering the fonts in question.</p>
+
+
   <p class="vegur">if you want to suggest a new font, specifically cite at least 1 glyph that is a better match to the card text. 
     if that causes some other glyphs to be wrong, that's okay, we won't have to use the new one but knowing what pieces we need is valuable WarGreymon Imperial Dramon: Ace & f,f</p>
 
@@ -141,7 +147,7 @@
     <a href="https://digi-lov.tumblr.com/post/748763635923435520/digimon-card-template">Digi-Lov</a>
       has done great research on this. the things we disagreed on, for most of them they were right</p>
 
-  <table>
+  <table border=1>
     <tr>
       <th width=50%>
       <th width=50%>
@@ -312,14 +318,40 @@
       <tr><td class="myriad">And here's Myriad loop:
         <td><img src="./myr-loop.gif" />
         </tr>
+
+        <tr>
+        <td>
+
+          There's a difference between Myriad being slanted and using the italic variation of Myriad:
+
+            <p class="myriaditalic">
+    (As this card moves from the field or
+under a card to an area other than those, lose 5 memory.)
+  </p>
+  <p class="myriad">
+    (As this card moves from the field or
+under a card to an area other than those, lose 5 memory.)
+  </p>
+        </td>
         
       
     <tr><td><br>...
     <tr>
-      <td class="fallingsky">
+      <td>
+        <p class="fallingsky">
         For the text inside the effect box, Falling Sky seems a good match. The "I" and "g" mean it 
         I can't detect any glyph that's different, but it doesn't *quite* feel light in some way.
         like i need to squish it vertically.
+        </p>
+        <p class="hiragino">ヒラギノ may be the font we want. (Pronounciation hint: it rhymes with ロビーノ).
+          Observe these words, pay attention to C l a g y M R
+          <br>Counter<br>Hand<br>Blast Digivolve<br>On Play<br>≪ディレイ≫ aka ＜Raid＞ ＜Raid＞  ＜Delay＞ <br>Raid＜Raid＞  <br>Main
+          <br>
+          <b>    C l a g y M R</b>
+
+
+
+          </p>
       <td>
         <img src="./keyword-fallingsky.png" />
       </td>

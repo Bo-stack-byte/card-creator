@@ -11,7 +11,7 @@ let diamondRight = new Image(); diamondRight.src = _right_diamond;
 
 
 const font = 'MyriadProBold'
-const boxfont = true ? "FallingSky" : "ToppanBunkyExtraBold";
+const boxfont = "Hiragino"; //  "FallingSky" : "ToppanBunkyExtraBold";
 const horizontal_limit = 2700;
 
 export function center(str, len = 16) {
@@ -302,11 +302,13 @@ function drawColoredRectangle(ctx, x, y, width, height, color, radius) {
   height = Number(height);
   let color0, color1, color2;
   switch (color) {
-    case 'purple': color0 = '#720949'; color1 = '#b24999'; break;
+    case 'purple': color0 = '#4F0B46'; color1 = '#8B235C'; 
+    color2 = '#AF4176'; break; 
     case 'green': color0 = 'darkgreen'; color1 = 'lightgreen'; break;
     case 'doublebubble':
     case 'bubble': color0 = 'black'; color1 = 'black'; break;
-    case 'darkblue': color0 = '#0D1544'; color1 = '#4D5584'; break;
+    case 'darkblue': //color0 = '#0D1544'; color1 = '#4D5584'; break;
+    color0 = '#110B3B'; color1 = '#2E2773'; color2 = '#2D63AA'; break;
     case 'red': color0 = '#530B07'; color1 = '#A12015'; color2 = '#DB6D52'; break;
     case 'yellow': color0 = 'yellow'; color1 = 'yellow'; break;
 
@@ -487,17 +489,19 @@ export function textLine(ctx, blobs, x, y, limit) {
 // 《 》
 //possibly italic text
 export function italicText(ctx, text, x, y, limit) {
+  let shift = ctx.measureText("_").width / 2;
   let skew = 0.25; // i might want to make this a *smudge* smaller than 0.25
   ctx.save();
   ctx.setTransform(1, 0, -skew, 1, skew * y, 0);
-  ctx.fillText(text, x, y, limit);
+  ctx.fillText(text, x - shift, y, limit);
   ctx.restore();
 }
 export function italicStrokeText(ctx, text, x, y, limit) {
+  let shift = ctx.measureText("_").width / 2;
   let skew = 0.25;
   ctx.save();
   ctx.setTransform(1, 0, -skew, 1, skew * y, 0);
-  ctx.strokeText(text, x, y, limit);
+  ctx.strokeText(text, x - shift, y, limit);
   ctx.restore();
 }
 // ⟦ ⟧
@@ -529,7 +533,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
       text += star.split(" ").map(x => starters.indexOf(x[0]) > -1 ? x : "【" + x+ "】").join(" ");
     }
   }
-  
+
   // if it starts with [xxx] and we are "bubble" or "dna" make that dark blue
   /*if (extra === "bubble" || extra == "dna") {
   let match;
@@ -584,7 +588,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     for (let n = 0; n < words.length; n++) {
       ctx.font = `${italics} ${fontSize}px ${font}`;
       const testLine = line + words[n];//  + ' ';
-      const metrics = ctx.measureText(testLine.replaceAll(/[＜＞【】[\]]/ig, ''));
+      const metrics = ctx.measureText(testLine.replaceAll(/[*＜＞【】《》[\]]/ig, ''));
       const testWidth = metrics.width * scale;
 
       //console.log(`XXX is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
@@ -655,6 +659,7 @@ function getColor(phrase, default_color = 'blue') {
   if (['Hand', 'Trash', 'Breeding'].includes(phrase)) return 'purple';
   if (['Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'red';
   if (phrase.match(/^(Digi|E)volve$/i)) return 'darkblue';
+  if (phrase === "Counter") return 'darkblue';
   return default_color;
 }
 
@@ -726,17 +731,30 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
 
       const italics = (style === "bubble" || style === "dna") ? "italic" : "";
 
-      ctx.font = `100 ${(fontSize - 10)}px ${boxfont}`;
+      ctx.font = `100 ${(fontSize - 20)}px ${boxfont}`;
+//      ctx.fontStretch = "ultra-condensed";
+ //     ctx.fontStretch = "ultra-expanded";
       const phraseWidth = ctx.measureText(cleanPhrase).width;
       let start = lastX; let width = phraseWidth + 50;
+      ctx.save();
+      let ratio = 1.06;
+      if (cleanPhrase.length > 6) ratio = 1.05;
+      ratio = 1;
+      // clever tricks to squeeze keywords to match sizing
+      ctx.setTransform(ratio, 0, 0, 1, 0, 0);  // 6% for [Hand], 5% for [Counter]
+   
       if (!preview) drawColoredRectangle(ctx, start, y + 3, width, fontSize, color, radius);
       ctx.fillStyle = 'white';
       ctx.textAlign = 'center';
       //console.log(328, lastX, cleanPhrase, (cardWidth - lastX - 5));
-      if (!preview) ctx.fillText(cleanPhrase, start + width / 2, y - 10, cardWidth - lastX - 5, phraseWidth);
+      // stretch the font a bit
+      if (!preview) ctx.fillText(cleanPhrase, start + width / 2, y - 10,
+        cardWidth - lastX + 500); //  phraseWidth);
+      ctx.restore();
       ctx.textAlign = 'left';
 
-      lastX += width + 2; // phraseWidth + fontSize;
+      lastX += width + 2;
+      ctx.fontStretch = "normal";
       ctx.font = `${italics} ${(fontSize)}px ${font}`;
 
     } else {
@@ -745,7 +763,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
           const cleanWord = word.replace(/[＜＞_]/g, '  ');
           //          ctx.font = `600 ${(fontSize - 5)}px Schibsted Grotesk`;
           //   ctx.font = `bold ${(fontSize - 5)}px Roboto`;
-          ctx.font = `100 ${(fontSize - 10)}px ${boxfont}`;
+          ctx.font = `100 ${(fontSize - 20)}px ${boxfont}`;
 
           const wordWidth = ctx.measureText(cleanWord).width;
           //console.log(314, wordWidth, cardWidth, lastX, cleanWord);
@@ -780,8 +798,6 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
               word = word.slice(1, -1);
               skew = 1;
             }
-
-            //            console.log(334, lastX, word);
 
             // First, draw the black stroke
             ctx.lineWidth = width; // Thicker stroke

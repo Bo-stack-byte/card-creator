@@ -513,14 +513,23 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   text = text.replaceAll('((', '⸨').replaceAll('))', '⸩');
   // make inside of (*stufff  f f *) be italic
     //【abc】  【power】
-  let match;
-  if ((match = text.match(/(.*)\(\*(.*)\*\)(.*)/))) {
-    let temp_text = match[1] + "(";
-    temp_text += match[2].split(" ").map(x => "【" + x+ "】").join(" ")
-    temp_text += ")" + match[3];
-    text = temp_text;
-  }
 
+  let stars = text.split("*")
+  let outside = false;
+
+  let starters = "[[⟦⸨《【<＜";
+
+  text = "";
+  for (let star of stars) {
+    outside = !outside;
+    if (outside) {
+      text += star;
+    } else {
+      // put things not already in a brackey in brackets
+      text += star.split(" ").map(x => starters.indexOf(x[0]) > -1 ? x : "【" + x+ "】").join(" ");
+    }
+  }
+  
   // if it starts with [xxx] and we are "bubble" or "dna" make that dark blue
   /*if (extra === "bubble" || extra == "dna") {
   let match;

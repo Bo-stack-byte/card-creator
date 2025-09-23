@@ -60,10 +60,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.29.2"
-const latest = "(*italic text*)"
+const version = "0.8.29.3"
+const latest = "(*italic text*), better handles keywords"
 
-// version 0.8.28.x   fix bubbleradius and ace text composed on the fly, no autoblue
+// version 0.8.29.x (*italic text*), better handles keywords
+// version 0.8.28.x fix bubbleradius and ace text composed on the fly, no autoblue
 // version 0.8.27   italics
 // version 0.8.26   《 》 for dark blue, or, whatever [bracket] starts bubble text
 // version 0.8.25   custom radius
@@ -504,7 +505,7 @@ const starter_text_1c = `{
   "effect": "[Your Turn] [Once Per Turn] When this Monster gets linked, You may suspend 1 other Monster with DP less than or equal to this Monster.",
   "linkRequirement": "[Link] [Bird] trait: Cost 1",
   "linkDP": "1500",
-  "linkEffect": "＜Dodge＞ (*When this Monster would leave the field, you may nsuspend it to prevent that deletion.*)",
+  "linkEffect": "＜Dodge＞ (*When this Monster would leave the field, you may suspend it to prevent that deletion.*)",
   "securityEffect": "-",
   "rule": "",
   "digiXros": "-",
@@ -2485,7 +2486,8 @@ function CustomCreator() {
       } else if (type === "LINK") {
         let req = json.linkRequirement;
         let effect = json.linkEffect;
-        let delta_x = -220; let delta_y = -200; let shrink = 1000;
+        let delta_x = -220; let delta_y = -200;
+        //let shrink = 1000;
         if (!empty(req)) {
           // instead of 3000, width of 2700 to save room for link-DP-thingy
 
@@ -2494,10 +2496,10 @@ function CustomCreator() {
           drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble");
         }
         // shrink is not working, we're ignoring max_width
-          let max_width = 2500 - 400 - delta_x * 2 - shrink;
-          drawBracketedText(ctx, fontSize, effect,
+        //let max_width = 2500 - 400 - delta_x * 2 - shrink;
+        drawBracketedText(ctx, fontSize, effect,
           700 + delta_x * 2, 3740 + delta_y * 2 + 150,
-          2200 + max_width / 100 * 0.0001, Number(fontSize) + Number(imageOptions.lineSpacing), "effect", radius);
+          2200, Number(fontSize) + Number(imageOptions.lineSpacing), "effect", radius);
       } else {
         let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
         if (json.linkDP) {

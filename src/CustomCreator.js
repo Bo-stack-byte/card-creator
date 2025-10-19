@@ -60,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.30.0"
+const version = "0.8.31.0"
 const latest = "at last, proper fonts for keywords"
 
+// version 0.8.31   fix digixros length; flip order of artist and author
 // version 0.8.30   at last, proper fonts for keywords
 // version 0.8.29.x (*italic text*), better handles keywords
 // version 0.8.28.x fix bubbleradius and ace text composed on the fly, no autoblue
@@ -1798,7 +1799,8 @@ function CustomCreator() {
       const author = empty(json.author) ? "" : json.author;
       const ver = ("v" + version) || "";
       const artist = (!empty(json.artist) && json.artist !== "-") ? json.artist : ver + "    " + here
-      const credit = artist + "   " + author;
+      const credit = (author + "   " + artist).trim();
+  
       ctx.font = '70px Bert';
       ctx.save();
       ctx.translate(2925, 560);
@@ -2024,10 +2026,11 @@ function CustomCreator() {
       let rule_offset = 0;
       let xros_offset = 0;
       let radius = Number(json.imageOptions.bubbleRadius) || 0;
+      let cardwidth = 2400;
 
       if (!empty(xros)) {
         let preview = drawBracketedText(ctx, fontSize, xros, 300, bottom,
-          3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble", radius, true);
+          cardwidth, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble", radius, true);
         // our text should end at roughly bottom + 
         xros_offset = preview - (bottom + fontSize * 2);
         console.log(1254, 'x', preview, bottom);
@@ -2049,7 +2052,7 @@ function CustomCreator() {
       if (!empty(xros)) {
         // BT10-009 EX3-014: shaded box
         // st19-10 solid box
-        drawBracketedText(ctx, fontSize, xros, 300, bottom - xros_offset, 3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble", radius);
+        drawBracketedText(ctx, fontSize, xros, 300, bottom - xros_offset, cardwidth, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble", radius);
       }
 
 

@@ -60,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.31.0"
-const latest = "at last, proper fonts for keywords"
+const version = "0.8.32.0"
+const latest = "alt Font Delta, use a different font size for special / dna / assembly conditions"
 
+// version 0.8.32   alt Font Delta, use a different font size for special / dna / assembly conditions
 // version 0.8.31   fix digixros length; flip order of artist and author
 // version 0.8.30   at last, proper fonts for keywords
 // version 0.8.29.x (*italic text*), better handles keywords
@@ -184,7 +185,8 @@ const settingsText = {
   "lineSpacing": "line spacing",
   "baselineOffset": "move effect baseline up by",
   "specialOffset": "move special evos up by",
-  "bubbleRadius": "word bubble radius"
+  "bubbleRadius": "word bubble radius",
+  "altFontDelta": "+/- for custom size for alt evo and xros text"
 }
 const settingText = (s) => {
   return settingsText[s] || s;
@@ -347,7 +349,7 @@ const starter_text_empty = `[{
     "fontSize": 90.5,
     "lineSpacing": 10,
     "baselineOffset": 0,
-    "specialOffset": 0, "bubbleRadius": 0,
+    "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
     "foregroundOnTop": false,
     "cardFrame": true,
     "effectBox": false,
@@ -380,7 +382,7 @@ const starter_text_0 = ` [ {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -431,7 +433,7 @@ const starter_text_1a = `  {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -474,7 +476,7 @@ const starter_text_1b = `  {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -526,7 +528,7 @@ const starter_text_1c = `{
     "ess_y_pos": "24",
     "ess_x_end": 50,
     "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
             "foregroundOnTop": true,
             "cardFrame": true,
             "effectBox": false,
@@ -562,7 +564,7 @@ const starter_text_2 = `  {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -594,7 +596,7 @@ const starter_text_3 = `   {
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 0, "ess_x_end": 80, "ess_y_end": 40,
-      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
@@ -944,6 +946,7 @@ function CustomCreator() {
       baselineOffset: 0,
       specialOffset: 0,
       bubbleRadius: 0,
+      altFontDelta: 0,
       foregroundOnTop: false,
       cardFrame: true,
       effectBox: false,
@@ -1126,7 +1129,7 @@ function CustomCreator() {
         }
       }
       // zeros
-      for (let field of ["bubbleRadius"]) {
+      for (let field of ["bubbleRadius", "altFontDelta"]) {
         if (!(field in json.imageOptions)) {
           console.log("Missing field added" + field);
           json.imageOptions[field] = 0;
@@ -2022,37 +2025,39 @@ function CustomCreator() {
       let xros_text = json.digiXros;
       if (!empty(json.assembly)) xros_text = json.assembly;
       const xros = colorReplace(xros_text, true);
-      const fontSize = Number(json.imageOptions.fontSize) || 90.5
+      const baseFontSize = Number(json.imageOptions.fontSize) || 90.5
+      const altFontSize = baseFontSize + (Number(json.imageOptions.altFontDelta) || 0);
       let rule_offset = 0;
       let xros_offset = 0;
       let radius = Number(json.imageOptions.bubbleRadius) || 0;
       let cardwidth = 2400;
 
+
       if (!empty(xros)) {
-        let preview = drawBracketedText(ctx, fontSize, xros, 300, bottom,
-          cardwidth, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble", radius, true);
+        let preview = drawBracketedText(ctx, altFontSize, xros, 300, bottom,
+          cardwidth, Number(altFontSize) + Number(imageOptions.lineSpacing), "bubble", radius, true);
         // our text should end at roughly bottom + 
-        xros_offset = preview - (bottom + fontSize * 2);
+        xros_offset = preview - (bottom + altFontSize * 2);
         console.log(1254, 'x', preview, bottom);
       }
       if (!empty(rule) && !empty(xros)) {
-        let rule_start = writeRuleText(ctx, rule, fontSize, bottom, true);
+        let rule_start = writeRuleText(ctx, rule, altFontSize, bottom, true);
         let xros_length = ctx.measureText(xros).width;
         let fudge = 260;
 
         if (300 + xros_length + fudge > rule_start) {
-          rule_offset = (Number(fontSize) * 1.2 + Number(imageOptions.lineSpacing) * 2.0);
+          rule_offset = (Number(altFontSize) * 1.2 + Number(imageOptions.lineSpacing) * 2.0);
         }
       }
       if (!empty(rule)) {
         console.log(1069, "bottom is " + (bottom - xros_offset - rule_offset));
-        writeRuleText(ctx, rule, fontSize, bottom - xros_offset - rule_offset);
+        writeRuleText(ctx, rule, altFontSize, bottom - xros_offset - rule_offset);
       }
 
       if (!empty(xros)) {
         // BT10-009 EX3-014: shaded box
         // st19-10 solid box
-        drawBracketedText(ctx, fontSize, xros, 300, bottom - xros_offset, cardwidth, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble", radius);
+        drawBracketedText(ctx, altFontSize, xros, 300, bottom - xros_offset, cardwidth, Number(altFontSize) + Number(imageOptions.lineSpacing), "bubble", radius);
       }
 
 
@@ -2437,7 +2442,7 @@ function CustomCreator() {
       ctx.textBaseline = 'bottom'; // Align text to the bottom
 
 
-      const fontSize_n = Number(fontSize);
+      const fontSize_n = Number(altFontSize); // should already be a number.
       // DNA evo and special evo appear above the effect line
       const dna_evo = json.dnaEvolve || json.dnaDigivolve; // colorReplace is inside drawBracketedText
       const spec_temp = json.specialEvolve || json.specialDigivolve;
@@ -2468,11 +2473,11 @@ function CustomCreator() {
 
       if (effect && effect !== "-") {
         effect = colorReplace(effect, true);
-        y_line = drawBracketedText(ctx, fontSize, effect,
+        y_line = drawBracketedText(ctx, baseFontSize, effect,
           //wrapText(ctx, effect, // + effect, 
           250, y_line,
           2455 + 100,
-          Number(fontSize) + Number(imageOptions.lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
+          Number(baseFontSize) + Number(imageOptions.lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
           radius,
           false
         );
@@ -2497,13 +2502,13 @@ function CustomCreator() {
 
           // (alias) drawBracketedText(ctx: any, fontSize: any, text: any, x: any, y: any, _maxWidth: any, lineHeight: any, extra: any, radius: any, preview?: boolean): any
           // ctx                
-          drawBracketedText(ctx, fontSize, req, 300, 3740 + delta_y * 2, 3000, Number(fontSize) + Number(imageOptions.lineSpacing), "bubble");
+          drawBracketedText(ctx, altFontSize, req, 300, 3740 + delta_y * 2, 3000, Number(altFontSize) + Number(imageOptions.lineSpacing), "bubble");
         }
         // shrink is not working, we're ignoring max_width
         //let max_width = 2500 - 400 - delta_x * 2 - shrink;
-        drawBracketedText(ctx, fontSize, effect,
+        drawBracketedText(ctx, baseFontSize, effect,
           700 + delta_x * 2, 3740 + delta_y * 2 + 150,
-          2200, Number(fontSize) + Number(imageOptions.lineSpacing), "effect", radius);
+          2200, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
       } else {
         let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
         if (json.linkDP) {
@@ -2521,9 +2526,9 @@ function CustomCreator() {
           delta_x = 0; delta_y = 0;
         }
         let max_width = 2500 - 400 - delta_x * 2 - shrink;
-        drawBracketedText(ctx, fontSize, sec_effect,
+        drawBracketedText(ctx, baseFontSize, sec_effect,
           700 + delta_x * 2, 3740 + delta_y * 2,
-          max_width, Number(fontSize) + Number(imageOptions.lineSpacing), "effect", radius);
+          max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
       }
 
       console.log(1879.3, pauseDraw.current);

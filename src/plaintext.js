@@ -164,19 +164,23 @@ export const enterPlainText = (lines) => {
         "rarity": "",
 
         "specialEvolve": "-",
+        "dnaEvolve": "-",
+        "digiXros": "",
+        "assembly": "",
+        "burstEvolve": "-",
+
         "effect": "",
         "evolveEffect": "",
+        "securityEffect": "-",
+
         "linkDP": "-",
         "linkRequirement": "",
         "linkEffect": "",
-        "securityEffect": "-",
 
         "rule": "",
-        "digiXros": "",
-        "assembly": "",
+
+
         "aceEffect": "",
-        "dnaEvolve": "-",
-        "burstEvolve": "-",
         "cardNumber": "",
         "author": "",
         "artist": "",

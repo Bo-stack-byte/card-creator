@@ -60,10 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.32.0"
-const latest = "alt Font Delta, use a different font size for special / dna / assembly conditions"
+const version = "0.8.32.1"
+const latest = "alt Font Delta, use a different font size for special / dna / assembly conditions; reorder"
 
-// version 0.8.32   alt Font Delta, use a different font size for special / dna / assembly conditions
+// version 0.8.32.  alt Font Delta, use a different font size for special / dna / assembly conditions; reorder
 // version 0.8.31   fix digixros length; flip order of artist and author
 // version 0.8.30   at last, proper fonts for keywords
 // version 0.8.29.x (*italic text*), better handles keywords

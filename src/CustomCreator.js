@@ -60,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.32.1"
-const latest = "alt Font Delta, use a different font size for special / dna / assembly conditions; reorder"
+const version = "0.8.33"
+const latest = "burst evolve proper colors, fix transform"
 
+// version 0.8.33   burst evolve proper colors, fix transform
 // version 0.8.32.  alt Font Delta, use a different font size for special / dna / assembly conditions; reorder
 // version 0.8.31   fix digixros length; flip order of artist and author
 // version 0.8.30   at last, proper fonts for keywords
@@ -3192,7 +3193,7 @@ function CustomCreator() {
             <p>
               To have colors replaced by circles, put the color in parentheses.
             </p>
-            ⸨
+            <p> Put《text》in this peculiar demarkers to force the text to dark blue.</p>
             <p> Put ⟦text⟧ in these crazy brackets to force the text to blue.</p>
             <p> Put ⸨text⸩ in these funky parens to force the text to green.</p>
             <p> Put text that would otherwise be blue in parens to make it purple, like ⟦(test)⟧ or [(Five Times Per Turn)].</p>

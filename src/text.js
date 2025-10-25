@@ -53,7 +53,8 @@ const magicWords = [
   "Digixros.{0,6}",
   "Assembly.{0,6}",
   "Link",
-  "(DNA )?(Digi|E)volve",
+  "(DNA )?(Burst )?(Digi|E)volve",
+  "App Fusion",
 
   "All Turns",
   "Your Turn",
@@ -492,7 +493,7 @@ export function italicText(ctx, text, x, y, limit) {
   let shift = ctx.measureText("_").width / 2;
   let skew = 0.25; // i might want to make this a *smudge* smaller than 0.25
   ctx.save();
-  ctx.setTransform(1, 0, -skew, 1, skew * y, 0);
+  ctx.transform(1, 0, -skew, 1, skew * y, 0);
   ctx.fillText(text, x - shift, y, limit);
   ctx.restore();
 }
@@ -500,7 +501,7 @@ export function italicStrokeText(ctx, text, x, y, limit) {
   let shift = ctx.measureText("_").width / 2;
   let skew = 0.25;
   ctx.save();
-  ctx.setTransform(1, 0, -skew, 1, skew * y, 0);
+  ctx.transform(1, 0, -skew, 1, skew * y, 0);
   ctx.strokeText(text, x - shift, y, limit);
   ctx.restore();
 }
@@ -557,8 +558,9 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   //console.log(345, text);
   const paragraphs = text.split("\n");
 
-  // no need for a lot of magic, just make sure each line first in 1
-  if (extra === "doublebubble") {
+  // no need for a lot of magic, just make sure each line first in 1.
+
+  if (extra === "doublebubble" && !preview) {
     // force each line to fit
     let lines = text.split("\n");
     console.log(195.2, ctx.font);
@@ -567,9 +569,14 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     y -= lineHeight * lines.length * 1.1
     ctx.font = `italic ${fontSize}px Asimov`;
     for (let index in lines) {
-      let line = lines[index];
-      ctx.fillText(line, x, y + fontSize * .2, _maxWidth - 100);
-      //     wrapAndDrawText(ctx, fontSize, line, x, y, extra, right_limit, preview);
+      let line = lines[index];      
+      let width = wrapAndDrawText(ctx, fontSize, line, x, y + fontSize * .2, "", 99999, 0, 1);
+      let ratio = width / (_maxWidth + 100);
+      if (ratio < 1) ratio = 1;
+      ctx.save();
+      ctx.transform(1/ratio, 0, 0, 1, 0, 0); 
+      wrapAndDrawText(ctx, fontSize, line, x + 100, y + fontSize * .2, "dna", 99999, 0, 0); 
+      ctx.restore();
       y += lineHeight * 0.9;
     }
     return;
@@ -580,7 +587,9 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     let graf = prepareKeywords(paragraphs[p], extra.startsWith("effect"));
     const words = splitTextIntoParts(graf);
     let line = '';
-    const italics = (extra === "bubble" || extra === "doublebubble" || extra === "dna") ? "italic" : "100";
+    const italics = (extra === "bubble" || 
+     // extra === "doublebubble" || 
+      extra === "dna") ? "italic" : "100";
 
     let scale = 1.0;
 
@@ -658,7 +667,8 @@ function getColor(phrase, default_color = 'blue') {
   if (phrase === "Link") return 'green';
   if (['Hand', 'Trash', 'Breeding'].includes(phrase)) return 'purple';
   if (['Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'red';
-  if (phrase.match(/^(Digi|E)volve$/i)) return 'darkblue';
+  if (phrase.match(/^(Burst )?(Digi|E)volve$/i)) return 'darkblue';
+  if (phrase.match(/^App Fusion$/i)) return 'darkblue';
   if (phrase === "Counter") return 'darkblue';
   return default_color;
 }
@@ -741,7 +751,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
       if (cleanPhrase.length > 6) ratio = 1.05;
       ratio = 1;
       // clever tricks to squeeze keywords to match sizing
-      ctx.setTransform(ratio, 0, 0, 1, 0, 0);  // 6% for [Hand], 5% for [Counter]
+      ctx.transform(ratio, 0, 0, 1, 0, 0);  // 6% for [Hand], 5% for [Counter]
    
       if (!preview) drawColoredRectangle(ctx, start, y + 3, width, fontSize, color, radius);
       ctx.fillStyle = 'white';

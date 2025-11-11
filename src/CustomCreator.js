@@ -60,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.33"
-const latest = "burst evolve proper colors, fix transform"
+const version = "0.8.34"
+const latest = "fix scaling of text issues"
 
+// version 0.8.34   fix scaling of text issues 
 // version 0.8.33   burst evolve proper colors, fix transform
 // version 0.8.32.  alt Font Delta, use a different font size for special / dna / assembly conditions; reorder
 // version 0.8.31   fix digixros length; flip order of artist and author

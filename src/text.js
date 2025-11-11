@@ -692,8 +692,8 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
     if (width > cardWidth) scale = cardWidth / width;
     // compress all text equally, but we should let keywords stay a bit wider if we can    
   }
-  //  ctx.save();
-  // ctx.scale(scale, 1);
+   ctx.save();
+   ctx.scale(scale, 1);
 
   let default_color = 'blue'; // default for [brackets]
   if (style === "effect") default_color = 'blue';
@@ -837,14 +837,14 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
             width = ctx.measureText(word).width;
             //            if (width > y) width = y;
             //width += ctx.measureText(' ').width;
-            lastX += width * scale;
+            lastX += width;// scale;
           }
 
         }
       })
     }
   });
-  // ctx.restore();
+  ctx.restore();
   return lastX;
 }
 

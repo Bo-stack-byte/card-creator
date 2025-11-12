@@ -60,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.34"
-const latest = "fix scaling of text issues"
+const version = "0.8.35"
+const latest = "link DP on options"
 
+// version 0.8.35   link DP on options
 // version 0.8.34   fix scaling of text issues 
 // version 0.8.33   burst evolve proper colors, fix transform
 // version 0.8.32.  alt Font Delta, use a different font size for special / dna / assembly conditions; reorder
@@ -1839,17 +1840,18 @@ function CustomCreator() {
               // scale = 606 specifically for bottom_evo_${color}.png
               let scale = 735;
               let height = 3550;
-              if (type === "LINK") {
+              if (type === "LINK" || json.linkDP) {
                 img = bottoms_plain[col];
                 scale = 305;
                 height = 3210;
                 y_scale = 1.5;
-              }
-              if (type === "ACE") {
+                if (type !== "LINK") {
+                   height = 3110;
+                }
+              } else if (type === "ACE") {
                 img = undefined; //   img = bottom_aces[col];
                 scale = 606;
-              }
-              if (type === "OPTION" || type === "TAMER" || type === "EgjgjGG") {
+              } else if (type === "OPTION" || type === "TAMER" || type === "EgjgjGG") {
                 img = inherited_security[col];
                 scale = 740;
                 height = 3450;
@@ -1922,12 +1924,39 @@ function CustomCreator() {
               ctx.restore();
             }
 
+            // LINK TEXT if needed
+            if (type !== "LINK" && json.linkDP) {
+
+              ctx.save();
+              ctx.translate(2680, 3610);
+              ctx.rotate(Math.PI / 2);
+              
+              // white background
+              ctx.fillStyle = "white";
+              ctx.fillRect(-450, 0, 400, 150);
+
+              ctx.font = `bold 100px 'Helvetica'`;
+
+              ctx.fillStyle = "black";
+              ctx.textAlign = "center";
+              ctx.fillText("LINK", -250, 120);
+
+
+              ctx.restore();
+
+            }
+
             // DP LINK BOX
-            if (type === "LINK") {
+            if (type === "LINK" || json.linkDP) {
               let w = linkdp.width; let h = linkdp.height;
               let s = 4.72
+              let y_pos = 3210;
+              let link_offset = 0;
+              if (type !== "LINK") {
+                link_offset = 100;
+              }
               ctx.drawImage(linkdp,
-                2530, 3210, w * s, h * s);
+                2530, y_pos - link_offset, w * s, h * s);
 
               ctx.save();
               ctx.translate(2680, 3610);
@@ -1936,7 +1965,8 @@ function CustomCreator() {
 
               //              ctx.fillText(json.linkDP, 0, 0);
               //              writeDP(ctx, json.linkDP, 0, 0, 90); 
-              writeDP(ctx, json.linkDP, { x: -150, y: 20, size: 100, bigsize: 140, stroke: false, color: "white" });
+              writeDP(ctx, json.linkDP, 
+                { x: -150 - link_offset, y: 20, size: 100, bigsize: 140, stroke: false, color: "white" });
               ctx.font = `bold 90px ${numberFont}`;
               ctx.fillStyle = "white";
               ctx.textAlign = "right";
@@ -1945,11 +1975,11 @@ function CustomCreator() {
 
               ctx.font = `40px 'Helvetica'`;
               ctx.textAlign = "center";
-              ctx.fillText("DP", -300, -60);
+              ctx.fillText("DP", -300 - link_offset, -60);
               // how do i make the plus skinnier?
               ctx.font = `100 120px 'Helvetica'`;
 
-              ctx.fillText("+", -300, 40);
+              ctx.fillText("+", -300 - link_offset, 40);
 
               ctx.restore();
 
@@ -1963,9 +1993,10 @@ function CustomCreator() {
             if (true) {
               let scale = 364.2;
               let y = 3550 - 365;
-              if (type === "EGG" || type.startsWith("OPTION") || type.startsWith("TAMER")) y -= 90;
+              if (type === "MEGA" || type === "LINK" || json.linkDP) { 
+                y += 500;
+              } else if (type === "EGG" || type.startsWith("OPTION") || type.startsWith("TAMER")) y -= 90;
               //  if (type.startsWith("OPTION") || type.startsWith("TAMER")) y += 0; // 40;
-              if (type === "MEGA" || type === "LINK") y += 500;
               if (type === "ACE" && imageOptions.aceFrame) {
                 y += 30;
                 start_x -= 4
@@ -2324,18 +2355,22 @@ function CustomCreator() {
 
       //// NAME 
       let delta_y = 0;
+      let name_delta_y = 0;
       switch (type) {
         case "OPTION":
         case "OPTIONINHERIT":
         case "TAMER":
         case "EGG":
-        case "TAMERINHERIT": delta_y -= 125; if (!has_traits) delta_y += 30; break;
+        case "TAMERINHERIT": name_delta_y = -125; break;
         case "LINK":
-        case "MEGA": delta_y += 500; break;
+        case "MEGA": name_delta_y = 500; break;
         case "MONSTER": break;
-        case "ACE": if (imageOptions.aceFrame) delta_y += 30; break;
+        case "ACE": if (imageOptions.aceFrame) delta_y = 30; break;
         default: alert(1);
       }
+      if (json.linkDP) name_delta_y = 500;
+      if (!has_traits) name_delta_y += 30;
+      delta_y += name_delta_y; 
 
       // name
       try {
@@ -2494,10 +2529,13 @@ function CustomCreator() {
       console.log("a", evo_effect);
       if (type === "MEGA") {
         // no security text
-      } else if (type === "LINK") {
+      } else if (type === "LINK" || json.linkDP){
         let req = json.linkRequirement;
         let effect = json.linkEffect;
         let delta_x = -220; let delta_y = -200;
+        if (type.startsWith("OPTION")) {
+            delta_y -= 50;
+        }
         //let shrink = 1000;
         if (!empty(req)) {
           // instead of 3000, width of 2700 to save room for link-DP-thingy

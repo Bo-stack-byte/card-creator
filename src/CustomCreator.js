@@ -60,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.35"
-const latest = "link DP on options"
+const version = "0.8.36"
+const latest = "link DP on options and tamers; won't work on eggs or ACEs"
 
+// version 0.8.36   link DP on options and tamers; won't work on eggs or ACEs
 // version 0.8.35   link DP on options
 // version 0.8.34   fix scaling of text issues 
 // version 0.8.33   burst evolve proper colors, fix transform
@@ -1840,7 +1841,7 @@ function CustomCreator() {
               // scale = 606 specifically for bottom_evo_${color}.png
               let scale = 735;
               let height = 3550;
-              if (type === "LINK" || json.linkDP) {
+              if (type === "LINK" || !empty(json.linkDP)) {
                 img = bottoms_plain[col];
                 scale = 305;
                 height = 3210;
@@ -1925,7 +1926,7 @@ function CustomCreator() {
             }
 
             // LINK TEXT if needed
-            if (type !== "LINK" && json.linkDP) {
+            if (type !== "LINK" && !empty(json.linkDP)) {
 
               ctx.save();
               ctx.translate(2680, 3610);
@@ -1947,7 +1948,7 @@ function CustomCreator() {
             }
 
             // DP LINK BOX
-            if (type === "LINK" || json.linkDP) {
+            if (type === "LINK" || !empty(json.linkDP)) {
               let w = linkdp.width; let h = linkdp.height;
               let s = 4.72
               let y_pos = 3210;
@@ -1993,7 +1994,7 @@ function CustomCreator() {
             if (true) {
               let scale = 364.2;
               let y = 3550 - 365;
-              if (type === "MEGA" || type === "LINK" || json.linkDP) { 
+              if (type === "MEGA" || type === "LINK" || !empty(json.linkDP)) { 
                 y += 500;
               } else if (type === "EGG" || type.startsWith("OPTION") || type.startsWith("TAMER")) y -= 90;
               //  if (type.startsWith("OPTION") || type.startsWith("TAMER")) y += 0; // 40;
@@ -2368,7 +2369,7 @@ function CustomCreator() {
         case "ACE": if (imageOptions.aceFrame) delta_y = 30; break;
         default: alert(1);
       }
-      if (json.linkDP) name_delta_y = 500;
+      if (!empty(json.linkDP)) name_delta_y = 500;
       if (!has_traits) name_delta_y += 30;
       delta_y += name_delta_y; 
 
@@ -2529,11 +2530,11 @@ function CustomCreator() {
       console.log("a", evo_effect);
       if (type === "MEGA") {
         // no security text
-      } else if (type === "LINK" || json.linkDP){
+      } else if (type === "LINK" || !empty(json.linkDP)) {
         let req = json.linkRequirement;
         let effect = json.linkEffect;
         let delta_x = -220; let delta_y = -200;
-        if (type.startsWith("OPTION")) {
+        if (type.startsWith("OPTION") || type.startsWith("TAMER")) {
             delta_y -= 50;
         }
         //let shrink = 1000;
@@ -2551,8 +2552,6 @@ function CustomCreator() {
           2200, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
       } else {
         let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
-        if (json.linkDP) {
-        }
         sec_effect = colorReplace(sec_effect, true);
 
         //ctx.fillStyle = 'red';

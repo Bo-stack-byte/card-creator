@@ -43,8 +43,6 @@ import doublebind from './double-bind.png'
 import amy from './amy.png';
 import armor_cat from './armorcat.png';
 import { CircleAndBlock } from './Components';
-import loading_img from './loading-bar.png';
-
 
 //import './styles.css';
 import './local-styles.css';
@@ -60,9 +58,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.36"
-const latest = "link DP on options and tamers; won't work on eggs or ACEs"
+const version = "0.8.37"
+const latest = "multiple cards re-implemented in non-stupid way"
 
+// version 0.8.37   multiple cards re-implemented in non-stupid way
 // version 0.8.36   link DP on options and tamers; won't work on eggs or ACEs
 // version 0.8.35   link DP on options
 // version 0.8.34   fix scaling of text issues 
@@ -683,13 +682,6 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
   ctx.restore(); // Restore the previous state
 }
 
-
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-
 function writeDP(ctx, _dp, args) {
 
   const { x, y, size, bigsize, stroke, color } = args;
@@ -891,6 +883,8 @@ function CustomCreator() {
   let start = share ? decodeAndDecompress(share) : "";
   start ||= starter_text;
   const canvasRef = useRef(null);
+  const canvasRefs = useRef([null]); 
+  const miniTracker = useRef(null);
   const [backImg, setBackImg] = useState(null);
   const [foreImg, setForeImg] = useState(null);
   const [doDraw, setDoDraw] = useState(true);
@@ -905,12 +899,7 @@ function CustomCreator() {
   const [jsonText, setJsonText] = useState([start]);
   const [currentIndex, setCurrentIndex] = useState(0); // for undo
   const [cardIndex, setCardIndex] = useState(0); // for multiple cards 
-  // const [galleryRef.current, setGallery] = useState([]);
-  //  const galleryRef = useRef(gallery); // Reference to gallery
-  const galleryRef = React.useRef([]);
 
-  const [showGallery, setShowGallery] = useState(false); // for gallery view
-  const backgroundRender = React.useRef(false);
 
   /*
     const [isSelecting, setIsSelecting] = useState(false);
@@ -1033,17 +1022,15 @@ function CustomCreator() {
 
   // takes the array of cards, as text
   const jsonToFields = (text) => {
-
     let imageOptions = "";
     let json;
     try {
       const jsonArray = JSON.parse(text);
 
-      for (let i = 0; i < jsonArray.length; i++) {
-        if (!(i in galleryRef.current)) {
-          updateGalleryItem(i, null);
-        }
-      }
+      for (let i = canvasRefs.current.length; i < jsonArray.length; i++) {
+        canvasRefs.current[i] = null;
+      } 
+      canvasRefs.current.length = jsonArray.length;
       json = jsonArray[cardIndex];
       imageOptions = json.imageOptions;
     } catch (e) {
@@ -1338,6 +1325,7 @@ function CustomCreator() {
       default: alert(3); return;
     }
     console.log(409, "omg");
+    canvasRefs.current = [null];
     setDoDraw(false);
     console.log(411, doDraw);
 
@@ -1431,6 +1419,8 @@ function CustomCreator() {
 
 
     if (clear === true) {
+      miniTracker.ctx.width = 2977;
+      miniTracker.ctx.height = 4158 - 17;
       canvas.width = 2977;
       canvas.height = 4158 - 17;
       const ctx = canvas.getContext('2d');
@@ -1548,6 +1538,17 @@ function CustomCreator() {
     const evoImages = [];
     const wedgeImages = [];
     const _evos = json.evolveCondition || json.digivolveCondition;
+
+    const updateBigCanvas = () => {
+        const source = canvasRefs.current[cardIndex];        
+        const target = miniTracker.current;
+        if (!source || !target) return;
+        const ctx1 = target.getContext('2d');
+        ctx1.clearRect(0, 0, target.width, target.height);
+        ctx1.drawImage(source, 0, 0, target.width, target.height);
+    }
+
+
     const afterLoad = async () => {
       console.log("LOADING2");
 
@@ -2571,6 +2572,7 @@ function CustomCreator() {
       }
 
       console.log(1879.3, pauseDraw.current);
+      updateBigCanvas();
 
       // last try for pen
     } /// end afterLoad
@@ -2687,13 +2689,7 @@ function CustomCreator() {
         if (obj.length > 1) {
           // we only need this if we have multiple cards
           console.log(2734.1, "cardIndex is " + cardIndex);
-          console.log(2734.2, "gallery is " + !!galleryRef.current[cardIndex]); //  galleryRef.current[cardIndex]);
           // doing this every time could be expensive
-          if (!galleryRef.current[cardIndex]) {
-            const dataUrl = canvas.toDataURL('image/png');
-            const base64Data = dataUrl;
-            updateGalleryItem(cardIndex, base64Data);
-          }
         }
       } catch (e) {
         console.error("update", e);
@@ -2711,11 +2707,16 @@ function CustomCreator() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (canvas.width !== 2977) {
-      canvas.width = 2977;
-      canvas.height = 4158 - 17;
+    const bigCanvas = miniTracker.current;
+    for (const c of [canvas, bigCanvas]) { 
+      if (!c) continue;
+      if (c.width !== 2977) {
+        c.width = 2977;
+        c.height = 4158 - 17;
+      }
     }
+
+    const ctx = canvas.getContext('2d');
     setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
 
     if (doDraw)
@@ -2759,18 +2760,13 @@ function CustomCreator() {
     if (Array.isArray(json) && json.length > 1) {
       const zip = new JSZip();
       for (let i = 0; i < json.length; i++) {
-        setCardIndex(i);
-        console.log(1879, new Date().toLocaleString(), i, pauseDraw.current);
-        //  await draw(0, 0, false)
-        await sleep(7000);
-        console.log(1879, new Date().toLocaleString(), i, pauseDraw.current);
-        const canvas = canvasRef.current;
+        const canvas = canvasRefs.current[i];
         const dataUrl = canvas.toDataURL('image/png');
         const base64Data = dataUrl.split(',')[1]; // Get base64 part
         let filename = `image${i + 1}`;
         try {
           filename = json[i].name.english;
-          filename = json[i].id;
+          if (json[i].id) filename = json[i].id; // what is this for?
         } catch { }
         filename += ".png";
         zip.file(filename, base64Data, { base64: true });
@@ -2887,16 +2883,7 @@ function CustomCreator() {
  
 */
 
-  const getGridSize = (numImages) => {
-    const cols = Math.ceil(Math.sqrt(numImages)); // Number of columns
-    const rows = Math.ceil(numImages / cols); // Number of rows
-    return { rows, cols };
-  };
 
-  const updateGalleryItem = (index, newImage) => {
-    galleryRef.current[index] = newImage; // Directly assign the new string 
-    console.debug("Updated gallery:", galleryRef.current); // Debugging output
-  };
 
   // insert into place? re-order?
   const addCard = () => {
@@ -2907,27 +2894,23 @@ function CustomCreator() {
       // make newcard copy of current card, instead of empty card
       let newcard = JSON.parse(jsonText[currentIndex])[cardIndex];
       obj.push(newcard);
+      canvasRefs.current.push(null);
       json_t = JSON.stringify(obj, null, 2); // stringify it back
       updateJson(json_t);
-      galleryRef.current[obj.length - 1] = null;
     } catch (e) {
       console.error("can't add card:", e);
     }
   }
 
+  const handleCanvasClick = (index) => {
+    setCardIndex(index);
+  }
+
   const handlePrev = () => {
-    const canvas = canvasRef.current;
-    const dataUrl = canvas.toDataURL('image/png');
-    const base64Data = dataUrl; // dataUrl.split(',')[1]; // Get base64 part
-    updateGalleryItem(cardIndex, base64Data);
     setCardIndex(cardIndex - 1);
   }
 
   const handleNext = () => {
-    const canvas = canvasRef.current;
-    const dataUrl = canvas.toDataURL('image/png');
-    const base64Data = dataUrl; // dataUrl.split(',')[1]; // Get base64 part
-    updateGalleryItem(cardIndex, base64Data);
     setCardIndex(cardIndex + 1);
   }
 
@@ -2942,76 +2925,6 @@ function CustomCreator() {
   let debug = new URLSearchParams(window.location.search).get("debug") === '1';
 
   jsonToFields(json_t);
-
-  const { rows, cols } = getGridSize(galleryRef.current.length);
-
-
-  const gridStyle = {
-    width: width + 'px',
-    height: height + 'px',
-    gridTemplateColumns: `repeat(${cols}, 1fr)`,
-    gridTemplateRows: `repeat(${rows}, 1fr)`,
-  };
-
-  const populateMissingArts = async () => {
-    console.log(2734.000, "populating missing arts", backgroundRender);
-    if (backgroundRender.current) return;
-    backgroundRender.current = true;
-    // try current card first
-    const current_copy = cardIndex;
-    const canvas = canvasRef.current;
-    if (!galleryRef.current[current_copy]) {
-      // const dataUrl = canvas.toDataURL('image/png');
-      // const base64Data = dataUrl;
-      if (current_copy !== cardIndex) {
-        console.log(2734, "something changed on us, 1");
-        backgroundRender.current = false;
-        return;
-      }
-      //updateGalleryItem(current_copy, base64Data);
-    }
-    for (const index in galleryRef.current) {
-      const art = galleryRef.current[index];
-      if (!art) {
-        if (!showGallery) {
-          backgroundRender.current = false;
-          return;
-        }
-        setCardIndex(index);
-        // split this out
-        await sleep(100);
-        await draw(0, 0, false); // draw the card and wait for it to be done, but it may not be synchronous
-        while (true) {
-          let pd = pauseDraw.current;
-          if (pd > 0) {
-            await sleep(100);
-          } else {
-            break;
-          }
-        }
-        await sleep(2000); // have time for images to load, this sucks to do
-
-        if (false) {
-          const dataUrl = canvas.toDataURL('image/png');
-          const base64Data = dataUrl;
-          if (index !== cardIndex) {
-            console.log(2734, "something changed on us, 2");
-            backgroundRender.current = false;
-            return;
-          }
-          console.log(2734, "updating " + index + " to " + base64Data.substring(0, 100));
-          console.log(2734.8, "was " + galleryRef.current[index]);
-          updateGalleryItem(index, base64Data);
-        }
-
-      }
-    }
-    backgroundRender.current = false;
-  };
-
-  if (showGallery) {
-    populateMissingArts(); // asynchronous
-  }
 
   return (
     <table>
@@ -3066,39 +2979,41 @@ function CustomCreator() {
           </td>
           <td width={"25%"} valign={"top"}>
             <div>
-              <canvas id="cardImage" ref={canvasRef}
-                style={{
-                  width: (showGallery ? 100 : width) + 'px', // traditional cards are roughly 300 x 416, let's zoom in
-                  height: (showGallery ? 100 : height) + 'px',
-                  backgroundColor: '#eef',
-                  borderRadius: '20px',  // this radius is scaled differently than the one in the function
-                  overflow: 'hidden',
-                  display: (showGallery ? "none" : "block"),
-                  fontVariantLigatures: "none",
-                }}>
-              </canvas>
-
-              {showGallery && (
-                <div className="minimap-grid" style={gridStyle}>
-                  {galleryRef.current.map((image, index) => (
-                    <img
-                      key={index}
-                      src={image || loading_img}
-                      alt={`Card ${index + 1}`}
-                      style={{}}
-                      onClick={(event) => {
-                        const ctx = canvasRef.current.getContext('2d');
-                        setBackImg(placeholder); // clear and reload
-                        setForeImg(null); // clear and reload, TODO: compare to current
-                        ctx.drawImage(event.target, 0, 0); // Use event.target to reference the <img> element
-                        setShowGallery(false);
-                        setCardIndex(index);
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-
+              {canvasRefs.current.map((_, i) => (
+                <canvas
+                  id={"cardImage" + i + "-" + canvasRefs.current.length}
+                  ref={(node) => {
+                      if (i === cardIndex) {
+                        canvasRef.current = node;
+                      }
+                      canvasRefs.current[i] = node;
+                    }}
+                  key={i}
+                  onClick={() => handleCanvasClick(i)} // Anonymous function passes the index
+                  style={{
+                    width: (true ? 297 / 4 : width) + 'px',
+                    height: (true ? 414 / 4 : height) + 'px',
+                    backgroundColor: '#eef',
+                    borderRadius: '20px',
+                    overflow: 'hidden',
+                    display: canvasRefs.current.length > 1 ? '' : 'none',
+                    fontVariantLigatures: "none",
+                  }}
+                />
+              ))}
+                <canvas
+                  id={"cardMain"}
+                  ref={miniTracker}
+                  key={9999}
+                  style={{
+                    width: (width) + 'px',
+                    height: (height) + 'px',
+                    backgroundColor: '#eef',
+                    borderRadius: '20px',
+                    overflow: 'hidden',
+                    fontVariantLigatures: "none",
+                  }}
+                />
 
               <br />
               <label>Zoom: <input type="number" style={{ width: "50px" }} name="zoom" value={zoom} onChange={updateZoom} />% </label>
@@ -3126,7 +3041,6 @@ function CustomCreator() {
               {obj && obj.length > 1 && (
                 <span>
                   <button onClick={null} disabled={true}>Delete</button>
-                  <button onClick={() => { setShowGallery(true) }}>Show All</button>
                 </span>
               )}
             </div>
@@ -3248,7 +3162,6 @@ function CustomCreator() {
             <p style={{ fontFamily: "AyarKasone" }}> More templates from <a href="https://digi-lov.tumblr.com/post/748763635923435520/digimon-card-template">Digi-Lov</a></p>
             <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba, Zaffy, and Digimoncard.io who kept this dream alive in previous years.</p>
             <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
-            <p style={{ fontFamily: "Courier" }}> <a href="https://www.freepik.com/icon/loading-bar_4461744#fromView=search&page=1&position=21&uuid=5e70cbe7-7e5c-493e-bbb4-c41bb20123c6">Icon by kerismaker</a></p>
 
             Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
             <br />

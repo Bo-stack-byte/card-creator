@@ -2991,19 +2991,11 @@ function CustomCreator() {
                   key={i}
                   onClick={() => handleCanvasClick(i)} // Anonymous function passes the index
                   style={{
-<<<<<<< HEAD
                   border: (i === cardIndex) ? "2px solid #000000" : "",
-                    borderColor: 'red',
                     width: (true ? 297 / 4 : width) + 'px',
                     height: (true ? 414 / 4 : height) + 'px',
                     backgroundColor: '#eef',
                     borderRadius: '5px',
-=======
-                    width: (true ? 297 / 4 : width) + 'px',
-                    height: (true ? 414 / 4 : height) + 'px',
-                    backgroundColor: '#eef',
-                    borderRadius: '20px',
->>>>>>> 7521645c4fa6d6b6071328d5e884c01a739a653a
                     overflow: 'hidden',
                     display: canvasRefs.current.length > 1 ? '' : 'none',
                     fontVariantLigatures: "none",

@@ -2991,12 +2991,19 @@ function CustomCreator() {
                   key={i}
                   onClick={() => handleCanvasClick(i)} // Anonymous function passes the index
                   style={{
+<<<<<<< HEAD
                   border: (i === cardIndex) ? "2px solid #000000" : "",
                     borderColor: 'red',
                     width: (true ? 297 / 4 : width) + 'px',
                     height: (true ? 414 / 4 : height) + 'px',
                     backgroundColor: '#eef',
                     borderRadius: '5px',
+=======
+                    width: (true ? 297 / 4 : width) + 'px',
+                    height: (true ? 414 / 4 : height) + 'px',
+                    backgroundColor: '#eef',
+                    borderRadius: '20px',
+>>>>>>> 7521645c4fa6d6b6071328d5e884c01a739a653a
                     overflow: 'hidden',
                     display: canvasRefs.current.length > 1 ? '' : 'none',
                     fontVariantLigatures: "none",
@@ -3164,7 +3171,6 @@ function CustomCreator() {
             <p style={{ fontFamily: "AyarKasone" }}> More templates from <a href="https://digi-lov.tumblr.com/post/748763635923435520/digimon-card-template">Digi-Lov</a></p>
             <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba, Zaffy, and Digimoncard.io who kept this dream alive in previous years.</p>
             <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>
-            <p style={{ fontFamily: "Courier" }}> <a href="https://www.freepik.com/icon/loading-bar_4461744#fromView=search&page=1&position=21&uuid=5e70cbe7-7e5c-493e-bbb4-c41bb20123c6">Icon by kerismaker</a></p>
 
             Check out my <a href="https://digi-viz.com/">other UI project</a>, beta-testers wanted!
             <br />

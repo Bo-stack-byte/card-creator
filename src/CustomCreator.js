@@ -44,6 +44,7 @@ import amy from './amy.png';
 import armor_cat from './armorcat.png';
 import { CircleAndBlock } from './Components';
 
+
 //import './styles.css';
 import './local-styles.css';
 import axios from 'axios';
@@ -58,9 +59,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.37.2"
-const latest = "multiple cards re-implemented in non-stupid way"
+const version = "0.8.38"
+const latest = "load sample multi-card"
 
+// version 0.8.38   load sample multi-card
 // version 0.8.37.x multiple cards re-implemented in non-stupid way
 // version 0.8.36   link DP on options and tamers; won't work on eggs or ACEs
 // version 0.8.35   link DP on options
@@ -166,6 +168,18 @@ const latest = "multiple cards re-implemented in non-stupid way"
 // version 0.4.4  less errors, fix egg text
 // version 0.4.3  multi color, egg.
 // version 0.4.2. Better error handling, re-orient custom image
+
+let img_map = [];
+img_map[-1] = shieldsmasher;
+img_map[-2] = rampager;
+img_map[-3] = egg
+img_map[-4] = amy;
+img_map[-5] = field;
+img_map[-6] = armor_cat;
+img_map[-7] = featherbackground;
+img_map[-8] = featherling;
+img_map[-9] = doublebind;
+
 
 const settingsText = {
   "x_pos": "image offset, X",
@@ -365,7 +379,7 @@ const starter_text_empty = `[{
 }]`;
 
 
-const starter_text_0 = ` [ {
+const starter_text_0 = ` {
     "name": {  "english": "Doggie Dagger"  },
     "color": "Green",
     "cardType": "Digi-Egg",
@@ -383,7 +397,7 @@ const starter_text_0 = ` [ {
     "evolveEffect": "[Your Turn] While you have a red Monster or Tamer in play, all your Monsters gain +1000 DP.",
     "cardNumber": "CS-01",
     "imageOptions":{
-      "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "background_url": "", "foreground_url": "-3", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
       "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
             "foregroundOnTop": false,
@@ -396,7 +410,7 @@ const starter_text_0 = ` [ {
             "skipDraw": false
 
     }
-}]`;
+}`;
 
 const starter_text_1 = `
      ʟᴠ.4 — Armored Cat — CS1-18
@@ -434,7 +448,7 @@ const starter_text_1a = `  {
     "rule": "[Rule] Trait: Has the [Virus] attribute",
     "cardNumber": "CS2-11",
     "imageOptions":{
-      "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "background_url": "", "foreground_url": "-1", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
       "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
             "foregroundOnTop": false,
@@ -477,7 +491,7 @@ const starter_text_1b = `  {
     "rule": "",
     "cardNumber": "CS2-18",
     "imageOptions":{
-      "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "background_url": "", "foreground_url": "-2", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
       "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
             "foregroundOnTop": false,
@@ -522,7 +536,7 @@ const starter_text_1c = `{
   "burstEvolve": "-",
   "cardNumber": "CS3-02",
   "imageOptions": {
-    "background_url": "", "foreground_url": "",
+    "background_url": "-7", "foreground_url": "-8",
     "x_pos": "9",
     "y_pos": "-16",
     "x_scale": "84",
@@ -565,7 +579,7 @@ const starter_text_2 = `  {
   "linkDP": "-",
   "linkEffect": "-",
     "imageOptions":{
-      "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "background_url": "", "foreground_url": "-9", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
       "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
             "foregroundOnTop": false,
@@ -597,7 +611,7 @@ const starter_text_3 = `   {
     "rule": "",
     "cardNumber": "CS2-17",
     "imageOptions":{
-      "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "background_url": "", "foreground_url": "-4", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 0, "ess_x_end": 80, "ess_y_end": 40,
       "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
             "foregroundOnTop": false,
@@ -610,8 +624,75 @@ const starter_text_3 = `   {
     }
     }`;
 
+// we only need this text for the dump of all sample cards; the base text exists to show off how you can make cards from plain text
+const starter_text_1_backup = `{
+    "name": {
+      "english": "Armored Cat"
+    },
+    "color": "Yellow",
+    "cardType": "Digimon",
+    "playCost": "6",
+    "dp": "6000",
+    "evolveCondition": [
+      {
+        "level": "3",
+        "cost": "3",
+        "color": "Yellow"
+      }
+    ],
+    "cardLv": "Lv.4",
+    "form": "Champion",
+    "attribute": "Data",
+    "type": "Shield",
+    "rarity": "",
+    "specialEvolve": "-",
+    "dnaEvolve": "-",
+    "digiXros": "",
+    "assembly": "",
+    "burstEvolve": "-",
+    "effect": "＜Armor Purge＞",
+    "evolveEffect": "",
+    "securityEffect": "-",
+    "linkDP": "-",
+    "linkRequirement": "",
+    "linkEffect": "",
+    "rule": "",
+    "aceEffect": "",
+    "cardNumber": "CS1-18",
+    "author": "",
+    "artist": "",
+    "imageOptions": {
+      "background_url": "-5",
+      "foreground_url": "-6",
+      "x_pos": 0,
+      "y_pos": 0,
+      "x_scale": 95,
+      "y_scale": 95,
+      "ess_x_pos": 37,
+      "ess_y_pos": 10,
+      "ess_x_end": 74,
+      "ess_y_end": 50,
+      "fontSize": 90.5,
+      "foregroundOnTop": false,
+      "cardFrame": true,
+      "effectBox": false,
+      "addFoil": false,
+      "aceFrame": true,
+      "coloredFrame": false,
+      "outline": true,
+      "skipDraw": false,
+      "lineSpacing": 10,
+      "baselineOffset": 0,
+      "specialOffset": 0,
+      "bubbleRadius": 0,
+      "altFontDelta": 0
+    },
+    "block": ""
+  }`;
 const starter_text = starter_text_empty;
-
+let all_text = "[" + [starter_text_0, starter_text_1_backup,
+  starter_text_1a, starter_text_1b, starter_text_1c,
+  starter_text_2, starter_text_3].join(",") + "]";
 
 // deprecated from our old "share" functionality, that put the entire JSON blob into the URL compressed+encoded 
 const decodeAndDecompress = (encodedString) => {
@@ -822,13 +903,23 @@ function CustomCreator() {
   const loadNetImages = async (imageOptions) => {
     let id;
     let img_args = [];
+    
     let bgid = backImg && backImg.id;
-    if (bgid === '2') {
+    id = imageOptions.background_url;
+
+    let nid = Number(id);
+
+    console.error(908, bgid, id, nid);
+    if (bgid === id) {
       // nothing
-    } else if ((id = imageOptions.background_url)) {
-      console.error(790, bgid);
-      if (Number(id) !== Number(bgid))
-        img_args.push("background=" + imageOptions.background_url);
+    } else if ((id)) {
+      if (nid < 0) {
+        let img = new Image();
+        img.src = img_map[nid];
+        setBackImg(img);
+        img.id = nid;
+      } else if (Number(id) !== Number(bgid))
+        img_args.push("foreground=" + imageOptions.foreground_url);
     } else {
       if (backImg && backImg.src
         && !backImg.src.includes("placeholder")) {
@@ -840,13 +931,20 @@ function CustomCreator() {
         };
       }
     }
+
     let fgid = foreImg && foreImg.id;
-    console.log(825, fgid);
-    if (fgid === '1') {
-      // nothing
-    } else if ((id = imageOptions.foreground_url)) {
-      console.error(829, id);
-      if (Number(id) !== Number(fgid))
+    console.log(825, fgid);// , imageOptions);
+    id = imageOptions.foreground_url;
+    nid = Number(id);
+    if (fgid === id) {
+      // nothing, stop re-render loop
+    } else if ((id)) {
+      if (nid < 0) {
+        let img = new Image();
+        img.src = img_map[nid];
+        setForeImg(img);
+        img.id = nid;
+      } else if (Number(id) !== Number(fgid))
         img_args.push("foreground=" + imageOptions.foreground_url);
     } else {
       if (foreImg)
@@ -883,7 +981,7 @@ function CustomCreator() {
   let start = share ? decodeAndDecompress(share) : "";
   start ||= starter_text;
   const canvasRef = useRef(null);
-  const canvasRefs = useRef([null]); 
+  const canvasRefs = useRef([null]);
   const miniTracker = useRef(null);
   const [backImg, setBackImg] = useState(null);
   const [foreImg, setForeImg] = useState(null);
@@ -1029,7 +1127,7 @@ function CustomCreator() {
 
       for (let i = canvasRefs.current.length; i < jsonArray.length; i++) {
         canvasRefs.current[i] = null;
-      } 
+      }
       canvasRefs.current.length = jsonArray.length;
       json = jsonArray[cardIndex];
       imageOptions = json.imageOptions;
@@ -1089,7 +1187,7 @@ function CustomCreator() {
         "block",
         "linkDP", "linkRequirement", "linkEffect",
         "specialEvolve", "effect", "evolveEffect", "securityEffect",
-        "aceEffect", 
+        "aceEffect",
         "rule", "digiXros", "assembly", "burstEvolve", "cardNumber",
         "author", "artist"]) {
         if (!(field in json)) {
@@ -1315,15 +1413,18 @@ function CustomCreator() {
     let img_src = '';
     let back_src = '';
     switch (number) {
-      case 0: text = starter_text_0;; img_src = egg; break;
-      case 1: text = starter_text_1a; img_src = shieldsmasher; break;
-      case 2: text = starter_text_1b; img_src = rampager; break;
-      case 6: text = starter_text_1c; img_src = featherling; back_src = featherbackground; break;
-      case 3: text = starter_text_2; img_src = doublebind; break;
-      case 4: text = starter_text_3; img_src = amy; break;
+      case 0: text = starter_text_0;; break;
+      case 1: text = starter_text_1a; break;
+      case 2: text = starter_text_1b; break;
+      case 6: text = starter_text_1c; break;
+      case 3: text = starter_text_2; break;
+      case 4: text = starter_text_3; break;
       case 5: text = starter_text_1; img_src = armor_cat; back_src = field; break;
+      case -1: text = all_text; break;
       default: alert(3); return;
     }
+    setCardIndex(0);
+    canvasRefs.current.length = 7;
     console.log(409, "omg");
     canvasRefs.current = [null];
     setDoDraw(false);
@@ -1347,7 +1448,6 @@ function CustomCreator() {
 
       const img = new Image();
       img.src = img_src;
-      img.id = 1;
       img.onload = () => {
         console.error("foreground");
         setForeImg(img);
@@ -1356,7 +1456,7 @@ function CustomCreator() {
     if (back_src) {
       console.error("settings back");
       const img2 = new Image();
-      img2.id = 2;
+   //   img2.id = -0; // hard-code for armor_cat, the only one that needs it, because it's example isn't json
       img2.src = back_src;
       img2.onload = () => {
         //console.log(901, img2);
@@ -1540,12 +1640,12 @@ function CustomCreator() {
     const _evos = json.evolveCondition || json.digivolveCondition;
 
     const updateBigCanvas = () => {
-        const source = canvasRefs.current[cardIndex];        
-        const target = miniTracker.current;
-        if (!source || !target) return;
-        const ctx1 = target.getContext('2d');
-        ctx1.clearRect(0, 0, target.width, target.height);
-        ctx1.drawImage(source, 0, 0, target.width, target.height);
+      const source = canvasRefs.current[cardIndex];
+      const target = miniTracker.current;
+      if (!source || !target) return;
+      const ctx1 = target.getContext('2d');
+      ctx1.clearRect(0, 0, target.width, target.height);
+      ctx1.drawImage(source, 0, 0, target.width, target.height);
     }
 
 
@@ -1808,7 +1908,7 @@ function CustomCreator() {
       const ver = ("v" + version) || "";
       const artist = (!empty(json.artist) && json.artist !== "-") ? json.artist : ver + "    " + here
       const credit = (author + "   " + artist).trim();
-  
+
       ctx.font = '70px Bert';
       ctx.save();
       ctx.translate(2925, 560);
@@ -1836,7 +1936,7 @@ function CustomCreator() {
             ///// EVO BOX AT BOTTOM (OR LINK BOX)
             if (type !== "MEGA") {
               let img = bottom_evos[col];
-              if (!empty(json.securityEffect)) { 
+              if (!empty(json.securityEffect)) {
                 img = inherited_mon_security[col];
               }
               // scale = 606 specifically for bottom_evo_${color}.png
@@ -1848,7 +1948,7 @@ function CustomCreator() {
                 height = 3210;
                 y_scale = 1.5;
                 if (type !== "LINK") {
-                   height = 3110;
+                  height = 3110;
                 }
               } else if (type === "ACE") {
                 img = undefined; //   img = bottom_aces[col];
@@ -1875,11 +1975,11 @@ function CustomCreator() {
             }
 
             if (type === "ACE") {
-               scalePartialImage(ctx, ace_box,
-                 0, 1,
-                 326,
-                 94, 3525
-                );
+              scalePartialImage(ctx, ace_box,
+                0, 1,
+                326,
+                94, 3525
+              );
             }
 
 
@@ -1932,7 +2032,7 @@ function CustomCreator() {
               ctx.save();
               ctx.translate(2680, 3610);
               ctx.rotate(Math.PI / 2);
-              
+
               // white background
               ctx.fillStyle = "white";
               ctx.fillRect(-450, 0, 400, 150);
@@ -1967,7 +2067,7 @@ function CustomCreator() {
 
               //              ctx.fillText(json.linkDP, 0, 0);
               //              writeDP(ctx, json.linkDP, 0, 0, 90); 
-              writeDP(ctx, json.linkDP, 
+              writeDP(ctx, json.linkDP,
                 { x: -150 - link_offset, y: 20, size: 100, bigsize: 140, stroke: false, color: "white" });
               ctx.font = `bold 90px ${numberFont}`;
               ctx.fillStyle = "white";
@@ -1995,7 +2095,7 @@ function CustomCreator() {
             if (true) {
               let scale = 364.2;
               let y = 3550 - 365;
-              if (type === "MEGA" || type === "LINK" || !empty(json.linkDP)) { 
+              if (type === "MEGA" || type === "LINK" || !empty(json.linkDP)) {
                 y += 500;
               } else if (type === "EGG" || type.startsWith("OPTION") || type.startsWith("TAMER")) y -= 90;
               //  if (type.startsWith("OPTION") || type.startsWith("TAMER")) y += 0; // 40;
@@ -2247,8 +2347,8 @@ function CustomCreator() {
         let overflow_match = json.aceEffect.match(/\((.*)\)/s);
         let custom_text = overflow_match && overflow_match[1];
         if (!custom_text || custom_text.length < 4) {
-          custom_text = "As this card moves from the field or\n" + 
-              "under a card to an area other than those, lose " + overflow + " memory.";
+          custom_text = "As this card moves from the field or\n" +
+            "under a card to an area other than those, lose " + overflow + " memory.";
         }
 
         let neg_overflow = "-" + overflow;
@@ -2271,33 +2371,33 @@ function CustomCreator() {
         ctx.fillText(neg_overflow, o_x, o_y);
 
         ctx.font = `95px MyriadProBold`;
-      //  ctx.font = `90px MyriadProSemibold`;
+        //  ctx.font = `90px MyriadProSemibold`;
         // Semibold might be a slightly better match but it means a whole extra font
-        
+
         ctx.textAlign = 'left';
 
         let lines = custom_text.split("\n");
         let [line1, line2] = lines;
-        let ace_text = [ ["("],  [line1, "italics"] ];
-        let ace_text2 = [ [line2, "italics"], [")"] ]
-        
+        let ace_text = [["("], [line1, "italics"]];
+        let ace_text2 = [[line2, "italics"], [")"]]
+
         ctx.fillStyle = 'rgba(255, 254, 254, 1.0)';
-        textLine(ctx, ace_text, 1310, 3655, 1400);      
+        textLine(ctx, ace_text, 1310, 3655, 1400);
         textLine(ctx, ace_text2, 650, 3750, 2120);//, 0.2);
 
 
         if (false) {
-        ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
-        ctx.lineWidth = 8;
-        ctx.strokeText(overflow, 2370, 3750);
+          ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+          ctx.lineWidth = 8;
+          ctx.strokeText(overflow, 2370, 3750);
 
 
-        ctx.strokeStyle = '#eee';
-        ctx.lineWidth = 5;
-        ctx.fillStyle = '#ddd';
-        //        ctx.fillText('lose  4  memory', 1850, 3730);
-        ctx.strokeText(overflow, 2370, 3750);
-        ctx.fillText(overflow,   2370, 3750);
+          ctx.strokeStyle = '#eee';
+          ctx.lineWidth = 5;
+          ctx.fillStyle = '#ddd';
+          //        ctx.fillText('lose  4  memory', 1850, 3730);
+          ctx.strokeText(overflow, 2370, 3750);
+          ctx.fillText(overflow, 2370, 3750);
         }
 
 
@@ -2368,11 +2468,12 @@ function CustomCreator() {
         case "MEGA": name_delta_y = 500; break;
         case "MONSTER": break;
         case "ACE": if (imageOptions.aceFrame) delta_y = 30; break;
+        case "DUAL": name_delta_y = /*(862 - 140) */ 500 - (682 - 140); break;
         default: alert(1);
       }
       if (!empty(json.linkDP)) name_delta_y = 500;
       if (!has_traits) name_delta_y += 30;
-      delta_y += name_delta_y; 
+      delta_y += name_delta_y;
 
       // name
       try {
@@ -2439,7 +2540,7 @@ function CustomCreator() {
 
       ////// right under card number, put circle and block
 
-      CircleAndBlock(ctx, colors[colors.length - 1], json.rarity, json.block, 2740 - 150, 3300 + delta_y);      
+      CircleAndBlock(ctx, colors[colors.length - 1], json.rarity, json.block, 2740 - 150, 3300 + delta_y);
 
       // traits: form, attribute, type
       ctx.textAlign = 'right';
@@ -2493,7 +2594,7 @@ function CustomCreator() {
       if (!empty(dna_evo)) {
         special_baseline -= (delta);
         drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 1, Number(fontSize_n) + Number(imageOptions.lineSpacing), "dna", radius);
-        special_baseline -= (delta *.5);
+        special_baseline -= (delta * .5);
       }
       if (!empty(spec_evo)) {
         special_baseline -= (delta);
@@ -2536,7 +2637,7 @@ function CustomCreator() {
         let effect = json.linkEffect;
         let delta_x = -220; let delta_y = -200;
         if (type.startsWith("OPTION") || type.startsWith("TAMER")) {
-            delta_y -= 50;
+          delta_y -= 50;
         }
         //let shrink = 1000;
         if (!empty(req)) {
@@ -2662,6 +2763,7 @@ function CustomCreator() {
         case "MEGA": break;
         case "ACE": break;
         case "LINK": break;
+        case "DUAL": break;
         default: alert(4);
       }
 
@@ -2708,7 +2810,7 @@ function CustomCreator() {
   useEffect(() => {
     const canvas = canvasRef.current;
     const bigCanvas = miniTracker.current;
-    for (const c of [canvas, bigCanvas]) { 
+    for (const c of [canvas, bigCanvas]) {
       if (!c) continue;
       if (c.width !== 2977) {
         c.width = 2977;
@@ -2983,15 +3085,16 @@ function CustomCreator() {
                 <canvas
                   id={"cardImage" + i + "-" + canvasRefs.current.length}
                   ref={(node) => {
-                      if (i === cardIndex) {
-                        canvasRef.current = node;
-                      }
-                      canvasRefs.current[i] = node;
-                    }}
+                    if (i === cardIndex) {
+                      canvasRef.current = node;
+                    }
+                    canvasRefs.current[i] = node;
+                  }}
                   key={i}
                   onClick={() => handleCanvasClick(i)} // Anonymous function passes the index
                   style={{
-                  border: (i === cardIndex) ? "2px solid #000000" : "",
+                    border: (i === cardIndex) ? "2px solid #000000" : "",
+                    borderColor: 'red',
                     width: (true ? 297 / 4 : width) + 'px',
                     height: (true ? 414 / 4 : height) + 'px',
                     backgroundColor: '#eef',
@@ -3002,19 +3105,19 @@ function CustomCreator() {
                   }}
                 />
               ))}
-                <canvas
-                  id={"cardMain"}
-                  ref={miniTracker}
-                  key={9999}
-                  style={{
-                    width: (width) + 'px',
-                    height: (height) + 'px',
-                    backgroundColor: '#eef',
-                    borderRadius: '20px',
-                    overflow: 'hidden',
-                    fontVariantLigatures: "none",
-                  }}
-                />
+              <canvas
+                id={"cardMain"}
+                ref={miniTracker}
+                key={9999}
+                style={{
+                  width: (width) + 'px',
+                  height: (height) + 'px',
+                  backgroundColor: '#eef',
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  fontVariantLigatures: "none",
+                }}
+              />
 
               <br />
               <label>Zoom: <input type="number" style={{ width: "50px" }} name="zoom" value={zoom} onChange={updateZoom} />% </label>
@@ -3141,6 +3244,7 @@ function CustomCreator() {
             <button onClick={() => sample(6)}> Sample Link </button><br />
             <button onClick={() => sample(3)}> Sample Option </button><br />
             <button onClick={() => sample(4)}> Sample Tamer </button><br />
+            <button onClick={() => sample(-1)}> All (Experimental) </button><br />
             <p />
             <span>For now using these formatting hints while we figure out the best way:</span>
             <p>

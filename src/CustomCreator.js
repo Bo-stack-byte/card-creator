@@ -35,6 +35,7 @@ import egg from './egg.png';
 import white from './white.png';
 import field from './field.png';
 import placeholder from './placeholder.png';
+import transparent from './transparent.png';
 import shieldsmasher from './shieldsmasher.png';
 import rampager from './rampager.png';
 import featherbackground from './feather-background.png';
@@ -59,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.38"
-const latest = "load sample multi-card"
+const version = "0.8.39"
+const latest = "transparent background option"
 
+// version 0.8.39   transparent background option
 // version 0.8.38   load sample multi-card
 // version 0.8.37.x multiple cards re-implemented in non-stupid way
 // version 0.8.36   link DP on options and tamers; won't work on eggs or ACEs
@@ -909,7 +911,6 @@ function CustomCreator() {
 
     let nid = Number(id);
 
-    console.error(908, bgid, id, nid);
     if (bgid === id) {
       // nothing
     } else if ((id)) {
@@ -1350,6 +1351,13 @@ function CustomCreator() {
     };
     img.src = white;
   }
+  const setTrans = () => {
+    const img = new Image();
+    img.onload = () => {
+      setBackImg(img);
+    };
+    img.src = transparent;
+  }
 
   // read from user's device
   const loadUserImage = (event, foreground) => {
@@ -1519,8 +1527,8 @@ function CustomCreator() {
 
 
     if (clear === true) {
-      miniTracker.ctx.width = 2977;
-      miniTracker.ctx.height = 4158 - 17;
+      miniTracker.width = 2977;
+      miniTracker.height = 4158 - 17;
       canvas.width = 2977;
       canvas.height = 4158 - 17;
       const ctx = canvas.getContext('2d');
@@ -3112,7 +3120,7 @@ function CustomCreator() {
                 style={{
                   width: (width) + 'px',
                   height: (height) + 'px',
-                  backgroundColor: '#eef',
+                //  backgroundColor: '#eef',
                   borderRadius: '20px',
                   overflow: 'hidden',
                   fontVariantLigatures: "none",
@@ -3155,7 +3163,8 @@ function CustomCreator() {
                 <label>Choose background image:
                   <input type="file" onChange={(e) => loadUserImage(e, false)} />
                 </label>
-                <button onClick={setWhite}>Solid White</button>
+                <button title="Plain White" onClick={setWhite}>W</button>
+                <button title="Transparent"      onClick={setTrans}>T</button>
                 {debug && (<button onClick={() => handleUpload(backImg, "backgrounds")}>upload background (if logged in)</button>)}
               </div>
               {true && <ImageBrowser folder="backgrounds" foregrounds={0} onSelectImage={handleSelectImage} />}

@@ -60,7 +60,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.39"
+const version = "0.8.39.1"
 const latest = "transparent background option"
 
 // version 0.8.39   transparent background option

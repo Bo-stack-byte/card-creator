@@ -60,9 +60,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.39.1"
-const latest = "transparent background option"
+const version = "0.8.40"
+const latest = "fix option color on option text"
 
+// version 0.8.40   fix option color on option text (reversion around 0.8.34)
 // version 0.8.39   transparent background option
 // version 0.8.38   load sample multi-card
 // version 0.8.37.x multiple cards re-implemented in non-stupid way
@@ -1890,6 +1891,7 @@ function CustomCreator() {
       //// DRAW TOP TEXT
       ctx.textAlign = 'center';
       ctx.fillStyle = 'white';
+      ctx.strokeStyle = 'black';
       ctx.font = `bold 84px Roboto`;
       if (!type.startsWith("OPTION")) {
         ctx.fillStyle = 'black';

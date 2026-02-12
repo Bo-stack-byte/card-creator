@@ -11,6 +11,7 @@ KNOWN BUGS
 * the black color isn't quite black; try black/green egg and look closely at attribute bar
 * multiple card implementation is cumbersome
 * the full color border art isn't quite right, somewhat off-center for some colors
+* "force draw" moves the text at the top down a little bit
 
 VAGUE TO DO LIST, SOON-TO-MEDIUM TERM
 

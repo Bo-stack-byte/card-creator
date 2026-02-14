@@ -60,11 +60,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.40"
+const version = "0.8.40.1"
 const latest = "fix option color on option text"
 
-// version 0.8.40   fix option color on option text (reversion around 0.8.34)
-// version 0.8.39   transparent background option
+// version 0.8.40.x fix option color on option text (reversion around 0.8.34)
+// version 0.8.39.x transparent background option
 // version 0.8.38   load sample multi-card
 // version 0.8.37.x multiple cards re-implemented in non-stupid way
 // version 0.8.36   link DP on options and tamers; won't work on eggs or ACEs
@@ -335,24 +335,30 @@ const starter_text_empty = `[{
       "level": ""
     }
   ],
-  "effect": "-",
   "form": "In-Training",
   "attribute": "",
   "type": "",
   "rarity": "C",
   "block": "04",
+
   "specialEvolve": "-",
-  "securityEffect": "-",
-  "rule": "",
+  "dnaEvolve": "-",
   "digiXros": "",
   "assembly": "",
-  "aceEffect": "",
-  "dnaEvolve": "-",
   "burstEvolve": "-",
-  "evolveEffect": "-",
+  
   "linkRequirement": "-",
   "linkDP": "-",
   "linkEffect": "-",
+
+  "effect": "-",
+  "securityEffect": "-",
+  "evolveEffect": "-",
+
+
+  "rule": "",
+
+  "aceEffect": "",
   "artist": "-",
   "author": "-",
   "imageOptions": {

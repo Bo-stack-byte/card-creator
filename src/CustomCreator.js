@@ -61,7 +61,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.41.1"
+const version = "0.8.41.3"
 const latest = "dual prep"
 
 // version 0.9.41.x dual prep
@@ -287,19 +287,21 @@ const textColor = (colors) => {
 
 
 const hasLevel = (type) => {
-  return (type === "EGG" || type === "MONSTER" || type === "MEGA" || type === "ACE" || type === "LINK");
+  return (type === "EGG" || type === "MONSTER" || type === "MEGA" || type === "ACE" || type === "LINK" || type === "DUAL");
 }
 const levelHeight = (type) => {
+  // ACE should be in here!
   if (type === "EGG") return - 110;
   if (type === "MEGA" || type === "LINK") return 500;
+  if (type === "DUAL") return -300;
   return 0;
 }
 const hasEvo = (type) => {
   return (type === "MONSTER" || type === "MEGA" || type === "ACE" ||
-    type === "TAMER" || type === "TAMERINHERIT" || type === "LINK");
+    type === "TAMER" || type === "TAMERINHERIT" || type === "LINK" || type === "DUAL");
 }
 const hasDP = (type) => {
-  return (type === "MONSTER" || type === "MEGA" || type === "ACE" || type === "LINK");
+  return (type === "MONSTER" || type === "MEGA" || type === "ACE" || type === "LINK" || type === "DUAL");
 }
 
 
@@ -635,6 +637,43 @@ const starter_text_3 = `   {
     }
     }`;
 
+    const starter_text_4 = `   {
+    "name": {   "english": "Dual Mon / Shark Lazers"   },
+    "color": "Purple",
+    "optionCardColourRequirement": "Red/Blue",
+    "cardType": "Monster / Option",
+    "playCost": "5",
+    "dp": "8000",
+    "cardLv": "Lv.5",
+        "evolveCondition": 
+      [{ "color": "Purple", "cost": "3", "level": "4" } ],
+    "type": "Shark",
+    "effect": "[Counter] Gain 5 memory.",
+    "dualEffect": "[Arts Digivolve]",
+    "optionCardEffect": "＜Use Req. 《Play cost 5 Tamer》＞\\n[Main] Delete 1 of your Monsters.",
+    "securityEffect": "",
+    "evolveEffect": "-",
+    "digiXros": "-",
+    "assembly": "-",
+    "aceEffect": "",
+    "rarity": "Ultimate Rare",
+    "block": "06",
+    "rule": "",
+    "cardNumber": "D3-23",
+    "imageOptions":{
+      "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "ess_x_pos": 40, "ess_y_pos": 0, "ess_x_end": 80, "ess_y_end": 40,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
+            "foregroundOnTop": false,
+            "cardFrame": true,
+            "effectBox": false,
+            "addFoil": false,
+            "aceFrame": true,
+            "coloredFrame": false,
+            "outline": true
+    }
+    }`;
+
 // we only need this text for the dump of all sample cards; the base text exists to show off how you can make cards from plain text
 const starter_text_1_backup = `{
     "name": {
@@ -716,6 +755,262 @@ const decodeAndDecompress = (encodedString) => {
   }
 };
 
+
+const drawBorder = (base_ctx, colors) => {
+  const left = 180;
+  const right = 2800;
+  const top = 160;
+  const bottom = 2940;
+  const notch = 50;
+  const dual = true;
+  const notchWidth = dual ? 420  : 270;
+  const center = (left + right) / 2;
+  const cornerCut = 50;
+
+//  const evoBubble = false;
+  const cost_x = 380;
+  const cost_y = 360;
+  const cost_radius = 250; // 220 works
+
+  const dp = true;
+  const dp_angle = 15 / 28;
+  const dp_depth = 240;
+  const dp_width = 720;
+
+  const buffer = document.createElement('canvas');
+  buffer.width = 2977;
+  buffer.height = 4158 - 17;
+  const ctx = buffer.getContext('2d');
+
+  const lineWidth = 20;
+  ctx.lineWidth = lineWidth;
+  ctx.strokeStyle = colors[0]; // "#ff000080";
+  ctx.moveTo(left, bottom);
+  
+  ctx.lineTo(left, top + cornerCut);
+  ctx.lineTo(left + cornerCut, top);
+  ctx.lineTo(center - notchWidth, top);
+  ctx.lineTo(center - notchWidth + notch, top + notch);
+  ctx.lineTo(center + notchWidth - notch, top + notch);
+  ctx.lineTo(center + notchWidth, top);
+  // done with notch
+  if (dp) {
+    ctx.lineTo(right - dp_width, top);
+    ctx.lineTo(right - dp_width + dp_angle * dp_depth, top + dp_depth);
+    ctx.lineTo(right - cornerCut, top + dp_depth);
+    ctx.lineTo(right, top + dp_depth + cornerCut);
+  } else {
+    ctx.lineTo(right - cornerCut, top);
+    ctx.lineTo(right, top + cornerCut);
+    
+  }
+  ctx.lineTo(right, bottom);
+
+  ctx.stroke();
+  const p = Math.PI;
+
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.beginPath();
+  ctx.arc(cost_x, cost_y, cost_radius - lineWidth/2 , 0, Math.PI * 2);
+  ctx.fill(); // This "cuts" the line at the circle's border
+  // keep wiping out extra stuff in the upper left
+  ctx.beginPath();
+  // west to north
+  ctx.arc(cost_x, cost_y, cost_radius + lineWidth , p , p * 3/2);
+  ctx.fill(); // This "cuts" the line at the circle's border
+ 
+
+  ctx.globalCompositeOperation = 'source-over';
+
+  // draw circle
+  ctx.beginPath();
+  ctx.arc(cost_x, cost_y, cost_radius, - p * .29 , p * .79);
+  ctx.stroke(); // This "cuts" the line at the circle's border
+
+  ctx.globalCompositeOperation = 'destination-out';
+  base_ctx.drawImage(buffer, 0, 0);
+
+}
+
+
+// draws the nameBox and maybe decorates it
+const nameBoxShell = (ctx, y, colors1, colors2) => {
+        let cornerCut = 50;
+        let x = 167;
+        const width = 2650 // 2625;
+        let height = 310; // more like "depth"
+        const levelWidth = 430;
+  
+        const fillColor1 = colors1[0]; 
+        const fillColor2 = colors2[0]; 
+        const traitBackground = '#000000';
+        const traitHeight =  cornerCut * 1.5; 
+
+        ctx.strokeStyle = '#FF000080';
+        ctx.lineWidth = 10;
+
+        // overall name box
+        ctx.beginPath();
+        ctx.moveTo(x + cornerCut, y);
+        ctx.lineTo(x + width - cornerCut, y);
+        ctx.lineTo(x + width, y + cornerCut);
+        ctx.lineTo(x + width, y + height - cornerCut);
+        ctx.lineTo(x + width - cornerCut, y + height);
+        ctx.lineTo(x + cornerCut, y + height);
+        ctx.lineTo(x, y + height - cornerCut);
+        ctx.lineTo(x, y + cornerCut);
+        ctx.closePath();
+
+        ctx.fillStyle = fillColor1;
+        ctx.shadowColor = fillColor1 + "80"; 
+        ctx.fill();
+   
+        // black portion
+        ctx.beginPath();
+        ctx.moveTo(x + cornerCut / 2,             y + cornerCut / 2);
+        // line along top of "Lv" box
+        ctx.lineTo(x + levelWidth - cornerCut / 2, y + cornerCut / 2);
+        // diagonal:
+        ctx.lineTo(x + levelWidth, y + cornerCut);  
+        ctx.lineTo(x + levelWidth, y + height - traitHeight);
+        ctx.lineTo(x + levelWidth,                 y + height - traitHeight);
+        ctx.lineTo(x + width, y + height - traitHeight);
+
+        // lines here are the same as for the box
+        ctx.lineTo(x + width, y + height - cornerCut);
+        ctx.lineTo(x + width - cornerCut, y + height);
+        ctx.lineTo(x + cornerCut, y + height);
+        ctx.lineTo(x, y + height - cornerCut);
+        ctx.lineTo(x, y + cornerCut);
+        ctx.closePath();
+
+        ctx.fillStyle = traitBackground ;
+        ctx.shadowColor = traitBackground + "80"; // 50% transparent
+        ctx.fill();
+
+
+        // DUAL BOX. 
+        // there should be two half boxes, as first pass just 1
+        //  ctx.fillStyle = fillColor2;
+        const gap = 37;
+        y = y + height + gap;
+        cornerCut = cornerCut * .75;
+        height = 172 + 12 + 558; // name part, gap, option part
+        // this height should be leaving us lower
+
+        ctx.beginPath();
+        ctx.moveTo(x + cornerCut, y);
+        ctx.lineTo(x + width - cornerCut, y); // common
+        ctx.lineTo(x + width, y + cornerCut);
+        ctx.lineTo(x + width, y + height - cornerCut);
+        ctx.lineTo(x + width - cornerCut, y + height);
+        ctx.lineTo(x + cornerCut, y + height);
+        ctx.lineTo(x, y + height - cornerCut);
+        ctx.lineTo(x, y + cornerCut);
+        ctx.closePath();
+
+        ctx.fillStyle = fillColor2;
+        ctx.shadowColor = fillColor2 + "80"; 
+        ctx.fill();
+
+        // color box for dual
+        const colorWidth = 331;
+        const dualNameHeight = 172;
+
+        ctx.beginPath();
+        ctx.moveTo(x + width - colorWidth, y);
+        ctx.lineTo(x + width - cornerCut, y); // common
+        ctx.lineTo(x + width, y + cornerCut); // end common
+        ctx.lineTo(x + width, y + dualNameHeight);
+        ctx.lineTo(x + width - colorWidth, y + dualNameHeight);
+        ctx.closePath();
+        
+        ctx.fillStyle =   '#101010';
+        ctx.shadowColor = '#10101080'; 
+        ctx.fill();
+
+        const barSpacing = 42;
+        const first = x + width - colorWidth + barSpacing * .65;
+        const top = y  + 12; // fudge
+        for (let i = 0; i < 7; i++) {
+          const left = first + i * barSpacing; // left
+          ctx.beginPath();
+          const bw = i === 6 ? 35 : 30;
+          ctx.moveTo(left, top);
+         if (i === 6) { 
+            ctx.lineTo(left + bw, top + bw);
+          } else {
+            ctx.lineTo(left + bw, top);
+          }
+          ctx.lineTo(left + bw, top + 140);
+          ctx.lineTo(left, top + 140);
+          ctx.closePath();
+
+          const rainbow = ['red', 'blue', 'yellow', 'green', 'black', 'purple', 'white', 'all'];
+
+          // fill color
+          if (colors2.includes(rainbow[i])) {
+            ctx.fillStyle = rainbow[i];
+          } else {
+            ctx.fillStyle = '#bbb';
+          }
+          ctx.fill();
+          ctx.strokeStyle = '#888';
+          ctx.lineWidth = 6;
+          ctx.stroke();
+        }
+
+        // use box
+        const useWidth = levelWidth * .80;
+        const path = new Path2D();
+
+        ctx.beginPath();
+        path.moveTo(x + cornerCut, y);
+        path.lineTo(x + useWidth, y); 
+        path.lineTo(x + useWidth, y + dualNameHeight - 10); 
+        path.lineTo(x, y + dualNameHeight - 10); 
+        path.lineTo(x, y + cornerCut); 
+        path.closePath();
+        
+        ctx.fillStyle = "#D3D3D3"; 
+        ctx.fill(path);
+
+        // shadow in use box
+        ctx.save();
+        for (let i = 15; i >= 0; i -= 2) {
+          ctx.clip(path);               // Ensure the shadow stays inside the shape
+          const g = i * 10 + 50;
+          ctx.strokeStyle = "rgba(" + g + "," + g + "," + g + ", 0.20)";  // Dark grey for the edge
+          ctx.lineWidth = i * 4;
+          ctx.shadowColor = "rgb(" + g + "," + g + "," + g + ")"; 
+          ctx.stroke(path);             // Strokes the clipped path to cast the shadow inward
+        }
+        ctx.restore();
+
+        // duping name code, this should not be in here
+        ctx.font = "100px MyriadProBold";
+        ctx.fillStyle = 'black';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText("Use", x + 50, y + 110);
+
+        ctx.fillStyle = "black";
+        drawRoundedRect(ctx, x + 240, y, 200, dualNameHeight, 50);
+        ctx.strokeStyle = "grey";
+        drawRoundedRect(ctx, x + 240, y, 200, dualNameHeight, 50, true);
+
+        // line across dual box, this is a hack for now
+        const innerGap = 12;
+        ctx.beginPath();
+        ctx.moveTo(x, y + dualNameHeight - innerGap / 2);
+        ctx.lineTo(x + width, y + dualNameHeight - innerGap / 2);
+
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = innerGap;
+        ctx.shadowColor = '#0008';
+        ctx.stroke();
+
+}
 /*  
   // obsolete to create share links
   const getShare = () => {
@@ -1437,6 +1732,7 @@ function CustomCreator() {
       case 3: text = starter_text_2; break;
       case 4: text = starter_text_3; break;
       case 5: text = starter_text_1; img_src = armor_cat; back_src = field; break;
+      case 7: text = starter_text_4; break;
       case -1: text = all_text; break;
       default: alert(3); return;
     }
@@ -1613,12 +1909,13 @@ function CustomCreator() {
           if (!empty(evo_effect))
             type = "TAMERINHERIT";
         }
-        if (t.match(/egg/i) || t.match(/tama/i)) { type = "EGG"; }
+        if (t.match(/egg/i) || t.match(/tama/i)) { type = "EGG"; }      
       }
+      if (!empty(json.dualEffect)) type = "DUAL";
     }
     array = (has_cost || type === "EGG") ? outlines : outlines_nocost;
-    const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; // todo: better default
-
+    const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; 
+    const optionColors = (json && json.optionCardColourRequirement && json.optionCardColourRequirement.toLowerCase().split("/")) || ["black"]; 
     switch (type) {
       case "MEGA": cardframes = [has_cost ? mega_background : mega_background_nocost]; break;
       case "OPTION":
@@ -1627,6 +1924,7 @@ function CustomCreator() {
       case "TAMERINHERIT":
         cardframes = [has_cost ? tamer_background : tamer_background_nocost]; break;
       // Is there any way to indicate we should use the no_cost egg background??
+      case "DUAL": cardframes = [dual_background]; break;
       case "EGG": cardframes = [has_cost ? egg_background : egg_background]; break;
       case "LINK":
       case "MONSTER": break;
@@ -1643,7 +1941,7 @@ function CustomCreator() {
           if (match) overflow = parseInt(match) - 2;
         }
         break;
-      default:
+      default: alert(2);
     }
 
     // options don't need to load frames
@@ -1733,6 +2031,7 @@ function CustomCreator() {
 
       let bottom = offset_y + 2760;
       if (type === "EGG") bottom -= 640;
+      if (type === "DUAL") bottom -= (640 + 142)
       if (type === "MONSTER" || type === "LINK") bottom -= 500;
       if (type === "ACE") bottom -= 480;
       if (type.startsWith("TAMER") || type.startsWith("OPTION")) bottom -= 640;
@@ -1941,7 +2240,7 @@ function CustomCreator() {
 
       // OTHER MULTICOLOR
       for (let i = 0; i < len; i++) {
-        if (modern) {
+        if (modern && type !== "DUAL") {
           let name_field = bottoms; // i'm so sorry this is named 'bottom'
           if (type.startsWith("OPTION") || type.startsWith("TAMER")) name_field = bottoms_plain;
           let col = colors[i];
@@ -1952,7 +2251,7 @@ function CustomCreator() {
 
             let y_scale = 1;
             ///// EVO BOX AT BOTTOM (OR LINK BOX)
-            if (type !== "MEGA") {
+            if (type !== "MEGA" && type !== "DUAL") {
               let img = bottom_evos[col];
               if (!empty(json.securityEffect)) {
                 img = inherited_mon_security[col];
@@ -2328,6 +2627,26 @@ function CustomCreator() {
         }
       }
 
+            // DRAW NAME BOX MANUALLY
+      if (type === "DUAL") {
+          nameBoxShell(ctx, 3220 - 282, colors, optionColors);
+          // why is this name outside??
+          ctx.font = `italic ${130}px ToppanBunkyExtraBold`; // has curved lowercase l
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          let [fillColor, edgeColor, stroke] = textColor(colors);
+          ctx.fillStyle = fillColor;
+          ctx.strokeStyle = edgeColor;
+          let optName = "Option";
+          let names = json.name.english.split("/");
+          if (names.length > 1) optName = names[1];
+          if (stroke) ctx.strokeText(optName, (1480), 3355);
+          ctx.fillText(optName, (1480), 3355);
+      }
+
+      if (type === "DUAL") {
+          drawBorder(ctx, colors);
+      }
 
 
       let x = 355;
@@ -2341,6 +2660,7 @@ function CustomCreator() {
           if (type.startsWith("OPTION")) img = cost_option;
         }
         if (json.playCost.toLowerCase() === "egg") img = cost_egg;
+        if (type === "DUAL") img = cost_dual;
         if (img) {
           ctx.drawImage(img, offset_x, offset_y, 500, 500);
           for (let color of colors) {
@@ -2350,7 +2670,19 @@ function CustomCreator() {
         }
         let neue_offset = 0;
         if (!neue) neue_offset = 20;
-        if (playcost >= 0) {
+        if (type === "DUAL") {
+          // show cost in different place
+          ctx.font = `600 180px ${numberFont}`;
+          ctx.strokeStyle = '#ffffffb0';        
+          ctx.lineWidth = 7;
+          ctx.shadowColor = 'white'; // Glow 
+          ctx.shadowBlur = 40;    
+
+          ctx.fillText(playcost, x + 152, 3375 + neue_offset);
+          ctx.strokeStyle = '#ffffff40';        
+          ctx.strokeText(playcost, x + 152, 3375 + neue_offset);
+          ctx.shadowBlur = 0;     // Glow intensity
+        } else if (playcost >= 0) {
           ctx.font = `600 290px ${numberFont}`;
           ctx.fillStyle = 'white';
           ctx.fillText(playcost, x + 15, 370 + neue_offset);
@@ -2441,7 +2773,6 @@ function CustomCreator() {
         let level = (json.cardLv === "-" || json.cardLv === undefined) ? "Lv.-" : json.cardLv;
         // roboto preferred
         //        ctx.font = '900 200px "Roboto"'
-
         ctx.fillStyle = whiteColor(colors[0]);
         let y = 3400;
         ctx.textAlign = 'left';
@@ -2486,7 +2817,7 @@ function CustomCreator() {
         case "MEGA": name_delta_y = 500; break;
         case "MONSTER": break;
         case "ACE": if (imageOptions.aceFrame) delta_y = 30; break;
-        case "DUAL": name_delta_y = /*(862 - 140) */ 500 - (682 - 140); break;
+        case "DUAL": name_delta_y = /*(862 - 140) */ 500 - (682) - 100; break;
         default: alert(1);
       }
       if (!empty(json.linkDP)) name_delta_y = 500;
@@ -2495,7 +2826,7 @@ function CustomCreator() {
 
       // name
       try {
-        const name = json.name.english;
+        const name = json.name.english.split("/")[0];        
         let ace_offset = (type === "ACE") ? -ace_logo.width / 2 : 0;
         const maxWidth = 1600 + ace_offset * 2;
 
@@ -2672,6 +3003,7 @@ function CustomCreator() {
           2200, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
       } else {
         let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
+        if (empty(sec_effect)) sec_effect = json.optionCardEffect;
         sec_effect = colorReplace(sec_effect, true);
 
         //ctx.fillStyle = 'red';
@@ -2681,6 +3013,8 @@ function CustomCreator() {
           delta_x -= 60; delta_y += 100;
         } else if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
           delta_x = 0; delta_y = -50;
+        } else if (type.startsWith("DUAL")) {
+          delta_x = -200; delta_y = -50;
         } else {
           delta_x = 0; delta_y = 0;
         }
@@ -2688,6 +3022,13 @@ function CustomCreator() {
         drawBracketedText(ctx, baseFontSize, sec_effect,
           700 + delta_x * 2, 3740 + delta_y * 2,
           max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
+        const dualEffect = json.dualEffect;
+        if (!empty(dualEffect)) {
+          drawBracketedText(ctx, baseFontSize, dualEffect,
+            700 + delta_x * 2, 4100 + delta_y * 2,
+            max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
+          }
+
       }
 
       console.log(1879.3, pauseDraw.current);
@@ -2781,7 +3122,7 @@ function CustomCreator() {
         case "MEGA": break;
         case "ACE": break;
         case "LINK": break;
-        case "DUAL": break;
+        case "DUAL": array = []; break;
         default: alert(4);
       }
 

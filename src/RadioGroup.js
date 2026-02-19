@@ -103,6 +103,15 @@ const RadioGroup = ({ selectedOption, handleOptionChange }) => {
                 />
                 TAMERINHERIT
             </label> </span>
+            <span className="radio-label"><label>
+                <input
+                    type="radio"
+                    value="DUAL"
+                    checked={selectedOption === 'DUAL'}
+                    onChange={handleOptionChange}
+                />
+                DUAL (very experimental)
+            </label> </span>
             <p />
 
         </div>

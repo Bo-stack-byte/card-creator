@@ -61,10 +61,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.41.3"
-const latest = "dual prep"
+const version = "0.8.42.0"
+const latest = "very basic dual card, doesn't handle multi-color"
 
-// version 0.9.41.x dual prep
+// version 0.8.42   very basic dual card, doesn't handle multi-color
+// version 0.8.41.x dual prep
 // version 0.8.40.x fix option color on option text (reversion around 0.8.34)
 // version 0.8.39.x transparent background option
 // version 0.8.38   load sample multi-card
@@ -2142,6 +2143,10 @@ function CustomCreator() {
         }
       }
 
+      if (type === "DUAL") {
+          drawBorder(ctx, colors);
+      }
+
 
       // OUTLINE?
       let border_scale = 3950;
@@ -2642,10 +2647,6 @@ function CustomCreator() {
           if (names.length > 1) optName = names[1];
           if (stroke) ctx.strokeText(optName, (1480), 3355);
           ctx.fillText(optName, (1480), 3355);
-      }
-
-      if (type === "DUAL") {
-          drawBorder(ctx, colors);
       }
 
 
@@ -3604,6 +3605,7 @@ function CustomCreator() {
             <button onClick={() => sample(6)}> Sample Link </button><br />
             <button onClick={() => sample(3)}> Sample Option </button><br />
             <button onClick={() => sample(4)}> Sample Tamer </button><br />
+            <button onClick={() => sample(7)}> Sample Dual (testing) </button><br />
             <button onClick={() => sample(-1)}> All (Experimental) </button><br />
             <p />
             <span>For now using these formatting hints while we figure out the best way:</span>

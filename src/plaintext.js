@@ -162,6 +162,7 @@ export const enterPlainText = (lines) => {
         "attribute": "",
         "type": "",
         "rarity": "",
+        "block": "",
 
         "specialEvolve": "-",
         "dnaEvolve": "-",

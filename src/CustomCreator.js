@@ -2,7 +2,8 @@ import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react'
 import { basics, options, colorReplace } from './images';
 import {
 
-  mon_background, mega_background, egg_background, option_background, tamer_background,
+  mon_background, dual_background, mega_background, 
+  egg_background, option_background, tamer_background,
   mon_background_nocost, mega_background_nocost, /*egg_background_nocost,*/ option_background_nocost, tamer_background_nocost,
 
   ace_backgrounds,
@@ -11,7 +12,7 @@ import {
   outlines_tamer, outline_option, outlines_egg,
   outlines_tamer_nocost, outline_option_nocost, /*outlines_egg_nocost,*/
 
-  cost, cost_egg, cost_option, cost_evo, cost_evo_plain, costs,
+  cost, cost_egg, cost_dual, cost_option, cost_evo, cost_evo_plain, costs,
   ace_logo, ace_box, foil, linkdp,
   new_evo_circles, /* new_evo2_circles, */
   new_evo_wedges,
@@ -29,7 +30,7 @@ import {
 
 import { applyGradientToFrame, contrastColor, whiteColor, empty } from './util';
 import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7 } from './plaintext';
-import { fitTextToWidth, drawBracketedText, writeRuleText, center, textLine } from './text';
+import { fitTextToWidth, drawBracketedText, writeRuleText, center, textLine, drawRoundedRect } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
 import white from './white.png';
@@ -60,9 +61,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.40.1"
-const latest = "fix option color on option text"
+const version = "0.8.41.1"
+const latest = "dual prep"
 
+// version 0.9.41.x dual prep
 // version 0.8.40.x fix option color on option text (reversion around 0.8.34)
 // version 0.8.39.x transparent background option
 // version 0.8.38   load sample multi-card

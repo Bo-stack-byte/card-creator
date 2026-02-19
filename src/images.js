@@ -4,6 +4,7 @@
 
 
 import mon_background from './frames/background_digimon_evo.png';
+import dual_background from './frames/background_dual.png';
 import mega_background from './frames/background_digimon.png';
 import egg_background from './frames/background_egg.png';
 import option_background from './frames/background_option.png';
@@ -29,6 +30,7 @@ import ace_white from './frames/backgrounds/white-ace.png';
 
 import _cost from './frames/cost.png';
 import _cost_egg from './frames/cost-egg.png';
+import _cost_dual from './frames/cost-dual.png';
 import _cost_option from './frames/cost-option.png';
 
 import _cost_color_red from './frames/cost_color_red.png';
@@ -414,6 +416,7 @@ export const dna_boxes = {
 
 let cost = new Image(); cost.src = _cost;
 let cost_egg = new Image(); cost_egg.src = _cost_egg;
+let cost_dual = new Image(); cost_dual.src = _cost_dual;
 let cost_option = new Image(); cost_option.src = _cost_option;
 let cost_evo = new Image(); cost_evo.src = _cost_evo;
 let cost_evo_plain = new Image(); cost_evo_plain.src = _cost_evo_plain;
@@ -449,9 +452,10 @@ let pen_img = new Image(); pen_img.src = pen;
 
 // these backgrounds are used all the time and should be pre-loaded
 export {
-  mon_background, mega_background, egg_background, option_background, tamer_background, tamer_dp_background,
+  mon_background, dual_background, mega_background, 
+  egg_background, option_background, tamer_background, tamer_dp_background,
   mon_background_nocost, mega_background_nocost, egg_background_nocost, option_background_nocost, tamer_background_nocost,
-  cost, cost_egg, cost_option, cost_evo, cost_evo_plain,
+  cost, cost_egg, cost_dual, cost_option, cost_evo, cost_evo_plain,
   outline_option, outline_option_nocost, ace_box, ace_logo,
   bottom_property_white, bottom_property_black,
   foil, bubble, doublebubble, linkdp,

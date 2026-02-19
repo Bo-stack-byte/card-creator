@@ -52,6 +52,7 @@ const magicWords = [
 
   "Digixros.{0,6}",
   "Assembly.{0,6}",
+  "Arts (Digi|E)volve",
   "Link",
   "(DNA )?(Burst )?(Digi|E)volve",
   "App Fusion",
@@ -215,7 +216,7 @@ export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
 }
 
 
-function drawRoundedRect(ctx, x, y, width, height, radius, stroke) {
+export function drawRoundedRect(ctx, x, y, width, height, radius, stroke) {
   ctx.save();
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
@@ -664,6 +665,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 function getColor(phrase, default_color = 'blue') {
   if (phrase.match(/DigiXros/i)) return 'green';
   if (phrase.match(/Assembly/i)) return 'green';
+  if (phrase.match(/Arts .*olve/i)) return 'green';
   if (phrase === "Link") return 'green';
   if (['Hand', 'Trash', 'Breeding'].includes(phrase)) return 'purple';
   if (['Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'red';

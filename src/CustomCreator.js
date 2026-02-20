@@ -61,10 +61,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.42.0"
-const latest = "very basic dual card, doesn't handle multi-color"
+const version = "0.8.43.0"
+const latest = "more work on dual, getting colors"
 
-// version 0.8.42   very basic dual card, doesn't handle multi-color
+// version 0.8.43   more work on dual, getting colors
+// version 0.8.42.x very basic dual card, doesn't handle multi-color
 // version 0.8.41.x dual prep
 // version 0.8.40.x fix option color on option text (reversion around 0.8.34)
 // version 0.8.39.x transparent background option
@@ -835,88 +836,119 @@ const drawBorder = (base_ctx, colors) => {
 
 
 // draws the nameBox and maybe decorates it
-const nameBoxShell = (ctx, y, colors1, colors2) => {
+const nameBoxShell = (ctx, _y, colors1, colors2) => {
         let cornerCut = 50;
         let x = 167;
         const width = 2650 // 2625;
         let height = 310; // more like "depth"
         const levelWidth = 430;
   
-        const fillColor1 = colors1[0]; 
-        const fillColor2 = colors2[0]; 
         const traitBackground = '#000000';
         const traitHeight =  cornerCut * 1.5; 
 
         ctx.strokeStyle = '#FF000080';
         ctx.lineWidth = 10;
 
-        // overall name box
-        ctx.beginPath();
-        ctx.moveTo(x + cornerCut, y);
-        ctx.lineTo(x + width - cornerCut, y);
-        ctx.lineTo(x + width, y + cornerCut);
-        ctx.lineTo(x + width, y + height - cornerCut);
-        ctx.lineTo(x + width - cornerCut, y + height);
-        ctx.lineTo(x + cornerCut, y + height);
-        ctx.lineTo(x, y + height - cornerCut);
-        ctx.lineTo(x, y + cornerCut);
-        ctx.closePath();
+        const innerGap = 12;
+        const dualNameHeight = 172;
 
-        ctx.fillStyle = fillColor1;
-        ctx.shadowColor = fillColor1 + "80"; 
-        ctx.fill();
-   
-        // black portion
-        ctx.beginPath();
-        ctx.moveTo(x + cornerCut / 2,             y + cornerCut / 2);
-        // line along top of "Lv" box
-        ctx.lineTo(x + levelWidth - cornerCut / 2, y + cornerCut / 2);
-        // diagonal:
-        ctx.lineTo(x + levelWidth, y + cornerCut);  
-        ctx.lineTo(x + levelWidth, y + height - traitHeight);
-        ctx.lineTo(x + levelWidth,                 y + height - traitHeight);
-        ctx.lineTo(x + width, y + height - traitHeight);
+        let i;
+        let y;
+        for (i = 0; i < colors1.length; i++) {
+          const fillColor1 = colors1[i]; 
+          y = _y;
+          scaleZoneStart(ctx, i, colors1.length);
+          // overall name box
+          ctx.beginPath();
+          ctx.moveTo(x + cornerCut, y);
+          ctx.lineTo(x + width - cornerCut, y);
+          ctx.lineTo(x + width, y + cornerCut);
+          ctx.lineTo(x + width, y + height - cornerCut);
+          ctx.lineTo(x + width - cornerCut, y + height);
+          ctx.lineTo(x + cornerCut, y + height);
+          ctx.lineTo(x, y + height - cornerCut);
+          ctx.lineTo(x, y + cornerCut);
+          ctx.closePath();
 
-        // lines here are the same as for the box
-        ctx.lineTo(x + width, y + height - cornerCut);
-        ctx.lineTo(x + width - cornerCut, y + height);
-        ctx.lineTo(x + cornerCut, y + height);
-        ctx.lineTo(x, y + height - cornerCut);
-        ctx.lineTo(x, y + cornerCut);
-        ctx.closePath();
+          ctx.fillStyle = fillColor1;
+          ctx.shadowColor = fillColor1 + "80"; 
+          ctx.fill();
+    
+          // black portion
+          ctx.beginPath();
+          ctx.moveTo(x + cornerCut / 2,             y + cornerCut / 2);
+          // line along top of "Lv" box
+          ctx.lineTo(x + levelWidth - cornerCut / 2, y + cornerCut / 2);
+          // diagonal:
+          ctx.lineTo(x + levelWidth, y + cornerCut);  
+          ctx.lineTo(x + levelWidth, y + height - traitHeight);
+          ctx.lineTo(x + levelWidth,                 y + height - traitHeight);
+          ctx.lineTo(x + width, y + height - traitHeight);
 
-        ctx.fillStyle = traitBackground ;
-        ctx.shadowColor = traitBackground + "80"; // 50% transparent
-        ctx.fill();
+          // lines here are the same as for the box
+          ctx.lineTo(x + width, y + height - cornerCut);
+          ctx.lineTo(x + width - cornerCut, y + height);
+          ctx.lineTo(x + cornerCut, y + height);
+          ctx.lineTo(x, y + height - cornerCut);
+          ctx.lineTo(x, y + cornerCut);
+          ctx.closePath();
+
+          ctx.fillStyle = traitBackground ;
+          ctx.shadowColor = traitBackground + "80"; // 50% transparent
+          ctx.fill();
+        
+          scaleZoneEnd(ctx);
+        }
+        // NAME BOX
 
 
-        // DUAL BOX. 
-        // there should be two half boxes, as first pass just 1
-        //  ctx.fillStyle = fillColor2;
         const gap = 37;
+
         y = y + height + gap;
-        cornerCut = cornerCut * .75;
-        height = 172 + 12 + 558; // name part, gap, option part
-        // this height should be leaving us lower
 
-        ctx.beginPath();
-        ctx.moveTo(x + cornerCut, y);
-        ctx.lineTo(x + width - cornerCut, y); // common
-        ctx.lineTo(x + width, y + cornerCut);
-        ctx.lineTo(x + width, y + height - cornerCut);
-        ctx.lineTo(x + width - cornerCut, y + height);
-        ctx.lineTo(x + cornerCut, y + height);
-        ctx.lineTo(x, y + height - cornerCut);
-        ctx.lineTo(x, y + cornerCut);
-        ctx.closePath();
+        for (i = 0; i < colors2.length; i++) {
+          const fillColor2 = colors2[i]; 
+          scaleZoneStart(ctx, i, colors2.length);
 
-        ctx.fillStyle = fillColor2;
-        ctx.shadowColor = fillColor2 + "80"; 
-        ctx.fill();
+          // DUAL BOX. 
+          cornerCut = cornerCut * .75;
+          height = 172 + 12 + 558; // name part, gap, option part
+          // this height should be leaving us lower
 
+          ctx.beginPath();
+          ctx.moveTo(x + cornerCut, y);
+          // across the top
+          ctx.lineTo(x + width - cornerCut, y); // common, 
+
+          ctx.lineTo(x + width, y + cornerCut); // upper right
+          ctx.lineTo(x + width, y + dualNameHeight);
+          ctx.lineTo(x,         y + dualNameHeight);
+          ctx.closePath();
+
+          ctx.fillStyle = fillColor2;
+          ctx.shadowColor = fillColor2 + "80"; 
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.lineTo(x, y + dualNameHeight + innerGap);
+          ctx.lineTo(x + width, y + dualNameHeight + innerGap);
+          
+          ctx.lineTo(x + width, y + height - cornerCut);
+          ctx.lineTo(x + width - cornerCut, y + height); 
+          ctx.lineTo(x + cornerCut, y + height);
+          ctx.lineTo(x, y + height - cornerCut);
+
+
+          ctx.lineTo(x, y + cornerCut);
+          ctx.closePath();
+
+          ctx.fillStyle = fillColor2;
+          ctx.shadowColor = fillColor2 + "80"; 
+          ctx.fill();
+          scaleZoneEnd(ctx);
+        }
         // color box for dual
         const colorWidth = 331;
-        const dualNameHeight = 172;
 
         ctx.beginPath();
         ctx.moveTo(x + width - colorWidth, y);
@@ -1001,7 +1033,7 @@ const nameBoxShell = (ctx, y, colors1, colors2) => {
         drawRoundedRect(ctx, x + 240, y, 200, dualNameHeight, 50, true);
 
         // line across dual box, this is a hack for now
-        const innerGap = 12;
+     /*
         ctx.beginPath();
         ctx.moveTo(x, y + dualNameHeight - innerGap / 2);
         ctx.lineTo(x + width, y + dualNameHeight - innerGap / 2);
@@ -1009,23 +1041,24 @@ const nameBoxShell = (ctx, y, colors1, colors2) => {
         ctx.strokeStyle = '#000';
         ctx.lineWidth = innerGap;
         ctx.shadowColor = '#0008';
-        ctx.stroke();
+        ctx.stroke();*/
 
 }
-/*  
-  // obsolete to create share links
-  const getShare = () => {
-    console.log("jsonText", jsonText);
-    const compressed = pako.deflate(jsonText);
-    const encoded = Base64.fromUint8Array(compressed, true); // URL-safe
-    console.log("encoded", encoded);
-    const here = new URL(window.location.href);
-    const baseUrl = here.origin + here.pathname;
- 
-    let url = baseUrl + "?share=" + encoded;
-    setShareURL(url);
-    navigator && navigator.clipboard && navigator.clipboard.writeText(url) && alert("URL copied to clipboard");
-  }*/
+
+
+function scaleZoneStart(ctx, _i, _len) {
+  let width = 2977;
+  let height = 4158 - 17;
+  let i_width = width / _len;
+  ctx.save(); // Save the current state 
+  ctx.beginPath();
+  //  console.log(405, "clipping to ", i_width * _i, 0, i_width * (_i + 1), height);
+  ctx.rect(i_width * _i, 0, i_width * (_i + 1), height);
+  ctx.clip();
+}
+function scaleZoneEnd(ctx) {
+  ctx.restore();
+}
 
 // show i of len piece, scaled by scale, start at x,y
 function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top = 0, y_scale = 1, x_scale = 1) {

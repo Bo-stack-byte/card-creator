@@ -64,7 +64,7 @@ import { saveAs } from 'file-saver';
 const version = "0.8.43.1"
 const latest = "more work on dual, getting colors, arts evolve box at bottom"
 
-// version 0.8.43   more work on dual, getting colors
+// version 0.8.43   more work on dual, getting colors, arts evolve box at bottom
 // version 0.8.42.x very basic dual card, doesn't handle multi-color
 // version 0.8.41.x dual prep
 // version 0.8.40.x fix option color on option text (reversion around 0.8.34)
@@ -920,7 +920,7 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
         y = y + height + gap;
 
         for (i = 0; i < colors2.length; i++) {
-          const fillColor2 = colors2[i]; 
+          const fillColor2 = cardColor(colors2[i]); 
           scaleZoneStart(ctx, i, colors2.length);
 
           // DUAL BOX. 

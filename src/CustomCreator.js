@@ -13,7 +13,7 @@ import {
   outlines_tamer_nocost, outline_option_nocost, /*outlines_egg_nocost,*/
 
   cost, cost_egg, cost_dual, cost_option, cost_evo, cost_evo_plain, costs,
-  ace_logo, ace_box, foil, linkdp,
+  ace_logo, ace_box, arts_box, foil, linkdp,
   new_evo_circles, /* new_evo2_circles, */
   new_evo_wedges,
   bottoms, bottoms_plain, borders, effectboxes,
@@ -61,8 +61,8 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.43.0"
-const latest = "more work on dual, getting colors"
+const version = "0.8.43.1"
+const latest = "more work on dual, getting colors, arts evolve box at bottom"
 
 // version 0.8.43   more work on dual, getting colors
 // version 0.8.42.x very basic dual card, doesn't handle multi-color
@@ -834,6 +834,19 @@ const drawBorder = (base_ctx, colors) => {
 
 }
 
+const cardColor = (wordColor) => {
+  wordColor = wordColor.toLowerCase();
+  if (wordColor === 'purple') return '#6053A0';
+  if (wordColor === 'green') return '#459462';  
+  if (wordColor === 'red') return '#D22E37';
+  if (wordColor === 'blue') return '#4B90CC';
+  if (wordColor === 'yellow') return '#F3E150';
+  if (wordColor === 'black') return '#201616';
+  if (wordColor === 'white') return '#ffffff'; // white is white, alright.
+  
+  return wordColor;
+
+}
 
 // draws the nameBox and maybe decorates it
 const nameBoxShell = (ctx, _y, colors1, colors2) => {
@@ -855,7 +868,7 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
         let i;
         let y;
         for (i = 0; i < colors1.length; i++) {
-          const fillColor1 = colors1[i]; 
+          const fillColor1 =  cardColor(colors1[i]); 
           y = _y;
           scaleZoneStart(ctx, i, colors1.length);
           // overall name box
@@ -1019,6 +1032,13 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
           ctx.stroke(path);             // Strokes the clipped path to cast the shadow inward
         }
         ctx.restore();
+
+        // this doesn't fit snugly, and the right color can peek out when the left color is hidden
+        ctx.drawImage(arts_box, 
+                x - cornerCut * 1.39, y + height - cornerCut * 9.95, // x, y
+                width + cornerCut * 4.54, cornerCut * 12.5 // width, height
+        );
+
 
         // duping name code, this should not be in here
         ctx.font = "100px MyriadProBold";
@@ -3058,10 +3078,20 @@ function CustomCreator() {
           max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
         const dualEffect = json.dualEffect;
         if (!empty(dualEffect)) {
-          drawBracketedText(ctx, baseFontSize, dualEffect,
-            700 + delta_x * 2, 4100 + delta_y * 2,
+          const x = 700 + delta_x * 2.5;
+          const y = 4100 + delta_y * 1.5;
+          drawBracketedText(ctx, baseFontSize - 10 , dualEffect,
+            x, y,
             max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
           }
+          let artsText = " Instead of trashing after use, your cards may digivolve into this card without paying the cost";
+          let text = [["("], [artsText, "italics"], [")"] ];
+          ctx.fillStyle = 'rgba(255, 254, 254, 1.0)';
+          // this x,y is messed up, because it's scaled
+          const len = dualEffect.length * 30;
+          textLine(ctx, text, 190 + len, 4020, 2600 - len);
+          
+
 
       }
 

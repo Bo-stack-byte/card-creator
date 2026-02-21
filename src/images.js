@@ -89,6 +89,7 @@ import _bottom_ace_white from './frames/inherits/bottom_white_evo_ace.png';
 
 //import _ace_box from './frames/ace-empty.png';
 import _ace_box from './frames/ace-blank.png';
+import _arts_box from './frames/arts-blank.png';
 
 import _ace_logo from './frames/ACE.png';
 
@@ -421,6 +422,7 @@ let cost_option = new Image(); cost_option.src = _cost_option;
 let cost_evo = new Image(); cost_evo.src = _cost_evo;
 let cost_evo_plain = new Image(); cost_evo_plain.src = _cost_evo_plain;
 
+let arts_box = new Image(); arts_box.src = _arts_box;
 let ace_box = new Image(); ace_box.src = _ace_box;
 let ace_logo = new Image(); ace_logo.src = _ace_logo;
 
@@ -456,7 +458,8 @@ export {
   egg_background, option_background, tamer_background, tamer_dp_background,
   mon_background_nocost, mega_background_nocost, egg_background_nocost, option_background_nocost, tamer_background_nocost,
   cost, cost_egg, cost_dual, cost_option, cost_evo, cost_evo_plain,
-  outline_option, outline_option_nocost, ace_box, ace_logo,
+  outline_option, outline_option_nocost, 
+  arts_box, ace_box, ace_logo,
   bottom_property_white, bottom_property_black,
   foil, bubble, doublebubble, linkdp,
   pen_img

@@ -61,10 +61,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.43.1"
-const latest = "more work on dual, getting colors, arts evolve box at bottom"
+const version = "0.8.43.3"
+const latest = "more work on dual, getting colors, arts evolve box at bottom, border works"
 
-// version 0.8.43   more work on dual, getting colors, arts evolve box at bottom
+// version 0.8.43   more work on dual, getting colors, arts evolve box at bottom, border works
 // version 0.8.42.x very basic dual card, doesn't handle multi-color
 // version 0.8.41.x dual prep
 // version 0.8.40.x fix option color on option text (reversion around 0.8.34)
@@ -779,58 +779,69 @@ const drawBorder = (base_ctx, colors) => {
   const dp_depth = 240;
   const dp_width = 720;
 
-  const buffer = document.createElement('canvas');
-  buffer.width = 2977;
-  buffer.height = 4158 - 17;
-  const ctx = buffer.getContext('2d');
+  let i;
+  for (i = 0; i < colors.length; i++) {
+    const buffer = document.createElement('canvas');
+    buffer.width = 2977;
+    buffer.height = 4158 - 17;
+    const ctx = buffer.getContext('2d');
 
-  const lineWidth = 20;
-  ctx.lineWidth = lineWidth;
-  ctx.strokeStyle = colors[0]; // "#ff000080";
-  ctx.moveTo(left, bottom);
-  
-  ctx.lineTo(left, top + cornerCut);
-  ctx.lineTo(left + cornerCut, top);
-  ctx.lineTo(center - notchWidth, top);
-  ctx.lineTo(center - notchWidth + notch, top + notch);
-  ctx.lineTo(center + notchWidth - notch, top + notch);
-  ctx.lineTo(center + notchWidth, top);
-  // done with notch
-  if (dp) {
-    ctx.lineTo(right - dp_width, top);
-    ctx.lineTo(right - dp_width + dp_angle * dp_depth, top + dp_depth);
-    ctx.lineTo(right - cornerCut, top + dp_depth);
-    ctx.lineTo(right, top + dp_depth + cornerCut);
-  } else {
-    ctx.lineTo(right - cornerCut, top);
-    ctx.lineTo(right, top + cornerCut);
+    const lineWidth = 20;
+    ctx.lineWidth = lineWidth;
+    const fillColor = cardColor(colors[i]); 
+
+
+    ctx.strokeStyle = fillColor; 
+    ctx.moveTo(left, bottom);
     
-  }
-  ctx.lineTo(right, bottom);
+    ctx.lineTo(left, top + cornerCut);
+    ctx.lineTo(left + cornerCut, top);
+    ctx.lineTo(center - notchWidth, top);
+    ctx.lineTo(center - notchWidth + notch, top + notch);
+    ctx.lineTo(center + notchWidth - notch, top + notch);
+    ctx.lineTo(center + notchWidth, top);
+    // done with notch
+    if (dp) {
+      ctx.lineTo(right - dp_width, top);
+      ctx.lineTo(right - dp_width + dp_angle * dp_depth, top + dp_depth);
+      ctx.lineTo(right - cornerCut, top + dp_depth);
+      ctx.lineTo(right, top + dp_depth + cornerCut);
+    } else {
+      ctx.lineTo(right - cornerCut, top);
+      ctx.lineTo(right, top + cornerCut);
+      
+    }
+    ctx.lineTo(right, bottom);
 
-  ctx.stroke();
-  const p = Math.PI;
+    ctx.stroke();
+    const p = Math.PI;
 
-  ctx.globalCompositeOperation = 'destination-out';
-  ctx.beginPath();
-  ctx.arc(cost_x, cost_y, cost_radius - lineWidth/2 , 0, Math.PI * 2);
-  ctx.fill(); // This "cuts" the line at the circle's border
-  // keep wiping out extra stuff in the upper left
-  ctx.beginPath();
-  // west to north
-  ctx.arc(cost_x, cost_y, cost_radius + lineWidth , p , p * 3/2);
-  ctx.fill(); // This "cuts" the line at the circle's border
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(cost_x, cost_y, cost_radius - lineWidth/2 , 0, Math.PI * 2);
+    ctx.fill(); // This "cuts" the line at the circle's border
+    // keep wiping out extra stuff in the upper left
+    ctx.beginPath();
+    // west to north
+    ctx.arc(cost_x, cost_y, cost_radius + lineWidth , p , p * 3/2);
+    ctx.fill(); // This "cuts" the line at the circle's border
+  
+
+    ctx.globalCompositeOperation = 'source-over';
+
+   // ctx.strokeStyle = "black";
+    // draw circle
+    ctx.beginPath();
+    ctx.arc(cost_x, cost_y, cost_radius, - p * .29 , p * .79);
+    ctx.stroke(); // This "cuts" the line at the circle's border
+
+    ctx.globalCompositeOperation = 'destination-out';
  
-
-  ctx.globalCompositeOperation = 'source-over';
-
-  // draw circle
-  ctx.beginPath();
-  ctx.arc(cost_x, cost_y, cost_radius, - p * .29 , p * .79);
-  ctx.stroke(); // This "cuts" the line at the circle's border
-
-  ctx.globalCompositeOperation = 'destination-out';
-  base_ctx.drawImage(buffer, 0, 0);
+    // we could save some compute by only handling the circle on the first color
+    scaleZoneStart(base_ctx, i, colors.length);
+    base_ctx.drawImage(buffer, 0, 0);
+    scaleZoneEnd(base_ctx);
+  }
 
 }
 
@@ -996,7 +1007,7 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
 
           // fill color
           if (colors2.includes(rainbow[i])) {
-            ctx.fillStyle = rainbow[i];
+            ctx.fillStyle = cardColor(rainbow[i]);
           } else {
             ctx.fillStyle = '#bbb';
           }
@@ -1024,12 +1035,12 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
         // shadow in use box
         ctx.save();
         for (let i = 15; i >= 0; i -= 2) {
-          ctx.clip(path);               // Ensure the shadow stays inside the shape
+          ctx.clip(path);             
           const g = i * 10 + 50;
           ctx.strokeStyle = "rgba(" + g + "," + g + "," + g + ", 0.20)";  // Dark grey for the edge
           ctx.lineWidth = i * 4;
           ctx.shadowColor = "rgb(" + g + "," + g + "," + g + ")"; 
-          ctx.stroke(path);             // Strokes the clipped path to cast the shadow inward
+          ctx.stroke(path);         
         }
         ctx.restore();
 

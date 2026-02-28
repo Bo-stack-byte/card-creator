@@ -61,7 +61,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.44.0"
+const version = "0.8.44.1"
 const latest = "addFoil now allows gold border"
 
 // version 0.8.44   addFoil now allows gold border

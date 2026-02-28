@@ -13,7 +13,7 @@ import {
   outlines_tamer_nocost, outline_option_nocost, /*outlines_egg_nocost,*/
 
   cost, cost_egg, cost_dual, cost_option, cost_evo, cost_evo_plain, costs,
-  ace_logo, ace_box, arts_box, foil, linkdp,
+  ace_logo, ace_box, arts_box, foil, gold, linkdp,
   new_evo_circles, /* new_evo2_circles, */
   new_evo_wedges,
   bottoms, bottoms_plain, borders, effectboxes,
@@ -61,9 +61,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.43.3"
-const latest = "more work on dual, getting colors, arts evolve box at bottom, border works"
+const version = "0.8.44.0"
+const latest = "addFoil now allows gold border"
 
+// version 0.8.44   addFoil now allows gold border
 // version 0.8.43   more work on dual, getting colors, arts evolve box at bottom, border works
 // version 0.8.42.x very basic dual card, doesn't handle multi-color
 // version 0.8.41.x dual prep
@@ -201,7 +202,7 @@ const settingsText = {
   "foregroundOnTop": "foreground over frame",
   "cardFrame": "draw card frame",
   "effectBox": "pre-BT14 effect box",
-  "addFoil": "add foil to edge",
+  "addFoil": "foil mode, 0 thru 2",
   "aceFrame": "for ACEs use new frame",
   "coloredFrame": "colored border frame",
   "outline": "include border line",
@@ -385,7 +386,7 @@ const starter_text_empty = `[{
     "foregroundOnTop": false,
     "cardFrame": true,
     "effectBox": false,
-    "addFoil": false,
+    "addFoil": 0,
     "aceFrame": true,
     "coloredFrame": false,
     "outline": true,
@@ -418,7 +419,7 @@ const starter_text_0 = ` {
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
-            "addFoil": false,
+            "addFoil": 0,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true,
@@ -469,7 +470,7 @@ const starter_text_1a = `  {
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
-            "addFoil": false,
+            "addFoil": 0,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true,
@@ -512,7 +513,7 @@ const starter_text_1b = `  {
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
-            "addFoil": false,
+            "addFoil": 0,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true,
@@ -564,7 +565,7 @@ const starter_text_1c = `{
             "foregroundOnTop": true,
             "cardFrame": true,
             "effectBox": false,
-            "addFoil": false,
+            "addFoil": 0,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true,
@@ -600,7 +601,7 @@ const starter_text_2 = `  {
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
-            "addFoil": false,
+            "addFoil": 0,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true,
@@ -632,7 +633,7 @@ const starter_text_3 = `   {
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
-            "addFoil": false,
+            "addFoil": 0,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true
@@ -669,7 +670,7 @@ const starter_text_3 = `   {
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
-            "addFoil": false,
+            "addFoil": 0,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true
@@ -728,7 +729,7 @@ const starter_text_1_backup = `{
       "foregroundOnTop": false,
       "cardFrame": true,
       "effectBox": false,
-      "addFoil": false,
+      "addFoil": 0,
       "aceFrame": true,
       "coloredFrame": false,
       "outline": true,
@@ -1411,7 +1412,7 @@ function CustomCreator() {
       foregroundOnTop: false,
       cardFrame: true,
       effectBox: false,
-      addFoil: false,
+      addFoil: 0,
       aceFrame: true,
       coloredFrame: false,
       outline: true,
@@ -1574,7 +1575,7 @@ function CustomCreator() {
       // shouldn't the default for imageOptions handle the below??
 
       // falses
-      for (let field of ["foregroundOnTop", "effectBox", "addFoil", "skipDraw", "coloredFrame"]) {
+      for (let field of ["foregroundOnTop", "effectBox", "skipDraw", "coloredFrame"]) {
         if (!(field in json.imageOptions)) {
           console.log("Missing field added 1 " + field);
           json.imageOptions[field] = false;
@@ -1588,12 +1589,18 @@ function CustomCreator() {
         }
       }
       // zeros
-      for (let field of ["bubbleRadius", "altFontDelta"]) {
+      for (let field of ["bubbleRadius", "altFontDelta", "addFoil"]) {
         if (!(field in json.imageOptions)) {
           console.log("Missing field added" + field);
           json.imageOptions[field] = 0;
         }
       }
+      // if "addfoil" is boolean, change it to numeric
+      if (typeof (json.imageOptions.addFoil) === "boolean") {
+         json.imageOptions.addFoil += 0;
+      }
+
+
       if (!("english" in json.name)) {
         json.name.english = "Mon";
       }
@@ -2134,10 +2141,9 @@ function CustomCreator() {
         // new style background
         // we know shellimg is loaded because of pre-flight
 
-        if (imageOptions.addFoil) {
+        if (imageOptions.addFoil > 0) {
 
           const baseImage = shellImages[0];
-          //          const overlayImage = foil;
 
           const offScreenCanvas = document.createElement('canvas');
           offScreenCanvas.width = canvas.width;
@@ -2153,7 +2159,8 @@ function CustomCreator() {
 
           // Clear the off-screen canvas before drawing the overlay image
           offScreenCtx.clearRect(0, 0, canvas.width, canvas.height);
-          offScreenCtx.drawImage(foil, 0, 0, canvas.width, canvas.height);
+          const overlay = Number(imageOptions.addFoil) === 1 ? foil : gold;
+          offScreenCtx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
 
           // Create image data for the overlay image
           const overlayImageData = offScreenCtx.getImageData(0, 0, canvas.width, canvas.height); // Use canvas.width and canvas.height for consistency
@@ -3094,14 +3101,13 @@ function CustomCreator() {
           drawBracketedText(ctx, baseFontSize - 10 , dualEffect,
             x, y,
             max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
-          }
           let artsText = " Instead of trashing after use, your cards may digivolve into this card without paying the cost";
           let text = [["("], [artsText, "italics"], [")"] ];
           ctx.fillStyle = 'rgba(255, 254, 254, 1.0)';
           // this x,y is messed up, because it's scaled
           const len = dualEffect.length * 30;
           textLine(ctx, text, 190 + len, 4020, 2600 - len);
-          
+          }
 
 
       }

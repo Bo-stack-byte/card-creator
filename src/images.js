@@ -25,9 +25,6 @@ import ace_black from './frames/backgrounds/black-ace.png';
 import ace_purple from './frames/backgrounds/purple-ace.png';
 import ace_white from './frames/backgrounds/white-ace.png';
 
-
-
-
 import _cost from './frames/cost.png';
 import _cost_egg from './frames/cost-egg.png';
 import _cost_dual from './frames/cost-dual.png';
@@ -305,6 +302,7 @@ import _dna_white from './frames/dna_box_white.png';
 import _dna_all from './frames/dna_box_all.png';
 
 import _foil from './frames/foil.png';
+import _gold from './frames/gold.png';
 
 import _bubble from './frames/bubble.png';
 import _doublebubble from './frames/doublebubble.png';
@@ -386,6 +384,7 @@ export const lines = {
 }
 
 let foil = new Image(); foil.src = _foil;
+let gold = new Image(); gold.src = _gold;
 let bubble = new Image(); bubble.src = _bubble;
 let doublebubble = new Image(); doublebubble.src = _doublebubble;
 let linkdp = new Image(); linkdp.src = _linkdp;
@@ -461,7 +460,7 @@ export {
   outline_option, outline_option_nocost, 
   arts_box, ace_box, ace_logo,
   bottom_property_white, bottom_property_black,
-  foil, bubble, doublebubble, linkdp,
+  foil, gold, bubble, doublebubble, linkdp,
   pen_img
 };
 

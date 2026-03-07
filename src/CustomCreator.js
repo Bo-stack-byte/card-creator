@@ -65,7 +65,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.46"
+const version = "0.8.46.1"
 const latest = "gold text prototype"
 
 // version 0.8.46   gold text
@@ -413,6 +413,7 @@ const starter_text_0 = ` {
             "cardFrame": true,
             "effectBox": false,
             "addFoil": 0,
+            "goldText": false,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true,
@@ -464,6 +465,7 @@ const starter_text_1a = `  {
             "cardFrame": true,
             "effectBox": false,
             "addFoil": 0,
+            "goldText": false,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true,
@@ -507,6 +509,7 @@ const starter_text_1b = `  {
             "cardFrame": true,
             "effectBox": false,
             "addFoil": 0,
+            "goldText": false,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true,
@@ -559,6 +562,7 @@ const starter_text_1c = `{
             "cardFrame": true,
             "effectBox": false,
             "addFoil": 0,
+            "goldText": false,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true,
@@ -595,6 +599,7 @@ const starter_text_2 = `  {
             "cardFrame": true,
             "effectBox": false,
             "addFoil": 0,
+            "goldText": false,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true,
@@ -627,6 +632,7 @@ const starter_text_3 = `   {
             "cardFrame": true,
             "effectBox": false,
             "addFoil": 0,
+            "goldText": false,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true
@@ -664,6 +670,7 @@ const starter_text_3 = `   {
             "cardFrame": true,
             "effectBox": false,
             "addFoil": 0,
+            "goldText": false,
             "aceFrame": true,
             "coloredFrame": false,
             "outline": true
@@ -723,6 +730,7 @@ const starter_text_1_backup = `{
       "cardFrame": true,
       "effectBox": false,
       "addFoil": 0,
+      "goldText": false,
       "aceFrame": true,
       "coloredFrame": false,
       "outline": true,
@@ -1409,6 +1417,7 @@ function CustomCreator() {
       cardFrame: true,
       effectBox: false,
       addFoil: 0,
+      goldText: false,
       aceFrame: true,
       coloredFrame: false,
       outline: true,
@@ -1571,7 +1580,7 @@ function CustomCreator() {
       // shouldn't the default for imageOptions handle the below??
 
       // falses
-      for (let field of ["foregroundOnTop", "effectBox", "skipDraw", "coloredFrame"]) {
+      for (let field of ["foregroundOnTop", "effectBox", "skipDraw", "coloredFrame", "goldText"]) {
         if (!(field in json.imageOptions)) {
           console.log("Missing field added 1 " + field);
           json.imageOptions[field] = false;

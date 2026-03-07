@@ -1,3 +1,5 @@
+import { gold_text, gold_gradient } from './text';
+
 export const applyGradientToFrame = (img, gradientImage) => {
     const frameCanvas = document.createElement("canvas");
     const frameCtx = frameCanvas.getContext("2d");
@@ -34,12 +36,14 @@ export const applyGradientToFrame = (img, gradientImage) => {
     return newImg; 
 };
 
-export const contrastColor = (color) => {
+export const contrastColor = (color, gold = false) => {
+  if (gold_text && !gold) return gold_gradient;
   if (["red", "blue", "green", "purple", "black", "all"].includes(color)) return "white";
   return "black";
 }
 // draw in white text on the black stripe -- unless we're a black card with a white stripe, in which case draw black
 export const whiteColor = (color) => {
+  if (gold_text) return gold_gradient;
   if (color?.toLowerCase() === "black") return "black";
   return "white";
 }

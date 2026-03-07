@@ -30,7 +30,11 @@ import {
 
 import { applyGradientToFrame, contrastColor, whiteColor, empty } from './util';
 import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custom_6, custom_7 } from './plaintext';
-import { fitTextToWidth, drawBracketedText, writeRuleText, center, textLine, drawRoundedRect } from './text';
+import { fitTextToWidth, drawBracketedText, writeRuleText, center, textLine, drawRoundedRect,
+  gold_text, set_gold_text,
+  gold_gradient,
+  textColor 
+ } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
 import white from './white.png';
@@ -61,9 +65,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.44.1"
-const latest = "addFoil now allows gold border"
+const version = "0.8.46"
+const latest = "gold text prototype"
 
+// version 0.8.46   gold text
+// version 0.8.45   'egg' and 'blank' and 'dash' costs
 // version 0.8.44   addFoil now allows gold border
 // version 0.8.43   more work on dual, getting colors, arts evolve box at bottom, border works
 // version 0.8.42.x very basic dual card, doesn't handle multi-color
@@ -203,6 +209,7 @@ const settingsText = {
   "cardFrame": "draw card frame",
   "effectBox": "pre-BT14 effect box",
   "addFoil": "foil mode, 0 thru 2",
+  "goldText": "gold effect on text",
   "aceFrame": "for ACEs use new frame",
   "coloredFrame": "colored border frame",
   "outline": "include border line",
@@ -269,24 +276,9 @@ let neue = false;
 // stringroundremoved, dec 17
 
 
-// Draw an evo circle instead of loading an image
-// manual evo circle with gradient removed, jan 19
 
-// returns [fillColor, edgeColor, boolean if we need edge]
-// color should be lowercase array before we get here
-// colors should all be lowercase before this is called
-const textColor = (colors) => {
-  let border = (colors.includes("white") || colors.includes("yellow") || colors.includes("all"));
-  let fillColor = 'white';
-  let strokeColor = 'black';
-  // if only white and/or yellow, pure black with no border
-  if (colors.filter(c => c !== "yellow" && c !== "white").length === 0) {
-    fillColor = 'black';
-    strokeColor = 'white';
-    border = false; // may not draw border at all
-  }
-  return [fillColor, strokeColor, border];
-}
+
+
 
 
 const hasLevel = (type) => {
@@ -387,6 +379,7 @@ const starter_text_empty = `[{
     "cardFrame": true,
     "effectBox": false,
     "addFoil": 0,
+    "goldText": false,
     "aceFrame": true,
     "coloredFrame": false,
     "outline": true,
@@ -1137,10 +1130,13 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
 
 function writeDP(ctx, _dp, args) {
 
-  const { x, y, size, bigsize, stroke, color } = args;
+  let { x, y, size, bigsize, stroke, color } = args;
   //  let [x, y, size, stroke, color] = args[x, y,x = 2540, y = 410, size = 175, stroke = "white", color = "black") {
 
-
+  if (gold_text) { 
+    color = gold_gradient;
+    stroke = 'black';
+  }
   ctx.fillStyle = color;
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
@@ -1938,7 +1934,7 @@ function CustomCreator() {
     }
 
     let modern = 1;
-    const has_cost = (json.playCost.length > 0 && (json.playCost >= 0 || json.playCost.toLowerCase() === "egg"));
+    const has_cost = (json.playCost.length > 0 && (json.playCost >= 0 || json.playCost.length > 2 ));
     // TODO: make cost an array to avoid inline trinaries
 
     let t;
@@ -2039,6 +2035,7 @@ function CustomCreator() {
     const afterLoad = async () => {
       console.log("LOADING2");
 
+      set_gold_text(json.imageOptions.goldText);
       const drawMon = (mon_img, height) => {
         height = 4000; // don't try this now
         console.log(986, json);
@@ -2679,10 +2676,12 @@ function CustomCreator() {
 
             ctx.lineWidth = 10;
 
-            let [fillColor, strokeColor, border] = textColor(evo1_colors);
+            let [fillColor, strokeColor, border] = textColor(evo1_colors, ctx);
+
+            // what was this clause for? textColor() should handle it
             if (evo1_colors.length === 1 && (evo1_colors[0] === 'yellow' || evo1_colors[0] === 'white')) {
-              fillColor = 'black';
-              border = false;
+   //           fillColor = 'black';
+     //         border = false;
             }
             if (border) {
               ctx.strokeStyle = strokeColor;
@@ -2723,7 +2722,8 @@ function CustomCreator() {
 
       let x = 355;
       //playcost. If 0 or more, show that number. Else show egg symbol.
-      const playcost = parseInt(json.playCost)
+      let playcost = parseInt(json.playCost);
+
       if (true) {
         let img = undefined;
         if (type === "EGG") img = cost_egg;
@@ -2731,8 +2731,15 @@ function CustomCreator() {
           img = cost;
           if (type.startsWith("OPTION")) img = cost_option;
         }
-        if (json.playCost.toLowerCase() === "egg") img = cost_egg;
         if (type === "DUAL") img = cost_dual;
+
+        if (json.playCost.toLowerCase() === "egg") img = cost_egg;
+        if (json.playCost.toLowerCase() === "dash") {
+          img = cost;
+          playcost = "-";
+        }
+        if (json.playCost.toLowerCase() === "blank") img = cost;
+        if (json.playCost.toLowerCase() === "dual") img = cost_dual;
         if (img) {
           ctx.drawImage(img, offset_x, offset_y, 500, 500);
           for (let color of colors) {
@@ -2754,9 +2761,12 @@ function CustomCreator() {
           ctx.strokeStyle = '#ffffff40';        
           ctx.strokeText(playcost, x + 152, 3375 + neue_offset);
           ctx.shadowBlur = 0;     // Glow intensity
-        } else if (playcost >= 0) {
+        } else if (playcost >= 0 || playcost === "-") {
           ctx.font = `600 290px ${numberFont}`;
           ctx.fillStyle = 'white';
+          if (gold_text) {
+            ctx.fillStyle = gold_gradient;
+          }
           ctx.fillText(playcost, x + 15, 370 + neue_offset);
         }
       }
@@ -2836,6 +2846,10 @@ function CustomCreator() {
         ctx.font = `100px 'Helvetica'`;
         ctx.lineWidth = 15;
         ctx.strokeStyle = 'white';
+        if (gold_text) {
+          ctx.strokeStyle = 'black';
+          ctx.fillStyle = gold_gradient;
+        }
         ctx.strokeText("DP", x + 130, y - 200);
         ctx.fillText("DP", x + 130, y - 200);
 
@@ -2910,7 +2924,7 @@ function CustomCreator() {
         ctx.font = `${namefontSize}px ToppanBunkyExtraBold`; // has curved lowercase l
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        let [fillColor, edgeColor, stroke] = textColor(colors);
+        let [fillColor, edgeColor, stroke] = textColor(colors, ctx);
         ctx.fillStyle = fillColor;
 
         ctx.lineWidth = 30; // Border width

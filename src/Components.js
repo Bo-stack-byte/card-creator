@@ -20,7 +20,7 @@ export function CircleAndBlock(ctx, color, rarity, block, x, y) {
     const mycolor = contrastColor(color);
     rarity = rarity_string(rarity);
 
-    let outlinecolor = "white";
+    let outlinecolor = mycolor;
     if (!empty(block)) {
         // if "white" background give this a solid border
         if (color === "white") {
@@ -51,12 +51,12 @@ export function CircleAndBlock(ctx, color, rarity, block, x, y) {
         ctx.arc(right, y + radius / 2 + 80, radius, Math.PI * 3 / 2, Math.PI / 2);
         // stroke color same as fill color
         ctx.strokeStyle = mycolor;
+
         ctx.lineWidth = 1;
         ctx.stroke();
         ctx.fill();
         ctx.font = '100 70px "ProhibitionRough", "Big Shoulders Text"'
-        //console.log(2350, ctx.strokeStyle, rarity);
-        ctx.fillStyle = contrastColor(mycolor); // flip
+        ctx.fillStyle = contrastColor(mycolor, true); // flip color
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(rarity, (left + right) / 2, y + radius / 2 + 80);

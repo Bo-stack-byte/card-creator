@@ -9,6 +9,40 @@ let diamondLeft = new Image(); diamondLeft.src = _left_diamond;
 let diamondMiddle = new Image(); diamondMiddle.src = _middle_diamond;
 let diamondRight = new Image(); diamondRight.src = _right_diamond;
 
+export let gold_text = false;
+export function set_gold_text(i) { gold_text = i; }
+export const gold_c = '#EEC749';
+export const darkgold = '#9B7D3B';
+export let gold_gradient;
+
+// returns [fillColor, edgeColor, boolean if we need edge]
+// color should be lowercase array before we get here
+// colors should all be lowercase before this is called
+export function textColor(colors, ctx) {
+  let border = (colors.includes("white") || colors.includes("yellow") || colors.includes("all"));
+  let fillColor = 'white';
+  let strokeColor = 'black';
+  // if only white and/or yellow, pure black with no border
+  if (colors.filter(c => c !== "yellow" && c !== "white").length === 0) {
+    fillColor = 'black';
+    strokeColor = 'white';
+    border = false; // may not draw border at all
+  }
+  if (gold_text && ctx) {
+    const canvas_width = 2977;
+    gold_gradient = ctx.createLinearGradient(0, 0, canvas_width, 0);
+    gold_gradient.addColorStop(0.1, gold_c);
+    gold_gradient.addColorStop(0.2, darkgold);
+    gold_gradient.addColorStop(0.5, gold_c);
+    gold_gradient.addColorStop(0.8, gold_c);
+    gold_gradient.addColorStop(1.0, darkgold);
+    fillColor = gold_gradient;
+    strokeColor = 'blue';
+    border = true;
+    // border = true;
+  }
+  return [fillColor, strokeColor, border];
+}
 
 const font = 'MyriadProBold'
 const boxfont = "Hiragino"; //  "FallingSky" : "ToppanBunkyExtraBold";
@@ -194,24 +228,57 @@ export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
   if (text.startsWith("[Rule]")) text = text.substring(6).trim();
   let width = ctx.measureText(text).width;
   let x = horizontal_limit - 50;
-  ctx.strokeStyle = 'white';
+  let text_bg = 'white';
+  let fill = 'black';
+  let stroke = 'white';
+  let gc;
+  if (gold_text) {
+    [gc,,] = textColor([], ctx);
+    text_bg = fill;
+    stroke = fill;
+    fill = gc;
+  }
+  
   ctx.lineWidth = 20;
+  ctx.strokeStyle = stroke;
   if (width > maxWidth) width = maxWidth;
   if (!preview) {
+    ctx.fillStyle = text_bg;
     ctx.fillRect(x - width, bottom - fontSize / 8, width + fontSize / 4, - fontSize * 0.7);
     ctx.strokeText(text, x, bottom, maxWidth);
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = fill;
     ctx.fillText(text, x, bottom, maxWidth);
   }
   // Rule:
+  ctx.fillStyle = fill; //  stroke;
+  ctx.strokeStyle = 'black';
+  if (gold_text) {
+    ctx.fillStyle = gc;
+  }
   ctx.font = `${(fontSize - 10)}px Asimov`;
   let rule_word = "Rule"
   let rule_word_width = ctx.measureText(rule_word).width + 20;
   if (preview) return x - width - 10; // return start pos
+
+    ctx.fillRect(x - width - 10, bottom + 10, -rule_word_width, -(Number(fontSize) + 20));
+  // x, y, width, height
+//  ctx.moveTo(x-width-10, bottom + 10);
+//  ctx.lineTo
   ctx.fillRect(x - width - 10, bottom + 10, -rule_word_width, -(Number(fontSize) + 20));
+  ctx.lineWidth = 10;
+  ctx.strokeRect(x - width - 10, bottom + 10, -rule_word_width, -(Number(fontSize) + 20));
+  // triangle
+  ctx.fillRect(x - width - 10, bottom + 10, -rule_word_width, -(Number(fontSize) + 20));
+  ctx.lineWidth = 10;
+  ctx.strokeRect(x - width - 10, bottom + 10, -rule_word_width, -(Number(fontSize) + 20));
+
+  
   console.log(730, x - width - 10, bottom + 10, -rule_word_width, -(fontSize + 20));
-  // ctx.strokeStyle = 'white'; 
   ctx.fillStyle = 'white';
+ 
+  if (gold_text) {
+    ctx.fillStyle = 'black';
+  } 
   ctx.fillText(rule_word, x - width - 20, bottom);
 }
 
@@ -318,21 +385,26 @@ function drawColoredRectangle(ctx, x, y, width, height, color, radius) {
     default:
       color0 = '#41386A'; color1 = '#4765CC'; color2 = '#55D8E6';
   }
+  if (gold_text) {
+    ctx.fillStyle = gold_gradient;
+  } else { 
   // Draw the background rectangle with gradient
-  const gradient = ctx.createLinearGradient(x, y - height, x, y);
-  gradient.addColorStop(0, color0);
-  gradient.addColorStop(1, color1);
-  if (color2) {
-    gradient.addColorStop(0.3, color0);
-    gradient.addColorStop(0.6, color1);
-    gradient.addColorStop(0.99, color2);
+    const gradient = ctx.createLinearGradient(x, y - height, x, y);
+    gradient.addColorStop(0, color0);
+    gradient.addColorStop(1, color1);
+    if (color2) {
+      gradient.addColorStop(0.3, color0);
+      gradient.addColorStop(0.6, color1);
+      gradient.addColorStop(0.99, color2);
+    }
+    ctx.fillStyle = gradient;
   }
   let d = 0;
   if (color.includes('bubble')) {
     ctx.globalAlpha = 0.4;
     d = 10;
   }
-  ctx.fillStyle = gradient;
+
   if (width > (cardWidth - x)) width = cardWidth - x;
 
   let rad = radius || height / 3;
@@ -374,10 +446,16 @@ function _2drawDiamondRectangle(ctx, x, y, width, height, color, strokeColor) {
   y -= height;
   const halfHeight = height / 2;
   // Create the gradient from dark brown to medium brown
-  const gradient = ctx.createLinearGradient(0, y, 0, y + height);
-  gradient.addColorStop(0, color || '#7E3329'); // Dark brown
-  gradient.addColorStop(0.6, color || '#C36327'); // Medium brown
-  gradient.addColorStop(0.9, color || '#E38367'); // "light" brown
+  if (gold_text) {
+    ctx.fillStyle = gold_gradient;
+  } else { 
+    const gradient = ctx.createLinearGradient(0, y, 0, y + height);
+
+    gradient.addColorStop(0, color || '#7E3329'); // Dark brown
+    gradient.addColorStop(0.6, color || '#C36327'); // Medium brown
+    gradient.addColorStop(0.9, color || '#E38367'); // "light" brown
+    ctx.fillStyle = gradient;
+  }
 
   // Begin drawing the shape
   ctx.beginPath();
@@ -389,7 +467,6 @@ function _2drawDiamondRectangle(ctx, x, y, width, height, color, strokeColor) {
   ctx.lineTo(x + halfHeight / 2, y + height); // Bottom-left corner
   ctx.closePath(); // Close the path
 
-  ctx.fillStyle = gradient;
   ctx.fill();
 
   ctx.lineWidth = 5;
@@ -756,10 +833,13 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
       ctx.transform(ratio, 0, 0, 1, 0, 0);  // 6% for [Hand], 5% for [Counter]
    
       if (!preview) drawColoredRectangle(ctx, start, y + 3, width, fontSize, color, radius);
-      ctx.fillStyle = 'white';
+
+      ctx.fillStyle = gold_text ? 'black' : 'white';
       ctx.textAlign = 'center';
-      //console.log(328, lastX, cleanPhrase, (cardWidth - lastX - 5));
-      // stretch the font a bit
+
+      if (gold_text) {
+          //        ctx.fillStyle = gold_gradient;
+      }
       if (!preview) ctx.fillText(cleanPhrase, start + width / 2, y - 10,
         cardWidth - lastX + 500); //  phraseWidth);
       ctx.restore();
@@ -786,7 +866,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
           }
           if (!preview) drawDiamondRectangle(ctx, lastX, y - 8, width + 10, h);
           //    ctx.scale(scale, 1);
-          ctx.fillStyle = 'white'; // white on colored background
+          ctx.fillStyle = gold_text ? 'black' : 'white'; // white on colored background
           let diamondOffset = -5; // how much to slide keyword in text around
           if (!preview) ctx.fillText(cleanWord, lastX - diamondOffset, y - 10, cardWidth - lastX);
           //console.log(621, "xxx specialword", cleanWord);
@@ -811,9 +891,10 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
               skew = 1;
             }
 
-            // First, draw the black stroke
+            // outside black stroke
             ctx.lineWidth = width; // Thicker stroke
             ctx.strokeStyle = stroke;
+            ctx.fillStyle = 'red';
             ctx.textAlign = 'left';
             // for testing italics
             if (!preview) {
@@ -824,8 +905,8 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
               }
             }
 
-            ctx.lineWidth = 2; // Smaller stroke to define the edges
-            ctx.fillStyle = fill;
+       //     ctx.lineWidth = 2; // smaller inside stroke
+            ctx.fillStyle = gold_text ? gold_gradient : fill;
             if (!preview) {
               if (!skew) {
                 ctx.fillText(word, lastX, y); //  cardWidth - lastX);

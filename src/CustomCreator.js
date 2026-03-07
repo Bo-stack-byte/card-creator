@@ -65,7 +65,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.46.1"
+const version = "0.8.46.2"
 const latest = "gold text prototype"
 
 // version 0.8.46   gold text

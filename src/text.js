@@ -37,7 +37,7 @@ export function textColor(colors, ctx) {
     gold_gradient.addColorStop(0.8, gold_c);
     gold_gradient.addColorStop(1.0, darkgold);
     fillColor = gold_gradient;
-    strokeColor = 'blue';
+    strokeColor = 'black';
     border = true;
     // border = true;
   }

@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.47"
-const latest = "test dual frame"
+const version = "0.8.48"
+const latest = "autopopulate all needed fields when clicking 'DUAL'"
 
+// version 0.8.48   autopopulate all needed fields when clicking "DUAL"
 // version 0.8.47   test dual frame
 // version 0.8.46   gold text
 // version 0.8.45   'egg' and 'blank' and 'dash' costs
@@ -1997,16 +1998,36 @@ function CustomCreator() {
 
     if (type === "DUAL") {
       // what's the best place to do this?
-      if (!("optionCardColourRequirement" in json)) {
-        
-          let json_temp = Object.entries(json)
-          let index = json_temp.findIndex( ([key]) => key  === "color")
-          console.log(1575, 444, index);
-          console.log(1575, "color", json["color"]);
-          let color = json["color"] || "blue";
-          json_temp.splice(index+1, 0, ["optionCardColourRequirement", color] )
-          json = Object.fromEntries(json_temp);
+      let added_fields = false;
 
+
+//      if (!("optionCardColourRequirement" in json)) {
+        
+      let json_temp = Object.entries(json);
+      if (!("optionCardColourRequirement" in json)) {
+        // add after 'color'
+        let index = json_temp.findIndex( ([key]) => key  === "color");
+        let color = json["color"] || "blue";
+        json_temp.splice(index+1, 0, ["optionCardColourRequirement", color] )
+        added_fields = true;
+      }
+      if (!("optionCardEffect" in json)) {
+        // add after 'effect'
+        let index = json_temp.findIndex( ([key]) => key  === "effect");
+        let optionCardEffect = "-";
+        json_temp.splice(index+1, 0, ["optionCardEffect", optionCardEffect] )
+        added_fields = true;
+      }
+      if (!("dualEffect" in json)) {
+        // add after 'effect'
+        let index = json_temp.findIndex( ([key]) => key  === "effect");
+        let dualEffect = "[Arts Digivolve]";
+        json_temp.splice(index+1, 0, ["dualEffect", dualEffect] )
+        added_fields = true;
+      }
+      
+      if (added_fields) {
+          json = Object.fromEntries(json_temp);
           let current = JSON.parse(jsonText[currentIndex]);          
           current[cardIndex] = json;        
           const text = JSON.stringify(current, null, 2);

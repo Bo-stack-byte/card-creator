@@ -121,7 +121,8 @@ function get_color(input) {
     if (candidate) return candidate;
     console.log(14, input);
     if (input === "blk") return "Black";
-    if (input === "grn") return "Black";
+    if (input === "grn") return "Green";
+    if (input === "all" || input === "rai") return "all";
     return undefined;
 
 }

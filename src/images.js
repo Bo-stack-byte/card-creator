@@ -25,6 +25,15 @@ import ace_black from './frames/backgrounds/black-ace.png';
 import ace_purple from './frames/backgrounds/purple-ace.png';
 import ace_white from './frames/backgrounds/white-ace.png';
 
+
+import dual_red from './frames/backgrounds/red-dual.png';
+import dual_blue from './frames/backgrounds/blue-dual.png';
+import dual_yellow from './frames/backgrounds/yellow-dual.png';
+import dual_green from './frames/backgrounds/green-dual.png';
+import dual_black from './frames/backgrounds/black-dual.png';
+import dual_purple from './frames/backgrounds/purple-dual.png';
+import dual_white from './frames/backgrounds/white-dual.png';
+
 import _cost from './frames/cost.png';
 import _cost_egg from './frames/cost-egg.png';
 import _cost_dual from './frames/cost-dual.png';
@@ -329,6 +338,15 @@ export const ace_backgrounds = {
   'purple': ace_purple,
   'black': ace_black,
   'white': ace_white
+}
+export const dual_backgrounds = {
+  'red': dual_red,
+  'blue': dual_blue,
+  'yellow': dual_yellow,
+  'green': dual_green,
+  'purple': dual_purple,
+  'black': dual_black,
+  'white': dual_white
 }
 
 export const new_evo_circles = {

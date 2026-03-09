@@ -6,7 +6,7 @@ import {
   egg_background, option_background, tamer_background,
   mon_background_nocost, mega_background_nocost, /*egg_background_nocost,*/ option_background_nocost, tamer_background_nocost,
 
-  ace_backgrounds,
+  ace_backgrounds, dual_backgrounds,
   outlines,
   outlines_nocost,
   outlines_tamer, outline_option, outlines_egg,
@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.46.2"
-const latest = "gold text prototype"
+const version = "0.8.47"
+const latest = "test dual frame"
 
+// version 0.8.47   test dual frame
 // version 0.8.46   gold text
 // version 0.8.45   'egg' and 'blank' and 'dash' costs
 // version 0.8.44   addFoil now allows gold border
@@ -194,6 +195,7 @@ img_map[-7] = featherbackground;
 img_map[-8] = featherling;
 img_map[-9] = doublebind;
 
+let type;
 
 const settingsText = {
   "x_pos": "image offset, X",
@@ -210,7 +212,7 @@ const settingsText = {
   "effectBox": "pre-BT14 effect box",
   "addFoil": "foil mode, 0 thru 2",
   "goldText": "gold effect on text",
-  "aceFrame": "for ACEs use new frame",
+  "aceFrame": "use new frame for ACE/DUAL",
   "coloredFrame": "colored border frame",
   "outline": "include border line",
   "skipDraw": "disabling drawing",
@@ -671,7 +673,7 @@ const starter_text_3 = `   {
             "effectBox": false,
             "addFoil": 0,
             "goldText": false,
-            "aceFrame": true,
+            "aceFrame": false,
             "coloredFrame": false,
             "outline": true
     }
@@ -1551,13 +1553,37 @@ function CustomCreator() {
 
   // any missing fields are added
   const addAllFields = (jsonArray) => {
+    console.log(1565, 2);
     if (!Array.isArray(jsonArray)) {
       jsonArray = [jsonArray];
     }
     for (let json of jsonArray) {
+      //      let json = jsonArray[i];
       if (!("name" in json)) {
         json.name = {};
       }
+     
+      /*
+      // IF we are in DUAL mode, insert "optionCardColourRequirement" after "color"
+      // we need to lose the british spelling here
+      if (!("optionCardColorRequirement" in json)) {
+        console.log(1565, type);
+        console.log(1565, json);
+        if (type === "DUAL") {
+          let json_temp = Object.entries(json)
+          let index = json_temp.findIndex( ([key]) => key  === "color")
+          console.log(1565, 444, index);
+          console.log(1565, "color", json["color"]);
+          let color = json["color"] || "blue";
+          json_temp.splice(index+1, 0, ["optionCardColorRequirement", color] )
+          json = Object.fromEntries(json_temp);
+          console.log(1565, 9,  JSON.stringify(json) );
+          console.log(1565,json_temp);
+
+          console.log(1565, json);
+        }
+      }*/
+
       for (let field of ["color", "cardType", "playCost",
         "dp", "cardLv", "form", "attribute", "type", "rarity",
         "block",
@@ -1614,6 +1640,11 @@ function CustomCreator() {
       }
       imageOptions = initObject(imageOptions, initImageOptions);
       json.imageOptions = imageOptions;
+   //   console.log(1565, "setting " + i);
+      console.log(1565, 55, JSON.stringify(jsonArray))
+  //    jsonArray[i] = json; // update in place          
+      console.log(1565, 66, JSON.stringify(jsonArray));
+
     }
     // does accepting this return do anything?
     return jsonArray;
@@ -1621,6 +1652,7 @@ function CustomCreator() {
 
   const updateJson = (text) => {
 
+    console.log(1565, "update json");
     let json;
     try {
       json = JSON.parse(text);
@@ -1949,7 +1981,7 @@ function CustomCreator() {
     let t;
     let array = basics;
     let cardframes = [has_cost ? mon_background : mon_background_nocost];
-    let type = selectedOption;
+    type = selectedOption;
     let overflow = undefined;
     const evo_effect = json.evolveEffect || json.digivolveEffect;
 
@@ -1963,6 +1995,26 @@ function CustomCreator() {
     imageOptions = initObject(imageOptions, initImageOptions);
 
 
+    if (type === "DUAL") {
+      // what's the best place to do this?
+      if (!("optionCardColourRequirement" in json)) {
+        
+          let json_temp = Object.entries(json)
+          let index = json_temp.findIndex( ([key]) => key  === "color")
+          console.log(1575, 444, index);
+          console.log(1575, "color", json["color"]);
+          let color = json["color"] || "blue";
+          json_temp.splice(index+1, 0, ["optionCardColourRequirement", color] )
+          json = Object.fromEntries(json_temp);
+
+          let current = JSON.parse(jsonText[currentIndex]);          
+          current[cardIndex] = json;        
+          const text = JSON.stringify(current, null, 2);
+          const newHistory = jsonText.slice(0, currentIndex + 1);
+          setJsonText([...newHistory, text]);
+          setCurrentIndex(newHistory.length);
+      }
+    }
 
     if (type === "AUTO") {
       type = "MONSTER";
@@ -2001,10 +2053,16 @@ function CustomCreator() {
       case "TAMERINHERIT":
         cardframes = [has_cost ? tamer_background : tamer_background_nocost]; break;
       // Is there any way to indicate we should use the no_cost egg background??
-      case "DUAL": cardframes = [dual_background]; break;
       case "EGG": cardframes = [has_cost ? egg_background : egg_background]; break;
       case "LINK":
       case "MONSTER": break;
+      case "DUAL": 
+          if (imageOptions.aceFrame) {
+            if (dual_backgrounds[colors[0]]) cardframes = colors.map(c => dual_backgrounds[c] || dual_background);
+          } else {
+            cardframes = [dual_background];
+          }
+        break;
       case "ACE":
         if (imageOptions.aceFrame) {
           if (ace_backgrounds[colors[0]]) cardframes = colors.map(c => ace_backgrounds[c] || mon_background);

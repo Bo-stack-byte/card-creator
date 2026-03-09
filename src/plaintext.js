@@ -241,6 +241,8 @@ export const enterPlainText = (lines) => {
             if (m[1].trim().length > 2) {
                 json.name.english = m[1].trim();
             }
+        } else if ((m = line.match(/.{0,5}(Egg|Tama).?/i) )) {
+                json.cardType = "Digi-Egg";
         } else if ((m = line.match(/^\s*(\[Rule.*:.*)/i))) {
             // [Rule] Trait: Has the [Insectoid] type.
             json.rule = m[1];

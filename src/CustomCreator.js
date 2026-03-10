@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.49"
-const latest = "for DUALs fix use color and level-shell color"
+const version = "0.8.50"
+const latest = "stop option name overflow; fix font for duel effect; more room for optionCardEffect"
 
+// version 0.8.50   stop option name overflow; fix font for duel effect; more room for optionCardEffect
 // version 0.8.49   for DUALs fix use color and level-shell color
 // version 0.8.48   autopopulate all needed fields when clicking "DUAL"
 // version 0.8.47   test dual frame
@@ -2792,7 +2793,7 @@ function CustomCreator() {
         }
       }
 
-            // DRAW NAME BOX MANUALLY
+            // DRAW NAME BOX MANUALLY, then write name
       if (type === "DUAL") {
           nameBoxShell(ctx, 3220 - 282, colors, optionColors);
           // why is this name outside??
@@ -2802,11 +2803,13 @@ function CustomCreator() {
           let [fillColor, edgeColor, stroke] = textColor(optionColors);
           ctx.fillStyle = fillColor;
           ctx.strokeStyle = edgeColor;
+          ctx.lineWidth = 10;
           let optName = "Option";
           let names = json.name.english.split("/");
           if (names.length > 1) optName = names[1];
-          if (stroke) ctx.strokeText(optName, (1480), 3355);
-          ctx.fillText(optName, (1480), 3355);
+          let width = 1650;
+          if (stroke) ctx.strokeText(optName, (1480), 3355, width);
+          ctx.fillText(optName, (1480), 3355, width);
       }
 
 
@@ -3192,7 +3195,7 @@ function CustomCreator() {
         } else if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
           delta_x = 0; delta_y = -50;
         } else if (type.startsWith("DUAL")) {
-          delta_x = -200; delta_y = -50;
+          delta_x = -250; delta_y = -70; 
         } else {
           delta_x = 0; delta_y = 0;
         }
@@ -3202,11 +3205,15 @@ function CustomCreator() {
           max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
         const dualEffect = json.dualEffect;
         if (!empty(dualEffect)) {
+          let fontSize = 80;
+          delta_x += 50; delta_y += 20;
           const x = 700 + delta_x * 2.5;
           const y = 4100 + delta_y * 1.5;
-          drawBracketedText(ctx, baseFontSize - 10 , dualEffect,
+          drawBracketedText(ctx, fontSize, dualEffect,
             x, y,
-            max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
+            max_width,
+            Number(baseFontSize) + Number(imageOptions.lineSpacing),
+             "effect", radius);
           let artsText = " Instead of trashing after use, your cards may digivolve into this card without paying the cost";
           let text = [["("], [artsText, "italics"], [")"] ];
           ctx.fillStyle = 'rgba(255, 254, 254, 1.0)';

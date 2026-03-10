@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.48"
-const latest = "autopopulate all needed fields when clicking 'DUAL'"
+const version = "0.8.49"
+const latest = "for DUALs fix use color and level-shell color"
 
+// version 0.8.49   for DUALs fix use color and level-shell color
 // version 0.8.48   autopopulate all needed fields when clicking "DUAL"
 // version 0.8.47   test dual frame
 // version 0.8.46   gold text
@@ -872,7 +873,7 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
         let height = 310; // more like "depth"
         const levelWidth = 430;
   
-        const traitBackground = '#000000';
+        let traitBackground = '#000000';
         const traitHeight =  cornerCut * 1.5; 
 
         ctx.strokeStyle = '#FF000080';
@@ -921,8 +922,9 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
           ctx.lineTo(x, y + height - cornerCut);
           ctx.lineTo(x, y + cornerCut);
           ctx.closePath();
-
-          ctx.fillStyle = traitBackground ;
+          if (colors1[0] === "black") 
+            traitBackground = "#ffffff";
+          ctx.fillStyle = traitBackground;
           ctx.shadowColor = traitBackground + "80"; // 50% transparent
           ctx.fill();
         
@@ -1055,9 +1057,9 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
                 width + cornerCut * 4.54, cornerCut * 12.5 // width, height
         );
 
-
-        // duping name code, this should not be in here
+        // duping name code, this should not be in here. we already handle the cost elsewhere.
         ctx.font = "100px MyriadProBold";
+
         ctx.fillStyle = 'black';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'alphabetic';
@@ -2797,7 +2799,7 @@ function CustomCreator() {
           ctx.font = `italic ${130}px ToppanBunkyExtraBold`; // has curved lowercase l
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          let [fillColor, edgeColor, stroke] = textColor(colors);
+          let [fillColor, edgeColor, stroke] = textColor(optionColors);
           ctx.fillStyle = fillColor;
           ctx.strokeStyle = edgeColor;
           let optName = "Option";
@@ -2838,6 +2840,8 @@ function CustomCreator() {
         let neue_offset = 0;
         if (!neue) neue_offset = 20;
         if (type === "DUAL") {
+          // always white
+          ctx.fillStyle = 'white';
           // show cost in different place
           ctx.font = `600 180px ${numberFont}`;
           ctx.strokeStyle = '#ffffffb0';        

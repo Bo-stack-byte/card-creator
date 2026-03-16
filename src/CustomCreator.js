@@ -12,7 +12,7 @@ import {
   outlines_tamer, outline_option, outlines_egg,
   outlines_tamer_nocost, outline_option_nocost, /*outlines_egg_nocost,*/
 
-  cost, cost_egg, cost_dual, cost_option, cost_evo, cost_evo_plain, costs,
+  cost, cost_egg, cost_dual, cost_blank, cost_option, cost_evo, cost_evo_plain, costs,
   ace_logo, ace_box, arts_box, foil, gold, linkdp,
   new_evo_circles, /* new_evo2_circles, */
   new_evo_wedges,
@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.50"
-const latest = "stop option name overflow; fix font for duel effect; more room for optionCardEffect"
+const version = "0.8.51"
+const latest = "naked circle when using playCost of 'blank'"
 
+// version 0.8.51   naked circle when using playCost of 'blank'
 // version 0.8.50   stop option name overflow; fix font for duel effect; more room for optionCardEffect
 // version 0.8.49   for DUALs fix use color and level-shell color
 // version 0.8.48   autopopulate all needed fields when clicking "DUAL"
@@ -2831,7 +2832,7 @@ function CustomCreator() {
           img = cost;
           playcost = "-";
         }
-        if (json.playCost.toLowerCase() === "blank") img = cost;
+        if (json.playCost.toLowerCase() === "blank") img = cost_blank;
         if (json.playCost.toLowerCase() === "dual") img = cost_dual;
         if (img) {
           ctx.drawImage(img, offset_x, offset_y, 500, 500);

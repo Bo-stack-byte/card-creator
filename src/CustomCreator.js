@@ -1173,42 +1173,47 @@ function writeDP(ctx, _dp, args) {
   let neue_boost = neue ? 0 : -20;
 
   // TODO: handle the fact that AyarKasone is ugly for 0 and 6 and 9
+  ctx.save();  
   ctx.font = `bold ${bigsize}px ${numberFont}`;
+  ctx.scale(1.04, 1.2); 
+  let scoffsx = 140;
+  let scoffsy = 40;
   while (dp_k > 0 || dp_k === "0") {
     // right-to-left for dp_k
     let letterSpacing = -25;
     let dp_char = dp_k % 10;
     ctx.lineWidth = 20;
     ctx.strokeStyle = stroke;
-    if (stroke) ctx.strokeText(dp_char, dp_x, y - 0.5 * neue_boost);
-    ctx.fillText(dp_char, dp_x, y - 0.5 * neue_boost);
+    if (stroke) ctx.strokeText(dp_char, dp_x-scoffsx+20, y - 0.5 * neue_boost-scoffsy);
+    ctx.fillText(dp_char, dp_x-scoffsx+20, y - 0.5 * neue_boost -scoffsy);
     dp_x -= (ctx.measureText(dp_char).width + letterSpacing);
     dp_k = Math.floor(dp_k / 10);
   }
 
   // the AyarKasone 0's are just too ugly to allow, so since 
   // this will be "000" for most we can fall back to Helvetica
-  ctx.font = `bold ${size}px ${numberFont}`;
+  ctx.font = `${size+20}px 'AyarKasone'`;
   if (!neue) {
-    ctx.font = `bold ${size}px 'Helvetica', 'AyarKasone', 'Helvetica'`;
+    ctx.font = `${size+20}px 'AyarKasone'`;
   }
 
   ctx.textAlign = 'left';
   ctx.textBaseline = 'bottom';
   dp_x = x + 10; // size / 15;
   // little num
-  let y_offset = (bigsize / 12);
+  let y_offset = (bigsize / 64);
   if (dp_m) {
     for (let dp_char of dp_m) {
       let letterSpacing = 5;
       ctx.lineWidth = 15;
       ctx.strokeStyle = stroke;
-      if (stroke) ctx.strokeText(dp_char, dp_x, y - y_offset + neue_boost);
-      ctx.fillText(dp_char, dp_x, y - y_offset + neue_boost);
+      if (stroke) ctx.strokeText(dp_char, dp_x-scoffsx+30, y - y_offset + neue_boost-scoffsy);
+      ctx.fillText(dp_char, dp_x-scoffsx+30, y - y_offset + neue_boost-scoffsy);
       dp_x += (ctx.measureText(dp_char).width + letterSpacing);
       // left-to-right for dp_m
     }
   }
+  ctx.restore();
 }
 
 if (3 > 4) digitSettings();
@@ -1684,9 +1689,9 @@ function CustomCreator() {
   }
 
 
-  const handleFreeformChange = (event) => {
-    console.log(302, event.target.form.free.value);
-    let input = event.target.form.free.value;
+  function handleFreeformChange(form){
+    console.log(302, form.free.value);
+    let input = form.free.value;
     if (input.length < 5) return;
     console.log(304, input);
     let jsonTxt = enterPlainText(input.split("\n"));
@@ -1696,9 +1701,9 @@ function CustomCreator() {
 
   }
 
-  const handleTextareaChange = (event) => {
+  function handleTextareaChange(value) {
     // update the form data
-    let jsonTxt = event.target.value;
+    let jsonTxt = value;
     updateJson(jsonTxt);
     jsonToFields(jsonTxt);
     /*  try {
@@ -2755,7 +2760,26 @@ function CustomCreator() {
                 console.error(1576, "no wedge", e);
               }
             }
+            let cx=380;
+            let cy=955;
+            let radius = 170;
+            const gradient = ctx.createRadialGradient(
+              cx, cy, 0,
+              cx, cy, radius
+            );
 
+            gradient.addColorStop(0,   "rgba(255, 255, 255, 0.35)");
+            gradient.addColorStop(0.5,   "rgba(255, 255, 255, 0.24)");
+            gradient.addColorStop(0.8, "rgba(255,255,255,0.1)");
+            gradient.addColorStop(0.9,   "rgba(255,255,255,0)");
+
+            ctx.globalCompositeOperation = "lighter";
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalCompositeOperation = "source-over";
+            
             // how to write the "lv.4" and "TAMER" text in evo circle?
             // many many experiments here 
             ctx.font = `90px Roboto, Helvetica`; //  Roboto`;
@@ -2781,6 +2805,20 @@ function CustomCreator() {
               ctx.strokeText(evo1_level, 375, 870 + circle_offset, 200);
             }
             ctx.fillStyle = fillColor; // contrastColor(evo_color);
+            if(evo1_colors[0] !== "yellow" || evo1_colors[0] !== "white")
+            {
+              ctx.lineWidth = 15;
+              ctx.strokeStyle = "black";
+              if(evo1_colors[0] === "yellow" || evo1_colors[0] === "white")
+              {
+                ctx.lineWidth = 0;
+                ctx.strokeStyle = "transparent";
+              }
+              ctx.strokeText(evo1_level, 375, 870 + circle_offset,200);
+              ctx.lineWidth = 10;
+              ctx.strokeStyle = strokeColor;
+            }
+            
             ctx.fillText(evo1_level, 375, 870 + circle_offset, 200);
 
             // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
@@ -2789,6 +2827,16 @@ function CustomCreator() {
               ctx.lineWidth = 10;
               ctx.strokeText(evo1_cost, 375, 1010 + circle_offset);
             }
+            ctx.lineWidth = 20;
+            ctx.strokeStyle = "black";
+            if(evo1_colors[0] === "yellow" || evo1_colors[0] === "white")
+            {
+              ctx.lineWidth = 0;
+              ctx.strokeStyle = "transparent";
+            }
+            
+            ctx.strokeText(evo1_cost, 375, 1010 + circle_offset);
+            ctx.lineWidth = 10;
             ctx.fillText(evo1_cost, 375, 1010 + circle_offset);
           }
         }
@@ -2840,6 +2888,25 @@ function CustomCreator() {
             let i = costs[color];
             if (i) ctx.drawImage(i, offset_x, offset_y, 500, 500);
           }
+          let cx=380;
+          let cy=360;
+          let radius = 170;
+          const gradient = ctx.createRadialGradient(
+            cx, cy, 0,
+            cx, cy, radius
+          );
+
+          gradient.addColorStop(0,   "rgba(255, 255, 255, 0.165)");
+          gradient.addColorStop(0.65,   "rgba(255, 255, 255, 0.165)");
+          gradient.addColorStop(0.8, "rgba(255,255,255,0.1)");
+          gradient.addColorStop(0.9,   "rgba(255,255,255,0)");
+
+          ctx.globalCompositeOperation = "lighter";
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalCompositeOperation = "source-over";
         }
         let neue_offset = 0;
         if (!neue) neue_offset = 20;
@@ -2858,12 +2925,24 @@ function CustomCreator() {
           ctx.strokeText(playcost, x + 152, 3375 + neue_offset);
           ctx.shadowBlur = 0;     // Glow intensity
         } else if (playcost >= 0 || playcost === "-") {
+          let pcoff = 0;
+          if (playcost < 10){pcoff=15}
+
           ctx.font = `600 290px ${numberFont}`;
+          ctx.shadowColor = "rgba(255,255,255,0.9)";
+          ctx.shadowBlur = 12;
+
+          ctx.fillStyle = "white";
+          ctx.fillText(playcost, x +15+pcoff, 370 + neue_offset);
+
+          // crisp text layer
+          ctx.shadowBlur = 0;
           ctx.fillStyle = 'white';
+          
           if (gold_text) {
             ctx.fillStyle = gold_gradient;
           }
-          ctx.fillText(playcost, x + 15, 370 + neue_offset);
+          ctx.fillText(playcost, x + 15 + pcoff, 370 + neue_offset);
         }
       }
 
@@ -2946,8 +3025,8 @@ function CustomCreator() {
           ctx.strokeStyle = 'black';
           ctx.fillStyle = gold_gradient;
         }
-        ctx.strokeText("DP", x + 130, y - 200);
-        ctx.fillText("DP", x + 130, y - 200);
+        ctx.strokeText("DP", x + 270, y - 200);
+        ctx.fillText("DP", x + 270, y - 200);
 
       }
       /////// LEVEL
@@ -3570,6 +3649,18 @@ function CustomCreator() {
     setCardIndex(cardIndex + 1);
   }
 
+  function debounce(fn, delay = 150) {
+    let timeout;
+
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => fn(...args), delay);
+    };
+  }
+  
+  const handleTextareaChangeDB = debounce(handleTextareaChange,150);
+  const handleFreeformChangeDB = debounce(handleFreeformChange,400);
+
 
 
 
@@ -3595,7 +3686,7 @@ function CustomCreator() {
 
                 <textarea cols={40} rows={25}
                   value={jsonText[currentIndex]}
-                  onChange={handleTextareaChange}
+                  onChange={(e) => handleTextareaChangeDB(e.target.value)}
 
                 //           onChange={(e) => handleTextAreaChange(e.target.value)}
                 />
@@ -3629,7 +3720,7 @@ function CustomCreator() {
                   </table>
                 </div>
               ) : (<form>
-                <textarea onChange={handleFreeformChange} defaultValue={freeform} name="free" cols={40} rows={25} /><br />
+                <textarea onChange={(e) => handleFreeformChangeDB(e.target.form)} defaultValue={freeform} name="free" cols={40} rows={25} /><br />
               </form>)}
             </div>
           </td>

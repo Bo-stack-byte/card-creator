@@ -181,6 +181,10 @@ export const enterPlainText = (lines) => {
 
         "rule": "",
 
+        "dualEffect": "-",
+        "optionCardEffect": "-",
+        "optionCardColourRequirement": "-",
+
 
         "aceEffect": "",
         "cardNumber": "",
@@ -244,11 +248,24 @@ export const enterPlainText = (lines) => {
             }
         } else if ((m = line.match(/.{0,5}(Egg|Tama).?/i) )) {
                 json.cardType = "Digi-Egg";
+        } else if ((m = line.match(/.{0,5}(Dual).?/i) )) {
+                json.cardType = "Digi-Egg";
+        } else if ((m = line.match(/^\s*Overflow: (-\d+)\s*/i))) {
+                json.aceEffect = "Overflow <"+m[1]+">";
         } else if ((m = line.match(/^\s*(\[Rule.*:.*)/i))) {
             // [Rule] Trait: Has the [Insectoid] type.
             json.rule = m[1];
-            // [Champion | Data | Shield] [Yel.]
-        } else if ((m = line.match(/^\s*\[(.*?)\|(.*?)\|(.*?)\]( \[(.*)\])?/))) {
+            // {Option Effect} [Cost: 5 | Color: Red/Blue/Yellow] [Main] Delete 1 of your opponent's Digimon.
+        } else if ((m = line.match(/\{Option Effect\}\s*\[(?:Cost:\s*(\d+)\s*\|\s*)?Color:\s*([^\]]+)\]\s*([\s\S]*)/i))) {
+            json.playCost = (m[1]);
+            json.optionCardColourRequirement = abbr_parse_color(m[2]);
+            json.dualEffect = "[Arts Digivolve]";
+            json.optionCardEffect = m[3];
+            mode = "dual";
+            // /^\s*Special Transformation:\s*(.*)$/i
+        }else if ((m = line.match(/^\s*DNA Digivol(\w*):\s*(.*)$/i))) {
+            json.dnaEvolve = "[DNA Digivolve] "+m[2];
+        }else if ((m = line.match(/^\s*\[(.*?)\|(.*?)\|(.*?)\]( \[(.*)\])?/))) {
             json.form = m[1].trim();
             json.attribute = m[2].trim();
             json.type = m[3].trim();
@@ -355,7 +372,9 @@ export const enterPlainText = (lines) => {
                 json.securityEffect += line + "\n";
             } else if (mode === "link") {
                 json.linkEffect += line + "\n";
-            } else {
+            } else if (mode === "dual") {
+                json.optionCardEffect += line + "\n";
+            }else {
                 json.effect += line + "\n";
             }
         }

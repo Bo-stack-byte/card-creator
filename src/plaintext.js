@@ -257,6 +257,7 @@ export const enterPlainText = (lines) => {
             json.rule = m[1];
             // {Option Effect} [Cost: 5 | Color: Red/Blue/Yellow] [Main] Delete 1 of your opponent's Digimon.
         } else if ((m = line.match(/\{Option Effect\}\s*\[(?:Cost:\s*(\d+)\s*\|\s*)?Color:\s*([^\]]+)\]\s*([\s\S]*)/i))) {
+            json.cardType = "Digimon / Option";
             json.playCost = (m[1]);
             json.optionCardColourRequirement = abbr_parse_color(m[2]);
             json.dualEffect = "[Arts Digivolve]";

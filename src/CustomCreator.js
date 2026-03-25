@@ -2768,9 +2768,9 @@ function CustomCreator() {
               cx, cy, radius
             );
 
-            gradient.addColorStop(0,   "rgba(255, 255, 255, 0.35)");
+            gradient.addColorStop(0,   "rgba(255, 255, 255, 0.7)");
             gradient.addColorStop(0.5,   "rgba(255, 255, 255, 0.24)");
-            gradient.addColorStop(0.8, "rgba(255,255,255,0.1)");
+            gradient.addColorStop(0.8, "rgba(255, 255, 255, 0.03)");
             gradient.addColorStop(0.9,   "rgba(255,255,255,0)");
 
             ctx.globalCompositeOperation = "lighter";

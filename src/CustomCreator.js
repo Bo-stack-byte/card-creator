@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.52"
-const latest = "only use defaults arts evolve text if there's none"
+const version = "0.8.53"
+const latest = "new DUAL frames courtesy of @rlvvmc"
 
+// version 0.8.53   new DUAL frames courtesy of @rlvvmc
 // version 0.8.52   only use defaults arts evolve text if there's none
 // version 0.8.51   naked circle when using playCost of 'blank'
 // version 0.8.50   stop option name overflow; fix font for duel effect; more room for optionCardEffect
@@ -3832,6 +3833,7 @@ function CustomCreator() {
             Version {version} {latest}
             <p style={{ fontFamily: "ToppanBunkyExtraBold" }}>Ask support or request features over on <a href={invite}>Discord</a>.</p>
             <p style={{ fontFamily: "ProhibitionRough" }}><a href="./fontguide.html">FONT GUIDE</a> &nbsp; &nbsp;  <a href="./roadmap.txt">roadmap</a></p>
+            <p style={{ fontFamily: "Helvectica" }}>DUAL frames courtesy of <a href="https://github.com/rlv-ab">@rlvvmc</a></p>
             <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
             <p style={{ fontFamily: "AyarKasone" }}> More templates from <a href="https://digi-lov.tumblr.com/post/748763635923435520/digimon-card-template">Digi-Lov</a></p>
             <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba, Zaffy, and Digimoncard.io who kept this dream alive in previous years.</p>

@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.51"
-const latest = "naked circle when using playCost of 'blank'"
+const version = "0.8.52"
+const latest = "only use defaults arts evolve text if there's none"
 
+// version 0.8.52   only use defaults arts evolve text if there's none
 // version 0.8.51   naked circle when using playCost of 'blank'
 // version 0.8.50   stop option name overflow; fix font for duel effect; more room for optionCardEffect
 // version 0.8.49   for DUALs fix use color and level-shell color
@@ -752,7 +753,7 @@ const starter_text_1_backup = `{
 const starter_text = starter_text_empty;
 let all_text = "[" + [starter_text_0, starter_text_1_backup,
   starter_text_1a, starter_text_1b, starter_text_1c,
-  starter_text_2, starter_text_3].join(",") + "]";
+  starter_text_2, starter_text_3, starter_text_4].join(",") + "]";
 
 // deprecated from our old "share" functionality, that put the entire JSON blob into the URL compressed+encoded 
 const decodeAndDecompress = (encodedString) => {
@@ -3207,19 +3208,29 @@ function CustomCreator() {
         const dualEffect = json.dualEffect;
         if (!empty(dualEffect)) {
           let fontSize = 80;
+          let artsMatch = dualEffect.match(/\[(.*)\]\s*\((.*)\)/s);
+          let artsText = artsMatch && artsMatch[2];
+          if (!artsText || artsText.length < 3) {
+            artsText = "Instead of trashing after use, your cards may digivolve into this card without paying the cost";
+          }
+          artsText = " " + artsText;
+          console.log(3216, artsMatch);
+          let keyword = artsMatch && artsMatch[1];
+          if (!keyword) keyword = "Arts Digivolve";
+          keyword = "[" + keyword + "]";
           delta_x += 50; delta_y += 20;
           const x = 700 + delta_x * 2.5;
           const y = 4100 + delta_y * 1.5;
-          drawBracketedText(ctx, fontSize, dualEffect,
+          drawBracketedText(ctx, fontSize, keyword,
             x, y,
             max_width,
             Number(baseFontSize) + Number(imageOptions.lineSpacing),
              "effect", radius);
-          let artsText = " Instead of trashing after use, your cards may digivolve into this card without paying the cost";
+
           let text = [["("], [artsText, "italics"], [")"] ];
           ctx.fillStyle = 'rgba(255, 254, 254, 1.0)';
           // this x,y is messed up, because it's scaled
-          const len = dualEffect.length * 30;
+          const len = keyword.length * 30;
           textLine(ctx, text, 190 + len, 4020, 2600 - len);
           }
 
@@ -3422,6 +3433,8 @@ function CustomCreator() {
         let filename = `image${i + 1}`;
         try {
           filename = json[i].name.english;
+          filename = filename.replace(/[^a-zA-Z0-9]+/g, '-') + ".png";
+
           if (json[i].id) filename = json[i].id; // what is this for?
         } catch { }
         filename += ".png";

@@ -3334,7 +3334,7 @@ function CustomCreator() {
         }
         if(colorsToCheck.length === 1)
         {
-          if(colorsToCheck[0] === "yellow")
+          if(colorsToCheck[0] === "yellow" || colorsToCheck[0] === "white")
           {
             eff = "effect sec yellow"
           }
@@ -3385,7 +3385,7 @@ function CustomCreator() {
         }
         if(colorsToCheck.length === 1)
         {
-          if(colorsToCheck[0] === "yellow")
+          if(colorsToCheck[0] === "yellow" || colorsToCheck[0] === "white")
           {
             eff = "effect sec yellow"
           }

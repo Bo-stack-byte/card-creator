@@ -591,7 +591,7 @@ export function italicStrokeText(ctx, text, x, y, limit) {
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
 // _maxWidth is unused :(
 export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, radius, preview = false) {
-
+  console.log(text);
   // preprocess
   text = text.replaceAll('((', '⸨').replaceAll('))', '⸩');
   // make inside of (*stufff  f f *) be italic
@@ -749,7 +749,7 @@ function getColor(phrase, default_color = 'blue') {
   if (['Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'red';
   if (phrase.match(/^(Burst )?(Digi|E)volve$/i)) return 'darkblue';
   if (phrase.match(/^App Fusion$/i)) return 'darkblue';
-  if (phrase === "Counter") return 'darkblue';
+  if (phrase === "Counter") return 'blue';
   return default_color;
 }
 
@@ -776,7 +776,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
    ctx.scale(scale, 1);
 
   let default_color = 'blue'; // default for [brackets]
-  if (style === "effect") default_color = 'blue';
+  if (style === "effect" || style === "effect sec") default_color = 'blue';
   if (style === "dna") default_color = 'darkblue';
   if (style === "bubble") default_color = 'green';
 
@@ -791,7 +791,6 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
   //let phrases = text.split(/([[⟦].*?[\]⟧])/);
   phrases.forEach((phrase, index) => {
     let cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
-    console.log("{{{{Clean Phrase}}}} "+cleanPhrase)
     if (
       (phrase.startsWith("⟦") && phrase.endsWith("⟧")) ||
       (phrase.startsWith("⸨") && phrase.endsWith("⸩")) ||
@@ -923,7 +922,8 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
               yoffs = 27;
               xoffs = 5;
             };
-            if (!preview) {
+            console.log("style check "+style)
+            if (!preview && style !=="effect sec" && style !=="effect sec yellow") {
               if (!skew) {
                 ctx.strokeText(word, lastX+xoffs, y+yoffs); //  cardWidth - lastX);
               } else {
@@ -938,6 +938,10 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
             };
             if (!preview) {
               if (!skew) {
+                if(style === "effect sec yellow")
+                {
+                  ctx.fillStyle = 'black'
+                }
                 ctx.fillText(word, lastX+xoffs, y+yoffs); //  cardWidth - lastX);
                 //              ctx.fillText(cleanWord, lastX - diamondOffset, y - 10, cardWidth - lastX);
               } else {

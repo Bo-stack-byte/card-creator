@@ -188,6 +188,7 @@ const latest = "naked circle when using playCost of 'blank'"
 // version 0.4.3  multi color, egg.
 // version 0.4.2. Better error handling, re-orient custom image
 
+
 let img_map = [];
 img_map[-1] = shieldsmasher;
 img_map[-2] = rampager;
@@ -1174,34 +1175,33 @@ function writeDP(ctx, _dp, args) {
 
   // TODO: handle the fact that AyarKasone is ugly for 0 and 6 and 9
   ctx.save();  
-  ctx.font = `bold ${bigsize}px ${numberFont}`;
-  ctx.scale(1.04, 1.2); 
-  let scoffsx = 140;
-  let scoffsy = 40;
+  ctx.font = ` ${bigsize}px 'Nimbus-Sans-Novus'`;
+  let scoffsx = 60;
+  let scoffsy = -20;
   while (dp_k > 0 || dp_k === "0") {
     // right-to-left for dp_k
     let letterSpacing = -25;
     let dp_char = dp_k % 10;
     ctx.lineWidth = 20;
     ctx.strokeStyle = stroke;
-    if (stroke) ctx.strokeText(dp_char, dp_x-scoffsx+20, y - 0.5 * neue_boost-scoffsy);
-    ctx.fillText(dp_char, dp_x-scoffsx+20, y - 0.5 * neue_boost -scoffsy);
+    if (stroke) ctx.strokeText(dp_char, dp_x-scoffsx+40, y - 0.5 * neue_boost-scoffsy);
+    ctx.fillText(dp_char, dp_x-scoffsx+40, y - 0.5 * neue_boost -scoffsy);
     dp_x -= (ctx.measureText(dp_char).width + letterSpacing);
     dp_k = Math.floor(dp_k / 10);
   }
 
   // the AyarKasone 0's are just too ugly to allow, so since 
   // this will be "000" for most we can fall back to Helvetica
-  ctx.font = `${size+20}px 'AyarKasone'`;
+  ctx.font = `${size+20}px 'Nimbus-Sans-Novus'`;
   if (!neue) {
-    ctx.font = `${size+20}px 'AyarKasone'`;
+    ctx.font = `${size+20}px 'Nimbus-Sans-Novus'`;
   }
 
   ctx.textAlign = 'left';
   ctx.textBaseline = 'bottom';
   dp_x = x + 10; // size / 15;
   // little num
-  let y_offset = (bigsize / 64);
+  let y_offset = (bigsize / 12);
   if (dp_m) {
     for (let dp_char of dp_m) {
       let letterSpacing = 5;
@@ -1542,7 +1542,59 @@ function CustomCreator() {
 
   }
 
-
+  function drawTextWithSpacing(ctx, text, x, y, spacing = 2) {
+    let currentX = x;
+    let nextspace = 0;
+    for (let char of text) {
+      ctx.fillText(char, currentX, y);
+      const charWidth = ctx.measureText(char).width;
+      if(char === "I" || char ==="A" || (char ==="T" && text!=="OPTION"))
+          {
+            if(text === "DIGIMON")
+            {
+              nextspace = 30
+            }
+            else
+            {
+              nextspace = 15
+            }
+          }
+          else
+          {
+            nextspace = 0;
+          }
+          currentX += charWidth + spacing + nextspace;
+    }
+  }
+  function drawOutlineWithSpacing(ctx, text, x, y, spacing = 2) {
+    let currentX = x;
+    if (!text.startsWith("OPTION")) {
+        ctx.fillStyle = 'black';
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 12;
+        let nextspace = 0;
+        for (let char of text) {
+          ctx.strokeText(char, currentX, y);
+          const charWidth = ctx.measureText(char).width;
+          if(char === "I" || char ==="A" || (char ==="T" && text!=="OPTION") )
+          {
+            if(text === "DIGIMON")
+            {
+              nextspace = 30
+            }
+            else
+            {
+              nextspace = 15
+            }
+          }
+          else
+          {
+            nextspace = 0;
+          }
+          currentX += charWidth + spacing + nextspace;
+        }
+      }
+    }
 
   function popEvoCond(json_t) {
     const json_all = JSON.parse(json_t);
@@ -2074,6 +2126,7 @@ function CustomCreator() {
     }
     array = (has_cost || type === "EGG") ? outlines : outlines_nocost;
     const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; 
+    const optColors = (json && json.optionCardColourRequirement && json.optionCardColourRequirement.toLowerCase().split("/")) || []; 
     const optionColors = (json && json.optionCardColourRequirement && json.optionCardColourRequirement.toLowerCase().split("/")) || ["black"]; 
     switch (type) {
       case "MEGA": cardframes = [has_cost ? mega_background : mega_background_nocost]; break;
@@ -2369,14 +2422,36 @@ function CustomCreator() {
       ctx.textAlign = 'center';
       ctx.fillStyle = 'white';
       ctx.strokeStyle = 'black';
-      ctx.font = `bold 84px Roboto`;
-      if (!type.startsWith("OPTION")) {
+      ctx.font = `bold 70px Anago-Medium`;
+      let cardText = json.cardType.toUpperCase();
+      if(cardText.startsWith("DIGIMON") && cardText.endsWith("OPTION"))
+      {//1490, 180
+        let dualText = cardText.split("/")
         ctx.fillStyle = 'black';
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 12
-        ctx.strokeText(json.cardType.toUpperCase(), 1490, 180);
+        ctx.strokeText(dualText[0], 1300, 170);
+        ctx.fillText(dualText[0], 1300, 170);
+        ctx.strokeText("/", 1490, 170);
+        ctx.fillText("/", 1490, 170);
+        drawOutlineWithSpacing(ctx,dualText[1],1540,170,5)
+        drawTextWithSpacing(ctx,dualText[1],1540,170,5)
       }
-      ctx.fillText(json.cardType.toUpperCase(), 1490, 180);
+      else if(cardText === "DIGIMON")
+      {
+        drawOutlineWithSpacing(ctx,cardText,1335,170,5)
+        drawTextWithSpacing(ctx,cardText,1335,170,5)
+      }
+      else if(cardText === "TAMER")
+      {
+        drawOutlineWithSpacing(ctx,cardText,1390,170,5)
+        drawTextWithSpacing(ctx,cardText,1390,170,5)
+      }
+      else if(cardText === "OPTION")
+      {
+        drawOutlineWithSpacing(ctx,cardText,1370,170,5)
+        drawTextWithSpacing(ctx,cardText,1370,170,5)
+      }
 
       // DRAW AUTHOR
       if (true) try {
@@ -2768,9 +2843,9 @@ function CustomCreator() {
               cx, cy, radius
             );
 
-            gradient.addColorStop(0,   "rgba(255, 255, 255, 0.7)");
-            gradient.addColorStop(0.5,   "rgba(255, 255, 255, 0.24)");
-            gradient.addColorStop(0.8, "rgba(255, 255, 255, 0.03)");
+            gradient.addColorStop(0,   "rgba(255, 255, 255, 0.37)");
+            gradient.addColorStop(0.5,   "rgba(255, 255, 255, 0.18)");
+            //gradient.addColorStop(0.8, "rgba(255,255,255, 0.03)");
             gradient.addColorStop(0.9,   "rgba(255,255,255,0)");
 
             ctx.globalCompositeOperation = "lighter";
@@ -2787,7 +2862,7 @@ function CustomCreator() {
             ctx.font = `80px AyarKasone, Helvetica`;
             ctx.font = `80px Helvetica`;
             //    ctx.font = `80px MyriadProBold`;
-            ctx.font = `85px Roboto, Helggggvetica`; //  Roboto`;
+            ctx.font = `85px 'Dico-Sans-Soft'`; //  Roboto`;
             // this font might be right for "tamer" but isn't for "Lv.3"
 
             ctx.lineWidth = 10;
@@ -2800,42 +2875,22 @@ function CustomCreator() {
      //         border = false;
             }
             if (border) {
+              ctx.font = `85px 'Dico-Sans-Soft'`
               ctx.strokeStyle = strokeColor;
-              ctx.lineWidth = 10;
+              ctx.lineWidth = 15;
               ctx.strokeText(evo1_level, 375, 870 + circle_offset, 200);
             }
             ctx.fillStyle = fillColor; // contrastColor(evo_color);
-            if(evo1_colors[0] !== "yellow" || evo1_colors[0] !== "white")
-            {
-              ctx.lineWidth = 15;
-              ctx.strokeStyle = "black";
-              if(evo1_colors[0] === "yellow" || evo1_colors[0] === "white")
-              {
-                ctx.lineWidth = 0;
-                ctx.strokeStyle = "transparent";
-              }
-              ctx.strokeText(evo1_level, 375, 870 + circle_offset,200);
-              ctx.lineWidth = 10;
-              ctx.strokeStyle = strokeColor;
-            }
-            
             ctx.fillText(evo1_level, 375, 870 + circle_offset, 200);
-
             // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
-            ctx.font = `bold 220px ${numberFont}`;
+            ctx.font = `bold 220px 'Nimbus-Sans-Novus-R'`;
+            ctx.save()
             if (border) {
-              ctx.lineWidth = 10;
+              ctx.lineJoin = "bevel"
+              ctx.lineWidth = 18;
               ctx.strokeText(evo1_cost, 375, 1010 + circle_offset);
             }
-            ctx.lineWidth = 20;
-            ctx.strokeStyle = "black";
-            if(evo1_colors[0] === "yellow" || evo1_colors[0] === "white")
-            {
-              ctx.lineWidth = 0;
-              ctx.strokeStyle = "transparent";
-            }
-            
-            ctx.strokeText(evo1_cost, 375, 1010 + circle_offset);
+            ctx.restore()
             ctx.lineWidth = 10;
             ctx.fillText(evo1_cost, 375, 1010 + circle_offset);
           }
@@ -2852,12 +2907,12 @@ function CustomCreator() {
           let [fillColor, edgeColor, stroke] = textColor(optionColors);
           ctx.fillStyle = fillColor;
           ctx.strokeStyle = edgeColor;
-          ctx.lineWidth = 10;
+          ctx.lineWidth = 20;
           let optName = "Option";
           let names = json.name.english.split("/");
           if (names.length > 1) optName = names[1];
           let width = 1650;
-          if (stroke) ctx.strokeText(optName, (1480), 3355, width);
+          if (stroke)ctx.strokeText(optName, (1480), 3355, width);
           ctx.fillText(optName, (1480), 3355, width);
       }
 
@@ -2896,9 +2951,9 @@ function CustomCreator() {
             cx, cy, radius
           );
 
-          gradient.addColorStop(0,   "rgba(255, 255, 255, 0.165)");
-          gradient.addColorStop(0.65,   "rgba(255, 255, 255, 0.165)");
-          gradient.addColorStop(0.8, "rgba(255,255,255,0.1)");
+          gradient.addColorStop(0,   "rgba(255, 255, 255, 0.11)");
+          gradient.addColorStop(0.65,   "rgba(255, 255, 255, 0.09)");
+          //gradient.addColorStop(0.8, "rgba(255,255,255,0.1)");
           gradient.addColorStop(0.9,   "rgba(255,255,255,0)");
 
           ctx.globalCompositeOperation = "lighter";
@@ -2914,7 +2969,7 @@ function CustomCreator() {
           // always white
           ctx.fillStyle = 'white';
           // show cost in different place
-          ctx.font = `600 180px ${numberFont}`;
+          ctx.font = `600 180px 'Nimbus-Sans-Novus'`;
           ctx.strokeStyle = '#ffffffb0';        
           ctx.lineWidth = 7;
           ctx.shadowColor = 'white'; // Glow 
@@ -2928,7 +2983,7 @@ function CustomCreator() {
           let pcoff = 0;
           if (playcost < 10){pcoff=15}
 
-          ctx.font = `600 290px ${numberFont}`;
+          ctx.font = `600 310px 'Nimbus-Sans-Novus-R'`;
           ctx.shadowColor = "rgba(255,255,255,0.9)";
           ctx.shadowBlur = 12;
 
@@ -3017,7 +3072,7 @@ function CustomCreator() {
         x = 2540;
         y = 410;
 
-        writeDP(ctx, json.dp, { x: x, y: y, size: 150, bigsize: 300, stroke: "white", color: "black" });
+        writeDP(ctx, json.dp, { x: x, y: y, size: 170, bigsize: 370, stroke: "white", color: "black" });
         ctx.font = `100px 'Helvetica'`;
         ctx.lineWidth = 15;
         ctx.strokeStyle = 'white';
@@ -3257,11 +3312,38 @@ function CustomCreator() {
           // ctx                
           drawBracketedText(ctx, altFontSize, req, 300, 3740 + delta_y * 2, 3000, Number(altFontSize) + Number(imageOptions.lineSpacing), "bubble");
         }
+        let eff = "effect sec"
+        let colorsToCheck = colors;
+        let fontOffs = 0;
+        if(optColors.length>0 && optColors[0] !== "-")
+        {
+          colorsToCheck = optColors
+          fontOffs = -14
+        }
+        if(colorsToCheck.length > 1)
+        {
+          
+          for(const color of colorsToCheck)
+          {
+            
+            if(color === "yellow")
+            {
+              eff = "effect"
+            }
+          }
+        }
+        if(colorsToCheck.length === 1)
+        {
+          if(colorsToCheck[0] === "yellow")
+          {
+            eff = "effect sec yellow"
+          }
+        }
         // shrink is not working, we're ignoring max_width
         //let max_width = 2500 - 400 - delta_x * 2 - shrink;
         drawBracketedText(ctx, baseFontSize, effect,
           700 + delta_x * 2, 3740 + delta_y * 2 + 150,
-          2200, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
+          2200, Number(baseFontSize) + Number(imageOptions.lineSpacing), eff, radius);
       } else {
         let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
         if (empty(sec_effect)) sec_effect = json.optionCardEffect;
@@ -3279,27 +3361,58 @@ function CustomCreator() {
         } else {
           delta_x = 0; delta_y = 0;
         }
+        let eff = "effect sec"
+        let colorsToCheck = colors;
+        let fontOffs = 0;
+        if(optColors.length>0)
+        {
+          colorsToCheck = optColors
+          fontOffs = -14
+        }
+
+        //console.log("effect check1 "+colors.length)
+        if(colorsToCheck.length > 1)
+        {
+          for(const color of colorsToCheck)
+          {
+            //console.log(color)
+            if(color === "yellow")
+            {
+              eff = "effect"
+              //console.log("effect check2 "+eff)
+            }
+          }
+        }
+        if(colorsToCheck.length === 1)
+        {
+          if(colorsToCheck[0] === "yellow")
+          {
+            eff = "effect sec yellow"
+          }
+        }
+
+
         let max_width = 2500 - 400 - delta_x * 2 - shrink;
-        drawBracketedText(ctx, baseFontSize, sec_effect,
+        drawBracketedText(ctx, baseFontSize+fontOffs, sec_effect,
           700 + delta_x * 2, 3740 + delta_y * 2,
-          max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
+          max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), eff, radius);
         const dualEffect = json.dualEffect;
         if (!empty(dualEffect)) {
           let fontSize = 80;
           delta_x += 50; delta_y += 20;
           const x = 700 + delta_x * 2.5;
-          const y = 4100 + delta_y * 1.5;
+          const y = 4085 + delta_y * 1.5;
           drawBracketedText(ctx, fontSize, dualEffect,
             x, y,
             max_width,
             Number(baseFontSize) + Number(imageOptions.lineSpacing),
-             "effect", radius);
+             eff, radius);
           let artsText = " Instead of trashing after use, your cards may digivolve into this card without paying the cost";
-          let text = [["("], [artsText, "italics"], [")"] ];
+          let text = [["( "], [artsText, "italics"], [" )"] ];
           ctx.fillStyle = 'rgba(255, 254, 254, 1.0)';
           // this x,y is messed up, because it's scaled
           const len = dualEffect.length * 30;
-          textLine(ctx, text, 190 + len, 4020, 2600 - len);
+          textLine(ctx, text, 200 + len, 4000, 2600 - len);
           }
 
 

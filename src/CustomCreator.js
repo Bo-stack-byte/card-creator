@@ -3314,11 +3314,9 @@ function CustomCreator() {
         }
         let eff = "effect sec"
         let colorsToCheck = colors;
-        let fontOffs = 0;
         if(optColors.length>0 && optColors[0] !== "-")
         {
           colorsToCheck = optColors
-          fontOffs = -14
         }
         if(colorsToCheck.length > 1)
         {
@@ -3364,7 +3362,7 @@ function CustomCreator() {
         let eff = "effect sec"
         let colorsToCheck = colors;
         let fontOffs = 0;
-        if(optColors.length>0)
+        if(optColors.length>0 && optColors[0] !== "-")
         {
           colorsToCheck = optColors
           fontOffs = -14

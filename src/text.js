@@ -376,14 +376,14 @@ function drawColoredRectangle(ctx, x, y, width, height, color, radius) {
     case 'green': color0 = 'darkgreen'; color1 = 'lightgreen'; break;
     case 'doublebubble':
     case 'bubble': color0 = 'black'; color1 = 'black'; break;
-    case 'darkblue': //color0 = '#0D1544'; color1 = '#4D5584'; break;
-    color0 = '#110B3B'; color1 = '#2E2773'; color2 = '#2D63AA'; break;
+    case 'darkblue': //color0 = '#0D0D2B'; color1 = '#2A6BA5'; break;
+    color0 = '#0D0D2B'; color1 = '#19425F'; color2 = '#4F88AE'; break;
     case 'red': color0 = '#530B07'; color1 = '#A12015'; color2 = '#DB6D52'; break;
     case 'yellow': color0 = 'yellow'; color1 = 'yellow'; break;
 
     case 'blue':
     default:
-      color0 = '#41386A'; color1 = '#4765CC'; color2 = '#55D8E6';
+      color0 = '#000001'; color1 = '#172084'; color2 = '#61B4FB';
   }
   if (gold_text) {
     ctx.fillStyle = gold_gradient;
@@ -633,7 +633,8 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   let right_limit = horizontal_limit;
   const dna_colors = countColors(text);
   if (extra === "dna") text = colorReplace(text);
-  //console.log(345, text);
+  if (extra.includes("bubble")) text = colorReplace(text);
+  console.log("here's the extra text: "+text);
   const paragraphs = text.split("\n");
 
   // no need for a lot of magic, just make sure each line first in 1.
@@ -780,16 +781,17 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
   if (style === "bubble") default_color = 'green';
 
   // split by <> first
+  //🔴🔵🟡🟢🟣⚫⚪
   let angle_phrases = text.split(/([<＜].*?[>＞])/);
   let phrases = [];
   for (let ap of angle_phrases) { // 》《
-    let temp = ap.startsWith("＜") ? [ap] : ap.split(/([[⟦⸨《【].*?[\]⟧⸩》】])/);
+    let temp = ap.startsWith("＜") ? [ap] : ap.split(/([[⟦⸨《【].*?[\]⟧⸩》】]|[🔴🔵🟡🟢🟣⚫⚪])/u);
     phrases.push(...temp);
   }
   //let phrases = text.split(/([[⟦].*?[\]⟧])/);
   phrases.forEach((phrase, index) => {
     let cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
-    //console.log(574, "p", phrase, "cp", cleanPhrase)
+    console.log("{{{{Clean Phrase}}}} "+cleanPhrase)
     if (
       (phrase.startsWith("⟦") && phrase.endsWith("⟧")) ||
       (phrase.startsWith("⸨") && phrase.endsWith("⸩")) ||
@@ -882,6 +884,21 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
             stroke = 'white';
             fill = 'black';
           }
+          let circCol = "";
+          if (word === "🔴"|| word === "🔵"||word === "🟡"||word === "🟢"||word === "🟣"||word === "⚫"||word === "⚪")
+          {
+            if(word === "🔴"){circCol = "red";}
+            if(word === "🔵"){circCol = "#2A93D1";}
+            if(word === "🟡"){circCol = "yellow";}
+            if(word === "🟢"){circCol = "green";}
+            if(word === "🟣"){circCol = "#6655AD";}
+            if(word === "⚫"){circCol = "black";}
+            if(word === "⚪"){circCol = "white";}
+            word = "●";
+            console.log("{{{{{{Matched}}}}}}} circCol = "+circCol)
+            stroke = 'white';
+            fill = 'black';
+          }
 
 
           if (word.length > 0) {
@@ -897,9 +914,18 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
             ctx.fillStyle = 'red';
             ctx.textAlign = 'left';
             // for testing italics
+            console.log("<<<Word is>>>: "+word)
+            ctx.save();
+            let yoffs = 0;
+            let xoffs = 0; 
+            if(word === "●"){
+              ctx.font = `100 ${(fontSize+50)}px ${boxfont}`;
+              yoffs = 27;
+              xoffs = 5;
+            };
             if (!preview) {
               if (!skew) {
-                ctx.strokeText(word, lastX, y); //  cardWidth - lastX);
+                ctx.strokeText(word, lastX+xoffs, y+yoffs); //  cardWidth - lastX);
               } else {
                 italicStrokeText(ctx, word, lastX, y);
               }
@@ -907,9 +933,12 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
 
        //     ctx.lineWidth = 2; // smaller inside stroke
             ctx.fillStyle = gold_text ? gold_gradient : fill;
+            if(word === "●"){
+              ctx.fillStyle = circCol;
+            };
             if (!preview) {
               if (!skew) {
-                ctx.fillText(word, lastX, y); //  cardWidth - lastX);
+                ctx.fillText(word, lastX+xoffs, y+yoffs); //  cardWidth - lastX);
                 //              ctx.fillText(cleanWord, lastX - diamondOffset, y - 10, cardWidth - lastX);
               } else {
                 italicText(ctx, word, lastX, y);
@@ -921,6 +950,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
             //            if (width > y) width = y;
             //width += ctx.measureText(' ').width;
             lastX += width;// scale;
+            ctx.restore();
           }
 
         }

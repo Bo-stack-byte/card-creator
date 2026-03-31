@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.53"
-const latest = "new DUAL frames courtesy of @rlvvmc"
+const version = "0.8.54"
+const latest = "debounce and circle shading courtesy of @rlvvmc"
 
+// version 0.8.54   debounce and circle shading courtesy of @rlvvmc
 // version 0.8.53   new DUAL frames courtesy of @rlvvmc
 // version 0.8.52   only use defaults arts evolve text if there's none
 // version 0.8.51   naked circle when using playCost of 'blank'
@@ -1145,6 +1146,30 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
   ctx.restore(); // Restore the previous state
 }
 
+function circleGlow(ctx, cx, cy) {
+ // return;
+      let radius = 170;
+      const gradient = ctx.createRadialGradient(
+        cx, cy, 0,
+        cx, cy, radius
+      );
+
+      gradient.addColorStop(0,   "rgba(255, 255, 255, 0.35)");
+      gradient.addColorStop(0.5,   "rgba(255, 255, 255, 0.24)");
+      gradient.addColorStop(0.8, "rgba(255,255,255,0.1)");
+      gradient.addColorStop(0.9,   "rgba(255,255,255,0)");
+
+      ctx.globalCompositeOperation = "lighter";
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = "source-over";
+
+
+
+}
+
 function writeDP(ctx, _dp, args) {
 
   let { x, y, size, bigsize, stroke, color } = args;
@@ -1686,9 +1711,9 @@ function CustomCreator() {
   }
 
 
-  const handleFreeformChange = (event) => {
-    console.log(302, event.target.form.free.value);
-    let input = event.target.form.free.value;
+  function handleFreeformChange(form){
+    console.log(302, form.free.value);
+    let input = form.free.value;
     if (input.length < 5) return;
     console.log(304, input);
     let jsonTxt = enterPlainText(input.split("\n"));
@@ -1698,9 +1723,9 @@ function CustomCreator() {
 
   }
 
-  const handleTextareaChange = (event) => {
+  function handleTextareaChange(value) {
     // update the form data
-    let jsonTxt = event.target.value;
+    let jsonTxt = value;
     updateJson(jsonTxt);
     jsonToFields(jsonTxt);
     /*  try {
@@ -2757,6 +2782,9 @@ function CustomCreator() {
                 console.error(1576, "no wedge", e);
               }
             }
+            let cx=380;
+            let cy=955;
+            circleGlow(ctx, cx, cy);
 
             // how to write the "lv.4" and "TAMER" text in evo circle?
             // many many experiments here 
@@ -2842,6 +2870,11 @@ function CustomCreator() {
             let i = costs[color];
             if (i) ctx.drawImage(i, offset_x, offset_y, 500, 500);
           }
+          let cx=380;
+          let cy=360;
+          let radius = 170;
+          circleGlow(ctx, cx, cy);
+
         }
         let neue_offset = 0;
         if (!neue) neue_offset = 20;
@@ -3584,6 +3617,18 @@ function CustomCreator() {
     setCardIndex(cardIndex + 1);
   }
 
+  function debounce(fn, delay = 150) {
+    let timeout;
+
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => fn(...args), delay);
+    };
+  }
+  
+  const handleTextareaChangeDB = debounce(handleTextareaChange,150);
+  const handleFreeformChangeDB = debounce(handleFreeformChange,400);
+
 
 
 
@@ -3609,7 +3654,7 @@ function CustomCreator() {
 
                 <textarea cols={40} rows={25}
                   value={jsonText[currentIndex]}
-                  onChange={handleTextareaChange}
+                  onChange={(e) => handleTextareaChangeDB(e.target.value)}
 
                 //           onChange={(e) => handleTextAreaChange(e.target.value)}
                 />
@@ -3643,7 +3688,7 @@ function CustomCreator() {
                   </table>
                 </div>
               ) : (<form>
-                <textarea onChange={handleFreeformChange} defaultValue={freeform} name="free" cols={40} rows={25} /><br />
+                <textarea onChange={(e) => handleFreeformChangeDB(e.target.form)} defaultValue={freeform} name="free" cols={40} rows={25} /><br />
               </form>)}
             </div>
           </td>

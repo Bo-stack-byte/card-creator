@@ -173,7 +173,7 @@ export const enterPlainText = (lines) => {
 
         "effect": "",
         "evolveEffect": "",
-        "securityEffect": "-",
+        "securityEffect": "",
 
         "linkDP": "-",
         "linkRequirement": "",
@@ -293,6 +293,10 @@ export const enterPlainText = (lines) => {
             evo.cost = (m[3]);
             evo.color = abbr_parse_color(m[5])
             json.evolveCondition.push(evo);
+        } else if ((m = line.match(/^\s*Artist\/Author: ([^\/\n]+) \/ ([^\n]+)$/i))) {
+            // Artist/Author: Artist / Author
+            json.artist = (m[1]);
+            json.author = (m[2]);
         } else if ((m = line.match(/^\s*\+?(\d+) DP/))) {
             //      6000 DP
             if (mode === "link")

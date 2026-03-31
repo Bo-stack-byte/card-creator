@@ -1546,22 +1546,28 @@ function CustomCreator() {
     let currentX = x;
     let nextspace = 0;
     for (let char of text) {
-      ctx.fillText(char, currentX, y);
+      let preoffs = 0;
+      if(text === "DIGIMON" && char === "M") preoffs = 10;
+      ctx.fillText(char, currentX+preoffs, y);
       const charWidth = ctx.measureText(char).width;
       if(char === "I" || char ==="A" || (char ==="T" && text!=="OPTION"))
           {
             if(text === "DIGIMON")
             {
-              nextspace = 30
+              nextspace = 25+preoffs
             }
             else
             {
-              nextspace = 15
+              nextspace = 25+preoffs;
             }
+          }
+          else if(char === "O" || char === "E")
+          {
+            nextspace = 15+preoffs
           }
           else
           {
-            nextspace = 0;
+            nextspace = 0+preoffs;
           }
           currentX += charWidth + spacing + nextspace;
     }
@@ -1570,26 +1576,33 @@ function CustomCreator() {
     let currentX = x;
     if (!text.startsWith("OPTION")) {
         ctx.fillStyle = 'black';
+        ctx.lineJoin = "bevel"
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 12;
         let nextspace = 0;
         for (let char of text) {
-          ctx.strokeText(char, currentX, y);
+          let preoffs = 0;
+          if(text === "DIGIMON" && char === "M") preoffs = 10;
+          ctx.strokeText(char, currentX+preoffs, y);
           const charWidth = ctx.measureText(char).width;
           if(char === "I" || char ==="A" || (char ==="T" && text!=="OPTION") )
           {
             if(text === "DIGIMON")
             {
-              nextspace = 30
+              nextspace = 25+preoffs
             }
             else
             {
-              nextspace = 15
+              nextspace = 25+preoffs
             }
+          }
+          else if(char === "O" || char === "E")
+          {
+            nextspace = 15+preoffs
           }
           else
           {
-            nextspace = 0;
+            nextspace = 0+preoffs;
           }
           currentX += charWidth + spacing + nextspace;
         }
@@ -2422,12 +2435,12 @@ function CustomCreator() {
       ctx.textAlign = 'center';
       ctx.fillStyle = 'white';
       ctx.strokeStyle = 'black';
-      ctx.font = `bold 70px Anago-Medium`;
+      ctx.font = `85px Anago-Medium`;
       let cardText = json.cardType.toUpperCase();
       if(cardText.startsWith("DIGIMON") && cardText.endsWith("OPTION"))
       {//1490, 180
         let dualText = cardText.split("/")
-        ctx.fillStyle = 'black';
+        ctx.fillStyle = '#181818';
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 12
         ctx.strokeText(dualText[0], 1300, 170);
@@ -2439,18 +2452,19 @@ function CustomCreator() {
       }
       else if(cardText === "DIGIMON")
       {
-        drawOutlineWithSpacing(ctx,cardText,1335,170,5)
-        drawTextWithSpacing(ctx,cardText,1335,170,5)
+        ctx.fillStyle = '#494949';
+        drawOutlineWithSpacing(ctx,cardText,1315,170,2)
+        drawTextWithSpacing(ctx,cardText,1315,170,2)
       }
       else if(cardText === "TAMER")
       {
-        drawOutlineWithSpacing(ctx,cardText,1390,170,5)
-        drawTextWithSpacing(ctx,cardText,1390,170,5)
+        drawOutlineWithSpacing(ctx,cardText,1350,170,5)
+        drawTextWithSpacing(ctx,cardText,1350,170,5)
       }
       else if(cardText === "OPTION")
       {
-        drawOutlineWithSpacing(ctx,cardText,1370,170,5)
-        drawTextWithSpacing(ctx,cardText,1370,170,5)
+        drawOutlineWithSpacing(ctx,cardText,1355,170,5)
+        drawTextWithSpacing(ctx,cardText,1355,170,5)
       }
 
       // DRAW AUTHOR
@@ -2479,8 +2493,10 @@ function CustomCreator() {
       ctx.textAlign = "right";
 
       ctx.lineWidth = 15
-      ctx.strokeText(credit, -51, 0);
-      ctx.fillText(credit, -51, 0);
+      ctx.strokeText(artist, -51, 0);
+      ctx.fillText(artist, -51, 0);
+      ctx.strokeText(author, -2050, 0);
+      ctx.fillText(author, -2050, 0);
       ctx.restore();
 
       // OTHER MULTICOLOR
@@ -2796,7 +2812,7 @@ function CustomCreator() {
 
             let ring = cost_evo;
             if (j > 0) ring = cost_evo_plain;
-            ctx.drawImage(ring, offset_x, offset_y + 600 + circle_offset, 500, 500);
+            ctx.drawImage(ring, offset_x, offset_y + 600 + circle_offset, 440, 440);
 
             let base = -135; // degrees
             let each = 360 / (evo1_colors.length);
@@ -2804,11 +2820,11 @@ function CustomCreator() {
             for (let i in evo1_colors) {
               const my_color = evo1_colors[i];
               i = Number(i);
-              let X = offset_x + 130;
-              let Y = offset_y + 125 + 600 + circle_offset;
+              let X = offset_x + 130 -20;
+              let Y = offset_y + 110 + 600 + circle_offset;
 
-              const imgWidth = 310; // height, too
-              const imgHeight = 310; // height, too
+              const imgWidth = 280; // height, too
+              const imgHeight = 280; // height, too
 
               const circle = evoImages[my_color];
               const wedge = wedgeImages[my_color];
@@ -2825,25 +2841,36 @@ function CustomCreator() {
               ctx.clip();
               try {
                 ctx.drawImage(circle, 0, 0, 291, 291, X, Y, imgWidth, imgHeight);
+                if (my_color === 'red') {
+                  ctx.globalCompositeOperation = 'color'; 
+                  ctx.fillStyle = 'rgba(255, 170, 140, 0.6)';
+                  ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+                if (my_color === 'blue' || my_color === 'green') {
+                  ctx.globalCompositeOperation = 'luminosity'; 
+                  ctx.fillStyle = 'rgba(70,70,70, 0.5)';
+                  ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
               } catch (e) {
                 console.error(1329, "no circle", e);
               }
               ctx.restore();
               try {
-                ctx.drawImage(wedge, 0, 0, 291, 291, X - 130, Y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
+                ctx.drawImage(wedge, 0, 0, 291, 291, X - 110, Y - 117, 4.55 * wedge.width, 4.95 * wedge.height);
               } catch (e) {
                 console.error(1576, "no wedge", e);
               }
             }
-            let cx=380;
-            let cy=955;
-            let radius = 170;
+            let cx=330;
+            let cy=920;
+            let radius = 135;
             const gradient = ctx.createRadialGradient(
               cx, cy, 0,
               cx, cy, radius
             );
 
-            gradient.addColorStop(0,   "rgba(255, 255, 255, 0.37)");
+            //gradient.addColorStop(0,   "rgba(255, 255, 255, 0.46)");
+            gradient.addColorStop(0.15,   "rgba(255, 255, 255, 0.32)");
             gradient.addColorStop(0.5,   "rgba(255, 255, 255, 0.18)");
             //gradient.addColorStop(0.8, "rgba(255,255,255, 0.03)");
             gradient.addColorStop(0.9,   "rgba(255,255,255,0)");
@@ -2862,7 +2889,7 @@ function CustomCreator() {
             ctx.font = `80px AyarKasone, Helvetica`;
             ctx.font = `80px Helvetica`;
             //    ctx.font = `80px MyriadProBold`;
-            ctx.font = `85px 'Dico-Sans-Soft'`; //  Roboto`;
+            ctx.font = `75px 'Dico-Sans-Soft'`; //  Roboto`;
             // this font might be right for "tamer" but isn't for "Lv.3"
 
             ctx.lineWidth = 10;
@@ -2875,24 +2902,24 @@ function CustomCreator() {
      //         border = false;
             }
             if (border) {
-              ctx.font = `85px 'Dico-Sans-Soft'`
+              ctx.font = `75px 'Dico-Sans-Soft'`
               ctx.strokeStyle = strokeColor;
               ctx.lineWidth = 15;
-              ctx.strokeText(evo1_level, 375, 870 + circle_offset, 200);
+              ctx.strokeText(evo1_level, 340, 835 + circle_offset, 200);
             }
             ctx.fillStyle = fillColor; // contrastColor(evo_color);
-            ctx.fillText(evo1_level, 375, 870 + circle_offset, 200);
+            ctx.fillText(evo1_level, 340, 835 + circle_offset, 200);
             // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
             ctx.font = `bold 220px 'Nimbus-Sans-Novus-R'`;
             ctx.save()
             if (border) {
               ctx.lineJoin = "bevel"
               ctx.lineWidth = 18;
-              ctx.strokeText(evo1_cost, 375, 1010 + circle_offset);
+              ctx.strokeText(evo1_cost, 345, 960 + circle_offset);
             }
             ctx.restore()
             ctx.lineWidth = 10;
-            ctx.fillText(evo1_cost, 375, 1010 + circle_offset);
+            ctx.fillText(evo1_cost, 345, 960 + circle_offset);
           }
         }
       }
@@ -3215,9 +3242,9 @@ function CustomCreator() {
       // todo don't show when all blank
       let a_traits = [];
 
-      if (!empty(form)) a_traits.push(` ${center(form)} `);
-      if (!empty(attribute)) a_traits.push(` ${center(attribute)} `);
-      if (!empty(c_type)) a_traits.push(` ${c_type}  `);
+      if (!empty(form)) a_traits.push(`${center(form)}`);
+      if (!empty(attribute)) a_traits.push(`      ${center(attribute)}      `);
+      if (!empty(c_type)) a_traits.push(`  ${c_type}     `);
       let traits = a_traits.join("|");
       ctx.fillStyle = whiteColor(colors[0]);
       if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
@@ -3232,7 +3259,7 @@ function CustomCreator() {
 
       ctx.font = `bold 60px "FallifngSky", "MyrggiadProBold", "RepoMedium", "Robgoto"`;
       ctx.font = `60px MyriadProBold`;
-      ctx.fillText(traits, 2750, 3490 + delta_y)// * 0.9);
+      ctx.fillText(traits, 2750, 3497 + delta_y)// * 0.9);
 
       ///// MAIN TEXT 
       let y_line = bottom - 640; // set above for effectbox / rule

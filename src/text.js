@@ -296,14 +296,12 @@ export function drawRoundedRect(ctx, x, y, width, height, radius, stroke) {
   ctx.lineTo(x, y + radius);
   ctx.arcTo(x, y, x + radius, y, radius);
   ctx.closePath();
-  if (stroke) {
-    ctx.stroke(); // Draw only the outline,m may be dead code now
-  } else {
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = 'black';
-    ctx.stroke(); // Draw only the outline,m may be dead code now
-    ctx.fill();
-  }
+  ctx.lineWidth = 15;
+  console.log("is the outline even working "+stroke)
+  if (!stroke) ctx.strokeStyle = 'transparent' 
+  else ctx.strokeStyle = 'black';
+  ctx.stroke(); // Draw only the outline,m may be dead code now
+  ctx.fill();
   ctx.restore();
 }
 
@@ -356,8 +354,9 @@ function drawDnaBox(ctx, x, y, w, h, colors) {
 };
 
 //x,y is upper left
-function drawColoredRectangle(ctx, x, y, width, height, color, radius) {
+function drawColoredRectangle(ctx, x, y, width, height, color, radius, drawOutline) {
   console.log(195, x, y, width, height, color);
+  console.log("is the outline even working first pass "+drawOutline)
   //#922969 darker ois lower
   if (color === 'bubble') {
     drawBubble(ctx, x, y, width, height);
@@ -394,7 +393,7 @@ function drawColoredRectangle(ctx, x, y, width, height, color, radius) {
     gradient.addColorStop(1, color1);
     if (color2) {
       gradient.addColorStop(0.3, color0);
-      gradient.addColorStop(0.6, color1);
+      gradient.addColorStop(0.4, color1);
       gradient.addColorStop(0.99, color2);
     }
     ctx.fillStyle = gradient;
@@ -408,7 +407,8 @@ function drawColoredRectangle(ctx, x, y, width, height, color, radius) {
   if (width > (cardWidth - x)) width = cardWidth - x;
 
   let rad = radius || height / 3;
-  drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 0 + 2 * d, height + 2 * d, rad, false);
+  console.log("is the outline even working: final pass "+drawOutline)
+  drawRoundedRect(ctx, x - d, y - height - 10 - d, width + 0 + 2 * d, height + 2 * d, rad, drawOutline);
   ctx.globalAlpha = 1;
   ctx.strokeStyle = '';
   ctx.lineWidth = 0;
@@ -450,13 +450,19 @@ function _2drawDiamondRectangle(ctx, x, y, width, height, color, strokeColor) {
     ctx.fillStyle = gold_gradient;
   } else { 
     const gradient = ctx.createLinearGradient(0, y, 0, y + height);
-
-    gradient.addColorStop(0, color || '#7E3329'); // Dark brown
-    gradient.addColorStop(0.6, color || '#C36327'); // Medium brown
-    gradient.addColorStop(0.9, color || '#E38367'); // "light" brown
+    let col1=color,col2=color,col3=color;
+    if(color === "effect" ||color === "effect sec"||color === "effect sec yellow" || color === "effect-option")
+    {
+      col1 = '#631c0b';
+      col2 = '#AA4500';
+      col3 = '#C77037'
+    }
+    gradient.addColorStop(0, col1); // Dark brown
+    gradient.addColorStop(0.45, col2); // Medium brown
+    gradient.addColorStop(0.9, col3); // "light" brown
     ctx.fillStyle = gradient;
   }
-
+  console.log("color checking "+color)
   // Begin drawing the shape
   ctx.beginPath();
   ctx.moveTo(x, y + halfHeight); // Start at the left triangle point
@@ -468,10 +474,18 @@ function _2drawDiamondRectangle(ctx, x, y, width, height, color, strokeColor) {
   ctx.closePath(); // Close the path
 
   ctx.fill();
-
-  ctx.lineWidth = 5;
-  ctx.strokeStyle = strokeColor || 'black';
-  ctx.stroke();
+  console.log("color checking: rectangle "+color)
+  let drawOutline = true;
+  if(color === "effect sec"||color === "effect sec yellow")
+  {
+    drawOutline = false;
+  }
+  if(drawOutline)
+  {
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = strokeColor || 'black';
+    ctx.stroke();
+  }
 }
 
 function splitByBrackets(input) {
@@ -820,8 +834,9 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
       }
 
       const italics = (style === "bubble" || style === "dna") ? "italic" : "";
-
-      ctx.font = `100 ${(fontSize - 20)}px ${boxfont}`;
+      let bubbleFontOffs = 0
+      if(style === "bubble" || color === "blue") bubbleFontOffs = 12
+      ctx.font = `100 ${(fontSize - 20 - bubbleFontOffs)}px ${boxfont}`;
 //      ctx.fontStretch = "ultra-condensed";
  //     ctx.fontStretch = "ultra-expanded";
       const phraseWidth = ctx.measureText(cleanPhrase).width;
@@ -832,8 +847,10 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
       ratio = 1;
       // clever tricks to squeeze keywords to match sizing
       ctx.transform(ratio, 0, 0, 1, 0, 0);  // 6% for [Hand], 5% for [Counter]
-   
-      if (!preview) drawColoredRectangle(ctx, start, y + 3, width, fontSize, color, radius);
+      let drawOutline = true;
+      if(style === "effect sec" || style === "effect sec yellow") drawOutline = false;
+      console.log("is the outline even working "+drawOutline)
+      if (!preview) drawColoredRectangle(ctx, start, y + 3, width, fontSize, color, radius,drawOutline);
 
       ctx.fillStyle = gold_text ? 'black' : 'white';
       ctx.textAlign = 'center';
@@ -841,7 +858,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
       if (gold_text) {
           //        ctx.fillStyle = gold_gradient;
       }
-      if (!preview) ctx.fillText(cleanPhrase, start + width / 2, y - 10,
+      if (!preview) ctx.fillText(cleanPhrase, start + width / 2, y - 17,
         cardWidth - lastX + 500); //  phraseWidth);
       ctx.restore();
       ctx.textAlign = 'left';
@@ -856,7 +873,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
           const cleanWord = word.replace(/[＜＞_]/g, '  ');
           //          ctx.font = `600 ${(fontSize - 5)}px Schibsted Grotesk`;
           //   ctx.font = `bold ${(fontSize - 5)}px Roboto`;
-          ctx.font = `100 ${(fontSize - 20)}px ${boxfont}`;
+          ctx.font = `100 ${(fontSize - 20 -12)}px ${boxfont}`;
 
           const wordWidth = ctx.measureText(cleanWord).width;
           //console.log(314, wordWidth, cardWidth, lastX, cleanWord);
@@ -865,11 +882,15 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
           if (width > cardWidth - lastX) { // too big, limit width
             width = cardWidth - lastX;
           }
-          if (!preview) drawDiamondRectangle(ctx, lastX, y - 8, width + 10, h);
+          if (!preview) 
+          {
+            console.log("color checking: draw call "+style+" "+cleanWord)
+            drawDiamondRectangle(ctx, lastX, y - 8, width + 10, h,style)
+          };
           //    ctx.scale(scale, 1);
           ctx.fillStyle = gold_text ? 'black' : 'white'; // white on colored background
           let diamondOffset = -5; // how much to slide keyword in text around
-          if (!preview) ctx.fillText(cleanWord, lastX - diamondOffset, y - 10, cardWidth - lastX);
+          if (!preview) ctx.fillText(cleanWord, lastX - diamondOffset, y - 17, cardWidth - lastX);
           //console.log(621, "xxx specialword", cleanWord);
           lastX += scale * wordWidth + 15;
           //  ctx.restore();

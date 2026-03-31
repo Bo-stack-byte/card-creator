@@ -263,7 +263,7 @@ export const enterPlainText = (lines) => {
             json.dualEffect = "[Arts Digivolve]";
             json.optionCardEffect = m[3];
             mode = "dual";
-            // /^\s*Special Transformation:\s*(.*)$/i
+            // DNA Digivolve
         }else if ((m = line.match(/^\s*DNA Digivol(\w*):\s*(.*)$/i))) {
             json.dnaEvolve = "[DNA Digivolve] "+m[2];
         }else if ((m = line.match(/^\s*\[(.*?)\|(.*?)\|(.*?)\]( \[(.*)\])?/))) {

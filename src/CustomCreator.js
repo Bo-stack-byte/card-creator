@@ -2872,7 +2872,6 @@ function CustomCreator() {
           }
           let cx=380;
           let cy=360;
-          let radius = 170;
           circleGlow(ctx, cx, cy);
 
         }

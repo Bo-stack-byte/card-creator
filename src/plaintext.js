@@ -265,7 +265,7 @@ export const enterPlainText = (lines) => {
             mode = "dual";
             // DNA Digivolve
         }else if ((m = line.match(/^\s*DNA Digivol(\w*):\s*(.*)$/i))) {
-            json.dnaEvolve = "[DNA Digivolve] "+m[2];
+            json.dnaEvolve = "[DNA Digivolve] "+m[2]+": cost 0";
         }else if ((m = line.match(/^\s*\[(.*?)\|(.*?)\|(.*?)\]( \[(.*)\])?/))) {
             json.form = m[1].trim();
             json.attribute = m[2].trim();

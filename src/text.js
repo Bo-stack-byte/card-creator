@@ -835,7 +835,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
 
       const italics = (style === "bubble" || style === "dna") ? "italic" : "";
       let bubbleFontOffs = 0
-      if(style === "bubble" || color === "blue") bubbleFontOffs = 12
+      if(style === "bubble" || color === "blue" || color === "red") bubbleFontOffs = 12
       ctx.font = `100 ${(fontSize - 20 - bubbleFontOffs)}px ${boxfont}`;
 //      ctx.fontStretch = "ultra-condensed";
  //     ctx.fontStretch = "ultra-expanded";
@@ -849,8 +849,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
       ctx.transform(ratio, 0, 0, 1, 0, 0);  // 6% for [Hand], 5% for [Counter]
       let drawOutline = true;
       if(style === "effect sec" || style === "effect sec yellow") drawOutline = false;
-      console.log("is the outline even working "+drawOutline)
-      if (!preview) drawColoredRectangle(ctx, start, y + 3, width, fontSize, color, radius,drawOutline);
+      if (!preview) drawColoredRectangle(ctx, start, y+10, width, fontSize, color, radius,drawOutline);
 
       ctx.fillStyle = gold_text ? 'black' : 'white';
       ctx.textAlign = 'center';
@@ -858,7 +857,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
       if (gold_text) {
           //        ctx.fillStyle = gold_gradient;
       }
-      if (!preview) ctx.fillText(cleanPhrase, start + width / 2, y - 17,
+      if (!preview) ctx.fillText(cleanPhrase, start + width / 2, y - 7,
         cardWidth - lastX + 500); //  phraseWidth);
       ctx.restore();
       ctx.textAlign = 'left';
@@ -870,12 +869,30 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
     } else {
       phrase.split(/(＜.*?＞)/).forEach(word => {
         if (word.includes("＜")) {
+          console.log("keyword check "+word)
           const cleanWord = word.replace(/[＜＞_]/g, '  ');
+          const colWord = cleanWord.split(/([🔴🔵🟡🟢🟣⚫⚪])/u);
+          var circCol = [];
+          let circOffset = 0;
+          colWord.forEach(char => {
+          if (char === "🔴"|| char === "🔵"||char === "🟡"||char === "🟢"||char === "🟣"||char === "⚫"||char === "⚪")
+          {
+            if(char === "🔴"){circCol.push("red");}
+            if(char === "🔵"){circCol.push("#2A93D1");}
+            if(char === "🟡"){circCol.push("yellow");}
+            if(char === "🟢"){circCol.push("green");}
+            if(char === "🟣"){circCol.push("#6655AD");}
+            if(char === "⚫"){circCol.push("black");}
+            if(char === "⚪"){circCol.push("white");}
+            circOffset += 20;
+          }})
+          const colPro = colWord.map(char => ["🔴","🔵","🟡","🟢","🟣","⚫","⚪"].includes(char) ? "●" : char);
+          console.log("keyword check(colword): "+colWord)
           //          ctx.font = `600 ${(fontSize - 5)}px Schibsted Grotesk`;
           //   ctx.font = `bold ${(fontSize - 5)}px Roboto`;
           ctx.font = `100 ${(fontSize - 20 -12)}px ${boxfont}`;
 
-          const wordWidth = ctx.measureText(cleanWord).width;
+          const wordWidth = ctx.measureText(cleanWord).width-circOffset;
           //console.log(314, wordWidth, cardWidth, lastX, cleanWord);
           let h = Number(fontSize);
           let width = wordWidth;
@@ -884,13 +901,44 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
           }
           if (!preview) 
           {
-            console.log("color checking: draw call "+style+" "+cleanWord)
             drawDiamondRectangle(ctx, lastX, y - 8, width + 10, h,style)
           };
           //    ctx.scale(scale, 1);
-          ctx.fillStyle = gold_text ? 'black' : 'white'; // white on colored background
+          const defFillStl = gold_text ? 'black' : 'white'; // white on colored background
+          ctx.save()
           let diamondOffset = -5; // how much to slide keyword in text around
-          if (!preview) ctx.fillText(cleanWord, lastX - diamondOffset, y - 17, cardWidth - lastX);
+          let offsetX = lastX;
+          let circColCtr = 0;
+          console.log("colPro vals: "+circCol);
+          if (!preview)
+          {
+            colPro.forEach(char => {
+              ctx.save()
+              let yoffs = 0;
+              let xoffs = 0; 
+              if(char === "●"){
+                ctx.font = `100 ${(fontSize+45)}px ${boxfont}`;
+                yoffs = 27;
+                xoffs = 5;
+                ctx.lineWidth = 12;
+                ctx.strokeStyle = 'white';
+                ctx.strokeText(char, offsetX-diamondOffset,y+16,cardWidth-lastX);
+                ctx.fillStyle = circCol[circColCtr];
+                ctx.fillText(char,offsetX-diamondOffset,y+16,cardWidth-lastX)
+                offsetX += ctx.measureText(char).width-20;
+                circColCtr++;
+              }
+              else{
+                ctx.fillStyle = defFillStl;
+                ctx.fillText(char,offsetX-diamondOffset,y-17,cardWidth-lastX)
+                offsetX += ctx.measureText(char).width+2;
+              }
+              ctx.restore()
+            })
+            
+          }
+          ctx.restore();
+          //ctx.fillText(cleanWord, lastX - diamondOffset, y - 17, cardWidth - lastX);
           //console.log(621, "xxx specialword", cleanWord);
           lastX += scale * wordWidth + 15;
           //  ctx.restore();

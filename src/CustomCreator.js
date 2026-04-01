@@ -3285,7 +3285,7 @@ function CustomCreator() {
       console.log(1277, special_baseline, y_line, (fontSize_n + so))
       if (!empty(dna_evo)) {
         special_baseline -= (delta);
-        drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 1, Number(fontSize_n) + Number(imageOptions.lineSpacing), "dna", radius);
+        drawBracketedText(ctx, fontSize_n-12, dna_evo, 270, special_baseline, 3000 * 1, Number(fontSize_n) + Number(imageOptions.lineSpacing), "dna", radius);
         special_baseline -= (delta * .5);
       }
       if (!empty(spec_evo)) {

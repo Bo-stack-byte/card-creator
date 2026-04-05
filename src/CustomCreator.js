@@ -65,12 +65,13 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.54"
-const latest = "debounce and circle shading courtesy of @rlvvmc"
+const version = "0.8.55"
+const latest = "fix light blue which shouldn't exist at all and old darker blue now really dark and better 🔴🔵🟡🟢🟣⚫⚪, courtesy @rlvvmc; fix zip filenames"
 
-// version 0.8.54   debounce and circle shading courtesy of @rlvvmc
+// version 0.8.55   fix light blue which shouldn't exist at all and old darker blue now really dark and better 🔴🔵🟡🟢🟣⚫⚪, courtesy @rlvvmc; fix zip filenames
+// version 0.8.54.x debounce and circle shading courtesy of @rlvvmc, not on eggs/dual'
 // version 0.8.53   new DUAL frames courtesy of @rlvvmc
-// version 0.8.52   only use defaults arts evolve text if there's none
+// version 0.8.52   only use defaults arts evolve text if there's none; did light-blue change to dark-blue here?
 // version 0.8.51   naked circle when using playCost of 'blank'
 // version 0.8.50   stop option name overflow; fix font for duel effect; more room for optionCardEffect
 // version 0.8.49   for DUALs fix use color and level-shell color
@@ -2870,10 +2871,11 @@ function CustomCreator() {
             let i = costs[color];
             if (i) ctx.drawImage(i, offset_x, offset_y, 500, 500);
           }
-          let cx=380;
-          let cy=360;
-          circleGlow(ctx, cx, cy);
-
+          if (img !== cost_dual && img !== cost_egg) { 
+            let cx=380;
+            let cy=360;
+            circleGlow(ctx, cx, cy);
+          }
         }
         let neue_offset = 0;
         if (!neue) neue_offset = 20;
@@ -3466,7 +3468,7 @@ function CustomCreator() {
         let filename = `image${i + 1}`;
         try {
           filename = json[i].name.english;
-          filename = filename.replace(/[^a-zA-Z0-9]+/g, '-') + ".png";
+          filename = filename.replace(/[^a-zA-Z0-9]+/g, '-');
 
           if (json[i].id) filename = json[i].id; // what is this for?
         } catch { }

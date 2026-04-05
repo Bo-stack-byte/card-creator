@@ -2,6 +2,9 @@ feedback on this list appreciated.
 just a few people asking for a feature makes it very likely to exist, even if it already is listed here.
 take this as a brainstorming list of ideas.
 
+DUAL CARD ISSUES
+ * control font in dual effect independnetly
+
 KNOWN BUGS
 
 * ESS picture not using background, and other issues with images

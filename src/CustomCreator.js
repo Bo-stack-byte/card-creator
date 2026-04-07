@@ -6,7 +6,7 @@ import {
   egg_background, option_background, tamer_background,
   mon_background_nocost, mega_background_nocost, /*egg_background_nocost,*/ option_background_nocost, tamer_background_nocost,
 
-  ace_backgrounds, dual_backgrounds,
+  ace_backgrounds, dual_backgrounds,cantplay,
   outlines,
   outlines_nocost,
   outlines_tamer, outline_option, outlines_egg,
@@ -379,7 +379,7 @@ const starter_text_empty = `[{
     "ess_x_end": 50,
     "ess_y_end": 50,
     "fontSize": 90.5,
-    "lineSpacing": 10,
+    "lineSpacing": 20,
     "baselineOffset": 0,
     "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
     "foregroundOnTop": false,
@@ -1382,6 +1382,7 @@ function CustomCreator() {
 
   const [zoom, setZoom] = useState(100);
   const [jsonText, setJsonText] = useState([start]);
+  const [jsonImgOpts, setImgOpts] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0); // for undo
   const [cardIndex, setCardIndex] = useState(0); // for multiple cards 
 
@@ -1534,7 +1535,9 @@ function CustomCreator() {
       console.error("json error", e);
       return;
     }
+    console.log("test json> "+json);
     Object.entries(flattenedJson).forEach(([key, value]) => {
+      console.log(key+" <test json pairs> "+value);
       formData[key] = value;
     })
     loadNetImages(imageOptions);
@@ -1542,7 +1545,7 @@ function CustomCreator() {
 
   }
 
-  function drawTextWithSpacing(ctx, text, x, y, spacing = 2) {
+  function drawTextWithSpacing(ctx, text, x, y, spacing = 2,dual=false) {
     let currentX = x;
     let nextspace = 0;
     for (let char of text) {
@@ -1550,7 +1553,7 @@ function CustomCreator() {
       if(text === "DIGIMON" && char === "M") preoffs = 10;
       ctx.fillText(char, currentX+preoffs, y);
       const charWidth = ctx.measureText(char).width;
-      if(char === "I" || char ==="A" || (char ==="T" && text!=="OPTION"))
+      if(char === "I"|| (char ==="A" && !dual) || (char ==="T" && text!=="OPTION" && !dual))
           {
             if(text === "DIGIMON")
             {
@@ -1561,9 +1564,13 @@ function CustomCreator() {
               nextspace = 25+preoffs;
             }
           }
-          else if(char === "O" || char === "E")
+          else if((char === "O" || char === "E") && !dual)
           {
-            nextspace = 15+preoffs
+            nextspace = 10+preoffs
+          }
+          else if(char === "M" && !dual)
+          {
+            nextspace = 5+preoffs
           }
           else
           {
@@ -1572,7 +1579,7 @@ function CustomCreator() {
           currentX += charWidth + spacing + nextspace;
     }
   }
-  function drawOutlineWithSpacing(ctx, text, x, y, spacing = 2) {
+  function drawOutlineWithSpacing(ctx, text, x, y, spacing = 2,dual=false) {
     let currentX = x;
     if (!text.startsWith("OPTION")) {
         ctx.fillStyle = 'black';
@@ -1585,7 +1592,7 @@ function CustomCreator() {
           if(text === "DIGIMON" && char === "M") preoffs = 10;
           ctx.strokeText(char, currentX+preoffs, y);
           const charWidth = ctx.measureText(char).width;
-          if(char === "I" || char ==="A" || (char ==="T" && text!=="OPTION") )
+          if(char === "I" || (char ==="A" && !dual) || (char ==="T" && text!=="OPTION" && !dual) )
           {
             if(text === "DIGIMON")
             {
@@ -1596,9 +1603,13 @@ function CustomCreator() {
               nextspace = 25+preoffs
             }
           }
-          else if(char === "O" || char === "E")
+          else if((char === "O" || char === "E") && !dual)
           {
-            nextspace = 15+preoffs
+            nextspace = 10+preoffs
+          }
+          else if(char === "M" && !dual)
+          {
+            nextspace = 5+preoffs
           }
           else
           {
@@ -1727,7 +1738,8 @@ function CustomCreator() {
 
   const updateJson = (text) => {
 
-    console.log(1565, "update json");
+    console.log(1565, "update json \n"+text);
+    
     let json;
     try {
       json = JSON.parse(text);
@@ -1735,12 +1747,14 @@ function CustomCreator() {
     } catch (e) {
       console.error("incomplete json:", e);
     }
+    
     // only fix things if we've got a valid json
     if (json) {
       if (!Array.isArray(json)) {
         json = [json];
       }
       for (let subImage of json) {
+        console.log("<test Json Check> "+JSON.stringify(subImage,null,2))
         subImage = addAllFields(subImage);
       }
       text = JSON.stringify(json, null, 2);
@@ -1748,8 +1762,9 @@ function CustomCreator() {
       jsonToFields(text);
     }
 
+    console.log()
     const newHistory = jsonText.slice(0, currentIndex + 1);
-    setJsonText([...newHistory, text]);
+    setJsonText([...newHistory, text, imageOptions]);
     setCurrentIndex(newHistory.length);
   }
 
@@ -1760,9 +1775,13 @@ function CustomCreator() {
     if (input.length < 5) return;
     console.log(304, input);
     let jsonTxt = enterPlainText(input.split("\n"));
-    console.log(307, jsonTxt);
-    updateJson(jsonTxt);
-    jsonToFields(jsonTxt);
+    //This is the best way i found to actually preserve the bg/fg and its options.
+    //I have no clue why simply parsing the json from jsonText breaks the program depending on where i try it.
+    let jsonTxtOpt = jsonTxt.slice(0,-2)+",\n  \"imageOptions\": "+JSON.stringify(jsonImgOpts,null,2)+"\n}";
+    console.log(307, "<json text> "+jsonTxt.slice(0,-2)+",\n  \"imageOptions\": "+JSON.stringify(jsonImgOpts,null,2)+"\n}");
+    console.log("<json text opts> \n")
+    updateJson(jsonTxtOpt);
+    jsonToFields(jsonTxtOpt);
 
   }
 
@@ -1814,6 +1833,8 @@ function CustomCreator() {
           current = current[k];
         }
       });
+      console.log("<here's the input change> \n"+JSON.stringify(updatedJson[0].imageOptions,null,2));
+      setImgOpts(updatedJson[0].imageOptions);
       updateJson(JSON.stringify(updatedJson, null, 2));
     } catch {
       // json error
@@ -1993,6 +2014,15 @@ function CustomCreator() {
     console.debug(643, "START DRAW", pauseDraw.current);
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    const offsCanvas = document.createElement('canvas')
+    offsCanvas.width = 2977
+    offsCanvas.height = 4158 - 17
+    const offCtx = offsCanvas.getContext('2d') 
+    setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
+    const offsCanvas2 = document.createElement('canvas')
+    offsCanvas2.width = 2977
+    offsCanvas2.height = 4158 - 17
+    const offCtx2 = offsCanvas2.getContext('2d') 
     setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
 
     console.log("===");
@@ -2021,6 +2051,8 @@ function CustomCreator() {
       canvas.width = 2977;
       canvas.height = 4158 - 17;
       const ctx = canvas.getContext('2d');
+      
+
       setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
     }
     let json;
@@ -2055,6 +2087,7 @@ function CustomCreator() {
 
     let t;
     let array = basics;
+    let cantPlayColor = undefined;
     let cardframes = [has_cost ? mon_background : mon_background_nocost];
     type = selectedOption;
     let overflow = undefined;
@@ -2141,6 +2174,7 @@ function CustomCreator() {
     const colors = (json && json.color && json.color.toLowerCase().split("/")) || ["red"]; 
     const optColors = (json && json.optionCardColourRequirement && json.optionCardColourRequirement.toLowerCase().split("/")) || []; 
     const optionColors = (json && json.optionCardColourRequirement && json.optionCardColourRequirement.toLowerCase().split("/")) || ["black"]; 
+    
     switch (type) {
       case "MEGA": cardframes = [has_cost ? mega_background : mega_background_nocost]; break;
       case "OPTION":
@@ -2154,7 +2188,12 @@ function CustomCreator() {
       case "MONSTER": break;
       case "DUAL": 
           if (imageOptions.aceFrame) {
-            if (dual_backgrounds[colors[0]]) cardframes = colors.map(c => dual_backgrounds[c] || dual_background);
+            if (dual_backgrounds[colors[0]]) 
+              {
+                cardframes = colors.map(c => dual_backgrounds[c] || dual_background);
+                cantPlayColor = cantplay[colors[0]];
+                console.log("testing cantplay "+cantPlayColor)
+              }
           } else {
             cardframes = [dual_background];
           }
@@ -2380,21 +2419,36 @@ function CustomCreator() {
 
 
       // OUTLINE?
+
       let border_scale = 3950;
       if (type === "MEGA" && imageOptions.outline) {
         console.log(602, frameImages.length);
         // draw the left and right line all the way down. crop off the top 1000 pixels
         try {
           if (frameImages[0].complete)
-            scalePartialImage(ctx, frameImages[0], 0, len, border_scale,
+            offCtx.save()
+            offCtx.globalAlpha = 1;
+            offCtx.filter = 'brightness(0)';
+            scalePartialImage(offCtx, frameImages[0], 0, len, border_scale-100,
+              offset_x+20, offset_y + 1150, 600,1.005,1.01)
+            offCtx.restore()
+            scalePartialImage(offCtx2, frameImages[0], 0, len, border_scale,
               offset_x, offset_y + 1100, 600);
           let last = len - 1;
           if (frameImages[last].complete)
-            scalePartialImage(ctx, frameImages[last], last, len, border_scale, offset_x, offset_y + 1100, 600);
+            offCtx.save()
+            offCtx.globalAlpha = 1;
+            offCtx.filter = 'brightness(0)';
+            scalePartialImage(offCtx, frameImages[0], 0, last, border_scale-100,
+            offset_x+20, offset_y + 1150, 600,1.005,1.01)
+            offCtx.restore()
+            scalePartialImage(offCtx2, frameImages[last], last, len, border_scale, offset_x, offset_y + 1100, 600);
         } catch (e) { // couldn't sufficiently check this w/o a try/catch
           console.log(611, e);
         }
       }
+
+      
 
       /// WRITE NAME
       let has_traits = (!empty(json.form) || !empty(json.attribute) || !empty(json.type));
@@ -2412,7 +2466,14 @@ function CustomCreator() {
           // 1.05 is fudge factor because our frames aren't all left-justified the same
           // this makes them  the same, but they might be the same wrong
           // y - 1.5 to avoid tiniest stray pixels above egg frame on upper left
-          scalePartialImage(ctx, frame, i + (fudge), l, border_scale, offset_x, offset_y - 1.5,
+          offCtx.save()
+          offCtx.globalAlpha = 1;
+          offCtx.filter = 'brightness(0)';
+          scalePartialImage(offCtx, frame, i + (fudge), l, border_scale-100, offset_x+23, offset_y - 1.5+18,
+            undefined, 1.012, 1.011);
+          offCtx.restore()
+          
+          scalePartialImage(offCtx2, frame, i + (fudge), l, border_scale, offset_x, offset_y - 1.5,
             undefined, 1, 1.00);
         }
         // DRAW BOTTOM OF BOX?
@@ -2420,7 +2481,13 @@ function CustomCreator() {
           // bottom of frame
           let border = borders[col];
           if (type === "ACE") bottom_y += 20;
-          scalePartialImage(ctx, border, i, len, 67.3 * border_scale / 3950,
+          offCtx.save()
+          offCtx.globalAlpha = 1;
+          offCtx.filter = 'brightness(0)';
+          scalePartialImage(offCtx, border, i, len, 67.3 * (border_scale-120) / 3950, 166+10, bottom_y-30,
+            undefined, 1.2, 1.024);
+          offCtx.restore()
+          scalePartialImage(offCtx2, border, i, len, 67.3 * (border_scale-10) / 3950,
             166, bottom_y);
           // todo: play with these numbers some more. scale is 67.2-67.5,
           // and left is 166
@@ -2428,43 +2495,58 @@ function CustomCreator() {
 
       }
 
+      if (imageOptions.outline)
+      {
+        ctx.save()
+        ctx.globalAlpha = 0.45;
+        ctx.filter = 'blur(15px)';
+        ctx.globalCompositeOperation = "multiply"
+        ctx.drawImage(offsCanvas,0,0)
+        ctx.restore()
+        ctx.save()
+        ctx.drawImage(offsCanvas2,0,0)
+        ctx.restore()
+      }
+      
+
       // top mon?
       if (imageOptions.foregroundOnTop) drawMon(mon_img, bottom_y + 45);
-
+      
       //// DRAW TOP TEXT
       ctx.textAlign = 'center';
       ctx.fillStyle = 'white';
       ctx.strokeStyle = 'black';
-      ctx.font = `85px Anago-Medium`;
+      ctx.font = `75px Anago-Medium`;
       let cardText = json.cardType.toUpperCase();
       if(cardText.startsWith("DIGIMON") && cardText.endsWith("OPTION"))
       {//1490, 180
         let dualText = cardText.split("/")
         ctx.fillStyle = '#181818';
+        ctx.lineJoin = "bevel"
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 12
-        ctx.strokeText(dualText[0], 1300, 170);
-        ctx.fillText(dualText[0], 1300, 170);
+        ctx.strokeText(dualText[0], 1310, 170);
+        ctx.fillText(dualText[0], 1310, 170);
         ctx.strokeText("/", 1490, 170);
         ctx.fillText("/", 1490, 170);
-        drawOutlineWithSpacing(ctx,dualText[1],1540,170,5)
-        drawTextWithSpacing(ctx,dualText[1],1540,170,5)
+        drawOutlineWithSpacing(ctx,dualText[1],1530,170,3,true)
+        drawTextWithSpacing(ctx,dualText[1],1530,170,3,true)
       }
       else if(cardText === "DIGIMON")
       {
         ctx.fillStyle = '#494949';
-        drawOutlineWithSpacing(ctx,cardText,1315,170,2)
-        drawTextWithSpacing(ctx,cardText,1315,170,2)
+        drawOutlineWithSpacing(ctx,cardText,1335,170,-3)
+        drawTextWithSpacing(ctx,cardText,1335,170,-3)
       }
       else if(cardText === "TAMER")
       {
-        drawOutlineWithSpacing(ctx,cardText,1350,170,5)
-        drawTextWithSpacing(ctx,cardText,1350,170,5)
+        drawOutlineWithSpacing(ctx,cardText,1375,170,-8)
+        drawTextWithSpacing(ctx,cardText,1375,170,-8)
       }
       else if(cardText === "OPTION")
       {
-        drawOutlineWithSpacing(ctx,cardText,1355,170,5)
-        drawTextWithSpacing(ctx,cardText,1355,170,5)
+        drawOutlineWithSpacing(ctx,cardText,1380,170,-2)
+        drawTextWithSpacing(ctx,cardText,1380,170,-2)
       }
 
       // DRAW AUTHOR
@@ -2821,7 +2903,7 @@ function CustomCreator() {
               const my_color = evo1_colors[i];
               i = Number(i);
               let X = offset_x + 130 -20;
-              let Y = offset_y + 110 + 600 + circle_offset;
+              let Y = offset_y + 105 + 600 + circle_offset;
 
               const imgWidth = 280; // height, too
               const imgHeight = 280; // height, too
@@ -2846,7 +2928,17 @@ function CustomCreator() {
                   ctx.fillStyle = 'rgba(255, 170, 140, 0.6)';
                   ctx.fillRect(0, 0, canvas.width, canvas.height);
                 }
-                if (my_color === 'blue' || my_color === 'green') {
+                if (my_color === 'green') {
+                  
+                  ctx.globalCompositeOperation = 'source-over'; 
+                  ctx.fillStyle = 'rgba(91,161,117, 0.8)';
+                  ctx.fillRect(0, 0, canvas.width, canvas.height);
+                  ctx.globalCompositeOperation = 'luminosity'; 
+                  ctx.fillStyle = 'rgba(70,70,70, 0.5)';
+                  ctx.fillRect(0, 0, canvas.width, canvas.height);
+                  
+                }
+                if (my_color === 'blue') {
                   ctx.globalCompositeOperation = 'luminosity'; 
                   ctx.fillStyle = 'rgba(70,70,70, 0.5)';
                   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -2861,7 +2953,7 @@ function CustomCreator() {
                 console.error(1576, "no wedge", e);
               }
             }
-            let cx=330;
+            let cx=340;
             let cy=920;
             let radius = 135;
             const gradient = ctx.createRadialGradient(
@@ -2945,6 +3037,25 @@ function CustomCreator() {
 
 
       let x = 355;
+
+      if (cantPlayColor) {
+        ctx.save()
+        console.log("Drawing cantplay "+cantPlayColor)
+        let img = new Image();
+        img.src = cantPlayColor
+        ctx.drawImage(img,175,50,850,270)
+        let cantPlayText = "Can't play to the field.";
+        let text = [[cantPlayText, "italics"]];
+        ctx.font = `italic bold 65px Asimov`;
+        ctx.fillColor = 'white'
+        if(colors[0] === 'yellow' || colors[0] === 'white')
+        {
+          ctx.fillStyle = 'black'
+        }
+        textLine(ctx,text,620,120,890)
+        ctx.restore()
+      }
+
       //playcost. If 0 or more, show that number. Else show egg symbol.
       let playcost = parseInt(json.playCost);
 
@@ -3074,6 +3185,7 @@ function CustomCreator() {
         textLine(ctx, ace_text, 1310, 3655, 1400);
         textLine(ctx, ace_text2, 650, 3750, 2120);//, 0.2);
 
+        
 
         if (false) {
           ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
@@ -3093,6 +3205,7 @@ function CustomCreator() {
         // now put it in its second place
 
       }
+
 
       if (hasDP(type)) {
         // dp
@@ -3308,7 +3421,7 @@ function CustomCreator() {
         y_line = drawBracketedText(ctx, baseFontSize, effect,
           //wrapText(ctx, effect, // + effect, 
           250, y_line,
-          2455 + 100,
+          2455 + 200,
           Number(baseFontSize) + Number(imageOptions.lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
           radius,
           false
@@ -3424,7 +3537,7 @@ function CustomCreator() {
         const dualEffect = json.dualEffect;
         if (!empty(dualEffect)) {
           let fontSize = 80;
-          delta_x += 50; delta_y += 20;
+          delta_x += 60; delta_y += 25;
           const x = 700 + delta_x * 2.5;
           const y = 4085 + delta_y * 1.5;
           drawBracketedText(ctx, fontSize, dualEffect,
@@ -3437,7 +3550,7 @@ function CustomCreator() {
           ctx.fillStyle = 'rgba(255, 254, 254, 1.0)';
           // this x,y is messed up, because it's scaled
           const len = dualEffect.length * 30;
-          textLine(ctx, text, 200 + len, 4000, 2600 - len);
+          textLine(ctx, text, 220 + len, 4015, 2590 - len);
           }
 
 

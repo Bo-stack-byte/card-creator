@@ -329,7 +329,13 @@ import _blackline from './frames/lines/blackline.png';
 import _purpleline from './frames/lines/purpleline.png';
 import _whiteline from './frames/lines/whiteline.png';
 
-
+import _redcantplay from './frames/redcantplay.png'
+import _bluecantplay from './frames/bluecantplay.png'
+import _yellowcantplay from './frames/yellowcantplay.png'
+import _greencantplay from './frames/greencantplay.png'
+import _blackcantplay from './frames/blackcantplay.png'
+import _purplecantplay from './frames/purplecantplay.png'
+import _whitecantplay from './frames/whitecantplay.png'
 
 export const ace_backgrounds = {
   'red': ace_red,
@@ -339,6 +345,16 @@ export const ace_backgrounds = {
   'purple': ace_purple,
   'black': ace_black,
   'white': ace_white
+}
+
+export const cantplay = {
+  'red': _redcantplay,
+  'blue': _bluecantplay,
+  'yellow': _yellowcantplay,
+  'green': _greencantplay,
+  'black': _blackcantplay,
+  'purple': _purplecantplay,
+  'white': _whitecantplay
 }
 export const dual_backgrounds = {
   'red': dual_red,

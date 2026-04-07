@@ -26,6 +26,25 @@ br {
 
 }
 
+@font-face{
+  font-family: 'Anago-Medium';
+  src: local('Anago-Medium'), url(./fonts/anago-medium.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Nimbus-Sans-Novus';
+  src: local('Nimbus-Sans-Novus'), url(./fonts/nimbus-sans-novus-t-condensed-bold.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Nimbus-Sans-Novus-R';
+  src: local('Nimbus-Sans-Novus-R'), url(./fonts/nimbus-sans-novus-cond-semibold.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Dico-Sans-Soft';
+  src: local('Dico-Sans-Soft'), url(./fonts/dico-sans-soft-bold.otf) format('opentype');
+}
+
 @font-face {
   font-family: 'Hiragino';
   src: local('Hiragino'), url(./fonts/hiragino.ttf) format('truetype');
@@ -51,6 +70,11 @@ br {
 @font-face {
   font-family: 'MyriadCondenser';
   src: local('MyriadCondenser'), url(./fonts/MYRIADPRO-COND.OTF) format('opentype');
+}
+
+@font-face {
+  font-family: 'MyriadSemiCond';
+  src: local('MyriadSemiCond'), url(./fonts/MYRIADPRO-SEMIBOLD.OTF) format('opentype');
 }
 
 @font-face {

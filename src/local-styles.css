@@ -20,6 +20,13 @@ br {
     display: inline-block; margin-right: 2px; /* Optional: add some space between spans */
 }
 
+ 
+@font-face{
+  font-family: 'Anago-Medium';
+  src: local('Anago-Medium'), url(./fonts/anago-medium.ttf) format('truetype');
+}
+
+
 @font-face {
   font-family: 'Bert';
   src: local('Bert'), url(./fonts/bert-sans.medium.ttf) format('truetype');
@@ -70,7 +77,12 @@ br {
   src: local('FallingSky'), url(./fonts/FallingSky.otf) format('opentype');
 }
 
+@font-face {
+  font-family: 'xxx';
+  src: local('xxx'), url(./fonts/anago-medium.ttf) format('truetype');
+}
 
+/* this may be unused, given the online font below */
 
 @font-face {
     font-family: "ProhibitionRough";

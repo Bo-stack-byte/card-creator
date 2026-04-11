@@ -65,13 +65,14 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.55"
-const latest = "fix light blue which shouldn't exist at all and old darker blue now really dark and better 🔴🔵🟡🟢🟣⚫⚪, courtesy @rlvvmc; fix zip filenames"
+const version = "0.8.56"
+const latest = "for card types, roboto -> anago font change and spacing routine recommended by @rlvvmc"
 
-// version 0.8.55   fix light blue which shouldn't exist at all and old darker blue now really dark and better 🔴🔵🟡🟢🟣⚫⚪, courtesy @rlvvmc; fix zip filenames
-// version 0.8.54.x debounce and circle shading courtesy of @rlvvmc, not on eggs/dual'
+// version 0.8.56   for card types, roboto -> anago font change and spacing routine recommended by @rlvvmc
+// version 0.8.55   fix light blue which shouldn't exist at all and old darker blue now really dark and better 🔴🔵🟡🟢🟣⚫⚪, courtesy @rlvvmc; fix zip filenames; no glow on eggs/dual
+// version 0.8.54.x debounce and circle shading courtesy of @rlvvmc'
 // version 0.8.53   new DUAL frames courtesy of @rlvvmc
-// version 0.8.52   only use defaults arts evolve text if there's none; did light-blue change to dark-blue here?
+// version 0.8.52   only use defaults arts evolve text if there's none
 // version 0.8.51   naked circle when using playCost of 'blank'
 // version 0.8.50   stop option name overflow; fix font for duel effect; more room for optionCardEffect
 // version 0.8.49   for DUALs fix use color and level-shell color
@@ -1565,7 +1566,35 @@ function CustomCreator() {
 
   }
 
+function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
 
+ let nextspace = 0;
+
+ if (text === "") return;
+ let text_length = text.length;
+ let totalWidth = ctx.measureText(text).width + spacing * (text_length - 1);
+ if (fillSize) {
+    if (text_length === 1) text_length = 2;
+    spacing = (fillSize - ctx.measureText(text).width) / (text_length - 1);
+    totalWidth = fillSize;
+ }
+ let currentX = x - totalWidth / 2;
+ for (let char of text) {
+   let offset = 0;
+   const charWidth = ctx.measureText(char).width;
+   // characters too far right
+   if (char === "I") offset -= charWidth * .75;
+   if (char === "-") offset -= charWidth * .25;
+   if (char === "/") offset -= charWidth * .25;
+   if (char === "⁄") offset -= charWidth * 1.35;
+  // characters too far left
+   if (char === "M") offset += charWidth * .10;
+   if (char === "W") offset += charWidth * .10;
+   ctx.strokeText(char, currentX + offset, y);
+   ctx.fillText(char, currentX + offset, y);
+   currentX += charWidth + spacing + nextspace;
+ }
+}
 
   function popEvoCond(json_t) {
     const json_all = JSON.parse(json_t);
@@ -2384,7 +2413,6 @@ function CustomCreator() {
         }
 
       }
-
       // top mon?
       if (imageOptions.foregroundOnTop) drawMon(mon_img, bottom_y + 45);
 
@@ -2392,14 +2420,31 @@ function CustomCreator() {
       ctx.textAlign = 'center';
       ctx.fillStyle = 'white';
       ctx.strokeStyle = 'black';
-      ctx.font = `bold 84px Roboto`;
-      if (!type.startsWith("OPTION")) {
+  //    ctx.font = `bold 84px Roboto`;
+      ctx.font = `bold 70px Anago-Medium`;
+      let cardText = json.cardType.toUpperCase();
+      if (cardText.includes("/") || cardText.includes("⁄")) {
         ctx.fillStyle = 'black';
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 12
-        ctx.strokeText(json.cardType.toUpperCase(), 1490, 180);
+        let words = cardText.split(/[/⁄]/);
+        let x = 1515;
+        drawTextWithSpacing(ctx,"⁄",1515,140,12);
+        let offset = 160;
+        let slashpadding = 40;        
+        drawTextWithSpacing(ctx,words[0].trim(), x - offset - slashpadding, 170, 0, offset*2);
+        drawTextWithSpacing(ctx,words[1].trim(), x + offset + slashpadding, 170, 0, offset*2);
+     } else {      
+       ctx.lineJoin = 'round'; // This prevents the spikes
+       ctx.fillStyle = 'black';
+       ctx.strokeStyle = 'white';
+       ctx.lineWidth = 12
+       if (cardText === "OPTION") {
+       ctx.fillStyle = 'white';
+       ctx.strokeStyle = '#2F4E6E';
       }
-      ctx.fillText(json.cardType.toUpperCase(), 1490, 180);
+      drawTextWithSpacing(ctx,cardText,1515,170,12)
+    }
 
       // DRAW AUTHOR
       if (true) try {
@@ -3881,6 +3926,7 @@ function CustomCreator() {
             <p style={{ fontFamily: "ProhibitionRough" }}><a href="./fontguide.html">FONT GUIDE</a> &nbsp; &nbsp;  <a href="./roadmap.txt">roadmap</a></p>
             <p style={{ fontFamily: "Helvectica" }}>DUAL frames courtesy of <a href="https://github.com/rlv-ab">@rlvvmc</a></p>
             <p style={{ fontFamily: "Roboto" }}>Some modern templates from <a href="https://www.reddit.com/r/DigimonCardGame2020/comments/14fgi6o/magic_set_editor_custom_card_new_template_bt14/">Weyrus and FuutsuFIX</a> based on work by Eronan.</p>
+            <p style={{ fontFamily: "Anago-Medium" }}>One or more fonts from <a href="https://www.onlinewebfonts.com/icon">onlinewebfonts</a> licensed by CC BY 4.0</p>
             <p style={{ fontFamily: "AyarKasone" }}> More templates from <a href="https://digi-lov.tumblr.com/post/748763635923435520/digimon-card-template">Digi-Lov</a></p>
             <p style={{ fontFamily: "FallingSky" }}>Shout out to pinimba, Zaffy, and Digimoncard.io who kept this dream alive in previous years.</p>
             <p style={{ fontFamily: "Asimov" }}> Classic templates originally came from Quietype on WithTheWill.</p>

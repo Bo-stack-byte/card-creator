@@ -65,10 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.56"
+const version = "0.8.56.1"
 const latest = "for card types, roboto -> anago font change and spacing routine recommended by @rlvvmc"
 
-// version 0.8.56   for card types, roboto -> anago font change and spacing routine recommended by @rlvvmc
+// version 0.8.56.x for card types, roboto -> anago font change and spacing routine recommended by @rlvvmc
 // version 0.8.55   fix light blue which shouldn't exist at all and old darker blue now really dark and better 🔴🔵🟡🟢🟣⚫⚪, courtesy @rlvvmc; fix zip filenames; no glow on eggs/dual
 // version 0.8.54.x debounce and circle shading courtesy of @rlvvmc'
 // version 0.8.53   new DUAL frames courtesy of @rlvvmc
@@ -1588,7 +1588,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
    if (char === "/") offset -= charWidth * .25;
    if (char === "⁄") offset -= charWidth * 1.35;
   // characters too far left
-   if (char === "M") offset += charWidth * .10;
+   if (char === "M") offset += charWidth * .15;
    if (char === "W") offset += charWidth * .10;
    ctx.strokeText(char, currentX + offset, y);
    ctx.fillText(char, currentX + offset, y);
@@ -2423,28 +2423,26 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
   //    ctx.font = `bold 84px Roboto`;
       ctx.font = `bold 70px Anago-Medium`;
       let cardText = json.cardType.toUpperCase();
+      ctx.lineJoin = 'round'; // prevent spikes
+      ctx.lineWidth = 12;
+      ctx.fillStyle = 'black';
+      ctx.strokeStyle = 'white';
+      if (cardText === "OPTION") {
+       ctx.fillStyle = 'white';
+       ctx.strokeStyle = '#2F4E6E';
+      }
+
       if (cardText.includes("/") || cardText.includes("⁄")) {
-        ctx.fillStyle = 'black';
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 12
         let words = cardText.split(/[/⁄]/);
         let x = 1515;
-        drawTextWithSpacing(ctx,"⁄",1515,140,12);
+        drawTextWithSpacing(ctx,"⁄",1515,170,12);
         let offset = 160;
         let slashpadding = 40;        
         drawTextWithSpacing(ctx,words[0].trim(), x - offset - slashpadding, 170, 0, offset*2);
         drawTextWithSpacing(ctx,words[1].trim(), x + offset + slashpadding, 170, 0, offset*2);
      } else {      
-       ctx.lineJoin = 'round'; // This prevents the spikes
-       ctx.fillStyle = 'black';
-       ctx.strokeStyle = 'white';
-       ctx.lineWidth = 12
-       if (cardText === "OPTION") {
-       ctx.fillStyle = 'white';
-       ctx.strokeStyle = '#2F4E6E';
-      }
       drawTextWithSpacing(ctx,cardText,1515,170,12)
-    }
+     }
 
       // DRAW AUTHOR
       if (true) try {

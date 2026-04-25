@@ -749,7 +749,7 @@ function getColor(phrase, default_color = 'blue') {
   if (['Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'red';
   if (phrase.match(/^(Burst )?(Digi|E)volve$/i)) return 'darkblue';
   if (phrase.match(/^App Fusion$/i)) return 'darkblue';
-  if (phrase === "Counter") return 'darkblue';
+  if (phrase === "Counter") return 'blue';
   return default_color;
 }
 

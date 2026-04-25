@@ -65,9 +65,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.56.1"
-const latest = "for card types, roboto -> anago font change and spacing routine recommended by @rlvvmc"
+const version = "0.8.57.2"
+const latest = "nimbus font used for people who don't have helvetica; tweak DP numbers; dark blue for counter"
 
+
+// version 0.8.57   nimbus font used for people who don't have helvetica; tweak DP numbers; dark blue for counter
 // version 0.8.56.x for card types, roboto -> anago font change and spacing routine recommended by @rlvvmc
 // version 0.8.55   fix light blue which shouldn't exist at all and old darker blue now really dark and better 🔴🔵🟡🟢🟣⚫⚪, courtesy @rlvvmc; fix zip filenames; no glow on eggs/dual
 // version 0.8.54.x debounce and circle shading courtesy of @rlvvmc'
@@ -281,8 +283,14 @@ function effectBoxScale(source_height, offset) {
 }
 
 
-const numberFont = "'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'Neue Helvetica BQ', 'Helvetica Neue', 'AyarKasone', 'Helvetica'"
-let neue = false;
+const numberFont = "'HelveticaNeue-CondensedBold', 'Nimbus-Sans-Novus'"; 
+//'Helvetica Neue Condensed Bold', 'Neue Helvetica BQ', 'Helvetica Neue',
+// 'AyarKasone', 'Helvetica'"
+//const numberFont = "'HelveticaNeue-CondensedBold'";
+//const numberFont = "'Nimbus-Sans-Novus'";
+//const numberFont = "ProhibitionRough";
+let neue = false; //document.fonts.check(`16px ${numberFont}`);
+
 
 // stringroundremoved, dec 17
 
@@ -1199,13 +1207,18 @@ function writeDP(ctx, _dp, args) {
     }
   }
   let dp_x = x - 5;
-  let neue_boost = neue ? 0 : -20;
+  let neue_boost = neue ? 0 : 0;
 
-  // TODO: handle the fact that AyarKasone is ugly for 0 and 6 and 9
+
+  if (!neue) {
+    bigsize *= 1.03;
+    size *= 1.03;
+  }
   ctx.font = `bold ${bigsize}px ${numberFont}`;
+
   while (dp_k > 0 || dp_k === "0") {
     // right-to-left for dp_k
-    let letterSpacing = -25;
+    let letterSpacing = -(bigsize/13.8);// <-- do relative to small size
     let dp_char = dp_k % 10;
     ctx.lineWidth = 20;
     ctx.strokeStyle = stroke;
@@ -1215,12 +1228,7 @@ function writeDP(ctx, _dp, args) {
     dp_k = Math.floor(dp_k / 10);
   }
 
-  // the AyarKasone 0's are just too ugly to allow, so since 
-  // this will be "000" for most we can fall back to Helvetica
   ctx.font = `bold ${size}px ${numberFont}`;
-  if (!neue) {
-    ctx.font = `bold ${size}px 'Helvetica', 'AyarKasone', 'Helvetica'`;
-  }
 
   ctx.textAlign = 'left';
   ctx.textBaseline = 'bottom';
@@ -1229,7 +1237,7 @@ function writeDP(ctx, _dp, args) {
   let y_offset = (bigsize / 12);
   if (dp_m) {
     for (let dp_char of dp_m) {
-      let letterSpacing = 5;
+      let letterSpacing = size / 16.5;
       ctx.lineWidth = 15;
       ctx.strokeStyle = stroke;
       if (stroke) ctx.strokeText(dp_char, dp_x, y - y_offset + neue_boost);
@@ -1481,7 +1489,7 @@ function CustomCreator() {
     _ctx.font = `275px 'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'Helvetica Neue', 'Helvetica Neue Lt Pro'`;
     let fontwidth = Math.round(_ctx.measureText("AAAaaa423434i").width);
     neue = (fontwidth === correct);
-    neue = true;
+   // neue = true;
     console.debug("h boolean", neue, "fontwidth", fontwidth, "correct", correct);
     _ctx.font = `275px 'HelveticaNeue-CondensedBold'`;
     console.debug("hv cb", Math.round(_ctx.measureText("AAAaaa423434i").width));
@@ -2458,7 +2466,8 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
       }
       const here = new URL(window.location.href);
       const author = empty(json.author) ? "" : json.author;
-      const ver = ("v" + version) || "";
+      // if no neue, mark version number with an n
+      const ver = ("v" + version + (neue?"":"n")) || "";
       const artist = (!empty(json.artist) && json.artist !== "-") ? json.artist : ver + "    " + here
       const credit = (author + "   " + artist).trim();
 
@@ -2921,12 +2930,15 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
           }
         }
         let neue_offset = 0;
-        if (!neue) neue_offset = 20;
+      //  if (!neue) neue_offset = 20;
         if (type === "DUAL") {
           // always white
           ctx.fillStyle = 'white';
           // show cost in different place
-          ctx.font = `600 180px ${numberFont}`;
+          let size = 180;
+          ctx.font = `600 ${size}px ${numberFont}`;
+          if (!neue)
+            ctx.font = `600 ${size * 1.03}px ${numberFont}`;
           ctx.strokeStyle = '#ffffffb0';        
           ctx.lineWidth = 7;
           ctx.shadowColor = 'white'; // Glow 
@@ -2937,7 +2949,11 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
           ctx.strokeText(playcost, x + 152, 3375 + neue_offset);
           ctx.shadowBlur = 0;     // Glow intensity
         } else if (playcost >= 0 || playcost === "-") {
-          ctx.font = `600 290px ${numberFont}`;
+          let size = 290
+          ctx.font = `600 ${size}px ${numberFont}`;
+          if (!neue)
+            ctx.font = `600 ${size * 1.11}px ${numberFont}`;
+
           ctx.fillStyle = 'white';
           if (gold_text) {
             ctx.fillStyle = gold_gradient;
@@ -3016,8 +3032,8 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         // dp
         x = 2540;
         y = 410;
-
-        writeDP(ctx, json.dp, { x: x, y: y, size: 150, bigsize: 300, stroke: "white", color: "black" });
+        // was 150 300
+        writeDP(ctx, json.dp, { x: x, y: y, size: 165, bigsize: 345, stroke: "white", color: "black" });
         ctx.font = `100px 'Helvetica'`;
         ctx.lineWidth = 15;
         ctx.strokeStyle = 'white';
@@ -3783,12 +3799,8 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
             </div>
           </td>
           <td width={"25%"} valign={"top"}>
-
             {
-              neue || (<p>HelveticaNeue may not be loaded.</p>)
-
-
-
+              true || (<p>HelveticaNeue may not be loaded.</p>)
             }
 
             <div>

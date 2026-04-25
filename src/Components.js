@@ -31,7 +31,9 @@ export function CircleAndBlock(ctx, color, rarity, block, x, y) {
         ctx.fillStyle = "black";
         ctx.textAlign = 'center';
 
-        const numberFont = "'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'Neue Helvetica BQ', 'Helvetica Neue', 'AyarKasone', 'Helvetica'"
+        const numberFont = "'HelveticaNeue-CondensedBold', 'Nimbus-Sans-Novus'";
+        
+//        'Helvetica Neue Condensed Bold', 'Neue Helvetica BQ', 'Helvetica Neue', 'AyarKasone', 'Helvetica'"
         ctx.font = "500 90px " + numberFont;
         ctx.fillText(block, x + 75, y + 100);
     }

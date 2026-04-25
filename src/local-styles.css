@@ -78,8 +78,8 @@ br {
 }
 
 @font-face {
-  font-family: 'xxx';
-  src: local('xxx'), url(./fonts/anago-medium.ttf) format('truetype');
+  font-family: 'Nimbus-Sans-Novus';
+  src: local('Nimbus-Sans-Novus'), url(./fonts/nimbus-sans-novus-t-condensed-bold.ttf) format('truetype');
 }
 
 /* this may be unused, given the online font below */

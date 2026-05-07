@@ -65,10 +65,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.57.2"
-const latest = "nimbus font used for people who don't have helvetica; tweak DP numbers; dark blue for counter"
+const version = "0.8.58"
+const latest = "security text color uses same logic as name text"
 
 
+// version 0.8.58   security text color uses same logic as name text
 // version 0.8.57   nimbus font used for people who don't have helvetica; tweak DP numbers; dark blue for counter
 // version 0.8.56.x for card types, roboto -> anago font change and spacing routine recommended by @rlvvmc
 // version 0.8.55   fix light blue which shouldn't exist at all and old darker blue now really dark and better 🔴🔵🟡🟢🟣⚫⚪, courtesy @rlvvmc; fix zip filenames; no glow on eggs/dual
@@ -3296,9 +3297,16 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
           delta_x = 0; delta_y = 0;
         }
         let max_width = 2500 - 400 - delta_x * 2 - shrink;
+        // standard "effect" text is white with black border
+        // "option" (unused here) is black with minimal border
+        // "black effect" is black with black/no border
+        // "reverse effect 
+        let style = "effect";       
+        let [fillColor, edgeColor, stroke] = textColor(colors);
+        style = `custom[${fillColor},${edgeColor},${stroke}]`;
         drawBracketedText(ctx, baseFontSize, sec_effect,
           700 + delta_x * 2, 3740 + delta_y * 2,
-          max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
+          max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), style, radius);
         const dualEffect = json.dualEffect;
         if (!empty(dualEffect)) {
           let fontSize = 80;

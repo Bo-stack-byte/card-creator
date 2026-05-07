@@ -884,6 +884,17 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
             stroke = 'white';
             fill = 'black';
           }
+          const regex = /custom\[(.*)\]/;
+          const match = style.match(regex);
+//alert(style);
+          if (match && match[1]) {
+            console.log(897, match[1]);
+            // 2. Split the comma-separated values
+            let w;
+            [fill, stroke, w] = match[1].split(',');
+            width = (w === 'true') ? 12 : 1;
+            console.log(897, fill, stroke, width);
+          }
           let circCol = "";
           if (word === "🔴"|| word === "🔵"||word === "🟡"||word === "🟢"||word === "🟣"||word === "⚫"||word === "⚪")
           {

@@ -65,7 +65,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.59"
+const version = "0.8.59.1"
 const latest = "changes to fonts for evo circles, smaller evo circles from @rlvvmc, +/- dopesn't crash on multicards"
 
 // version 0.8.59   changes to fonts for evo circles, smaller evo circles, evo_cond +/- dopesn't crash on multicards
@@ -3276,18 +3276,16 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
       if (!empty(c_type)) a_traits.push(`  ${c_type}     `);
       let traits = a_traits.join("|");
       ctx.fillStyle = whiteColor(colors[0]);
-      if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
-        delta_y += 10;
+      if (type.startsWith("OPTION") || type.startsWith("TAMER")) {
+        delta_y += 18;
       }
       if (type === "MEGA") {
         //        delta_y += 50;
       }
       if (type === "EGG") {
-        delta_y += 0;
+        delta_y += 10;
       }
 
-      ctx.font = `bold 60px "FallifngSky", "MyrggiadProBold", "RepoMedium", "Robgoto"`;
-      ctx.font = `60px MyriadProBold`;
       ctx.font = `60px Hiragino`;
       ctx.fillText(traits, 2750, 3497 + delta_y)// * 0.9);
 

@@ -65,10 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.58"
-const latest = "security text color uses same logic as name text"
+const version = "0.8.59"
+const latest = "changes to fonts for evo circles, smaller evo circles from @rlvvmc, +/- dopesn't crash on multicards"
 
-
+// version 0.8.59   changes to fonts for evo circles, smaller evo circles, evo_cond +/- dopesn't crash on multicards
 // version 0.8.58   security text color uses same logic as name text
 // version 0.8.57   nimbus font used for people who don't have helvetica; tweak DP numbers; dark blue for counter
 // version 0.8.56.x for card types, roboto -> anago font change and spacing routine recommended by @rlvvmc
@@ -724,8 +724,8 @@ const starter_text_1_backup = `{
     "assembly": "",
     "burstEvolve": "-",
     "effect": "＜Armor Purge＞",
-    "evolveEffect": "",
-    "securityEffect": "-",
+    "evolveEffect": "XXX",
+    "securityEffect": "",
     "linkDP": "-",
     "linkRequirement": "",
     "linkEffect": "",
@@ -763,10 +763,68 @@ const starter_text_1_backup = `{
     },
     "block": ""
   }`;
+
+
+const test_case_1 = ` {
+    "name": {  "english": "Test Monster 1"  },
+    "color": "Yellow/Red",
+    "cardType": "Monster",
+    "cardLv": "Lv.4",
+    "dp": "-",
+    "evolveCondition": [
+      {
+        "level": "3",
+        "cost": "3",
+        "color": "Yellow"
+      },
+      {
+        "level": "3",
+        "cost": "3",
+        "color": "White"
+      },
+      {
+        "level": "Tamer",
+        "cost": "3",
+        "color": "Yellow"
+      },
+      {
+        "level": "Tamer",
+        "cost": "3",
+        "color": "White"
+      }
+    ],
+    "effect": "-",
+    "playCost": "-",
+    "form": "In-Training",
+    "attribute": "Data",
+    "type": "Sword",
+    "DP": 7000,
+    "rarity": "C",
+    "block": "03",
+    "evolveEffect": "[Twice Per Turn] This text should be white with a black border. The Evo color bubble should be solid black.",
+    "cardNumber": "T-81",
+    "imageOptions":{
+      "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
+      "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
+      "fontSize": 90.5, "lineSpacing": 10, "baselineOffset": 0, "specialOffset": 0, "bubbleRadius": 0, "altFontDelta": 0, 
+            "foregroundOnTop": false,
+            "cardFrame": true,
+            "effectBox": false,
+            "addFoil": 0,
+            "goldText": false,
+            "aceFrame": true,
+            "coloredFrame": false,
+            "outline": true,
+            "skipDraw": false
+
+    }
+}`;
+
+
 const starter_text = starter_text_empty;
 let all_text = "[" + [starter_text_0, starter_text_1_backup,
   starter_text_1a, starter_text_1b, starter_text_1c,
-  starter_text_2, starter_text_3, starter_text_4].join(",") + "]";
+  starter_text_2, starter_text_3, starter_text_4, test_case_1].join(",") + "]";
 
 // deprecated from our old "share" functionality, that put the entire JSON blob into the URL compressed+encoded 
 const decodeAndDecompress = (encodedString) => {
@@ -1157,9 +1215,8 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
   ctx.restore(); // Restore the previous state
 }
 
-function circleGlow(ctx, cx, cy) {
+function circleGlow(ctx, cx, cy, radius = 170) {
  // return;
-      let radius = 170;
       const gradient = ctx.createRadialGradient(
         cx, cy, 0,
         cx, cy, radius
@@ -1606,17 +1663,22 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
 }
 
   function popEvoCond(json_t) {
+
     const json_all = JSON.parse(json_t);
+    console.log(166.0, json_all);
     const json = json_all[cardIndex];
+    console.log(166.1, json);
+    console.log(166.2, json.evolveCondition);
     json.evolveCondition.pop();
-    updateJson(JSON.stringify(json, null, 2));
+    console.log(166.3, json.evolveCondition);
+    updateJson(JSON.stringify(json_all, null, 2));
   }
 
   function pushEvoCond(json_t) {
     const json_all = JSON.parse(json_t);
     const json = json_all[cardIndex];
     json.evolveCondition.push({ color: "", cost: "", level: "" });
-    updateJson(JSON.stringify(json, null, 2));
+    updateJson(JSON.stringify(json_all, null, 2));
   }
 
 
@@ -2435,6 +2497,8 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
       ctx.lineJoin = 'round'; // prevent spikes
       ctx.lineWidth = 12;
       ctx.fillStyle = 'black';
+              ctx.fillStyle = '#181818';
+
       ctx.strokeStyle = 'white';
       if (cardText === "OPTION") {
        ctx.fillStyle = 'white';
@@ -2472,7 +2536,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
       const artist = (!empty(json.artist) && json.artist !== "-") ? json.artist : ver + "    " + here
       const credit = (author + "   " + artist).trim();
 
-      ctx.font = '70px Bert';
+      ctx.font = '70px Hiragino';
       ctx.save();
       ctx.translate(2925, 560);
       ctx.rotate(-Math.PI / 2);
@@ -2790,14 +2854,14 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
               .map(e => e.color ? e.color.toLowerCase().split("/") : [])
               .reduce((acc, curr) => acc.concat(curr), []);
             j = Number(j);
-            let circle_offset = (j) * 420;
+            let circle_offset = (j) * 380;
 
             let n_level = parseInt(level);
             const evo1_level = n_level ? "Lv." + level : level;
 
             let ring = cost_evo;
             if (j > 0) ring = cost_evo_plain;
-            ctx.drawImage(ring, offset_x, offset_y + 600 + circle_offset, 500, 500);
+            ctx.drawImage(ring, offset_x, offset_y + 600 + circle_offset, 440, 440);
 
             let base = -135; // degrees
             let each = 360 / (evo1_colors.length);
@@ -2805,40 +2869,60 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
             for (let i in evo1_colors) {
               const my_color = evo1_colors[i];
               i = Number(i);
-              let X = offset_x + 130;
-              let Y = offset_y + 125 + 600 + circle_offset;
+              let X = offset_x + 130 - 10
+              let Y = offset_y + 110 + 600 + circle_offset;
 
-              const imgWidth = 310; // height, too
-              const imgHeight = 310; // height, too
+              const imgWidth = 272; // height, too
+              const imgHeight = 272 ; // +6 ; // height, too
 
               const circle = evoImages[my_color];
               const wedge = wedgeImages[my_color];
-              const radius = imgWidth / 2;
+              const radius = (imgWidth + imgHeight) / 4;
               // TODO: wait for .onLoad()? Or did we.
               let start = base + i * each
               const startAngle = (start * Math.PI) / 180;
               const sweepAngle = (each * Math.PI) / 180;
               ctx.save();
               ctx.beginPath();
+              //fudge solid circle into place. 
+              // the thing we're overwriting isn't an exact circle and that's making trouble
+              const temp_x = -5; // 
+              const temp_y = -2;
+              X += temp_x;
+              Y += temp_y;
               ctx.moveTo(X + radius, Y + radius);
               ctx.arc(X + radius, Y + radius, radius, startAngle, startAngle + sweepAngle);
               ctx.lineTo(X + radius, Y + radius);
+
               ctx.clip();
               try {
                 ctx.drawImage(circle, 0, 0, 291, 291, X, Y, imgWidth, imgHeight);
+                if (my_color === 'red') {
+                  ctx.globalCompositeOperation = 'color'; 
+                  ctx.fillStyle = 'rgba(255, 170, 140, 0.6)';
+                  ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+                if (my_color === 'blue' || my_color === 'green') {
+                  ctx.globalCompositeOperation = 'luminosity'; 
+                  ctx.fillStyle = 'rgba(70,70,70, 0.5)';
+                  ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+                let cx=X+radius;
+                let cy=Y+radius;
+                circleGlow(ctx, cx, cy, radius * 1.1);
+
               } catch (e) {
                 console.error(1329, "no circle", e);
               }
               ctx.restore();
+              X -= temp_x;
+              Y -= temp_y;
               try {
-                ctx.drawImage(wedge, 0, 0, 291, 291, X - 130, Y - 127, 5.15 * wedge.width, 5.45 * wedge.height);
+                ctx.drawImage(wedge, 0, 0, 291, 291, X - 120, Y - 113, 4.55 * wedge.width, 4.82 * wedge.height);
               } catch (e) {
                 console.error(1576, "no wedge", e);
               }
             }
-            let cx=380;
-            let cy=955;
-            circleGlow(ctx, cx, cy);
 
             // how to write the "lv.4" and "TAMER" text in evo circle?
             // many many experiments here 
@@ -2847,8 +2931,15 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
             ctx.font = `80px AyarKasone, Helvetica`;
             ctx.font = `80px Helvetica`;
             //    ctx.font = `80px MyriadProBold`;
-            ctx.font = `85px Roboto, Helggggvetica`; //  Roboto`;
-            // this font might be right for "tamer" but isn't for "Lv.3"
+
+            let levelsize = 75;
+            let level_offset = 0;
+            if (evo1_level.length > 4) {
+              levelsize -= 10;
+              level_offset = 10;
+            }
+
+            ctx.font = `${levelsize}px 'Hiragino'`; //  Roboto`;
 
             ctx.lineWidth = 10;
 
@@ -2860,20 +2951,23 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
      //         border = false;
             }
             if (border) {
+           //   ctx.font = `75px 'Hiragino'`
               ctx.strokeStyle = strokeColor;
-              ctx.lineWidth = 10;
-              ctx.strokeText(evo1_level, 375, 870 + circle_offset, 200);
+              ctx.lineWidth = 15;
+              ctx.strokeText(evo1_level, 340, 845 + circle_offset + level_offset, 180);
             }
             ctx.fillStyle = fillColor; // contrastColor(evo_color);
-            ctx.fillText(evo1_level, 375, 870 + circle_offset, 200);
-
+            ctx.fillText(evo1_level, 340, 845 + circle_offset + level_offset, 180);
             // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
-            ctx.font = `bold 220px ${numberFont}`;
+            ctx.font = `bold 210px ${numberFont}`;
             if (border) {
               ctx.lineWidth = 10;
-              ctx.strokeText(evo1_cost, 375, 1010 + circle_offset);
+                            ctx.lineJoin = "round"
+                    ctx.lineWidth = 18;
+
+              ctx.strokeText(evo1_cost, 340, 970 + circle_offset);
             }
-            ctx.fillText(evo1_cost, 375, 1010 + circle_offset);
+            ctx.fillText(evo1_cost, 340, 970 + circle_offset);
           }
         }
       }
@@ -3177,9 +3271,9 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
       // todo don't show when all blank
       let a_traits = [];
 
-      if (!empty(form)) a_traits.push(` ${center(form)} `);
-      if (!empty(attribute)) a_traits.push(` ${center(attribute)} `);
-      if (!empty(c_type)) a_traits.push(` ${c_type}  `);
+      if (!empty(form)) a_traits.push(`${center(form)}`);
+      if (!empty(attribute)) a_traits.push(`      ${center(attribute)}      `);
+      if (!empty(c_type)) a_traits.push(`  ${c_type}     `);
       let traits = a_traits.join("|");
       ctx.fillStyle = whiteColor(colors[0]);
       if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
@@ -3194,7 +3288,8 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
 
       ctx.font = `bold 60px "FallifngSky", "MyrggiadProBold", "RepoMedium", "Robgoto"`;
       ctx.font = `60px MyriadProBold`;
-      ctx.fillText(traits, 2750, 3490 + delta_y)// * 0.9);
+      ctx.font = `60px Hiragino`;
+      ctx.fillText(traits, 2750, 3497 + delta_y)// * 0.9);
 
       ///// MAIN TEXT 
       let y_line = bottom - 640; // set above for effectbox / rule
@@ -3485,6 +3580,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
       }
     }
 
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
 

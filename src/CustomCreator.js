@@ -1,18 +1,18 @@
 import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react';
-import { basics, options, colorReplace } from './images';
+import { basics, options, colorReplace, linkdpWhite } from './images';
 import {
 
-  mon_background, dual_background, mega_background, 
+  mon_background, dual_background, dual_backgrounds_alt, mega_background, 
   egg_background, option_background, tamer_background,
   mon_background_nocost, mega_background_nocost, /*egg_background_nocost,*/ option_background_nocost, tamer_background_nocost,
 
-  ace_backgrounds, dual_backgrounds,cantplay,
+  ace_backgrounds, dual_backgrounds,cantplay,rarity,
   outlines,
   outlines_nocost,
   outlines_tamer, outline_option, outlines_egg,
   outlines_tamer_nocost, outline_option_nocost, /*outlines_egg_nocost,*/
 
-  cost, cost_egg, cost_dual, cost_blank, cost_option, cost_evo, cost_evo_plain, costs,
+  cost, cost_egg, cost_dual, cost_dual_gold, cost_blank, cost_option, cost_evo, cost_evo_plain, costs,
   ace_logo, ace_box, arts_box, foil, gold, linkdp,
   new_evo_circles, /* new_evo2_circles, */
   new_evo_wedges,
@@ -33,7 +33,7 @@ import { enterPlainText, custom_1, custom_2, custom_3, custom_4, custom_5, custo
 import { fitTextToWidth, drawBracketedText, writeRuleText, center, textLine, drawRoundedRect,
   gold_text, set_gold_text,
   gold_gradient,
-  textColor 
+  textColor, drawColoredRectangle
  } from './text';
 import banner from './banner.png';
 import egg from './egg.png';
@@ -291,8 +291,9 @@ let neue = false;
 const hasLevel = (type) => {
   return (type === "EGG" || type === "MONSTER" || type === "MEGA" || type === "ACE" || type === "LINK" || type === "DUAL");
 }
-const levelHeight = (type) => {
+const levelHeight = (type,cardLv = "") => {
   // ACE should be in here!
+  if (type === "ACE" && (cardLv === "Lv.6" || cardLv === "Lv.7")) return 200;
   if (type === "EGG") return - 110;
   if (type === "MEGA" || type === "LINK") return 500;
   if (type === "DUAL") return -300;
@@ -360,6 +361,8 @@ const starter_text_empty = `[{
   "effect": "-",
   "securityEffect": "-",
   "evolveEffect": "-",
+  
+  "spRarity": "-",
 
 
   "rule": "",
@@ -859,8 +862,8 @@ const cardColor = (wordColor) => {
   if (wordColor === 'purple') return '#6053A0';
   if (wordColor === 'green') return '#459462';  
   if (wordColor === 'red') return '#D22E37';
-  if (wordColor === 'blue') return '#4B90CC';
-  if (wordColor === 'yellow') return '#F3E150';
+  if (wordColor === 'blue') return '#0096E2';
+  if (wordColor === 'yellow') return '#F6E01B';
   if (wordColor === 'black') return '#201616';
   if (wordColor === 'white') return '#ffffff'; // white is white, alright.
   
@@ -869,7 +872,7 @@ const cardColor = (wordColor) => {
 }
 
 // draws the nameBox and maybe decorates it
-const nameBoxShell = (ctx, _y, colors1, colors2) => {
+const nameBoxShell = (ctx, _y, colors1, colors2,sp="-") => {
         let cornerCut = 50;
         let x = 167;
         const width = 2650 // 2625;
@@ -903,9 +906,13 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
           ctx.lineTo(x, y + cornerCut);
           ctx.closePath();
 
+          ctx.save();
+          let opacity = (sp!=="-") ? 80 : 100;
+          ctx.globalAlpha = opacity
           ctx.fillStyle = fillColor1;
           ctx.shadowColor = fillColor1 + "80"; 
           ctx.fill();
+          ctx.restore();
     
           // black portion
           ctx.beginPath();
@@ -959,9 +966,13 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
           ctx.lineTo(x,         y + dualNameHeight);
           ctx.closePath();
 
+          ctx.save();
+          let opacity = (sp!=="-") ? 80 : 100;
+          ctx.globalAlpha = opacity
           ctx.fillStyle = fillColor2;
           ctx.shadowColor = fillColor2 + "80"; 
           ctx.fill();
+          ctx.restore();
 
           ctx.beginPath();
           ctx.lineTo(x, y + dualNameHeight + innerGap);
@@ -976,9 +987,12 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
           ctx.lineTo(x, y + cornerCut);
           ctx.closePath();
 
+          ctx.save();
+          ctx.globalAlpha = opacity
           ctx.fillStyle = fillColor2;
           ctx.shadowColor = fillColor2 + "80"; 
           ctx.fill();
+          ctx.restore()
           scaleZoneEnd(ctx);
         }
         // color box for dual
@@ -1034,8 +1048,8 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
         ctx.beginPath();
         path.moveTo(x + cornerCut, y);
         path.lineTo(x + useWidth, y); 
-        path.lineTo(x + useWidth, y + dualNameHeight - 10); 
-        path.lineTo(x, y + dualNameHeight - 10); 
+        path.lineTo(x + useWidth, y + dualNameHeight); 
+        path.lineTo(x, y + dualNameHeight); 
         path.lineTo(x, y + cornerCut); 
         path.closePath();
         
@@ -1068,10 +1082,28 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
         ctx.textBaseline = 'alphabetic';
         ctx.fillText("Use", x + 50, y + 110);
 
-        ctx.fillStyle = "black";
+        ctx.fillStyle = "#000E23";
         drawRoundedRect(ctx, x + 240, y, 200, dualNameHeight, 50);
         ctx.strokeStyle = "grey";
         drawRoundedRect(ctx, x + 240, y, 200, dualNameHeight, 50, true);
+        ctx.save()
+        ctx.translate(x+340,y+85)
+        ctx.scale(1,1.25)
+        ctx.clip()
+        let radius = 110;
+        const gradient = ctx.createRadialGradient(0,0,0,0,0, radius);
+
+            gradient.addColorStop(0,   "rgba(69, 103, 161, 0.57)");
+             gradient.addColorStop(0.3,   "rgba(69, 103, 161, 0.72)");
+            gradient.addColorStop(0.4,   "#224d8e");
+            gradient.addColorStop(0.9,   "#020e1f");
+        //ctx.globalCompositeOperation = "lighter";
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore()
+        
 
         // line across dual box, this is a hack for now
      /*
@@ -1146,11 +1178,11 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
 
 function writeDP(ctx, _dp, args) {
 
-  let { x, y, size, bigsize, stroke, color } = args;
+  let { x, y, size, bigsize, stroke, color, UR } = args;
   //  let [x, y, size, stroke, color] = args[x, y,x = 2540, y = 410, size = 175, stroke = "white", color = "black") {
-
-  if (gold_text) { 
-    color = gold_gradient;
+  console.log("IS UR: "+UR)
+  if (gold_text || UR) { 
+    color = "#c4b63a";
     stroke = 'black';
   }
   ctx.fillStyle = color;
@@ -1182,7 +1214,7 @@ function writeDP(ctx, _dp, args) {
     // right-to-left for dp_k
     let letterSpacing = -25;
     let dp_char = dp_k % 10;
-    ctx.lineWidth = 20;
+    ctx.lineWidth = 15;
     ctx.strokeStyle = stroke;
     if (stroke) ctx.strokeText(dp_char, dp_x-scoffsx+40, y - 0.5 * neue_boost-scoffsy);
     ctx.fillText(dp_char, dp_x-scoffsx+40, y - 0.5 * neue_boost -scoffsy);
@@ -1551,9 +1583,66 @@ function CustomCreator() {
     for (let char of text) {
       let preoffs = 0;
       if(text === "DIGIMON" && char === "M") preoffs = 10;
+      if(!isNaN(Number(char)))
+      {
+        preoffs = 3
+      }
+      if(char === "-")
+      {
+        preoffs = -23
+      }
       ctx.fillText(char, currentX+preoffs, y);
       const charWidth = ctx.measureText(char).width;
-      if(char === "I"|| (char ==="A" && !dual) || (char ==="T" && text!=="OPTION" && !dual))
+      if(preoffs<0)
+      {
+        preoffs=0
+      }
+      if(text.startsWith("Lv"))
+      {
+        if(char === "L")
+        {
+          nextspace = -5
+        }
+        if(char === "v")
+        {
+          nextspace = -20
+        }
+        if(char === ".")
+        {
+          nextspace = 7
+        }
+      }
+      else if(text === "Ult.")
+      {
+        if(char === "U")
+        {
+          nextspace = -7
+        }
+        else
+        {
+          nextspace = 7;
+        }
+      }
+      else if(text === "Sup.") //text === "Stnd."
+      {
+        if(char === "S")
+        {
+          nextspace = -2
+        }
+        else if(char === "u")
+        {
+          nextspace = -2
+        }
+        else if(char === "p")
+        {
+          nextspace = -13
+        }
+        else
+        {
+          nextspace = -20;
+        }
+      }
+      else if(char === "I"|| (char ==="A" && (text==="DIGIMON" || text==="TAMER" || text==="OPTION") && !dual) || (char ==="T" && (text==="DIGIMON" || text==="TAMER") && !dual))
           {
             if(text === "DIGIMON")
             {
@@ -1564,35 +1653,99 @@ function CustomCreator() {
               nextspace = 25+preoffs;
             }
           }
-          else if((char === "O" || char === "E") && !dual)
+          else if(char === "O" && !dual)
           {
-            nextspace = 10+preoffs
+            nextspace = 7+preoffs
+          }
+          else if(char === "E" && !dual)
+          {
+            nextspace = 20+preoffs
           }
           else if(char === "M" && !dual)
           {
-            nextspace = 5+preoffs
+            nextspace = 7+preoffs
+          }
+          else if((char === "T" || char === "X") && (text!=="DIGIMON" || text!=="TAMER" || text!=="OPTION"))
+          {
+            nextspace = 3+preoffs
+          }
+          else if(char === "-")
+          {
+            nextspace = 15+preoffs
           }
           else
           {
             nextspace = 0+preoffs;
           }
+          if(text === "Stnd." && char === "d")
+          {
+            nextspace = -14
+          }
           currentX += charWidth + spacing + nextspace;
     }
   }
-  function drawOutlineWithSpacing(ctx, text, x, y, spacing = 2,dual=false) {
+  function drawOutlineWithSpacing(ctx, text, x, y, spacing = 2,dual=false,inheritStyle=false) {
     let currentX = x;
     if (!text.startsWith("OPTION")) {
-        ctx.fillStyle = 'black';
-        ctx.lineJoin = "bevel"
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 12;
+        if(!inheritStyle)
+        {
+          ctx.fillStyle = 'black';
+          ctx.lineJoin = "bevel"
+          ctx.strokeStyle = 'white';
+          ctx.lineWidth = 12;
+        }
         let nextspace = 0;
         for (let char of text) {
           let preoffs = 0;
           if(text === "DIGIMON" && char === "M") preoffs = 10;
           ctx.strokeText(char, currentX+preoffs, y);
           const charWidth = ctx.measureText(char).width;
-          if(char === "I" || (char ==="A" && !dual) || (char ==="T" && text!=="OPTION" && !dual) )
+          if(text.startsWith("Lv"))
+          {
+            if(char === "L")
+            {
+              nextspace = -5
+            }
+            if(char === "v")
+            {
+              nextspace = -20
+            }
+            if(char === ".")
+            {
+              nextspace = 10
+            }
+          }
+          else if(text === "Ult.")
+          {
+            if(char === "U")
+            {
+              nextspace = -7
+            }
+            else
+            {
+              nextspace = 7;
+            }
+          }
+          else if(text === "Sup.") //text === "Stnd."
+          {
+            if(char === "S")
+            {
+              nextspace = -2
+            }
+            else if(char === "u")
+            {
+              nextspace = -2
+            }
+            else if(char === "p")
+            {
+              nextspace = -13
+            }
+            else
+            {
+              nextspace = -14;
+            }
+          }
+          else if(char === "I" || (char ==="A" && !dual) || (char ==="T" && text!=="OPTION" && !dual) )
           {
             if(text === "DIGIMON")
             {
@@ -1614,6 +1767,10 @@ function CustomCreator() {
           else
           {
             nextspace = 0+preoffs;
+          }
+          if(text === "Stnd." && char === "d")
+          {
+            nextspace = -14
           }
           currentX += charWidth + spacing + nextspace;
         }
@@ -2190,7 +2347,8 @@ function CustomCreator() {
           if (imageOptions.aceFrame) {
             if (dual_backgrounds[colors[0]]) 
               {
-                cardframes = colors.map(c => dual_backgrounds[c] || dual_background);
+                let dbgType = (json.spRarity!=="-") ?  dual_backgrounds_alt : dual_backgrounds;
+                cardframes = colors.map(c => dbgType[c] || dual_background);
                 cantPlayColor = cantplay[colors[0]];
                 console.log("testing cantplay "+cantPlayColor)
               }
@@ -2200,7 +2358,12 @@ function CustomCreator() {
         break;
       case "ACE":
         if (imageOptions.aceFrame) {
-          if (ace_backgrounds[colors[0]]) cardframes = colors.map(c => ace_backgrounds[c] || mon_background);
+          let megaFrame = ""
+          if(json.cardLv === "Lv.6" || json.cardLv === "Lv.7")
+          {
+            megaFrame = "m"
+          }
+          if (ace_backgrounds[colors[0]]) cardframes = colors.map(c => ace_backgrounds[c+megaFrame] || mon_background);
         }
         let match = json.aceEffect && json.aceEffect.match(/Overflow\s*.-(\d+)/i);
         if (match) {
@@ -2273,6 +2436,7 @@ function CustomCreator() {
 
       // DRAW BACKGROUND, IF WE HAVE IT
       let background_img = backImg;
+      let rarityTxt = json.spRarity || "-";
       if (background_img && background_img.src) {
         console.log(1227, "DRAWING BACKGROUND");
 
@@ -2304,7 +2468,7 @@ function CustomCreator() {
       if (type === "EGG") bottom -= 640;
       if (type === "DUAL") bottom -= (640 + 142)
       if (type === "MONSTER" || type === "LINK") bottom -= 500;
-      if (type === "ACE") bottom -= 480;
+      if (type === "ACE") bottom -= 280;
       if (type.startsWith("TAMER") || type.startsWith("OPTION")) bottom -= 640;
 
       if (imageOptions.skipDraw) {
@@ -2413,15 +2577,16 @@ function CustomCreator() {
         }
       }
 
-      if (type === "DUAL") {
-          drawBorder(ctx, colors);
-      }
+
 
 
       // OUTLINE?
 
       let border_scale = 3950;
-      if (type === "MEGA" && imageOptions.outline) {
+      if ((type === "MEGA" || type === "ACE" && (json.cardLv === "Lv.6" || json.cardLv === "Lv.7")) && imageOptions.outline && rarityTxt === "-") {
+        let heightMult;
+        if(type === "MEGA") heightMult =  1.005
+        else heightMult = 0.9
         console.log(602, frameImages.length);
         // draw the left and right line all the way down. crop off the top 1000 pixels
         try {
@@ -2430,7 +2595,7 @@ function CustomCreator() {
             offCtx.globalAlpha = 1;
             offCtx.filter = 'brightness(0)';
             scalePartialImage(offCtx, frameImages[0], 0, len, border_scale-100,
-              offset_x+20, offset_y + 1150, 600,1.005,1.01)
+              offset_x+20, offset_y + 1150, 600,heightMult,1.01)
             offCtx.restore()
             scalePartialImage(offCtx2, frameImages[0], 0, len, border_scale,
               offset_x, offset_y + 1100, 600);
@@ -2440,7 +2605,7 @@ function CustomCreator() {
             offCtx.globalAlpha = 1;
             offCtx.filter = 'brightness(0)';
             scalePartialImage(offCtx, frameImages[0], 0, last, border_scale-100,
-            offset_x+20, offset_y + 1150, 600,1.005,1.01)
+            offset_x+20, offset_y + 1150, 600,heightMult,1.01)
             offCtx.restore()
             scalePartialImage(offCtx2, frameImages[last], last, len, border_scale, offset_x, offset_y + 1100, 600);
         } catch (e) { // couldn't sufficiently check this w/o a try/catch
@@ -2459,7 +2624,7 @@ function CustomCreator() {
         let col = colors[i];
         let frame = frameImages[i];
 
-        if (frame && imageOptions.outline) {
+        if (frame && imageOptions.outline && rarityTxt === "-") {
           let l = (type.startsWith("OPTION")) ? 1 : len; // just 1 option "outline"
           let fudge = (type === "OPTION" || !i) ? 0 : 0.04;
           fudge = 0;
@@ -2480,7 +2645,8 @@ function CustomCreator() {
         if (imageOptions.outline && (type === "LINK" || type === "MONSTER" || type === "MEGA" || type === "ACE")) {
           // bottom of frame
           let border = borders[col];
-          if (type === "ACE") bottom_y += 20;
+          if (type === "ACE" && (json.cardLv === "Lv.6" || json.cardLv === "Lv.7")) bottom_y += 230;
+          else if (type === "ACE") bottom_y += 20;
           offCtx.save()
           offCtx.globalAlpha = 1;
           offCtx.filter = 'brightness(0)';
@@ -2495,10 +2661,10 @@ function CustomCreator() {
 
       }
 
-      if (imageOptions.outline)
+      if (imageOptions.outline && rarityTxt === "-")
       {
         ctx.save()
-        ctx.globalAlpha = 0.45;
+        ctx.globalAlpha = 0.3;
         ctx.filter = 'blur(15px)';
         ctx.globalCompositeOperation = "multiply"
         ctx.drawImage(offsCanvas,0,0)
@@ -2564,21 +2730,23 @@ function CustomCreator() {
       const here = new URL(window.location.href);
       const author = empty(json.author) ? "" : json.author;
       const ver = ("v" + version) || "";
-      const artist = (!empty(json.artist) && json.artist !== "-") ? json.artist : ver + "    " + here
+      const artist = (!empty(json.artist) && json.artist !== "-") ? json.artist : "Digi-Viz, rlv-modified version"
       const credit = (author + "   " + artist).trim();
 
-      ctx.font = '70px Bert';
+      ctx.font = '55px Hiragino';
       ctx.save();
       ctx.translate(2925, 560);
       ctx.rotate(-Math.PI / 2);
 
       ctx.textAlign = "right";
+      
+      let creditOffs = ctx.measureText(author).width
 
       ctx.lineWidth = 15
       ctx.strokeText(artist, -51, 0);
       ctx.fillText(artist, -51, 0);
-      ctx.strokeText(author, -2050, 0);
-      ctx.fillText(author, -2050, 0);
+      ctx.strokeText(author, -2550+creditOffs, 0);
+      ctx.fillText(author, -2550+creditOffs, 0);
       ctx.restore();
 
       // OTHER MULTICOLOR
@@ -2631,15 +2799,39 @@ function CustomCreator() {
                 height = 3450;
               }
               if (img)
+                ctx.save()
+                if(rarityTxt!=="-") ctx.globalAlpha = 0.8
                 scalePartialImage(ctx, img, i, len, scale, 164, height, undefined, y_scale);
+                ctx.restore()
+                if(type === "LINK" && !empty(json.linkDP))
+                {
+                  ctx.save() //164, height+74 -> 164+55, height -> 2370, height -> 2370, height+200
+                  ctx.beginPath();
+                  ctx.moveTo(164,height+74)
+                  ctx.lineTo(164+55,height)
+                  ctx.lineTo(2530,height)
+                  ctx.lineTo(2530,height+220)
+                  ctx.lineTo(164,height+220)
+                  ctx.closePath()
+                  ctx.clip()
+                  ctx.lineWidth = 20;
+                  ctx.strokeStyle = "white"
+                  ctx.stroke()
+                  ctx.fillStyle = '#00000167'
+                  ctx.fill()
+                  ctx.restore()
+                }
             }
 
             if (type === "ACE") {
+              ctx.save()
+                if(rarityTxt!=="-") ctx.globalAlpha = 0.8
               scalePartialImage(ctx, ace_box,
                 0, 1,
                 326,
-                94, 3525
+                94, 3737
               );
+              ctx.restore()
             }
 
 
@@ -2655,7 +2847,8 @@ function CustomCreator() {
               let size_x = 350;
               let size_y = 350;
 
-              if (type === "MEGA" || type === "OPTION" || type === "TAMER") ess_pos_y = 0;
+              if (type === "MEGA" || type === "OPTION" || type === "TAMER" ||
+                 type === "ACE" && json.cardLv === "Lv.6" || json.cardLv === "Lv.7") ess_pos_y = 0;
               if (!empty(json.securityEffect)) ess_pos_y = -3500; // just hiding it
               if (type.endsWith("INHERIT")) ess_pos_y -= 105;
               if (type === "LINK") {
@@ -2710,38 +2903,81 @@ function CustomCreator() {
 
             // DP LINK BOX
             if (type === "LINK" || !empty(json.linkDP)) {
-              let w = linkdp.width; let h = linkdp.height;
+              
+              let start = (colors.length > 1) ? 1 : 0
+              let linkDpImg = (colors.includes('black',start)) ? linkdpWhite : linkdp
+              let w = linkDpImg.width; let h = linkDpImg.height;
               let s = 4.72
               let y_pos = 3210;
               let link_offset = 0;
               if (type !== "LINK") {
                 link_offset = 100;
               }
-              ctx.drawImage(linkdp,
+              ctx.drawImage(linkDpImg,
                 2530, y_pos - link_offset, w * s, h * s);
-
+              
+              ctx.save()
+              ctx.beginPath()
+              ctx.moveTo(2615,3215+74)
+              ctx.lineTo(2555,3225+94)
+              ctx.lineTo(2555,3230+390)
+              ctx.lineTo(2675,3230+390)
+              ctx.lineTo(2675,3225+94)
+              ctx.closePath()
+              ctx.clip()
+              ctx.lineWidth = "4px";
+              if(colors.includes('black'))
+              {
+                ctx.strokeStyle = 'black'
+              }
+              else
+              {
+                ctx.strokeStyle = "white"
+              }
+              ctx.stroke()
+              ctx.restore()
               ctx.save();
               ctx.translate(2680, 3610);
               ctx.rotate(Math.PI / 2);
 
-
+              if(imageOptions.foregroundOnTop)
               //              ctx.fillText(json.linkDP, 0, 0);
               //              writeDP(ctx, json.linkDP, 0, 0, 90); 
-              writeDP(ctx, json.linkDP,
-                { x: -150 - link_offset, y: 20, size: 100, bigsize: 140, stroke: false, color: "white" });
-              ctx.font = `bold 90px ${numberFont}`;
-              ctx.fillStyle = "white";
+              console.log("Writing DP "+json.linkDP[0])
+              ctx.font = `${140}px 'Nimbus-Sans-Novus-R'`;
+              if(colors.includes('black',start))
+              {
+                ctx.fillStyle = 'black'
+              }
+              else
+              {
+                ctx.fillStyle = 'white'
+              }
+              ctx.fillText(json.linkDP[0],-170,13)
+              ctx.font = `${100}px 'Nimbus-Sans-Novus-R'`;
+              ctx.fillText(json.linkDP[1]+json.linkDP[2]+json.linkDP[3],-65,0)
+              //writeDP(ctx, json.linkDP,
+              //  { x: -150 - link_offset, y: 20, size: 100, bigsize: 140, stroke: false, color: "white" });
+              ctx.font = `bold 60px ${numberFont}`;
+              if(colors.includes('black',start))
+              {
+                ctx.fillStyle = 'black'
+              }
+              else
+              {
+                ctx.fillStyle = 'white'
+              }
               ctx.textAlign = "right";
               ctx.textBaseline = "bottom";
 
 
-              ctx.font = `40px 'Helvetica'`;
+              ctx.font = `40px 'Anago-Medium'`;
               ctx.textAlign = "center";
-              ctx.fillText("DP", -300 - link_offset, -60);
+              ctx.fillText("DP", -320 - link_offset, -70);
               // how do i make the plus skinnier?
-              ctx.font = `100 120px 'Helvetica'`;
+              ctx.font = `100 110px 'Anago-Medium'`;
 
-              ctx.fillText("+", -300 - link_offset, 40);
+              ctx.fillText("+", -320 - link_offset, 20);
 
               ctx.restore();
 
@@ -2757,7 +2993,11 @@ function CustomCreator() {
               let y = 3550 - 365;
               if (type === "MEGA" || type === "LINK" || !empty(json.linkDP)) {
                 y += 500;
-              } else if (type === "EGG" || type.startsWith("OPTION") || type.startsWith("TAMER")) y -= 90;
+              }else if(type === "ACE" && (json.cardLv === "Lv.6" || json.cardLv === "lv7")) 
+              {
+                y += 205;
+              }
+              else if (type === "EGG" || type.startsWith("OPTION") || type.startsWith("TAMER")) y -= 90;
               //  if (type.startsWith("OPTION") || type.startsWith("TAMER")) y += 0; // 40;
               if (type === "ACE" && imageOptions.aceFrame) {
                 y += 30;
@@ -2773,9 +3013,10 @@ function CustomCreator() {
                 scale = 365;
                 y_scale = 1.03;
               }
-
+              ctx.save()
+              if(rarityTxt!=="-") ctx.globalAlpha = 0.8
               scalePartialImage(ctx, img_name, i, len, scale, start_x, y, 0, y_scale);
-
+              ctx.restore()
 
               // do the black (white) bar on anything with a trait, or anything with "Lv.*" text
               if (i === len - 1) {
@@ -2801,7 +3042,7 @@ function CustomCreator() {
                   let scale = 4.015;
                   if (true) ctx.drawImage(bar_img,
                     162, y + bar_offset,
-                    bar_img.width * scale * 0.999,
+                    bar_img.width * scale * 1.00,
                     bar_img.height * scale * 1.17) // stretch a little
                 }
               }
@@ -2829,14 +3070,18 @@ function CustomCreator() {
 
 
       if (!empty(xros)) {
-        let preview = drawBracketedText(ctx, altFontSize, xros, 300, bottom,
+        let ruleOffs = 0;
+        if(!empty(rule)){
+          ruleOffs = 80;
+        }
+        let preview = drawBracketedText(ctx, altFontSize, xros, 300, bottom+ruleOffs,
           cardwidth, Number(altFontSize) + Number(imageOptions.lineSpacing), "bubble", radius, true);
         // our text should end at roughly bottom + 
         xros_offset = preview - (bottom + altFontSize * 2);
         console.log(1254, 'x', preview, bottom);
       }
       if (!empty(rule) && !empty(xros)) {
-        let rule_start = writeRuleText(ctx, rule, altFontSize, bottom, true);
+        let rule_start = writeRuleText(ctx, rule, altFontSize, bottom, type, true);
         let xros_length = ctx.measureText(xros).width;
         let fudge = 260;
 
@@ -2846,7 +3091,7 @@ function CustomCreator() {
       }
       if (!empty(rule)) {
         console.log(1069, "bottom is " + (bottom - xros_offset - rule_offset));
-        writeRuleText(ctx, rule, altFontSize, bottom - xros_offset - rule_offset);
+        writeRuleText(ctx, rule, altFontSize, bottom,type);
       }
 
       if (!empty(xros)) {
@@ -2865,10 +3110,10 @@ function CustomCreator() {
 
         if (_evos && _evos.length > 0 && (
           _evos[0].color || _evos[0].level || _evos[0].cost)) {
-
+          console.log("evo colors: "+JSON.stringify(_evos))
           // BT-14 and up, there is never two evo circles any more (until direct on tamers).
 
-
+          console.log("does this evos print: "+JSON.stringify(_evos))
           let evo1_level_costs = _evos.map(e =>
             e.level ? String(e.level).split("/").map(l => ({ level: l, cost: e.cost })) : []
           )
@@ -2881,14 +3126,14 @@ function CustomCreator() {
             // get the colors for every condition with this level...
             let level = evo1_level_costs[j].level;
             let evo1_cost = evo1_level_costs[j].cost;
-
+            
             let evo1_colors = _evos
               .filter(e => e.level.includes(level) && e.cost && e.cost === (evo1_cost))
               .map(e => e.color ? e.color.toLowerCase().split("/") : [])
               .reduce((acc, curr) => acc.concat(curr), []);
             j = Number(j);
-            let circle_offset = (j) * 420;
-
+            let circle_offset = (j) * 370;
+            console.log("evo colors: "+JSON.stringify(evo1_colors))
             let n_level = parseInt(level);
             const evo1_level = n_level ? "Lv." + level : level;
 
@@ -2898,19 +3143,44 @@ function CustomCreator() {
 
             let base = -135; // degrees
             let each = 360 / (evo1_colors.length);
+            if(evo1_colors[0] === "rain")
+            {
+              let X = offset_x + 140 -20;
+              let Y = offset_y + 118 + 600 + circle_offset;
 
+              const imgWidth = 280; // height, too
+              const imgHeight = 280; // height, too
+
+              const circle = evoImages["all"];
+              const wedge = wedgeImages["all"];
+              const radius = imgWidth*0.47;
+              // TODO: wait for .onLoad()? Or did we.
+              let start = base
+              const startAngle = (start * Math.PI) / 180;
+              const sweepAngle = (each * Math.PI) / 180;
+              ctx.save();
+              ctx.beginPath();
+              ctx.moveTo(X + radius, Y + radius);
+              ctx.arc(X + radius, Y + radius, radius, startAngle, startAngle + sweepAngle);
+              ctx.lineTo(X + radius, Y + radius);
+              ctx.clip();
+              ctx.drawImage(circle, 0, 0, 291, 291, X, Y, imgWidth, imgHeight);
+              ctx.restore();
+              ctx.globalCompositeOperation = 'source-over'; 
+              ctx.drawImage(wedge, 0, 0, 291, 291, X - 122, Y - 120, 4 * wedge.width, 3.98* wedge.height);
+            }
             for (let i in evo1_colors) {
               const my_color = evo1_colors[i];
               i = Number(i);
-              let X = offset_x + 130 -20;
-              let Y = offset_y + 105 + 600 + circle_offset;
+              let X = offset_x + 140 -20;
+              let Y = offset_y + 118 + 600 + circle_offset;
 
               const imgWidth = 280; // height, too
               const imgHeight = 280; // height, too
 
               const circle = evoImages[my_color];
               const wedge = wedgeImages[my_color];
-              const radius = imgWidth / 2;
+              const radius = imgWidth*0.47;
               // TODO: wait for .onLoad()? Or did we.
               let start = base + i * each
               const startAngle = (start * Math.PI) / 180;
@@ -2940,7 +3210,7 @@ function CustomCreator() {
                 }
                 if (my_color === 'blue') {
                   ctx.globalCompositeOperation = 'luminosity'; 
-                  ctx.fillStyle = 'rgba(70,70,70, 0.5)';
+                  ctx.fillStyle = 'rgba(70,70,70, 0.3)';
                   ctx.fillRect(0, 0, canvas.width, canvas.height);
                 }
               } catch (e) {
@@ -2948,13 +3218,14 @@ function CustomCreator() {
               }
               ctx.restore();
               try {
-                ctx.drawImage(wedge, 0, 0, 291, 291, X - 110, Y - 117, 4.55 * wedge.width, 4.95 * wedge.height);
+                ctx.globalCompositeOperation = 'source-over'; 
+                ctx.drawImage(wedge, 0, 0, 291, 291, X - 122, Y - 120, 4 * wedge.width, 3.98* wedge.height);
               } catch (e) {
                 console.error(1576, "no wedge", e);
               }
             }
             let cx=340;
-            let cy=920;
+            let cy=920+circle_offset;
             let radius = 135;
             const gradient = ctx.createRadialGradient(
               cx, cy, 0,
@@ -2987,22 +3258,39 @@ function CustomCreator() {
             ctx.lineWidth = 10;
 
             let [fillColor, strokeColor, border] = textColor(evo1_colors, ctx);
-
+            if(json.rarity.toLowerCase() === "ur")
+            {
+              strokeColor = 'black';
+              fillColor = "#c4b63a";
+              border = true;
+            }
+            if(evo1_colors[0] === "rain")
+            {
+              border = true
+              strokeColor = 'black'
+            }
             // what was this clause for? textColor() should handle it
             if (evo1_colors.length === 1 && (evo1_colors[0] === 'yellow' || evo1_colors[0] === 'white')) {
    //           fillColor = 'black';
      //         border = false;
             }
+            let stndOffs = 0;
+            if(evo1_level === "Stnd.")
+            {
+              stndOffs = -19
+            }
             if (border) {
               ctx.font = `75px 'Dico-Sans-Soft'`
               ctx.strokeStyle = strokeColor;
               ctx.lineWidth = 15;
-              ctx.strokeText(evo1_level, 340, 835 + circle_offset, 200);
+              drawOutlineWithSpacing(ctx,evo1_level,300+stndOffs,840+circle_offset,0,false,true)
             }
             ctx.fillStyle = fillColor; // contrastColor(evo_color);
-            ctx.fillText(evo1_level, 340, 835 + circle_offset, 200);
+            
+            drawTextWithSpacing(ctx,evo1_level,300+stndOffs,840+circle_offset,0)
+            //ctx.fillText(evo1_level, 340, 840 + circle_offset, 200);
             // I *swear* that Helvetica is right for the digit 0, but that's nuts, why would that be different?
-            ctx.font = `bold 220px 'Nimbus-Sans-Novus-R'`;
+            ctx.font = `220px 'Nimbus-Sans-Novus'`;
             ctx.save()
             if (border) {
               ctx.lineJoin = "bevel"
@@ -3018,7 +3306,7 @@ function CustomCreator() {
 
             // DRAW NAME BOX MANUALLY, then write name
       if (type === "DUAL") {
-          nameBoxShell(ctx, 3220 - 282, colors, optionColors);
+          nameBoxShell(ctx, 3220 - 282, colors, optionColors,rarityTxt);
           // why is this name outside??
           ctx.font = `italic ${130}px ToppanBunkyExtraBold`; // has curved lowercase l
           ctx.textAlign = 'center';
@@ -3026,13 +3314,21 @@ function CustomCreator() {
           let [fillColor, edgeColor, stroke] = textColor(optionColors);
           ctx.fillStyle = fillColor;
           ctx.strokeStyle = edgeColor;
-          ctx.lineWidth = 20;
+          ctx.save()
+          if(json.rarity.toLowerCase() === "ur")
+          {
+            ctx.fillStyle = "#c4b63a"
+            ctx.strokeStyle = "black"
+            stroke = true;
+          }
+          ctx.lineWidth = 15;
           let optName = "Option";
           let names = json.name.english.split("/");
           if (names.length > 1) optName = names[1];
           let width = 1650;
           if (stroke)ctx.strokeText(optName, (1480), 3355, width);
           ctx.fillText(optName, (1480), 3355, width);
+          ctx.restore()
       }
 
 
@@ -3046,7 +3342,7 @@ function CustomCreator() {
         ctx.drawImage(img,175,50,850,270)
         let cantPlayText = "Can't play to the field.";
         let text = [[cantPlayText, "italics"]];
-        ctx.font = `italic bold 65px Asimov`;
+        ctx.font = `italic bold 60px Hiragino`;
         ctx.fillColor = 'white'
         if(colors[0] === 'yellow' || colors[0] === 'white')
         {
@@ -3066,15 +3362,24 @@ function CustomCreator() {
           img = cost;
           if (type.startsWith("OPTION")) img = cost_option;
         }
-        if (type === "DUAL") img = cost_dual;
-
+        if (type === "DUAL") 
+        {
+          if(json.rarity.toLowerCase() === "ur")
+          {
+            img = cost_dual_gold
+          }
+          else
+          {
+            img = cost_dual
+          }
+        }
         if (json.playCost.toLowerCase() === "egg") img = cost_egg;
         if (json.playCost.toLowerCase() === "dash") {
           img = cost;
           playcost = "-";
         }
         if (json.playCost.toLowerCase() === "blank") img = cost_blank;
-        if (json.playCost.toLowerCase() === "dual") img = cost_dual;
+        if (json.playCost.toLowerCase() === "dual") img = cost_dual
         if (img) {
           ctx.drawImage(img, offset_x, offset_y, 500, 500);
           for (let color of colors) {
@@ -3105,18 +3410,22 @@ function CustomCreator() {
         if (!neue) neue_offset = 20;
         if (type === "DUAL") {
           // always white
+          
           ctx.fillStyle = 'white';
+          ctx.shadowColor = "#d4dbfdd4";
+          ctx.shadowBlur = 11;
           // show cost in different place
-          ctx.font = `600 180px 'Nimbus-Sans-Novus'`;
-          ctx.strokeStyle = '#ffffffb0';        
-          ctx.lineWidth = 7;
-          ctx.shadowColor = 'white'; // Glow 
-          ctx.shadowBlur = 40;    
-
+          ctx.font = `600 180px 'Nimbus-Sans-Novus-R'`;
+          if(json.rarity.toLowerCase() === "ur")
+          {
+            ctx.fillStyle = "#d4c436"
+          }
+          ctx.lineWidth = 0.2;
           ctx.fillText(playcost, x + 152, 3375 + neue_offset);
-          ctx.strokeStyle = '#ffffff40';        
+          ctx.strokeStyle = '#807517';        
           ctx.strokeText(playcost, x + 152, 3375 + neue_offset);
           ctx.shadowBlur = 0;     // Glow intensity
+          ctx.fillText(playcost, x + 152, 3375 + neue_offset);
         } else if (playcost >= 0 || playcost === "-") {
           let pcoff = 0;
           if (playcost < 10){pcoff=15}
@@ -3126,6 +3435,10 @@ function CustomCreator() {
           ctx.shadowBlur = 12;
 
           ctx.fillStyle = "white";
+          if(json.rarity.toLowerCase() === "ur")
+          {
+            ctx.fillStyle = "#c4b63a"
+          }
           ctx.fillText(playcost, x +15+pcoff, 370 + neue_offset);
 
           // crisp text layer
@@ -3153,6 +3466,12 @@ function CustomCreator() {
 
         let neg_overflow = "-" + overflow;
         let o_x = 1170, o_y = 3645;
+        let yOffs = 0;
+        if(json.cardLv === "Lv.6" || json.cardLv === "Lv.7")
+        {
+          yOffs = 200;
+          o_y+=200;
+        }
         // fake blur 
         ctx.strokeStyle = 'rgba(200, 200, 200, 0.7)';
         ctx.lineWidth = 22;
@@ -3182,8 +3501,8 @@ function CustomCreator() {
         let ace_text2 = [[line2, "italics"], [")"]]
 
         ctx.fillStyle = 'rgba(255, 254, 254, 1.0)';
-        textLine(ctx, ace_text, 1310, 3655, 1400);
-        textLine(ctx, ace_text2, 650, 3750, 2120);//, 0.2);
+        textLine(ctx, ace_text, 1310, 3655+yOffs, 1400);
+        textLine(ctx, ace_text2, 650, 3750+yOffs, 2120);//, 0.2);
 
         
 
@@ -3211,17 +3530,25 @@ function CustomCreator() {
         // dp
         x = 2540;
         y = 410;
-
-        writeDP(ctx, json.dp, { x: x, y: y, size: 170, bigsize: 370, stroke: "white", color: "black" });
-        ctx.font = `100px 'Helvetica'`;
-        ctx.lineWidth = 15;
+        let goldUR=false;
+        if(json.rarity.toLowerCase() === "ur")
+        {
+          goldUR=true
+        }
+        console.log("gold text setting: "+gold_text)
+        writeDP(ctx, json.dp, { x: x, y: y, size: 170, bigsize: 370, stroke: "white", color: "black", UR:goldUR});
+        
+        ctx.font = `85px 'Anago-Medium'`;
+        ctx.lineWidth = 10;
         ctx.strokeStyle = 'white';
+        ctx.fillStyle = 'black';
         if (gold_text) {
           ctx.strokeStyle = 'black';
           ctx.fillStyle = gold_gradient;
         }
-        ctx.strokeText("DP", x + 270, y - 200);
-        ctx.fillText("DP", x + 270, y - 200);
+        
+        ctx.strokeText("DP", x + 250, y - 200);
+        ctx.fillText("DP", x + 250, y - 200);
 
       }
       /////// LEVEL
@@ -3230,11 +3557,15 @@ function CustomCreator() {
         // roboto preferred
         //        ctx.font = '900 200px "Roboto"'
         ctx.fillStyle = whiteColor(colors[0]);
+        if(json.rarity.toLowerCase() === "ur")
+        {
+          ctx.fillStyle = "#c4b63a";
+        }
         let y = 3400;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
 
-        y += levelHeight(type);
+        y += levelHeight(type,json.cardLv);
         y += 100
         if (type === "ACE" && imageOptions.aceFrame) y += 40;
         ctx.font = '900 200px "Big Shoulders Text"'
@@ -3278,12 +3609,14 @@ function CustomCreator() {
       }
       if (!empty(json.linkDP)) name_delta_y = 500;
       if (!has_traits) name_delta_y += 30;
+      if (type === "ACE" && (json.cardLv === "Lv.6" || json.cardLv === "Lv.7")) delta_y +=200
       delta_y += name_delta_y;
 
       // name
       try {
         const name = json.name.english.split("/")[0];        
         let ace_offset = (type === "ACE") ? -ace_logo.width / 2 : 0;
+        
         const maxWidth = 1600 + ace_offset * 2;
 
         const initialFontSize = 200;
@@ -3296,6 +3629,12 @@ function CustomCreator() {
         ctx.textBaseline = 'middle';
         let [fillColor, edgeColor, stroke] = textColor(colors, ctx);
         ctx.fillStyle = fillColor;
+        if(json.rarity.toLowerCase() === "ur")
+        {
+          ctx.fillStyle = "#c4b63a";
+          edgeColor = 'black'
+          stroke = true;
+        }
 
         ctx.lineWidth = 30; // Border width
         ctx.strokeStyle = edgeColor;
@@ -3308,7 +3647,7 @@ function CustomCreator() {
         ctx.scale(scale, 1);
         let name_line = 3328
         if (stroke) {
-          ctx.lineWidth = 20; // Border width
+          ctx.lineWidth = 15; // Border width
           ctx.strokeText(name, (1480 + ace_offset) / scale, name_line + delta_y);
         }
         ctx.lineWidth = 2; // Border width
@@ -3330,7 +3669,7 @@ function CustomCreator() {
       ctx.font = `bold 100px ${numberFont}`;
       // this looks okay on mobile, but not enough weight on desktop
       ctx.font = `bold 100px 'XXXNeue Helvetica Condensed BQ', ${numberFont}`;
-
+      ctx.font = ` 100px 'Nimbus-Sans-Novus'`;
 
       // Helvetica seems basically right but needs to be made skinny
       // ToppanBunkyExtraBold has serifs on 1 now??
@@ -3340,9 +3679,93 @@ function CustomCreator() {
       // levetica and arial may be too plain? or not.
       // not roboto because the 6 needs a hook
       // fallingsky ihas the wrong 1
+      let idx_offs = 0;
+      let idy_offs = 0;
+      let posType = json.cardType || "";
+      let bottomEff = evo_effect || json.linkRequirement || ""
+      let posForm = json.form
+      let idWidth = ctx.measureText(id);
+      let ace = (json.aceEffect.match(/overflow/i)) ? true : false;
+      console.log("Here's posType: "+posType+" evo eff: "+ace)
+      if(posType === "Digi-Egg")
+      {
+        idy_offs = 0
+      }
+      else if(ace && (json.cardLv === "Lv.6" || json.cardLv === "Lv.7"))
+      {
+        idy_offs = 345;
+      }
+      else if(ace) 
+      {
+        idy_offs = 145;
+      }
+      else if((posType === "Digimon" && posForm === "Mega" && (!bottomEff || bottomEff === "-")) || bottomEff.match(/link/i))
+      {
+        idy_offs = 610;
+      }
+      else if(posType === "Digimon / Option")
+      {
+        idy_offs = -175;
+      }
+      else if(posType === "Digimon")
+      {
+        idy_offs = 120;
+      }
+      
+      /* switch(posType && evo_effect){
+        case "OPTION":
+        case "OPTIONINHERIT":
+        case "TAMER":{idx_offs = 0;idy_offs = 100}
+        case "EGG":
+        case "TAMERINHERIT": 
+        case "LINK":
+        case "Digimon" && : {idx_offs = 0;idy_offs = 800}
+        case "MONSTER": 
+        case "ACE": 
+        case "DUAL":{idx_offs = 0;idy_offs = -300}
+      } */
+      drawTextWithSpacing(ctx,id,2760-(idWidth.width)+idx_offs,3175+idy_offs,0)
+      //ctx.fillText(id, 2740, 3300 + delta_y);
+      let rarityImg = undefined;
+      if(rarityTxt.match(/alt.*/i))
+      {
+        rarityImg = new Image();
+        rarityImg.src = rarity.one
+      }
+      if(rarityTxt.match(/chase/i))
+      {
+        rarityImg = new Image();
+        rarityImg.src = rarity.two
+      }
+      if(rarityTxt.match(/triple/i))
+      {
+        rarityImg = new Image();
+        rarityImg.src = rarity.three
+      }
+      if(rarityTxt.match(/SP/))
+      {
+          ctx.save()
+          let drawOutline = false
+          if(colors.includes('white') || colors.includes('yellow'))
+          {
+            drawOutline = true
+          }
+          drawColoredRectangle(ctx, 2380, 3315+idy_offs, 80, 60, "white",radius,false);
+          ctx.fillStyle = "black";
+          ctx.textAlign = 'center';
 
-      ctx.fillText(id, 2740, 3300 + delta_y);
-
+          const numberFont = "'HelveticaNeue-CondensedBold', 'Helvetica Neue Condensed Bold', 'Neue Helvetica BQ', 'Helvetica Neue', 'AyarKasone', 'Helvetica'"
+          
+          ctx.font = "bold 50px 'ProhibitionRough'";
+          ctx.scale(1.2,0.9)
+          ctx.fillText("SP", 2018,3640+idy_offs);
+          ctx.restore()
+      }
+      if(rarityImg)
+      {
+        ctx.drawImage(rarityImg,2360,3215,120,120)
+      }
+      
       ////// right under card number, put circle and block
 
       CircleAndBlock(ctx, colors[colors.length - 1], json.rarity, json.block, 2740 - 150, 3300 + delta_y);
@@ -3356,8 +3779,8 @@ function CustomCreator() {
       let a_traits = [];
 
       if (!empty(form)) a_traits.push(`${center(form)}`);
-      if (!empty(attribute)) a_traits.push(`      ${center(attribute)}      `);
-      if (!empty(c_type)) a_traits.push(`  ${c_type}     `);
+      if (!empty(attribute)) a_traits.push(`    ${center(attribute)}    `);
+      if (!empty(c_type)) a_traits.push(`   ${c_type}     `);
       let traits = a_traits.join("|");
       ctx.fillStyle = whiteColor(colors[0]);
       if (type.startsWith("OPTION") || type.startsWith("TAMER") || type === "EGG") {
@@ -3369,11 +3792,34 @@ function CustomCreator() {
       if (type === "EGG") {
         delta_y += 0;
       }
+      
+      if (type === "DUAL")
+      {
+        delta_y -= 32
+      }
 
       ctx.font = `bold 60px "FallifngSky", "MyrggiadProBold", "RepoMedium", "Robgoto"`;
-      ctx.font = `60px MyriadProBold`;
-      ctx.fillText(traits, 2750, 3497 + delta_y)// * 0.9);
-
+      ctx.font = `bold 60px MyriadSemiCond`;
+      if(posType === "Digi-Egg")
+      {
+        delta_y -= 10
+      }
+      else if(ace && (json.cardLv === "Lv.6" || json.cardLv === "Lv.7")) 
+      {
+        delta_y += 35
+      }
+      else if(ace) 
+      {
+        delta_y += 10
+      }
+      else if((posType === "Digimon" && posForm === "Mega" && (!bottomEff || bottomEff === "-")) || bottomEff.match(/link/i))
+      {
+        delta_y += 60
+      }
+      ctx.save()
+      ctx.scale(1.1,0.9)
+      ctx.fillText(traits, 2550, 3880 + delta_y)// * 0.9);
+      ctx.restore()
       ///// MAIN TEXT 
       let y_line = bottom - 640; // set above for effectbox / rule
 
@@ -3421,7 +3867,7 @@ function CustomCreator() {
         y_line = drawBracketedText(ctx, baseFontSize, effect,
           //wrapText(ctx, effect, // + effect, 
           250, y_line,
-          2455 + 200,
+          2455 + 400,
           Number(baseFontSize) + Number(imageOptions.lineSpacing), type.startsWith("OPTION") ? "effect-option" : "effect",
           radius,
           false
@@ -3441,16 +3887,21 @@ function CustomCreator() {
         let req = json.linkRequirement;
         let effect = json.linkEffect;
         let delta_x = -220; let delta_y = -200;
+        let linkOffsX = 0;
+        let linkOffsY = 0;
+        let linkFSMult = 1;
         if (type.startsWith("OPTION") || type.startsWith("TAMER")) {
           delta_y -= 50;
         }
         //let shrink = 1000;
         if (!empty(req)) {
           // instead of 3000, width of 2700 to save room for link-DP-thingy
-
+          linkOffsX = -30;
+          linkOffsY = 60;
+          linkFSMult = 0.85
           // (alias) drawBracketedText(ctx: any, fontSize: any, text: any, x: any, y: any, _maxWidth: any, lineHeight: any, extra: any, radius: any, preview?: boolean): any
           // ctx                
-          drawBracketedText(ctx, altFontSize, req, 300, 3740 + delta_y * 2, 3000, Number(altFontSize) + Number(imageOptions.lineSpacing), "bubble");
+          drawBracketedText(ctx, altFontSize*0.85, req, 225, 3720 + delta_y * 2, 2380, Number(altFontSize) + Number(imageOptions.lineSpacing-15), "link");
         }
         let eff = "effect sec"
         let colorsToCheck = colors;
@@ -3480,8 +3931,8 @@ function CustomCreator() {
         // shrink is not working, we're ignoring max_width
         //let max_width = 2500 - 400 - delta_x * 2 - shrink;
         drawBracketedText(ctx, baseFontSize, effect,
-          700 + delta_x * 2, 3740 + delta_y * 2 + 150,
-          2200, Number(baseFontSize) + Number(imageOptions.lineSpacing), eff, radius);
+          700 + delta_x * 2+linkOffsX, 3740 + delta_y * 2 + 150+linkOffsY,
+          2200, Number(baseFontSize)*linkFSMult + Number(imageOptions.lineSpacing), eff, radius);
       } else {
         let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
         if (empty(sec_effect)) sec_effect = json.optionCardEffect;
@@ -3502,10 +3953,12 @@ function CustomCreator() {
         let eff = "effect sec"
         let colorsToCheck = colors;
         let fontOffs = 0;
+        let fontMult = 1;
         if(optColors.length>0 && optColors[0] !== "-")
         {
           colorsToCheck = optColors
           fontOffs = -14
+          fontMult = 0.75;
         }
 
         //console.log("effect check1 "+colors.length)
@@ -3531,10 +3984,12 @@ function CustomCreator() {
 
 
         let max_width = 2500 - 400 - delta_x * 2 - shrink;
-        drawBracketedText(ctx, baseFontSize+fontOffs, sec_effect,
+        ctx.save();
+        drawBracketedText(ctx, (baseFontSize+fontOffs), sec_effect,
           700 + delta_x * 2, 3740 + delta_y * 2,
-          max_width, Number(baseFontSize) + Number(imageOptions.lineSpacing), eff, radius);
-        const dualEffect = json.dualEffect;
+          max_width, (Number(baseFontSize) + Number(imageOptions.lineSpacing))*fontMult, eff, radius);
+        ctx.restore();
+          const dualEffect = json.dualEffect;
         if (!empty(dualEffect)) {
           let fontSize = 80;
           delta_x += 60; delta_y += 25;

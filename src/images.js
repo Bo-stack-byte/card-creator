@@ -25,6 +25,14 @@ import ace_black from './frames/backgrounds/black-ace.png';
 import ace_purple from './frames/backgrounds/purple-ace.png';
 import ace_white from './frames/backgrounds/white-ace.png';
 
+import ace_red_mega from './frames/backgrounds/red-ace-mega.png';
+import ace_blue_mega from './frames/backgrounds/blue-ace-mega.png';
+import ace_yellow_mega from './frames/backgrounds/yellow-ace-mega.png';
+import ace_green_mega from './frames/backgrounds/green-ace-mega.png';
+import ace_black_mega from './frames/backgrounds/black-ace-mega.png';
+import ace_purple_mega from './frames/backgrounds/purple-ace-mega.png';
+import ace_white_mega from './frames/backgrounds/white-ace-mega.png';
+
 
 import dual_red from './frames/backgrounds/red-dual.png';
 import dual_blue from './frames/backgrounds/blue-dual.png';
@@ -34,9 +42,18 @@ import dual_black from './frames/backgrounds/black-dual.png';
 import dual_purple from './frames/backgrounds/purple-dual.png';
 import dual_white from './frames/backgrounds/white-dual.png';
 
+import dual_red_alt from './frames/backgrounds/red-dual-alt.png';
+import dual_blue_alt from './frames/backgrounds/blue-dual-alt.png';
+import dual_yellow_alt from './frames/backgrounds/yellow-dual-alt.png';
+import dual_green_alt from './frames/backgrounds/green-dual-alt.png';
+import dual_black_alt from './frames/backgrounds/black-dual-alt.png';
+import dual_purple_alt from './frames/backgrounds/purple-dual-alt.png';
+import dual_white_alt from './frames/backgrounds/white-dual-alt.png';
+
 import _cost from './frames/cost.png';
 import _cost_egg from './frames/cost-egg.png';
 import _cost_dual from './frames/cost-dual.png';
+import _cost_dual_gold from './frames/cost-dual-gold.png';
 import _cost_blank from './frames/cost-none.png';
 import _cost_option from './frames/cost-option.png';
 
@@ -47,6 +64,7 @@ import _cost_color_green from './frames/cost_color_green.png';
 import _cost_color_purple from './frames/cost_color_purple.png';
 import _cost_color_black from './frames/cost_color_black.png';
 import _cost_color_white from './frames/cost_color_white.png';
+
 
 
 // we use the tamer inherited for both tamer and monster, even though
@@ -317,6 +335,7 @@ import _gold from './frames/gold.png';
 import _bubble from './frames/bubble.png';
 import _doublebubble from './frames/doublebubble.png';
 import _linkdp from './frames/linkdp.png';
+import _linkdpWhite from './frames/linkdpWhite.png';
 
 import pen from './frames/pen.png';
 
@@ -337,14 +356,29 @@ import _blackcantplay from './frames/blackcantplay.png'
 import _purplecantplay from './frames/purplecantplay.png'
 import _whitecantplay from './frames/whitecantplay.png'
 
+import _rarity1 from './frames/rarity1.png';
+import _rarity2 from './frames/rarity2.png';
+import _rarity3 from './frames/rarity3.png';
+import _rarity1g from './frames/rarity1G.png';
+import _rarity2g from './frames/rarity2G.png';
+import _rarity3g from './frames/rarity3G.png';
+
+
 export const ace_backgrounds = {
   'red': ace_red,
+  'redm': ace_red_mega,
   'blue': ace_blue,
+  'bluem': ace_blue_mega,
   'yellow': ace_yellow,
+  'yellowm': ace_yellow_mega,
   'green': ace_green,
+  'greenm': ace_green_mega,
   'purple': ace_purple,
+  'purplem': ace_purple_mega,
   'black': ace_black,
-  'white': ace_white
+  'blackm': ace_black_mega,
+  'white': ace_white,
+  'whitem': ace_white_mega
 }
 
 export const cantplay = {
@@ -364,6 +398,16 @@ export const dual_backgrounds = {
   'purple': dual_purple,
   'black': dual_black,
   'white': dual_white
+}
+
+export const dual_backgrounds_alt = {
+  'red': dual_red_alt,
+  'blue': dual_blue_alt,
+  'yellow': dual_yellow_alt,
+  'green': dual_green_alt,
+  'purple': dual_purple_alt,
+  'black': dual_black_alt,
+  'white': dual_white_alt
 }
 
 export const new_evo_circles = {
@@ -423,6 +467,7 @@ let gold = new Image(); gold.src = _gold;
 let bubble = new Image(); bubble.src = _bubble;
 let doublebubble = new Image(); doublebubble.src = _doublebubble;
 let linkdp = new Image(); linkdp.src = _linkdp;
+let linkdpWhite = new Image(); linkdpWhite.src = _linkdpWhite;
 
 let dna_red = new Image(); dna_red.src = _dna_red;
 let dna_blue = new Image(); dna_blue.src = _dna_blue;
@@ -452,6 +497,7 @@ export const dna_boxes = {
 let cost = new Image(); cost.src = _cost;
 let cost_egg = new Image(); cost_egg.src = _cost_egg;
 let cost_dual = new Image(); cost_dual.src = _cost_dual;
+let cost_dual_gold = new Image(); cost_dual_gold.src = _cost_dual_gold;
 let cost_blank = new Image(); cost_blank.src = _cost_blank;
 let cost_option = new Image(); cost_option.src = _cost_option;
 let cost_evo = new Image(); cost_evo.src = _cost_evo;
@@ -481,7 +527,14 @@ export const costs = {
 }
 
 
-
+export const rarity = {
+  'one': _rarity1,
+  'two': _rarity2,
+  'three': _rarity3,
+  'oneG': _rarity1g,
+  'twoG': _rarity2g,
+  'threeG': _rarity3g
+};
 let bottom_property_white = new Image(); bottom_property_white.src = _bottom_property_white;
 let bottom_property_black = new Image(); bottom_property_black.src = _bottom_property_black;
 
@@ -492,11 +545,11 @@ export {
   mon_background, dual_background, mega_background, 
   egg_background, option_background, tamer_background, tamer_dp_background,
   mon_background_nocost, mega_background_nocost, egg_background_nocost, option_background_nocost, tamer_background_nocost,
-  cost, cost_egg, cost_dual, cost_blank, cost_option, cost_evo, cost_evo_plain,
+  cost, cost_egg, cost_dual,cost_dual_gold, cost_blank, cost_option, cost_evo, cost_evo_plain,
   outline_option, outline_option_nocost, 
   arts_box, ace_box, ace_logo,
   bottom_property_white, bottom_property_black,
-  foil, gold, bubble, doublebubble, linkdp,
+  foil, gold, bubble, doublebubble, linkdp, linkdpWhite,
   pen_img
 };
 

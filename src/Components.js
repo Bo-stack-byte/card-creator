@@ -27,7 +27,7 @@ export function CircleAndBlock(ctx, color, rarity, block, x, y) {
             outlinecolor = "black";
         }
         //console.log(28, "color", color, "mycolor", mycolor, "outlinecolor", outlinecolor);
-        drawDiamondRectangle(ctx, x, y + 145, 145, 95, "white", outlinecolor);
+        drawDiamondRectangle(ctx, x-5, y + 140, 160, 85, "white", outlinecolor);
         ctx.fillStyle = "black";
         ctx.textAlign = 'center';
 

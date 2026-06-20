@@ -171,6 +171,8 @@ export const enterPlainText = (lines) => {
         "assembly": "",
         "burstEvolve": "-",
 
+        "spRarity": "-",
+        
         "effect": "",
         "evolveEffect": "",
         "securityEffect": "",
@@ -247,6 +249,8 @@ export const enterPlainText = (lines) => {
             // DNA Digivolve
         }else if ((m = line.match(/^\s*DNA Digivol(\w*):\s*(.*)$/i))) {
             json.dnaEvolve = "[DNA Digivolve] "+m[2]+": cost 0";
+        }else if ((m = line.match(/^\s*App Fusion:\s*(.*)$/i))) {
+            json.dnaEvolve = "[App Fusion] "+m[1]+": cost 0";
         }else if ((m = line.match(/^\s*\[(.*?)\|(.*?)\|(.*?)\]( \[(.*)\])?/))) {
             json.form = m[1].trim();
             json.attribute = m[2].trim();
@@ -304,13 +308,31 @@ export const enterPlainText = (lines) => {
                 evo.level = (n[3]);
                 from = n[1] + n[4];
             }
+            if ((n = from.match(/(.*)(Tamer|Stnd.|Sup.|Ult.)(.*)/i))) {
+                evo.level = (n[2]);
+                from = n[1] + n[3];
+            }
             let colors = split_colors(from);
-            for (let c of colors) {
-                evo.color = get_color(c);
+            let isRain = String(colors).trim();
+            console.log("evo colors: (parse) "+JSON.stringify(isRain)+" "+(isRain === 'Rain'))
+            if(isRain === "Rain"){
+                evo.color = "rain";
                 json.evolveCondition.push(evo);
+                console.log("evo colors: (parse3) "+evo.color)
                 evo = { ...evo }; // make copy
 
             }
+            else
+            {
+                for (let c of colors) {
+                evo.color = get_color(c);
+                json.evolveCondition.push(evo);
+                console.log("evo colors: (parse2) "+evo.color)
+                evo = { ...evo }; // make copy
+
+            }
+            }
+            
             // [[Digivolve] [Imperialdramon: Dragon Mode]: Cost 2] 
         } else if ((m = line.match(/^.?.?.?(Evolve|Digivolve).{0,3}\s+(.*\d[\w\s]*)/i))) {
             console.log(147, m);
@@ -324,8 +346,9 @@ export const enterPlainText = (lines) => {
         } else if ((m = line.match(/^.{0,3}(Assembly -\d+).{0,3}\s+(.*)/i))) {
             json.assembly = `[${m[1]}] ${m[2]}`;
             //    [Link]: [Appmon] trait. Cost: 1.
-        } else if ((m = line.match(/^.{0,3}(Link).?:?\s*(.*trait.*).?\s*:\s*cost.?\s*(\d+)/i))) {
-            json.linkRequirement = `[Link] ${m[2]}: Cost ${m[3]}`
+        } else if ((m = line.match(/^.{0,3}(Link).?:?\s*\[*(\d+)]*.\s*(.*\w.*).\s*(.*trait.*).?\s*:\s*cost.?\s*(\d+)/i))) {
+            json.linkRequirement = `[Link] ${m[3]}: Cost ${m[5]} (Plug this card from the hand or battle area sideways into the specified Digimon in the battle area.)`
+            json.linkDP = m[2]
             mode = "link";
         } else if ((m = line.match(/Security Effect/))) {
             mode = "security";

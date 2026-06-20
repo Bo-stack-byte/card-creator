@@ -217,7 +217,7 @@ function splitTextIntoParts(text) {
   return all_words;
 }
 
-export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
+export function writeRuleText(ctx, rule, fontSize, bottom,  type, preview = false) {
   let maxWidth = 2200;
   fontSize = Number(fontSize);
   ctx.textAlign = 'right';
@@ -229,8 +229,11 @@ export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
   let width = ctx.measureText(text).width;
   let x = horizontal_limit - 50;
   let text_bg = 'white';
+  if(type.startsWith("OPTION")) text_bg = "black"
   let fill = 'black';
+  if(type.startsWith("OPTION")) fill = "white"
   let stroke = 'white';
+  if(type.startsWith("OPTION")) stroke = "black"
   let gc;
   if (gold_text) {
     [gc,,] = textColor([], ctx);
@@ -243,6 +246,7 @@ export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
   ctx.strokeStyle = stroke;
   if (width > maxWidth) width = maxWidth;
   if (!preview) {
+    
     ctx.fillStyle = text_bg;
     ctx.fillRect(x - width-20, bottom - fontSize / 8, width + 20 + fontSize / 4, - fontSize * 0.7);
     ctx.strokeText(text, x, bottom-10, maxWidth);
@@ -252,6 +256,10 @@ export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
   // Rule:
   ctx.fillStyle = fill; //  stroke;
   ctx.strokeStyle = 'black';
+  if(type.startsWith("OPTION"))
+  {
+    ctx.fillStyle = "white"
+  }
   if (gold_text) {
     ctx.fillStyle = gc;
   }
@@ -259,16 +267,19 @@ export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
   let rule_word = "Rule"
   let rule_word_width = ctx.measureText(rule_word).width + 20;
   if (preview) return x - width - 10; // return start pos
-  ctx.strokeStyle = 'white'
-  ctx.strokeRect(x - width - 20, bottom-12, -rule_word_width-5, -(Number(fontSize)-25))
-  ctx.fillRect(x - width - 20, bottom-12, -rule_word_width-5, -(Number(fontSize)-25));
+  const p = new Path2D();
   ctx.save()
-  ctx.beginPath()
-  ctx.moveTo(x-width-20,bottom-Number(fontSize)*0.65)
-  ctx.lineTo(x-width-20,bottom-Number(fontSize)*0.35)
-  ctx.lineTo(x-width+1,bottom-Number(fontSize)*0.5);
-  ctx.closePath();
-  ctx.fill()
+  
+  p.rect(x - width - 20, bottom-12, -rule_word_width-5, -(Number(fontSize)-25))
+  p.moveTo(x-width-20,bottom-Number(fontSize)*0.65)
+  p.lineTo(x-width-20,bottom-Number(fontSize)*0.35)
+  p.lineTo(x-width+1,bottom-Number(fontSize)*0.5);
+  p.closePath();
+  ctx.strokeStyle = 'black'
+  ctx.fillStyle = "white"
+  ctx.lineWidth = 15;
+  ctx.stroke(p);
+  ctx.fill(p)
   ctx.restore();
   // x, y, width, height
 //  ctx.moveTo(x-width-10, bottom + 10);
@@ -279,7 +290,7 @@ export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
   console.log(730, x - width - 10, bottom + 10, -rule_word_width, -(fontSize + 20));
   ctx.fillStyle = 'white';
  
-  if (gold_text) {
+  if (gold_text || type.startsWith("OPTION")) {
     ctx.fillStyle = 'black';
   } 
   ctx.fillText(rule_word, x - width - 30, bottom-10);
@@ -357,7 +368,7 @@ function drawDnaBox(ctx, x, y, w, h, colors) {
 };
 
 //x,y is upper left
-function drawColoredRectangle(ctx, x, y, width, height, color, radius, drawOutline) {
+export function drawColoredRectangle(ctx, x, y, width, height, color, radius, drawOutline) {
   console.log(195, x, y, width, height, color);
   console.log("is the outline even working first pass "+drawOutline)
   //#922969 darker ois lower
@@ -373,20 +384,21 @@ function drawColoredRectangle(ctx, x, y, width, height, color, radius, drawOutli
   height = Number(height);
   let color0, color1, color2;
   switch (color) {
-    case 'purple': color0 = '#4F0B46'; color1 = '#8B235C'; 
-    color2 = '#AF4176'; break; 
+    case 'purple': color0 = '#4F0B46'; color1 = '#7A0055'; 
+    color2 = '#e26099'; break; 
     case 'DLgreen': color0 = '#0D372A'; color1 = '#18897E'; color2 ='#2CD372'; break;
+    case 'Linkgreen': color0 = '#12533e'; color1 = '#18897E'; color2 ='#2CD372'; break;
     case 'LDgreen': color0 = '#2CD372'; color1 = '#006E63'; color2 ='#0E3E32'; break;
     case 'doublebubble':
     case 'bubble': color0 = 'black'; color1 = 'black'; break;
     case 'darkblue': //color0 = '#0D0D2B'; color1 = '#2A6BA5'; break;
     color0 = '#0D0D2B'; color1 = '#19425F'; color2 = '#4F88AE'; break;
-    case 'red': color0 = '#530B07'; color1 = '#A12015'; color2 = '#DB6D52'; break;
+    case 'red': color0 = '#5A0300'; color1 = '#CF4923'; color2 = '#C5836D'; break;
     case 'yellow': color0 = 'yellow'; color1 = 'yellow'; break;
-
+    case 'white': color0 = 'white'; color1 = 'white'; break;
     case 'blue':
     default:
-      color0 = '#000001'; color1 = '#172084'; color2 = '#61B4FB';
+      color0 = '#000001'; color1 = '#172084'; color2 = '#4983b6';
   }
   if (gold_text) {
     ctx.fillStyle = gold_gradient;
@@ -399,7 +411,13 @@ function drawColoredRectangle(ctx, x, y, width, height, color, radius, drawOutli
       if(color==="DLgreen")
       {
         gradient.addColorStop(0, color0);
-        gradient.addColorStop(0.5, color1);
+        gradient.addColorStop(0.4, color1);
+        gradient.addColorStop(0.9, color2);
+      }
+      if(color==="Linkgreen")
+      {
+        gradient.addColorStop(0, color0);
+        gradient.addColorStop(0.2, color1);
         gradient.addColorStop(0.9, color2);
       }
       else if(color==="LDgreen")
@@ -407,6 +425,20 @@ function drawColoredRectangle(ctx, x, y, width, height, color, radius, drawOutli
         gradient.addColorStop(0, color0);
         gradient.addColorStop(0.8, color1);
         gradient.addColorStop(0.99, color2);
+      }
+      else if(color==="blue"|| color === "purple")
+      {
+        gradient.addColorStop(0, color0);
+        gradient.addColorStop(0.4, color1);
+        gradient.addColorStop(0.5, color1);
+        gradient.addColorStop(0.85, color2);
+      }
+      else if(color==="red" )
+      {
+        gradient.addColorStop(0, color0);
+        gradient.addColorStop(0.4, color1);
+        gradient.addColorStop(0.7, color1);
+        gradient.addColorStop(0.95, color2);
       }
       else
       {
@@ -474,12 +506,12 @@ function _2drawDiamondRectangle(ctx, x, y, width, height, color, strokeColor) {
     console.log("problematic effect "+color)
     if(color === "effect" ||color === "effect sec"||color === "effect sec yellow" || color === "effect-option" || color === "bubble")
     {
-      col1 = '#631c0b';
-      col2 = '#AA4500';
-      col3 = '#C77037'
+      col1 = '#8C230D';
+      col2 = '#B74401';
+      col3 = '#C6751C'
     }
     gradient.addColorStop(0, col1); // Dark brown
-    gradient.addColorStop(0.45, col2); // Medium brown
+    gradient.addColorStop(0.6, col2); // Medium brown
     gradient.addColorStop(0.9, col3); // "light" brown
     ctx.fillStyle = gradient;
   }
@@ -627,6 +659,7 @@ export function italicStrokeText(ctx, text, x, y, limit) {
 // _maxWidth is unused :(
 export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, radius, preview = false) {
   console.log(text);
+  console.log("extra is: "+extra)
   // preprocess
   text = text.replaceAll('((', '⸨').replaceAll('))', '⸩');
   // make inside of (*stufff  f f *) be italic
@@ -661,6 +694,10 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   if (extra.includes("bubble")) maxWidth -= 150;
   //console.debug(308, "calling with", fontSize, text, y, "XXX", lineHeight);
   lineHeight = Number(lineHeight);
+  if(Number(fontSize) < 85 && (extra === "effect sec" || extra === "effect sec yellow"))
+  {
+    lineHeight +=15
+  }
   let yOffset = y;
   let lines = [];
   text = text.replaceAll(/</ig, "＜").replaceAll(/>/ig, "＞");
@@ -700,34 +737,38 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   for (let p = 0; p < paragraphs.length; p++) {
     let graf = prepareKeywords(paragraphs[p], extra.startsWith("effect"));
     const words = splitTextIntoParts(graf);
+    console.log("testing things",words,extra,graf)
     let line = '';
     const italics = (extra === "bubble" || 
      // extra === "doublebubble" || 
-      extra === "dna") ? "italic" : "100";
-
+      extra === "dna" || extra === "link") ? "italic" : "100";
     let scale = 1.0;
-
-
+    console.log("extra is: (italic) "+italics)
     for (let n = 0; n < words.length; n++) {
+      let fontOffs = 0;
+      if(words[n].startsWith("＜")) fontOffs = -20
+      ctx.font = `${italics} ${fontSize+fontOffs}px ${font}`;
+      const metrics = ctx.measureText((line+words[n]));
       ctx.font = `${italics} ${fontSize}px ${font}`;
-      const testLine = line + words[n];//  + ' ';
-      const metrics = ctx.measureText(testLine.replaceAll(/[*＜＞【】《》[\]]/ig, ''));
+      console.log("testing this 2",words[n],metrics.width)
       const testWidth = metrics.width * scale;
 
       //console.log(`XXX is ${testWidth} bigger than ${maxWidth}, added word ${words[n]} to ${line}`);
 
-      if (testWidth > maxWidth && n > 0) {
+      if (testWidth/maxWidth>0.98 && n > 0) {
         //      let currentWidth = ctx.measureText(line).width;
         //console.log(267, "pushing " + Math.round(currentWidth) + " <" + line + ">");
         //   wrapAndDrawText(ctx, line, x, yOffset, bracketedWords);
         line = line.trim();
+        
         lines.push({ ctx, line, x, yOffset });
-
+        
         line = words[n];//  + ' ';
         yOffset += lineHeight; // 117.5; //  117.5 for EX2-039 w/90.5 font:for smaller lines lineHeight* 1.3;
       } else {
-        line = testLine;
+        line = line + words[n];
       }
+      console.log("This the line: "+line+" | max: "+maxWidth+" | ActualWidth: "+testWidth)
     }
 
     line = line.trim();
@@ -761,6 +802,8 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 
   //console.log(372, lines);
   for (let line of lines) {
+    //let actualL = ctx.measureText(line.line)
+    //console.log("This the line: "+line.line+" | Width: "+right_limit+" | RealWidth: "+actualL.width)
     wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra, right_limit, radius, preview);
   }
 
@@ -779,7 +822,7 @@ function getColor(phrase, default_color = 'blue') {
   if (phrase.match(/DigiXros/i)) return 'LDgreen';
   if (phrase.match(/Assembly/i)) return 'DLgreen';
   if (phrase.match(/Arts .*olve/i)) return 'DLgreen';
-  if (phrase === "Link") return 'DLgreen';
+  if (phrase === "Link") return 'Linkgreen';
   if (['Hand', 'Trash', 'Breeding'].includes(phrase)) return 'purple';
   if (['Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'red';
   if (phrase.match(/^(Burst )?(Digi|E)volve$/i)) return 'darkblue';
@@ -854,10 +897,20 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
         cleanPhrase = cleanPhrase.slice(1, -1);
       }
 
-      const italics = (style === "bubble" || style === "dna") ? "italic" : "";
+      const italics = (style === "bubble" || style === "dna" || style == "link") ? "italic" : "";
       let bubbleFontOffs = 0
+      let clamp = 0;
       if(style === "bubble" || color === "blue" || color === "red" || color === "purple") bubbleFontOffs = 12
-      ctx.font = `100 ${(fontSize - 20 - bubbleFontOffs)}px ${boxfont}`;
+      if(fontSize>=85)
+      {
+        clamp = fontSize - 20 - bubbleFontOffs
+      }
+      else
+      {
+        clamp = fontSize - 20
+      }
+        
+      ctx.font = `100 ${(clamp)}px ${boxfont}`;
 //      ctx.fontStretch = "ultra-condensed";
  //     ctx.fontStretch = "ultra-expanded";
       const phraseWidth = ctx.measureText(cleanPhrase).width;
@@ -895,7 +948,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
           console.log("keyword check "+word)
           const cleanWord = word.replace(/[＜＞_]/g, '  ');
           let replaceOffs = 0;
-          let colPre = cleanWord;
+          let colPre = " "+cleanWord+"";
           if(cleanWord.match(/red/i))
           {
             colPre = cleanWord.replace(/red/i,"🔴")
@@ -953,7 +1006,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
           //   ctx.font = `bold ${(fontSize - 5)}px Roboto`;
           
 
-          const wordWidth = ctx.measureText(cleanWord).width-circOffset-replaceOffs;
+          const wordWidth = ctx.measureText(colPre).width-circOffset-replaceOffs;
           //console.log(314, wordWidth, cardWidth, lastX, cleanWord);
           let h = Number(fontSize);
           let width = wordWidth;
@@ -967,7 +1020,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
           //    ctx.scale(scale, 1);
           const defFillStl = gold_text ? 'black' : 'white'; // white on colored background
           ctx.save()
-          let diamondOffset = -5; // how much to slide keyword in text around
+          let diamondOffset = 0; // how much to slide keyword in text around
           let offsetX = lastX;
           let circColCtr = 0;
           console.log("colPro vals: "+circCol);
@@ -1052,6 +1105,10 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
               yoffs = 27;
               xoffs = 5;
             };
+            if(fontSize<85 && (style === "effect sec" || style ==="effect sec yellow"))
+            {
+              ctx.font = ` ${fontSize+15}px ${font}`;
+            }
             console.log("style check "+style)
             if (!preview && style !=="effect sec" && style !=="effect sec yellow") {
               if (!skew) {

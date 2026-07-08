@@ -7,6 +7,7 @@ DUAL CARD ISSUES
 
 KNOWN BUGS
 
+* myriad pro bold to myriad semi bold for rule text and some others?
 * ESS picture not using background, and other issues with images
 * multiple users reporting Safari issues (bad scaling, bad font on mon name). if this includes you, please reach out
 * fix those extra pixels at intersections where angles jut out

@@ -44,7 +44,7 @@ export function textColor(colors, ctx) {
   return [fillColor, strokeColor, border];
 }
 
-const font = 'MyriadProBold'
+const font = 'MyriadProBold' // Semibold??
 const boxfont = "Hiragino"; //  "FallingSky" : "ToppanBunkyExtraBold";
 const horizontal_limit = 2700;
 
@@ -57,7 +57,6 @@ export function center(str, len = 16) {
 }
 
 export function fitTextToWidth(ctx, text, maxWidth, initialFontSize, limit) {
-  const font = 'Asimov'; // Asimov'
 
   let fontSize = initialFontSize;
   ctx.font = `${fontSize}px ${font}`;
@@ -223,7 +222,7 @@ export function writeRuleText(ctx, rule, fontSize, bottom, preview = false) {
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
   ctx.fillStyle = 'white';
-  ctx.font = `italic ${(fontSize - 10)}px Asimov`;
+  ctx.font = `italic ${(fontSize - 10)}px ${font}`; 
   let text = rule;
   if (text.startsWith("[Rule]")) text = text.substring(6).trim();
   let width = ctx.measureText(text).width;
@@ -393,8 +392,8 @@ function drawColoredRectangle(ctx, x, y, width, height, color, radius) {
     gradient.addColorStop(0, color0);
     gradient.addColorStop(1, color1);
     if (color2) {
-      gradient.addColorStop(0.3, color0);
-      gradient.addColorStop(0.6, color1);
+      gradient.addColorStop(0.1, color0);
+      gradient.addColorStop(0.4, color1);
       gradient.addColorStop(0.99, color2);
     }
     ctx.fillStyle = gradient;

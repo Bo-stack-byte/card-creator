@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.59.1"
-const latest = "changes to fonts for evo circles, smaller evo circles from @rlvvmc, +/- dopesn't crash on multicards"
+const version = "0.8.61"
+const latest = "change gradient on rounded-rectangle keywords re @rlvvmc"
 
+// version 0.8.60 = rule text to MyriadProBold (should be SemiBold re: @rlvvmc)
 // version 0.8.59   changes to fonts for evo circles, smaller evo circles, evo_cond +/- dopesn't crash on multicards
 // version 0.8.58   security text color uses same logic as name text
 // version 0.8.57   nimbus font used for people who don't have helvetica; tweak DP numbers; dark blue for counter
@@ -824,7 +825,8 @@ const test_case_1 = ` {
 const starter_text = starter_text_empty;
 let all_text = "[" + [starter_text_0, starter_text_1_backup,
   starter_text_1a, starter_text_1b, starter_text_1c,
-  starter_text_2, starter_text_3, starter_text_4, test_case_1].join(",") + "]";
+  starter_text_2, starter_text_3, starter_text_4, 
+  starter_text_empty, test_case_1, ].join(",") + "]";
 
 // deprecated from our old "share" functionality, that put the entire JSON blob into the URL compressed+encoded 
 const decodeAndDecompress = (encodedString) => {

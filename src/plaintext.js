@@ -247,8 +247,18 @@ export const enterPlainText = (lines) => {
         } else if ((m = line.match(/^\s*(\[Rule.*:.*)/i))) {
             // [Rule] Trait: Has the [Insectoid] type.
             json.rule = m[1];
-            // [Champion | Data | Shield] [Yel.]
-        } else if ((m = line.match(/^\s*\[(.*?)\|(.*?)\|(.*?)\]( \[(.*)\])?/))) {
+            // {Option Effect} [Cost: 5 | Color: Red/Blue/Yellow] [Main] Delete 1 of your opponent's Digimon.
+        } else if ((m = line.match(/\{Option Effect\}\s*\[(?:Cost:\s*(\d+)\s*\|\s*)?Color:\s*([^\]]+)\]\s*([\s\S]*)/i))) {
+            json.cardType = "Digimon / Option";
+            json.playCost = (m[1]);
+            json.optionCardColourRequirement = abbr_parse_color(m[2]);
+            json.dualEffect = "[Arts Digivolve]";
+            json.optionCardEffect = m[3];
+            mode = "dual";
+            // DNA Digivolve
+        }else if ((m = line.match(/^\s*DNA Digivol(\w*):\s*(.*)$/i))) {
+            json.dnaEvolve = "[DNA Digivolve] "+m[2]+": cost 0";
+        }else if ((m = line.match(/^\s*\[(.*?)\|(.*?)\|(.*?)\]( \[(.*)\])?/))) {
             json.form = m[1].trim();
             json.attribute = m[2].trim();
             json.type = m[3].trim();
@@ -274,8 +284,8 @@ export const enterPlainText = (lines) => {
             evo.level = (m[4]);
             evo.cost = (m[3]);
             evo.color = abbr_parse_color(m[5])
-            json.evolveCondition.push(evo);
-        } else if ((m = line.match(/^\s*Artist\/Author: ([^\/\n]+) \/ ([^\n]+)$/i))) {
+            json.evolveCondition.push(evo); 
+        } else if ((m = line.match(/^\s*Artist\/Author: ([^/\n]+) \/ ([^\n]+)$/i))) {
             // Artist/Author: Artist / Author
             json.artist = (m[1]);
             json.author = (m[2]);

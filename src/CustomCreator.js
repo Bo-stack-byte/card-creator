@@ -65,10 +65,12 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.61"
-const latest = "change gradient on rounded-rectangle keywords re @rlvvmc"
+const version = "0.8.63"
+const latest = "working on shading around border"
 
-// version 0.8.60 = rule text to MyriadProBold (should be SemiBold re: @rlvvmc)
+// 62 was same
+// version 0.8.61   change gradient on rounded-rectangle keywords re @rlvvmc
+// version 0.8.60   rule text to MyriadProBold (should be SemiBold re: @rlvvmc)
 // version 0.8.59   changes to fonts for evo circles, smaller evo circles, evo_cond +/- dopesn't crash on multicards
 // version 0.8.58   security text color uses same logic as name text
 // version 0.8.57   nimbus font used for people who don't have helvetica; tweak DP numbers; dark blue for counter
@@ -338,7 +340,7 @@ const setupRoundedCorners = (ctx, width, height, radius) => {
   ctx.clip();
 };
 
-const starter_text_empty = `[{
+const starter_text_tama = `{
   "name": {
     "english": "Tama"
   },
@@ -406,7 +408,9 @@ const starter_text_empty = `[{
     "outline": true,
     "skipDraw": false
   }
-}]`;
+}`;
+
+const starter_text_empty = `[${starter_text_tama}]`;
 
 
 const starter_text_0 = ` {
@@ -794,7 +798,8 @@ const test_case_1 = ` {
         "color": "White"
       }
     ],
-    "effect": "-",
+    
+    "effect": "<Custom Keyword> (*This reminder text is in italics.*)",
     "playCost": "-",
     "form": "In-Training",
     "attribute": "Data",
@@ -802,7 +807,7 @@ const test_case_1 = ` {
     "DP": 7000,
     "rarity": "C",
     "block": "03",
-    "evolveEffect": "[Twice Per Turn] This text should be white with a black border. The Evo color bubble should be solid black.",
+    "evolveEffect": "[Twice Per Turn] This text should be white with a black border. The text in the Evo bubble should be solid black.",
     "cardNumber": "T-81",
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
@@ -826,7 +831,7 @@ const starter_text = starter_text_empty;
 let all_text = "[" + [starter_text_0, starter_text_1_backup,
   starter_text_1a, starter_text_1b, starter_text_1c,
   starter_text_2, starter_text_3, starter_text_4, 
-  starter_text_empty, test_case_1, ].join(",") + "]";
+  starter_text_tama, test_case_1, ].join(",") + "]";
 
 // deprecated from our old "share" functionality, that put the entire JSON blob into the URL compressed+encoded 
 const decodeAndDecompress = (encodedString) => {
@@ -2053,6 +2058,17 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
     console.debug(643, "START DRAW", pauseDraw.current);
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+
+    const offsCanvas = document.createElement('canvas')
+    offsCanvas.width = 2977
+    offsCanvas.height = 4158 - 17
+    const offCtx = offsCanvas.getContext('2d') 
+    setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
+    const offsCanvas2 = document.createElement('canvas')
+    offsCanvas2.width = 2977
+    offsCanvas2.height = 4158 - 17
+    const offCtx2 = offsCanvas2.getContext('2d') 
+
     setupRoundedCorners(ctx, canvas.width, canvas.height, 15);
 
     console.log("===");
@@ -2445,12 +2461,36 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         // draw the left and right line all the way down. crop off the top 1000 pixels
         try {
           if (frameImages[0].complete)
+//            scalePartialImage(ctx, frameImages[0], 0, len, border_scale,
+            offCtx.save()
+            offCtx.globalAlpha = 1;
+            offCtx.filter = 'brightness(0)';
+            scalePartialImage(offCtx, frameImages[0], 0, len, border_scale-100,
+              offset_x+20, offset_y + 1150, 600,1.005,1.01)
+            offCtx.restore()
+            scalePartialImage(offCtx2, frameImages[0], 0, len, border_scale,
+              offset_x, offset_y + 1100, 600);
+          let last = len - 1;
+          if (frameImages[last].complete)
+        //    scalePartialImage(ctx, frameImages[last], last, len, border_scale, offset_x, offset_y + 1100, 600);
+            offCtx.save()
+            offCtx.globalAlpha = 1;
+            offCtx.filter = 'brightness(0)';
+            scalePartialImage(offCtx, frameImages[0], 0, last, border_scale-100,
+            offset_x+20, offset_y + 1150, 600,1.005,1.01)
+            offCtx.restore()
+            scalePartialImage(offCtx2, frameImages[last], last, len, border_scale, offset_x, offset_y + 1100, 600);
+
+/*
+
+          if (frameImages[0].complete)
             scalePartialImage(ctx, frameImages[0], 0, len, border_scale,
               offset_x, offset_y + 1100, 600);
           let last = len - 1;
           if (frameImages[last].complete)
             scalePartialImage(ctx, frameImages[last], last, len, border_scale, offset_x, offset_y + 1100, 600);
-        } catch (e) { // couldn't sufficiently check this w/o a try/catch
+          */
+          } catch (e) { // couldn't sufficiently check this w/o a try/catch
           console.log(611, e);
         }
       }
@@ -2471,7 +2511,14 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
           // 1.05 is fudge factor because our frames aren't all left-justified the same
           // this makes them  the same, but they might be the same wrong
           // y - 1.5 to avoid tiniest stray pixels above egg frame on upper left
-          scalePartialImage(ctx, frame, i + (fudge), l, border_scale, offset_x, offset_y - 1.5,
+          offCtx.save()
+          offCtx.globalAlpha = 1;
+          offCtx.filter = 'brightness(0)';
+          scalePartialImage(offCtx, frame, i + (fudge), l, border_scale-100, offset_x+23, offset_y - 1.5+18,
+            undefined, 1.012, 1.011);
+          offCtx.restore();          
+
+          scalePartialImage(offCtx2, frame, i + (fudge), l, border_scale, offset_x, offset_y - 1.5,
             undefined, 1, 1.00);
         }
         // DRAW BOTTOM OF BOX?
@@ -2479,13 +2526,37 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
           // bottom of frame
           let border = borders[col];
           if (type === "ACE") bottom_y += 20;
-          scalePartialImage(ctx, border, i, len, 67.3 * border_scale / 3950,
-            166, bottom_y);
+//          scalePartialImage(ctx, border, i, len, 67.3 * border_scale / 3950,
+          offCtx.save()
+          offCtx.globalAlpha = 1;
+          offCtx.filter = 'brightness(0)';
+          scalePartialImage(offCtx, border, i, len, 67.3 * (border_scale-120) / 3950, 166+10, bottom_y-30,
+           undefined, 1.2, 1.024);
+          offCtx.restore()
+          scalePartialImage(offCtx2, border, i, len, 67.3 * (border_scale-10) / 3950,
+
+166, bottom_y);
           // todo: play with these numbers some more. scale is 67.2-67.5,
           // and left is 166
         }
 
       }
+
+      
+      if (imageOptions.outline && true) {
+        ctx.save()
+        ctx.globalAlpha = 0.45;
+        ctx.filter = 'blur(15px)';
+        ctx.globalCompositeOperation = "multiply"
+        ctx.drawImage(offsCanvas,0,0)
+        ctx.restore()
+        ctx.save()
+        ctx.drawImage(offsCanvas2,0,0)
+        ctx.restore()
+      }
+      
+
+
       // top mon?
       if (imageOptions.foregroundOnTop) drawMon(mon_img, bottom_y + 45);
 
@@ -3632,7 +3703,6 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         try {
           filename = json[i].name.english;
           filename = filename.replace(/[^a-zA-Z0-9]+/g, '-');
-
           if (json[i].id) filename = json[i].id; // what is this for?
         } catch { }
         filename += ".png";

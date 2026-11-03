@@ -65,10 +65,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.63"
-const latest = "working on shading around border"
+const version = "0.8.64"
+const latest = "fix colors on dual option text when one is yellow/white"
 
-// 62 was same
+// version 0.8.64   fix colors on dual option text when one is yellow/white"
+// version 0.8.63   working on shading aroun border
 // version 0.8.61   change gradient on rounded-rectangle keywords re @rlvvmc
 // version 0.8.60   rule text to MyriadProBold (should be SemiBold re: @rlvvmc)
 // version 0.8.59   changes to fonts for evo circles, smaller evo circles, evo_cond +/- dopesn't crash on multicards
@@ -667,7 +668,7 @@ const starter_text_3 = `   {
     const starter_text_4 = `   {
     "name": {   "english": "Dual Mon / Shark Lazers"   },
     "color": "Purple",
-    "optionCardColourRequirement": "Red/Blue",
+    "optionCardColourRequirement": "Red/Yellow",
     "cardType": "Monster / Option",
     "playCost": "5",
     "dp": "8000",
@@ -696,7 +697,7 @@ const starter_text_3 = `   {
             "effectBox": false,
             "addFoil": 0,
             "goldText": false,
-            "aceFrame": false,
+            "aceFrame": true,
             "coloredFrame": false,
             "outline": true
     }
@@ -816,7 +817,7 @@ const test_case_1 = ` {
             "foregroundOnTop": false,
             "cardFrame": true,
             "effectBox": false,
-            "addFoil": 0,
+            "addFoil": 2,
             "goldText": false,
             "aceFrame": true,
             "coloredFrame": false,
@@ -3468,7 +3469,8 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         // "black effect" is black with black/no border
         // "reverse effect 
         let style = "effect";       
-        let [fillColor, edgeColor, stroke] = textColor(colors);
+        const relevantColors = (type.startsWith("DUAL")) ? optionColors : colors;
+        let [fillColor, edgeColor, stroke] = textColor(relevantColors);
         style = `custom[${fillColor},${edgeColor},${stroke}]`;
         drawBracketedText(ctx, baseFontSize, sec_effect,
           700 + delta_x * 2, 3740 + delta_y * 2,

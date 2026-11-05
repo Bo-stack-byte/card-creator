@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.64"
-const latest = "fix colors on dual option text when one is yellow/white"
+const version = "0.8.65"
+const latest = "tune spacing of text at top of dual card"
 
+// version 0.8.65   tune spacing of text at top of dual card
 // version 0.8.64   fix colors on dual option text when one is yellow/white"
 // version 0.8.63   working on shading aroun border
 // version 0.8.61   change gradient on rounded-rectangle keywords re @rlvvmc
@@ -2586,7 +2587,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         let offset = 160;
         let slashpadding = 40;        
         drawTextWithSpacing(ctx,words[0].trim(), x - offset - slashpadding, 170, 0, offset*2);
-        drawTextWithSpacing(ctx,words[1].trim(), x + offset + slashpadding, 170, 0, offset*2);
+        drawTextWithSpacing(ctx,words[1].trim(), x + offset + slashpadding, 170, 0, offset*2-20);
      } else {      
       drawTextWithSpacing(ctx,cardText,1515,170,12)
      }

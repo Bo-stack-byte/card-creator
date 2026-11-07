@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.66.0"
-const latest = "put in 'cant play to field' notes from @rlvvmc"
+const version = "0.8.67.0"
+const latest = "move dual option name down a bit"
 
+// versioj 0.8.67   move dual option name down a bit
 // version 0.8.66   put in 'cant play to field' notes from @rlvvmc
 // version 0.8.65   tune spacing of text at top of dual card
 // version 0.8.64   fix colors on dual option text when one is yellow/white"
@@ -3063,8 +3064,8 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
           let names = json.name.english.split("/");
           if (names.length > 1) optName = names[1];
           let width = 1650;
-          if (stroke) ctx.strokeText(optName, (1480), 3355, width);
-          ctx.fillText(optName, (1480), 3355, width);
+          if (stroke) ctx.strokeText(optName, (1480), 3370, width);
+          ctx.fillText(optName, (1480), 3370, width);
       }
 
 

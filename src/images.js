@@ -329,6 +329,13 @@ import _blackline from './frames/lines/blackline.png';
 import _purpleline from './frames/lines/purpleline.png';
 import _whiteline from './frames/lines/whiteline.png';
 
+import _redcantplay from './frames/cantplayred.png'
+import _bluecantplay from './frames/cantplayblue.png'
+import _yellowcantplay from './frames/cantplayyellow.png'
+import _greencantplay from './frames/cantplaygreen.png'
+import _blackcantplay from './frames/cantplayblack.png'
+import _purplecantplay from './frames/cantplaypurple.png'
+import _whitecantplay from './frames/cantplaywhite.png'
 
 
 export const ace_backgrounds = {
@@ -339,6 +346,25 @@ export const ace_backgrounds = {
   'purple': ace_purple,
   'black': ace_black,
   'white': ace_white
+}
+
+export const redcantplay = new Image(); redcantplay.src = _redcantplay;
+export const bluecantplay = new Image(); bluecantplay.src = _bluecantplay;
+export const yellowcantplay = new Image(); yellowcantplay.src = _yellowcantplay;
+export const greencantplay = new Image(); greencantplay.src = _greencantplay;
+export const blackcantplay = new Image();  blackcantplay.src = _blackcantplay;
+export const purplecantplay = new Image(); purplecantplay.src = _purplecantplay;
+export const whitecantplay = new Image(); whitecantplay.src = _whitecantplay;
+
+
+export const cantplay = {
+  'red': redcantplay,
+  'blue': bluecantplay,
+  'yellow': yellowcantplay,
+  'green': greencantplay,
+  'black': blackcantplay,
+  'purple': purplecantplay,
+  'white': whitecantplay
 }
 export const dual_backgrounds = {
   'red': dual_red,

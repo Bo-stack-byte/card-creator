@@ -6,7 +6,7 @@ import {
   egg_background, option_background, tamer_background,
   mon_background_nocost, mega_background_nocost, /*egg_background_nocost,*/ option_background_nocost, tamer_background_nocost,
 
-  ace_backgrounds, dual_backgrounds,
+  ace_backgrounds, dual_backgrounds, cantplay,
   outlines,
   outlines_nocost,
   outlines_tamer, outline_option, outlines_egg,
@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.65"
-const latest = "tune spacing of text at top of dual card"
+const version = "0.8.66.0"
+const latest = "put in 'cant play to field' notes from @rlvvmc"
 
+// version 0.8.66   put in 'cant play to field' notes from @rlvvmc
 // version 0.8.65   tune spacing of text at top of dual card
 // version 0.8.64   fix colors on dual option text when one is yellow/white"
 // version 0.8.63   working on shading aroun border
@@ -3078,8 +3079,22 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
           img = cost;
           if (type.startsWith("OPTION")) img = cost_option;
         }
-        if (type === "DUAL") img = cost_dual;
+        if (type === "DUAL") {
+          img = cost_dual;
+          const leftcolor = colors[0];
+          try {
+            ctx.drawImage(cantplay[leftcolor],175,50,850,270)
+            let cantPlayText = "Can't play to the ﬁeld."; // ﬁ glyph, not "fi"
+            let text = [[cantPlayText, "bold italics"]];
+            ctx.font = `70px Hiragino`; 
+            ctx.lineWidth = 2;        
+            ctx.lineJoin = "round"
+            let [c, ] = textColor( [leftcolor] );
+            ctx.fillStyle = ctx.strokeStyle = c;
+            textLine(ctx,text,610+22,120,680)
+          } catch (e) {};
 
+        }
         if (json.playCost.toLowerCase() === "egg") img = cost_egg;
         if (json.playCost.toLowerCase() === "dash") {
           img = cost;
@@ -3282,7 +3297,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         // PF Das Grotesk Pro Bold is the actual font but $$
         //ctx.font = `bold ${fontSize}px Roboto`; // better looking I
         //        ctx.font = `700 ${fontSize}px Schibsted Grotesk`; // has curved lowercase l
-        ctx.font = `${namefontSize}px ToppanBunkyExtraBold`; // has curved lowercase l
+        ctx.font = `${namefontSize}px ToppanBunkyExtraBold`; 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         let [fillColor, edgeColor, stroke] = textColor(colors, ctx);
@@ -3566,6 +3581,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         f.onerror = function () { checkAllImagesLoaded(f.src, true); }
       }
 
+
       for (let color of ['red', 'blue', 'yellow', 'green', 'black', 'purple', 'white', 'all']) {
         let my_color = color;
         let evoI = new Image();
@@ -3585,7 +3601,6 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         shellImages[i].src = cardframes[i];
         shellImages[i].onload = shellImages[i].onerror = function () { checkAllImagesLoaded(`shell src  ${i} ${shellImages[i].src}`); }
       }
-
 
       switch (type) {
         case "OPTION":

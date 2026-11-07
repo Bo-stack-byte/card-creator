@@ -551,12 +551,16 @@ export function textLine(ctx, blobs, x, y, limit) {
     console.log(471.1, blob);
     let length = lengths[i];
     let [text, style] = blob;
+    style ||= "";
     console.log(471.2, "A", text, "B", style);
-    if (style === "italics") {
-      italicText(ctx, text, x_pos, y, length);
+    if (style.includes("italics")) {
+      italicText(ctx, text, x_pos, y, length, style);
       x_pos += length;
     } else {
       ctx.fillText(text, x_pos, y, length);
+      if (style.includes("bold")) {
+        ctx.strokeText(text, x_pos, y, length);
+      }
       x_pos += length;
     }
   }
@@ -565,13 +569,16 @@ export function textLine(ctx, blobs, x, y, limit) {
 }
 
 // 《 》
-//possibly italic text
-export function italicText(ctx, text, x, y, limit) {
+//possibly italic text -- sometimes the italic style of the font is different, and this function is porpoerly called slantedText()
+export function italicText(ctx, text, x, y, limit, style="") {
   let shift = ctx.measureText("_").width / 2;
   let skew = 0.25; // i might want to make this a *smudge* smaller than 0.25
   ctx.save();
   ctx.transform(1, 0, -skew, 1, skew * y, 0);
   ctx.fillText(text, x - shift, y, limit);
+  if (style.includes("bold")) {
+    ctx.strokeText(text, x - shift, y, limit);
+  }
   ctx.restore();
 }
 export function italicStrokeText(ctx, text, x, y, limit) {

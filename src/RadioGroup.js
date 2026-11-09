@@ -110,7 +110,7 @@ const RadioGroup = ({ selectedOption, handleOptionChange }) => {
                     checked={selectedOption === 'DUAL'}
                     onChange={handleOptionChange}
                 />
-                DUAL (very experimental)
+                DUAL
             </label> </span>
             <p />
 

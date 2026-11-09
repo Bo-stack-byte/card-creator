@@ -19,6 +19,7 @@ KNOWN BUGS
 
 VAGUE TO DO LIST, SOON-TO-MEDIUM TERM
 
+* little line on the left side of a dual card where the mon and option have different colors
 * rainbow color in evo circle needs white text w/black border
 * better browse of images (see your own w/priority and page through others)
 * render ACE text live instead of using images

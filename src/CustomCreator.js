@@ -65,14 +65,15 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.67.0"
-const latest = "move dual option name down a bit"
+const version = "0.8.68"
+const latest = "label colored regions of Dual cards properly; fix arts-evolve box resizing"
 
-// versioj 0.8.67   move dual option name down a bit
+// version 0.8.68   label colored regions of Dual cards properly; fix arts-evolve box resizing
+// version 0.8.67   move dual option name down a bit
 // version 0.8.66   put in 'cant play to field' notes from @rlvvmc
 // version 0.8.65   tune spacing of text at top of dual card
-// version 0.8.64   fix colors on dual option text when one is yellow/white"
-// version 0.8.63   working on shading aroun border
+// version 0.8.64   fix colors on dual option text when one is yellow/white
+// version 0.8.63   working on shading around border
 // version 0.8.61   change gradient on rounded-rectangle keywords re @rlvvmc
 // version 0.8.60   rule text to MyriadProBold (should be SemiBold re: @rlvvmc)
 // version 0.8.59   changes to fonts for evo circles, smaller evo circles, evo_cond +/- dopesn't crash on multicards
@@ -1022,12 +1023,14 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
 
         y = y + height + gap;
 
+        cornerCut = cornerCut * .75 * .75;
+
         for (i = 0; i < colors2.length; i++) {
+
           const fillColor2 = cardColor(colors2[i]); 
           scaleZoneStart(ctx, i, colors2.length);
 
           // DUAL BOX. 
-          cornerCut = cornerCut * .75;
           height = 172 + 12 + 558; // name part, gap, option part
           // this height should be leaving us lower
 
@@ -1168,23 +1171,76 @@ const nameBoxShell = (ctx, _y, colors1, colors2) => {
 
 }
 
-
-function scaleZoneStart(ctx, _i, _len) {
+// 
+function scaleZoneStart(ctx, _i, _len, dual_mode = false) {
   let width = 2977;
   let height = 4158 - 17;
   let i_width = width / _len;
   ctx.save(); // Save the current state 
   ctx.beginPath();
   //  console.log(405, "clipping to ", i_width * _i, 0, i_width * (_i + 1), height);
-  ctx.rect(i_width * _i, 0, i_width * (_i + 1), height);
+  if (!dual_mode) {
+    ctx.rect(i_width * _i, 0, i_width * (_i + 1), height);
+  } else {
+    const ld = 2100; // left dual, how far down the left dual split is
+    const t1 = 1065; // top 1, first split between region 1 and region 2
+
+    // assuming all cuts are at 45-degree angles.
+    if (_i === 0) {
+      ctx.moveTo(0, 0);       // Start at 0,0
+      ctx.lineTo(t1, 0);   // Go straight east to t1,0
+      ctx.lineTo(t1/2, t1/2);
+      ctx.lineTo(t1/2, t1/2 + ld);
+      ctx.lineTo(0,t1+ld); // region 3 stgarts here
+      ctx.closePath();    
+      
+    } else if (_i === 1) {
+  //    ctx.moveTo(0, 0);       // Start at 0,0
+      ctx.moveTo(0+t1, 0);       // Start at 0,0
+      ctx.lineTo(t1+t1, 0);   // Go straight east to t1,0
+      ctx.lineTo(t1+t1/2, t1/2);
+      ctx.lineTo(t1+t1/2, t1/2 + ld);
+      ctx.lineTo(t1+0,t1+ld);
+      ctx.lineTo(0+t1-200, 0+200);       // Start at 0,0
+      ctx.lineTo(0+t1, 0);       // Start at 0,0
+      ctx.closePath();    
+
+    } else if (_i === 2) {
+
+      ctx.moveTo(t1+t1, 0);   
+      ctx.lineTo(t1+t1 - 200, 0+ 200);  
+  //    ctx.moveTo(t1+t1 - 200 + 600, 0+ 200);  
+
+      ctx.lineTo(2700,3100);   
+      ctx.lineTo(width-300, 2940+300);  
+      ctx.lineTo(width, 2940);   
+      ctx.lineTo(width, 0);   
+      ctx.closePath();    
+    } else if (_i === 3) {    
+      ctx.moveTo(0,t1+ld); // region 3 stgarts here
+      ctx.lineTo(t1/2, t1/2 + ld);
+      ctx.lineTo(1991+500, 4137-500);
+      ctx.lineTo(1991, 4137);
+      ctx.lineTo(0,    4137);
+      ctx.closePath();    
+    } else if (_i === 4) {    
+      ctx.moveTo(width-t1*1.02, height); // fudge factor since we aren't percetly symmetrical
+      ctx.lineTo(width,    height);
+      ctx.lineTo(width,    height - t1*1.2);
+      ctx.closePath();    
+    }
+
+  }
   ctx.clip();
 }
 function scaleZoneEnd(ctx) {
   ctx.restore();
 }
 
+// move awy from this and rtowards scaleZoneStart
 // show i of len piece, scaled by scale, start at x,y
-function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top = 0, y_scale = 1, x_scale = 1) {
+function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top = 0, 
+  y_scale = 1, x_scale = 1, dual_mode = false) {
 
   let len = 1;
   let i = 0;
@@ -1195,11 +1251,17 @@ function scalePartialImage(ctx, img, _i, _len, scale, start_x, start_y, crop_top
   let i_width = width / _len;
 
   if (!img) return;
-
   ctx.save(); // Save the current state 
   ctx.beginPath();
   //  console.log(405, "clipping to ", i_width * _i, 0, i_width * (_i + 1), height);
-  ctx.rect(i_width * _i, 0, i_width * (_i + 1), height);
+  if (dual_mode) {
+  } else {
+    ctx.rect(i_width * _i, 0, i_width * (_i + 1), height);
+  }
+
+
+
+
   ctx.clip();
 
   i -= 0.0
@@ -2234,6 +2296,16 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
       case "DUAL": 
           if (imageOptions.aceFrame) {
             if (dual_backgrounds[colors[0]]) cardframes = colors.map(c => dual_backgrounds[c] || dual_background);
+            // stretch to 3
+            if (colors.length === 1) {
+              cardframes[2] = cardframes[1] = cardframes[0];
+            } else if (colors.length === 2) {
+              cardframes[2] = cardframes[1];
+              cardframes[1] = cardframes[0];
+            } 
+            cardframes.length = 3;
+            cardframes[3] = dual_backgrounds[optionColors[0]];
+            cardframes[4] = dual_backgrounds[optionColors[ optionColors.length > 1 ? 1 : 0 ]];
           } else {
             cardframes = [dual_background];
           }
@@ -2448,7 +2520,9 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
             const line = lines[colors[i]];
             const colored = (imageOptions.coloredFrame && line) ?
               applyGradientToFrame(shellImages[0], line) : shells[i];
-            scalePartialImage(ctx, colored, i, len, 4141, 0, 0, undefined, 1.0, 1.004)
+            scaleZoneStart(ctx, i, len, type === "DUAL");
+            ctx.drawImage(colored, 0, 0, 2977, 4158-17);
+            scaleZoneEnd(ctx);
           }
         }
       }

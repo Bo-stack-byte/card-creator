@@ -65,7 +65,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.69"
+const version = "0.8.69.1"
 const latest = "possible fix for multiple special evos: specialEvolve is now a textbox; reduce super-wide spaces inside orange keywords"
 
 // version 0.8.69   possible fix for multiple special evos: specialEvolve is now a textbox; reduce super-wide spaces inside orange keywords
@@ -815,7 +815,7 @@ const test_case_1 = ` {
     "block": "03",
     "evolveEffect": "[Twice Per Turn] This text should be white with a black border. The text in the Evo bubble should be solid black.",
     "cardNumber": "T-81",
-    "specialEvolve": "[Digivolve] Lv.3 w/[Agu]: Cost 0\n[Digivolve] Lv.3 w/[Gabu]: Cost 1\n[Digivolve] Lv.3 w/[Biyo]: Cost 2",
+    "specialEvolve": "[Digivolve] Lv.3 w/[Agu]: Cost 0\\n[Digivolve] Lv.3 w/[Gabu]: Cost 1\\n[Digivolve] Lv.3 w/[Biyo]: Cost 2",
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,

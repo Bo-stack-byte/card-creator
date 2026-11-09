@@ -860,7 +860,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
     } else {
       phrase.split(/(＜.*?＞)/).forEach(word => {
         if (word.includes("＜")) {
-          const cleanWord = word.replace(/[＜＞_]/g, '  ');
+          const cleanWord = word.replace(/[＜＞]/g, '  ').replace(/_/g,' ');
           //          ctx.font = `600 ${(fontSize - 5)}px Schibsted Grotesk`;
           //   ctx.font = `bold ${(fontSize - 5)}px Roboto`;
           ctx.font = `100 ${(fontSize - 20)}px ${boxfont}`;

@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.68"
-const latest = "label colored regions of Dual cards properly; fix arts-evolve box resizing"
+const version = "0.8.69"
+const latest = "possible fix for multiple special evos: specialEvolve is now a textbox; reduce super-wide spaces inside orange keywords"
 
+// version 0.8.69   possible fix for multiple special evos: specialEvolve is now a textbox; reduce super-wide spaces inside orange keywords
 // version 0.8.68   label colored regions of Dual cards properly; fix arts-evolve box resizing
 // version 0.8.67   move dual option name down a bit
 // version 0.8.66   put in 'cant play to field' notes from @rlvvmc
@@ -814,6 +815,7 @@ const test_case_1 = ` {
     "block": "03",
     "evolveEffect": "[Twice Per Turn] This text should be white with a black border. The text in the Evo bubble should be solid black.",
     "cardNumber": "T-81",
+    "specialEvolve": "[Digivolve] Lv.3 w/[Agu]: Cost 0\n[Digivolve] Lv.3 w/[Gabu]: Cost 1\n[Digivolve] Lv.3 w/[Biyo]: Cost 2",
     "imageOptions":{
       "background_url": "", "foreground_url": "", "x_pos": 0, "y_pos": 0, "x_scale": 95, "y_scale": 95,
       "ess_x_pos": 40, "ess_y_pos": 40, "ess_x_end": 50, "ess_y_end": 50,
@@ -3470,9 +3472,10 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
       const fontSize_n = Number(altFontSize); // should already be a number.
       // DNA evo and special evo appear above the effect line
       const dna_evo = json.dnaEvolve || json.dnaDigivolve; // colorReplace is inside drawBracketedText
-      const spec_temp = json.specialEvolve || json.specialDigivolve;
+      const spec_temp1 = json.specialEvolve || json.specialDigivolve;
+      const spec_temps = !empty(spec_temp1) ? spec_temp1.split("\n").filter(x => !empty(x)) : [];
       const burst_evo = json.burstEvolve || json.burstDigivolve;
-      const spec_evo = colorReplace(spec_temp, true);
+      const spec_evos = spec_temps.map( x => colorReplace(x, true) );
       const delta = fontSize_n + so;
       let special_baseline = y_line;
       console.log(1277, special_baseline, y_line, (fontSize_n + so))
@@ -3481,9 +3484,13 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 1, Number(fontSize_n) + Number(imageOptions.lineSpacing), "dna", radius);
         special_baseline -= (delta * .5);
       }
-      if (!empty(spec_evo)) {
-        special_baseline -= (delta);
-        drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 1, Number(fontSize_n) + Number(imageOptions.lineSpacing), "bubble", radius);
+      if (!empty(spec_evos)) {
+        for (const i in spec_evos.reverse()) {
+          const spec_evo = spec_evos[i];
+          special_baseline -= (delta);
+          if (i > 0) special_baseline -= delta * 0.4;
+          drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 1, Number(fontSize_n) + Number(imageOptions.lineSpacing), "bubble", radius);
+        }
       }
       if (!empty(burst_evo)) {
         special_baseline -= (delta * 0.5); // burst bubble is twice as big
@@ -3996,7 +4003,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
                             <label>{key}: </label>
                           </td>
                           <td>
-                            {key.match(/effect/i) || key.match(/burst/) ? (
+                            {key.match(/effect/i) || key.match(/burst/) || key.match(/special/) ? (
                               <textarea
                                 value={formData[key] ?? value}
                                 onChange={(e) => handleInputChange(key, e.target.value)} />) : (

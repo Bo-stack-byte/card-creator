@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.69.1"
-const latest = "possible fix for multiple special evos: specialEvolve is now a textbox; reduce super-wide spaces inside orange keywords"
+const version = "0.8.70.1"
+const latest = "fix link box items: italic link requirement, give it a box, font colors, much based on @rlvvmc code"
 
+// version 0.8.70   const latest = "fix link box items: italic link requirement, give it a box, font colors, much based on @rlvvmc code"
 // version 0.8.69   possible fix for multiple special evos: specialEvolve is now a textbox; reduce super-wide spaces inside orange keywords
 // version 0.8.68   label colored regions of Dual cards properly; fix arts-evolve box resizing
 // version 0.8.67   move dual option name down a bit
@@ -833,12 +834,77 @@ const test_case_1 = ` {
     }
 }`;
 
+const test_case_2 = `{
+    "name": {
+      "english": "Link Option"
+    },
+    "color": "Yellow/Black",
+    "cardType": "Option",
+    "playCost": "5",
+    "attribute": "Unknown",
+    "effect": "[Main] Delete 1 of your opponent's Monsters and 1 of your Monsters.\\n[Security] Link this card to one of your Monsters.",
+    "securityEffect": "",
+    "evolveEffect": "-",
+    "digiXros": "-",
+    "assembly": "-",
+    "aceEffect": "",
+    "rarity": "Super Rare",
+    "block": "05",
+    "rule": "",
+    "cardNumber": "CS1-13",
+    "linkRequirement": "[Link] Lv.4 Monster: Cost 2",
+    "linkDP": "2000",
+    "linkEffect": "[When Linking] Delete this Digimon.",
+    "imageOptions": {
+      "background_url": "",
+      "foreground_url": "-9",
+      "x_pos": 0,
+      "y_pos": 0,
+      "x_scale": 95,
+      "y_scale": 95,
+      "ess_x_pos": 40,
+      "ess_y_pos": 40,
+      "ess_x_end": 50,
+      "ess_y_end": 50,
+      "fontSize": 90.5,
+      "lineSpacing": 10,
+      "baselineOffset": 0,
+      "specialOffset": 0,
+      "bubbleRadius": 0,
+      "altFontDelta": 0,
+      "foregroundOnTop": false,
+      "cardFrame": true,
+      "effectBox": false,
+      "addFoil": 0,
+      "goldText": false,
+      "aceFrame": true,
+      "coloredFrame": false,
+      "outline": true,
+      "skipDraw": false
+    },
+    "dp": "",
+    "cardLv": "",
+    "form": "",
+    "type": "",
+    "specialEvolve": "",
+    "burstEvolve": "",
+    "author": "",
+    "artist": "",
+    "evolveCondition": [
+      {
+        "color": "",
+        "cost": "",
+        "level": ""
+      }
+    ]
+}`
+
 
 const starter_text = starter_text_empty;
 let all_text = "[" + [starter_text_0, starter_text_1_backup,
   starter_text_1a, starter_text_1b, starter_text_1c,
   starter_text_2, starter_text_3, starter_text_4, 
-  starter_text_tama, test_case_1, ].join(",") + "]";
+  starter_text_tama, test_case_1, test_case_2 ].join(",") + "]";
 
 // deprecated from our old "share" functionality, that put the entire JSON blob into the URL compressed+encoded 
 const decodeAndDecompress = (encodedString) => {
@@ -2752,7 +2818,32 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
               }
               if (img)
                 scalePartialImage(ctx, img, i, len, scale, 164, height, undefined, y_scale);
+            
+            
+              if (!empty(json.linkDP)) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(164,height+74)
+                ctx.lineTo(164+55,height)
+                ctx.lineTo(2530,height)
+                ctx.lineTo(2530,height+190)
+                ctx.lineTo(164,height+190)
+                ctx.closePath()
+                const gradient = ctx.createLinearGradient(0, height, 0, height + 220);
+                gradient.addColorStop(0, 'rgba(0,0,0, 0.5)');
+                gradient.addColorStop(1, 'rgba(0,0,0, 0.1)');
+                ctx.fillStyle = gradient;
+                ctx.fill()
+                ctx.lineWidth = 10;
+                ctx.strokeStyle = "white"
+                ctx.stroke();
+
+                ctx.clip()
+                ctx.restore()
+              }
             }
+
+
 
             if (type === "ACE") {
               scalePartialImage(ctx, ace_box,
@@ -2806,6 +2897,8 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
               ctx.restore();
             }
 
+            const invert = (colors[len-1] === 'black');
+
             // LINK TEXT if needed
             if (type !== "LINK" && !empty(json.linkDP)) {
 
@@ -2814,12 +2907,12 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
               ctx.rotate(Math.PI / 2);
 
               // white background
-              ctx.fillStyle = "white";
+              ctx.fillStyle = invert ? "black" : "white";
               ctx.fillRect(-450, 0, 400, 150);
 
               ctx.font = `bold 100px 'Helvetica'`;
 
-              ctx.fillStyle = "black";
+              ctx.fillStyle = invert ? "white" : "black";
               ctx.textAlign = "center";
               ctx.fillText("LINK", -250, 120);
 
@@ -2837,9 +2930,14 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
               if (type !== "LINK") {
                 link_offset = 100;
               }
+              // if rightmost color is black, invert linkdp
+              // if black, invert
+              if (invert) {
+                  ctx.filter = 'invert(100%)';
+              }
               ctx.drawImage(linkdp,
                 2530, y_pos - link_offset, w * s, h * s);
-
+              ctx.filter = 'none';
               ctx.save();
               ctx.translate(2680, 3610);
               ctx.rotate(Math.PI / 2);
@@ -2847,10 +2945,15 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
 
               //              ctx.fillText(json.linkDP, 0, 0);
               //              writeDP(ctx, json.linkDP, 0, 0, 90); 
+              if (invert) { 
+                ctx.fillStyle = "black";
+              }
+              ctx.fillStyle = invert ? "black" : "white";
+
               writeDP(ctx, json.linkDP,
-                { x: -150 - link_offset, y: 20, size: 100, bigsize: 140, stroke: false, color: "white" });
+                { x: -150 - link_offset, y: 20, size: 100, bigsize: 140, stroke: false, color: invert ? "black" : "white" });
               ctx.font = `bold 90px ${numberFont}`;
-              ctx.fillStyle = "white";
+              ctx.fillStyle = invert ? "black" : "white";
               ctx.textAlign = "right";
               ctx.textBaseline = "bottom";
 
@@ -3390,6 +3493,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         ctx.save();
         ctx.scale(scale, 1);
         let name_line = 3328
+        if (!empty(json.linkDP) && type !== "LINK") delta_y -= 35;
         if (stroke) {
           ctx.lineWidth = 20; // Border width
           ctx.strokeText(name, (1480 + ace_offset) / scale, name_line + delta_y);
@@ -3444,7 +3548,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
       let traits = a_traits.join("|");
       ctx.fillStyle = whiteColor(colors[0]);
       if (type.startsWith("OPTION") || type.startsWith("TAMER")) {
-        delta_y += 18;
+          delta_y += 18;
       }
       if (type === "MEGA") {
         //        delta_y += 50;
@@ -3537,19 +3641,21 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
 
           // (alias) drawBracketedText(ctx: any, fontSize: any, text: any, x: any, y: any, _maxWidth: any, lineHeight: any, extra: any, radius: any, preview?: boolean): any
           // ctx                
-          drawBracketedText(ctx, altFontSize, req, 300, 3740 + delta_y * 2, 3000, Number(altFontSize) + Number(imageOptions.lineSpacing), "bubble");
+          drawBracketedText(ctx, altFontSize, req, 250, 3740 + delta_y * 2, 2380, Number(altFontSize) + Number(imageOptions.lineSpacing-15), "link");
         }
         // shrink is not working, we're ignoring max_width
         //let max_width = 2500 - 400 - delta_x * 2 - shrink;
+        let [fillColor,  edgeColor, stroke] = textColor(colors, ctx);
+        let style = `custom[${fillColor},${edgeColor},${stroke}]`;
+
         drawBracketedText(ctx, baseFontSize, effect,
-          700 + delta_x * 2, 3740 + delta_y * 2 + 150,
-          2200, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect", radius);
+          700 - 30 + delta_x * 2, 3740 + delta_y * 2 + 150 + 60,
+          2200, Number(baseFontSize) + Number(imageOptions.lineSpacing), "effect " + style, radius);
       } else {
         let sec_effect = (evo_effect && evo_effect !== "-") ? evo_effect : json.securityEffect;
         if (empty(sec_effect)) sec_effect = json.optionCardEffect;
         sec_effect = colorReplace(sec_effect, true);
 
-        //ctx.fillStyle = 'red';
         let delta_x = delta_y;
         let shrink = 0;
         if (type === "ACE") {

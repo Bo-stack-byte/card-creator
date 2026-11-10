@@ -826,7 +826,7 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
         cleanPhrase = cleanPhrase.slice(1, -1);
       }
 
-      const italics = (style === "bubble" || style === "dna") ? "italic" : "";
+      const italics = (style === "bubble" || style === "dna" || style === "link") ? "italic" : "";
 
       ctx.font = `100 ${(fontSize - 20)}px ${boxfont}`;
 //      ctx.fontStretch = "ultra-condensed";
@@ -882,6 +882,8 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
           //  ctx.restore();
           ctx.font = ` ${fontSize}px ${font}`;
         } else {
+          // default is white text with black border.
+          // if "option" invert that.
           let width = 12;
           let stroke = 'black';
           let fill = 'white';
@@ -892,7 +894,6 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
           }
           const regex = /custom\[(.*)\]/;
           const match = style.match(regex);
-//alert(style);
           if (match && match[1]) {
             console.log(897, match[1]);
             // 2. Split the comma-separated values

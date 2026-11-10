@@ -65,7 +65,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.70.1"
+const version = "0.8.70.2"
 const latest = "fix link box items: italic link requirement, give it a box, font colors, much based on @rlvvmc code"
 
 // version 0.8.70   const latest = "fix link box items: italic link requirement, give it a box, font colors, much based on @rlvvmc code"
@@ -857,7 +857,7 @@ const test_case_2 = `{
     "linkEffect": "[When Linking] Delete this Digimon.",
     "imageOptions": {
       "background_url": "",
-      "foreground_url": "-9",
+      "foreground_url": "",
       "x_pos": 0,
       "y_pos": 0,
       "x_scale": 95,

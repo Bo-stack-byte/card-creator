@@ -373,6 +373,8 @@ function drawColoredRectangle(ctx, x, y, width, height, color, radius) {
     case 'purple': color0 = '#4F0B46'; color1 = '#8B235C'; 
     color2 = '#AF4176'; break; 
     case 'green': color0 = 'darkgreen'; color1 = 'lightgreen'; break;
+    case 'linkgreen': color0 = '#12533e'; color1 = '#18897E'; color2 ='#2CD372'; break;
+
     case 'doublebubble':
     case 'bubble': color0 = 'black'; color1 = 'black'; break;
     case 'darkblue': //color0 = '#0D0D2B'; color1 = '#2A6BA5'; break;
@@ -750,7 +752,7 @@ function getColor(phrase, default_color = 'blue') {
   if (phrase.match(/DigiXros/i)) return 'green';
   if (phrase.match(/Assembly/i)) return 'green';
   if (phrase.match(/Arts .*olve/i)) return 'green';
-  if (phrase === "Link") return 'green';
+  if (phrase === "Link") return 'linkgreen';
   if (['Hand', 'Trash', 'Breeding'].includes(phrase)) return 'purple';
   if (['Once Per Turn', 'Twice Per Turn'].includes(phrase)) return 'red';
   if (phrase.match(/^(Burst )?(Digi|E)volve$/i)) return 'darkblue';

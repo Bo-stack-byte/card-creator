@@ -65,10 +65,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.70.2"
-const latest = "fix link box items: italic link requirement, give it a box, font colors, much based on @rlvvmc code"
+const version = "0.8.71"
+const latest = "darken [Link] courtsey @rlvvmc, move link, burst evo, darken link shading"
 
-// version 0.8.70   const latest = "fix link box items: italic link requirement, give it a box, font colors, much based on @rlvvmc code"
+// version 0.8.71   darken [Link] courtsey @rlvvmc, move link, burst evo, darken link shading
+// version 0.8.70   fix link box items: italic link requirement, give it a box, font colors, much based on @rlvvmc code"
 // version 0.8.69   possible fix for multiple special evos: specialEvolve is now a textbox; reduce super-wide spaces inside orange keywords
 // version 0.8.68   label colored regions of Dual cards properly; fix arts-evolve box resizing
 // version 0.8.67   move dual option name down a bit
@@ -887,7 +888,7 @@ const test_case_2 = `{
     "form": "",
     "type": "",
     "specialEvolve": "",
-    "burstEvolve": "",
+    "burstEvolve": "[FooBarBazMon]: Cost 0 by returning 1 [Rufus Xavier Sarsaparilla] to hand",
     "author": "",
     "artist": "",
     "evolveCondition": [
@@ -2830,7 +2831,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
                 ctx.lineTo(164,height+190)
                 ctx.closePath()
                 const gradient = ctx.createLinearGradient(0, height, 0, height + 220);
-                gradient.addColorStop(0, 'rgba(0,0,0, 0.5)');
+                gradient.addColorStop(0, 'rgba(0,0,0, 1.0)');
                 gradient.addColorStop(1, 'rgba(0,0,0, 0.1)');
                 ctx.fillStyle = gradient;
                 ctx.fill()
@@ -3588,17 +3589,21 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         drawBracketedText(ctx, fontSize_n, dna_evo, 270, special_baseline, 3000 * 1, Number(fontSize_n) + Number(imageOptions.lineSpacing), "dna", radius);
         special_baseline -= (delta * .5);
       }
+      if (!empty(burst_evo)) {
+        console.log(3592, burst_evo); 
+        const len = 1;// burst_evo.split("\n").length;
+        special_baseline -= delta * 0.7; 
+        const mode = (len > 1) ? "doublebubble" : "bubble";
+        drawBracketedText(ctx, fontSize_n, burst_evo, 270, special_baseline, 5000, Number(fontSize_n) + Number(imageOptions.lineSpacing), mode, radius);
+        special_baseline -= delta * 0.7 * len * len;
+      }
       if (!empty(spec_evos)) {
         for (const i in spec_evos.reverse()) {
           const spec_evo = spec_evos[i];
-          special_baseline -= (delta);
-          if (i > 0) special_baseline -= delta * 0.4;
+          special_baseline -= (delta * 0.7);
           drawBracketedText(ctx, fontSize_n, spec_evo, 270, special_baseline, 3000 * 1, Number(fontSize_n) + Number(imageOptions.lineSpacing), "bubble", radius);
+          special_baseline -= (delta * 0.7);
         }
-      }
-      if (!empty(burst_evo)) {
-        special_baseline -= (delta * 0.5); // burst bubble is twice as big
-        drawBracketedText(ctx, fontSize_n, burst_evo, 270, special_baseline, 2500, Number(fontSize_n) + Number(imageOptions.lineSpacing), "doublebubble", radius);
       }
 
       let effect = json.effect;
@@ -3637,11 +3642,8 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         }
         //let shrink = 1000;
         if (!empty(req)) {
-          // instead of 3000, width of 2700 to save room for link-DP-thingy
-
-          // (alias) drawBracketedText(ctx: any, fontSize: any, text: any, x: any, y: any, _maxWidth: any, lineHeight: any, extra: any, radius: any, preview?: boolean): any
-          // ctx                
-          drawBracketedText(ctx, altFontSize, req, 250, 3740 + delta_y * 2, 2380, Number(altFontSize) + Number(imageOptions.lineSpacing-15), "link");
+          drawBracketedText(ctx, altFontSize, req, 250, 3740 + delta_y * 2,
+            2180, Number(altFontSize) + Number(imageOptions.lineSpacing-15), "link");
         }
         // shrink is not working, we're ignoring max_width
         //let max_width = 2500 - 400 - delta_x * 2 - shrink;

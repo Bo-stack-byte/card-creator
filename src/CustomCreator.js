@@ -65,16 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-<<<<<<< HEAD
 const version = "0.8.72"
 const latest = "link box uses radius; error handling on missing opt colors; fix white-dual frame"
 
 // version 0.8.72   link box uses radius; error handling on missing opt colors; fix white-dual frame
-=======
-const version = "0.8.71"
-const latest = "darken [Link] courtsey @rlvvmc, move link, burst evo, darken link shading"
-
->>>>>>> 6804998138233fa737dcb0abed5f8f47d6823c01
 // version 0.8.71   darken [Link] courtsey @rlvvmc, move link, burst evo, darken link shading
 // version 0.8.70   fix link box items: italic link requirement, give it a box, font colors, much based on @rlvvmc code"
 // version 0.8.69   possible fix for multiple special evos: specialEvolve is now a textbox; reduce super-wide spaces inside orange keywords
@@ -895,7 +889,7 @@ const test_case_2 = `{
     "form": "",
     "type": "",
     "specialEvolve": "",
-    "burstEvolve": "[FooBarBazMon]: Cost 0 by returning 1 [Rufus Xavier Sarsaparilla] to hand",
+    "burstEvolve": "",
     "author": "",
     "artist": "",
     "evolveCondition": [
@@ -3653,11 +3647,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         //let shrink = 1000;
         if (!empty(req)) {
           drawBracketedText(ctx, altFontSize, req, 250, 3740 + delta_y * 2,
-<<<<<<< HEAD
             2180, Number(altFontSize) + Number(imageOptions.lineSpacing-15), "link", radius);
-=======
-            2180, Number(altFontSize) + Number(imageOptions.lineSpacing-15), "link");
->>>>>>> 6804998138233fa737dcb0abed5f8f47d6823c01
         }
         // shrink is not working, we're ignoring max_width
         //let max_width = 2500 - 400 - delta_x * 2 - shrink;

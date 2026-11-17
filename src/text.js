@@ -595,11 +595,14 @@ export function italicStrokeText(ctx, text, x, y, limit) {
 // MAIN ENTRY POINT
 // drawbracketedtext calls splittextintoparts
 
+// if "text" is array, make the whole thing a shared block
 // if "extra" is "bubble" of "doublebubble", put text in black bubble
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
 // _maxWidth is unused :(
 export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, radius, preview = false) {
 
+  const block = Array.isArray(text);
+  if (block) text = text.join("\n")
   // preprocess
   text = text.replaceAll('((', '⸨').replaceAll('))', '⸩');
   // make inside of (*stufff  f f *) be italic
@@ -630,7 +633,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
   }*/
   fontSize = Number(fontSize);
   let maxWidth = horizontal_limit - x;
-  maxWidth = _maxWidth;
+  maxWidth = _maxWidth// - x;
   if (extra.includes("bubble")) maxWidth -= 150;
   //console.debug(308, "calling with", fontSize, text, y, "XXX", lineHeight);
   lineHeight = Number(lineHeight);
@@ -669,6 +672,31 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     return;
   }
 
+  if (block) {
+//const lines = text.split("\n");
+    let width = 0
+    for (const testLine of paragraphs) {
+      const metrics = ctx.measureText(testLine.replaceAll(/[*＜＞【】《》[\]]/ig, ''));
+      const testWidth = metrics.width;// * scale;
+      console.log(682.2, width, testWidth, "of", maxWidth, testLine);
+      width = Math.max(width, testWidth);
+    }
+    let scale = maxWidth / width;
+    scale = Math.min(1, scale);
+    console.log(682.1, "SCLE IS", scale, maxWidth, width);
+//    scale = 1;
+    for (const line of lines) {
+      ctx.save();
+      ctx.transform(scale, 0, 0, 1, x * (1 - scale), 0);
+      wrapAndDrawText(ctx, fontSize, line, x, yOffset, extra, 8000, radius, preview);
+      yOffset += lineHeight + 2;
+      ctx.restore();
+    }
+    
+
+//    wrapAndDrawText(ctx, fontSize, text, x, yOffset, extra, right_limit, radius, preview);
+    return yOffset + lineHeight + 2;
+  }
 
   for (let p = 0; p < paragraphs.length; p++) {
     let graf = prepareKeywords(paragraphs[p], extra.startsWith("effect"));
@@ -781,7 +809,8 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
     // compress all text equally, but we should let keywords stay a bit wider if we can    
   }
    ctx.save();
-   ctx.scale(scale, 1);
+//   ctx.scale(scale, 1);
+ ctx.transform(scale, 0, 0, 1, lastX * (1 - scale), 0);
 
   let default_color = 'blue'; // default for [brackets]
   if (style === "effect") default_color = 'blue';
@@ -797,6 +826,9 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
     phrases.push(...temp);
   }
   //let phrases = text.split(/([[⟦].*?[\]⟧])/);
+
+  const italics = (style === "bubble" || style === "dna" || style === "link") ? "italic" : "";
+
   phrases.forEach((phrase, index) => {
     let cleanPhrase = phrase.replace(/[⟦[\]⟧]/gi, "");
     console.log("{{{{Clean Phrase}}}} "+cleanPhrase)
@@ -828,7 +860,6 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
         cleanPhrase = cleanPhrase.slice(1, -1);
       }
 
-      const italics = (style === "bubble" || style === "dna" || style === "link") ? "italic" : "";
 
       ctx.font = `100 ${(fontSize - 20)}px ${boxfont}`;
 //      ctx.fontStretch = "ultra-condensed";
@@ -884,6 +915,8 @@ function wrapAndDrawText(ctx, fontSize, text, x, y, style, cardWidth, radius, pr
           //  ctx.restore();
           ctx.font = ` ${fontSize}px ${font}`;
         } else {
+          ctx.font = ` ${italics} ${fontSize}px ${font}`;
+
           // default is white text with black border.
           // if "option" invert that.
           let width = 12;

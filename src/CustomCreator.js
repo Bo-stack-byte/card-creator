@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.72"
-const latest = "link box uses radius; error handling on missing opt colors; fix white-dual frame"
+const version = "0.8.73"
+const latest = "move link req, maybe handle 2 line req, prep for other text alignment stuff"
 
+// version 0.8.73   move link req, maybe handle 2 line req, prep for other text alignment stuff
 // version 0.8.72   link box uses radius; error handling on missing opt colors; fix white-dual frame
 // version 0.8.71   darken [Link] courtsey @rlvvmc, move link, burst evo, darken link shading
 // version 0.8.70   fix link box items: italic link requirement, give it a box, font colors, much based on @rlvvmc code"
@@ -3646,8 +3647,26 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
         }
         //let shrink = 1000;
         if (!empty(req)) {
-          drawBracketedText(ctx, altFontSize, req, 250, 3740 + delta_y * 2,
-            2180, Number(altFontSize) + Number(imageOptions.lineSpacing-15), "link", radius);
+          // if "short" requirement, place it all on one line more centered
+          const short = req.length < 80;
+          if (short) {
+            drawBracketedText(ctx, altFontSize - (short ? 0 : 20), req, 250, 3740 + delta_y * 2 + (short ? 15 : -20),
+              2180, Number(altFontSize) + Number(imageOptions.lineSpacing-15), "link", radius);
+          } else {
+            const middle = Math.floor(req.length / 2);
+            const prevSpace = req.lastIndexOf(' ', middle);
+            const nextSpace = req.indexOf(' ', middle);
+            const splitIndex = middle - prevSpace <= nextSpace - middle ? prevSpace : nextSpace;
+            const firstHalf = req.slice(0, splitIndex).trim();
+            const secondHalf = req.slice(splitIndex + 1).trim();
+            console.log(678.8, "widths are " + firstHalf.length + " and " + secondHalf.length);
+            drawBracketedText(ctx, altFontSize, [firstHalf,secondHalf], 250, 3740 + delta_y * 2 - 20,
+              2780, Number(altFontSize) + Number(imageOptions.lineSpacing-15), "link", radius);
+           // drawBracketedText(ctx, altFontSize, secondHalf, 250, 3740 + delta_y * 2 + 60,
+            //  2180, Number(altFontSize) + Number(imageOptions.lineSpacing-15), "link", radius);
+
+
+          }
         }
         // shrink is not working, we're ignoring max_width
         //let max_width = 2500 - 400 - delta_x * 2 - shrink;

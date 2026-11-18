@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.73"
-const latest = "move link req, maybe handle 2 line req, prep for other text alignment stuff"
+const version = "0.8.74"
+const latest = "fix burst evo right margin"
 
+// version 0.8.74   fix burst evo right margin
 // version 0.8.73   move link req, maybe handle 2 line req, prep for other text alignment stuff
 // version 0.8.72   link box uses radius; error handling on missing opt colors; fix white-dual frame
 // version 0.8.71   darken [Link] courtsey @rlvvmc, move link, burst evo, darken link shading

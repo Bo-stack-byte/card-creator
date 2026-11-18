@@ -598,7 +598,7 @@ export function italicStrokeText(ctx, text, x, y, limit) {
 // if "text" is array, make the whole thing a shared block
 // if "extra" is "bubble" of "doublebubble", put text in black bubble
 // if "extra" is "effect", then put all [bracketed text] at start of line in blue
-// _maxWidth is unused :(
+// _maxWidth is almost unused :(
 export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeight, extra, radius, preview = false) {
 
   const block = Array.isArray(text);
@@ -737,19 +737,23 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
     yOffset += lineHeight; // use 117.5
 
     // 2700 should not be hard-coded
-    let max_end = Math.max.apply(Math,
-      lines.map(l => wrapAndDrawText(l.ctx, fontSize, l.line, l.x, l.yOffset, extra, right_limit, radius, true)));
-    //console.log(515, 'max end', max_end);
-
+    let max_end;
+    { 
+      const rl = right_limit; // local copy for scoping reasons
+      max_end = Math.max.apply(Math,
+        lines.map(l => wrapAndDrawText(l.ctx, fontSize, l.line, l.x, l.yOffset, extra, rl, radius, true)));
+    }
+      // wtf did I already write this code once?
 
     if (max_end > right_limit) {
       // this will overflow anyway
       max_end = right_limit;
     }
     const pre_width = max_end - x;
-
+    
     let h = (yOffset - y);
     if (extra.includes("bubble")) {
+      right_limit -= 60;
       if (!preview)
         drawColoredRectangle(ctx, x - 10, y - fontSize * 1.1 + h, pre_width + fontSize, yOffset - y, extra);
     }
@@ -762,7 +766,7 @@ export function drawBracketedText(ctx, fontSize, text, x, y, _maxWidth, lineHeig
 
   //console.log(372, lines);
   for (let line of lines) {
-    wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra, right_limit, radius, preview);
+    wrapAndDrawText(line.ctx, fontSize, line.line, line.x, line.yOffset, extra, right_limit - 0, radius, preview);
   }
 
 

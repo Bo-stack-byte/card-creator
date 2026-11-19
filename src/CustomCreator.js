@@ -68,7 +68,7 @@ import { saveAs } from 'file-saver';
 const version = "0.8.75"
 const latest = "negative DP allowed because why not?"
 
-// version 0.8.75   negative DP allowed because why not?
+// version 0.8.75.1 negative DP allowed because why not?
 // version 0.8.74   fix burst evo right margin
 // version 0.8.73   move link req, maybe handle 2 line req, prep for other text alignment stuff
 // version 0.8.72   link box uses radius; error handling on missing opt colors; fix white-dual frame
@@ -1424,6 +1424,7 @@ function writeDP(ctx, _dp, args) {
     // right-to-left for dp_k
     let letterSpacing = -(bigsize/13.8);// <-- do relative to small size
     let dp_char = dp_k % 10;
+    if (Math.abs(dp_k) >= 10) dp_char = Math.abs(dp_char); // only biggest digit in negative number
     ctx.lineWidth = 20;
     ctx.strokeStyle = stroke;
     if (stroke) ctx.strokeText(dp_char, dp_x, y - 0.5 * neue_boost);

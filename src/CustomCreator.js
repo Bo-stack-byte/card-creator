@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.74"
-const latest = "fix burst evo right margin"
+const version = "0.8.75"
+const latest = "negative DP allowed because why not?"
 
+// version 0.8.75   negative DP allowed because why not?
 // version 0.8.74   fix burst evo right margin
 // version 0.8.73   move link req, maybe handle 2 line req, prep for other text alignment stuff
 // version 0.8.72   link box uses radius; error handling on missing opt colors; fix white-dual frame
@@ -1400,10 +1401,10 @@ function writeDP(ctx, _dp, args) {
   _dp = parseInt(_dp);
   let dp_k, dp_m;
   if (isNaN(_dp)) {
+    return;
   } else {
     dp_k = parseInt(_dp / 1000);
-    if (dp_k === 0) dp_k = "";
-    dp_m = (_dp % 1000).toString().padStart(3, '0');
+    dp_m = Math.abs(_dp % 1000).toString().padStart(3, '0');
     if (_dp === 0) {
       dp_k = "0";
       dp_m = "";
@@ -1419,7 +1420,7 @@ function writeDP(ctx, _dp, args) {
   }
   ctx.font = `bold ${bigsize}px ${numberFont}`;
 
-  while (dp_k > 0 || dp_k === "0") {
+  while (dp_k !== 0) {
     // right-to-left for dp_k
     let letterSpacing = -(bigsize/13.8);// <-- do relative to small size
     let dp_char = dp_k % 10;
@@ -1428,7 +1429,7 @@ function writeDP(ctx, _dp, args) {
     if (stroke) ctx.strokeText(dp_char, dp_x, y - 0.5 * neue_boost);
     ctx.fillText(dp_char, dp_x, y - 0.5 * neue_boost);
     dp_x -= (ctx.measureText(dp_char).width + letterSpacing);
-    dp_k = Math.floor(dp_k / 10);
+    dp_k = Math.trunc(dp_k / 10);
   }
 
   ctx.font = `bold ${size}px ${numberFont}`;

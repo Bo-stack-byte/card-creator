@@ -65,10 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.75"
+const version = "0.8.75.2"
 const latest = "negative DP allowed because why not?"
 
-// version 0.8.75.1 negative DP allowed because why not?
+// version 0.8.75.2 negative DP allowed because why not?
 // version 0.8.74   fix burst evo right margin
 // version 0.8.73   move link req, maybe handle 2 line req, prep for other text alignment stuff
 // version 0.8.72   link box uses radius; error handling on missing opt colors; fix white-dual frame
@@ -2959,21 +2959,21 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
               }
               ctx.fillStyle = invert ? "black" : "white";
 
-              writeDP(ctx, json.linkDP,
+              const linkDP = parseInt(json.linkDP);
+              writeDP(ctx, Math.abs(linkDP),
                 { x: -150 - link_offset, y: 20, size: 100, bigsize: 140, stroke: false, color: invert ? "black" : "white" });
               ctx.font = `bold 90px ${numberFont}`;
               ctx.fillStyle = invert ? "black" : "white";
               ctx.textAlign = "right";
               ctx.textBaseline = "bottom";
 
-
               ctx.font = `40px 'Helvetica'`;
               ctx.textAlign = "center";
               ctx.fillText("DP", -300 - link_offset, -60);
               // how do i make the plus skinnier?
               ctx.font = `100 120px 'Helvetica'`;
-
-              ctx.fillText("+", -300 - link_offset, 40);
+              const symbol = linkDP > 0 ? "+" : "-";
+              ctx.fillText(symbol, -300 - link_offset, 40);
 
               ctx.restore();
 

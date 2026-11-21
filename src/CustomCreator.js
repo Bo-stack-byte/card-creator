@@ -65,9 +65,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 
-const version = "0.8.75.2"
-const latest = "negative DP allowed because why not?"
+const version = "0.8.76"
+const latest = "possible fix for force draw"
 
+// version 0.8.76   possible fix for force draw
 // version 0.8.75.2 negative DP allowed because why not?
 // version 0.8.74   fix burst evo right margin
 // version 0.8.73   move link req, maybe handle 2 line req, prep for other text alignment stuff
@@ -2173,7 +2174,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
   }
 
 
-  const draw2 = (x, y) => draw(x, y, true);
+  const draw2 = (x, y) => draw(x, y, false);
 
   //  const draw = (canvas, ctx) => {
   //  const draw = async (x, y, clear) => {
@@ -2198,6 +2199,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
     console.debug(643, "START DRAW", pauseDraw.current);
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'bottom';
 
     const offsCanvas = document.createElement('canvas')
     offsCanvas.width = 2977
@@ -2230,7 +2232,7 @@ function drawTextWithSpacing(ctx, text, x, y, spacing, fillSize) {
       //   console.error("roboto fail2");
     }
 
-
+    // this used to be called with force draw, and i'm not sure what it was used for
     if (clear === true) {
       miniTracker.width = 2977;
       miniTracker.height = 4158 - 17;
